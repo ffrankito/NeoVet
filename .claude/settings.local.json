@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(gh repo:*)",
+      "Bash(gh api:*)",
+      "Bash(rtk git:*)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git 2>&1)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --force 2>&1)",
+      "Read(//c/tmp/**)",
+      "Bash(npx create-next-app@latest neovet-scaffold --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(cd /tmp && npx create-next-app@latest neovet-scaffold --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --no-react-compiler 2>&1)",
+      "Bash(cp -r /tmp/neovet-scaffold/. /c/Users/tomas/dev/personal/zzz/neovet/ --exclude='.git' 2>/dev/null; rsync -a --exclude='.git' /tmp/neovet-scaffold/ /c/Users/tomas/dev/personal/zzz/neovet/ 2>/dev/null || true)",
+      "Bash(cp -r \"/c/Users/tomas/AppData/Local/Temp/neovet-scaffold/.\" \"/c/Users/tomas/dev/personal/zzz/neovet/\" 2>&1)",
+      "Bash(cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/package.json /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/package-lock.json /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/next.config.ts /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/next-env.d.ts /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/README.md /c/Users/tomas/dev/personal/zzz/neovet/)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest init --yes --defaults 2>&1)"
+    ]
+  }
+}
