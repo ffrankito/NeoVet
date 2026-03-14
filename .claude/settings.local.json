@@ -14,7 +14,10 @@
       "Bash(cp -r \"/c/Users/tomas/AppData/Local/Temp/neovet-scaffold/.\" \"/c/Users/tomas/dev/personal/zzz/neovet/\" 2>&1)",
       "Bash(cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/package.json /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/package-lock.json /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/next.config.ts /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/next-env.d.ts /c/Users/tomas/dev/personal/zzz/neovet/ && cp /c/Users/tomas/AppData/Local/Temp/neovet-scaffold/README.md /c/Users/tomas/dev/personal/zzz/neovet/)",
       "Bash(npm install:*)",
-      "Bash(npx shadcn@latest init --yes --defaults 2>&1)"
+      "Bash(npx shadcn@latest init --yes --defaults 2>&1)",
+      "Bash(rtk tsc:*)",
+      "Bash(npx tsc:*)",
+      "Bash(rtk ls:*)"
     ]
   }
 }

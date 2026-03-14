@@ -1,12 +1,15 @@
 {
-  "name": "neovet-scaffold",
+  "name": "neovet",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.58",
@@ -19,6 +22,7 @@
     "drizzle-orm": "^0.45.1",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
+    "postgres": "^3.4.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "shadcn": "^4.0.6",
