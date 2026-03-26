@@ -147,6 +147,7 @@ Each app owns its docs. **Before proposing any architectural or technical decisi
 | `crm/docs/charter.md` | CRM project scope, deliverables, success criteria |
 | `crm/docs/technical-spec.md` | CRM technical specification |
 | `docs/standards/` | Agency documentation templates (charter, technical spec, ADR, handoff) |
+| `landing/docs/` | Paula interview checklist, optimization overview, ADRs |
 
 If you are about to suggest something that touches the stack, database schema, WhatsApp integration, AI provider, auth system, or urgency model — read the relevant ADR in `chatbot/docs/architecture/` first.
 
@@ -158,7 +159,7 @@ If you are about to suggest something that touches the stack, database schema, W
 |-------|------|-------|
 | CRM framework | Next.js 14 App Router + TypeScript | `crm/` only |
 | Chatbot framework | Next.js 14 App Router + TypeScript | `chatbot/` only |
-| Landing framework | **Astro** + TypeScript | `landing/` only |
+| Landing framework | **Astro 6** + TypeScript + Tailwind CSS 4 | `landing/` only |
 | Styling | Tailwind CSS | All apps |
 | ORM | Drizzle ORM | `crm/` (and chatbot once DB is added) |
 | Database | Supabase (PostgreSQL) | `crm/` |

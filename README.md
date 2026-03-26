@@ -10,7 +10,7 @@ Software product for a veterinary clinic in Argentina. Monorepo with 3 independe
 |-----|-------|-------------|--------|
 | `crm/` | Next.js 14, Drizzle, Supabase | Internal staff tool — clients, patients, appointments | [→ crm/README.md](./crm/README.md) |
 | `chatbot/` | Next.js 14, Vercel AI SDK, Claude | Conversational FAQ assistant (web widget) | [→ chatbot/README.md](./chatbot/README.md) |
-| `landing/` | Astro | Static marketing site | [→ landing/README.md](./landing/README.md) |
+| `landing/` | Astro 6, Tailwind CSS 4 | Single-page marketing site (anchor nav, WhatsApp CTAs) | [→ landing/README.md](./landing/README.md) |
 
 Each app is independent. Set up and run them separately.
 
@@ -23,6 +23,7 @@ Each app is independent. Set up and run them separately.
 | `docs/standards/` | Documentation templates — charter, technical spec, ADR, handoff |
 | `chatbot/docs/` | Chatbot architecture, ADRs, charter, technical spec |
 | `crm/docs/` | CRM charter, technical spec |
+| `landing/docs/` | Paula interview checklist, optimization overview, ADRs |
 
 ---
 
