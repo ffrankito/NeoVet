@@ -1,0 +1,145 @@
+import { notFound } from "next/navigation";
+import { getAppointment, updateAppointmentStatus } from "../actions";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
+interface Props {
+  params: Promise<{ id: string }>;
+}
+
+const statusLabels: Record<string, string> = {
+  pending: "Pendiente",
+  confirmed: "Confirmado",
+  completed: "Completado",
+  cancelled: "Cancelado",
+};
+
+const statusColors: Record<string, string> = {
+  pending: "bg-yellow-100 text-yellow-800",
+  confirmed: "bg-blue-100 text-blue-800",
+  completed: "bg-green-100 text-green-800",
+  cancelled: "bg-red-100 text-red-800",
+};
+
+export default async function AppointmentDetailPage({ params }: Props) {
+  const { id } = await params;
+  const apt = await getAppointment(id);
+
+  if (!apt) notFound();
+
+  const nextStatuses: Record<string, { value: string; label: string }[]> = {
+    pending: [
+      { value: "confirmed", label: "Confirmar" },
+      { value: "cancelled", label: "Cancelar" },
+    ],
+    confirmed: [
+      { value: "completed", label: "Completar" },
+      { value: "cancelled", label: "Cancelar" },
+    ],
+    completed: [],
+    cancelled: [],
+  };
+
+  const actions = nextStatuses[apt.status] ?? [];
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Turno — {new Date(apt.scheduledAt).toLocaleString("es-AR", {
+              dateStyle: "long",
+              timeStyle: "short",
+            })}
+          </h1>
+          <p className="mt-1 text-muted-foreground">
+            {apt.patientName} ({apt.patientSpecies}) — dueño:{" "}
+            <a href={`/dashboard/clients/${apt.clientId}`} className="text-primary hover:underline">
+              {apt.clientName}
+            </a>
+          </p>
+        </div>
+        <a
+          href={`/dashboard/appointments/${id}/edit`}
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Editar
+        </a>
+      </div>
+
+      <Separator />
+
+      {/* Info grid */}
+      <div className="grid gap-6 sm:grid-cols-4">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Estado</p>
+          <span className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[apt.status] ?? ""}`}>
+            {statusLabels[apt.status] ?? apt.status}
+          </span>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Duración</p>
+          <p className="mt-1">{apt.durationMinutes} minutos</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Motivo</p>
+          <p className="mt-1">{apt.reason ?? "—"}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Teléfono dueño</p>
+          <p className="mt-1">{apt.clientPhone}</p>
+        </div>
+      </div>
+
+      {apt.staffNotes && (
+        <>
+          <Separator />
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Notas del staff</p>
+            <p className="mt-1 whitespace-pre-wrap">{apt.staffNotes}</p>
+          </div>
+        </>
+      )}
+
+      {/* Status actions */}
+      {actions.length > 0 && (
+        <>
+          <Separator />
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-muted-foreground">Cambiar estado</p>
+            <div className="flex gap-2">
+              {actions.map((action) => (
+                <form
+                  key={action.value}
+                  action={async () => {
+                    "use server";
+                    await updateAppointmentStatus(
+                      id,
+                      action.value as "pending" | "confirmed" | "cancelled" | "completed"
+                    );
+                  }}
+                >
+                  <Button
+                    variant={action.value === "cancelled" ? "destructive" : "outline"}
+                  >
+                    {action.label}
+                  </Button>
+                </form>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Back link */}
+      <a
+        href="/dashboard/appointments"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+      >
+        ← Volver a turnos
+      </a>
+    </div>
+  );
+}
