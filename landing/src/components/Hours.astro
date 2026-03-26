@@ -1,0 +1,77 @@
+---
+const whatsappUrl =
+  "https://api.whatsapp.com/send/?phone=543413101194&text&type=phone_number&app_absent=0";
+
+const schedule = [
+  { day: "Lunes a Sábado", hours: "9:30 – 12:30 / 16:30 – 20:00", open: true },
+  { day: "Domingo", hours: "Cerrado", open: false },
+  { day: "Guardia Obstétrica", hours: "Disponible las 24hs", open: true, highlight: true },
+];
+---
+
+<section id="horarios" class="bg-white py-section">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-primary-600">
+        Horarios
+      </p>
+      <h2 class="mt-2 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+        Horarios de atención
+      </h2>
+      <p class="mt-4 text-lg text-neutral-500">
+        <!-- PLACEHOLDER: confirm hours with Paula -->
+        Nos encontramos disponibles en los siguientes horarios.
+      </p>
+    </div>
+
+    <div class="mx-auto mt-12 max-w-xl">
+      <div class="divide-y divide-neutral-200 overflow-hidden rounded-2xl border border-neutral-200">
+        {schedule.map((item) => (
+          <div
+            class:list={[
+              "flex items-center justify-between px-6 py-5",
+              item.highlight && "bg-accent-50",
+              !item.open && !item.highlight && "bg-neutral-50",
+            ]}
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class:list={[
+                  "h-2.5 w-2.5 rounded-full",
+                  item.highlight ? "bg-accent-500" : item.open ? "bg-whatsapp" : "bg-neutral-300",
+                ]}
+                aria-hidden="true"
+              ></span>
+              <span class="font-medium text-neutral-800">{item.day}</span>
+            </div>
+            <span
+              class:list={[
+                "text-sm",
+                item.highlight ? "font-semibold text-accent-700" : "text-neutral-500",
+              ]}
+            >
+              {item.hours}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-8 text-center">
+        <p class="text-sm text-neutral-500">
+          ¿Tenés una urgencia fuera de horario?
+        </p>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-whatsapp-dark transition-colors hover:text-primary-800"
+        >
+          Escribinos por WhatsApp
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

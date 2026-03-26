@@ -4,9 +4,17 @@ The landing site is intentionally simple. Documentation is minimal.
 
 ## Contents
 
+| File / Folder | Contents |
+|---------------|----------|
+| `paula-interview-checklist.md` | All content gaps to resolve with Paula before Phase 4 (in Spanish) |
+| `optimization-overview.md` | Asset audit + design optimization status (skills applied) |
+| `architecture/` | ADRs — significant technical decisions (add as needed) |
+
+## Related
+
 | Location | Contents |
 |----------|----------|
-| `architecture/` | ADRs — significant technical decisions (add as needed) |
+| `src/assets/README.md` | Where to drop photos/logo from the Paula interview |
 
 ## Standards
 

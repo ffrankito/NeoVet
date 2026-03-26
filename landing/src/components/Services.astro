@@ -1,0 +1,113 @@
+---
+const whatsappUrl =
+  "https://api.whatsapp.com/send/?phone=543413101194&text&type=phone_number&app_absent=0";
+
+const services = [
+  {
+    title: "Consultas Reproductivas",
+    description: "Especialistas en reproducción canina. Seguimiento gestacional, asistencia obstétrica y guardia 24hs.",
+    icon: "🐾",
+    featured: true,
+  },
+  {
+    title: "Cirugía General",
+    description: "Procedimientos quirúrgicos con equipamiento moderno y protocolos de seguridad.",
+    icon: "🏥",
+    featured: true,
+  },
+  {
+    title: "Cardiología",
+    description: "Diagnóstico y tratamiento de patologías cardíacas en pequeños animales.",
+    icon: "❤️",
+    featured: false,
+  },
+  {
+    title: "Vacunación y Desparasitación",
+    description: "Plan sanitario completo. Vacunas y antiparasitarios al día.",
+    icon: "💉",
+    featured: false,
+  },
+  {
+    title: "Pet Shop y Farmacia",
+    description: "Alimentos, accesorios y medicamentos veterinarios en un solo lugar.",
+    icon: "🛒",
+    featured: false,
+  },
+  {
+    title: "Peluquería Canina",
+    description: "Baño, corte y cuidado estético profesional para tu mascota.",
+    icon: "✂️",
+    featured: false,
+  },
+  {
+    title: "Veterinaria a Domicilio",
+    description: "Atención veterinaria en la comodidad de tu hogar. Consultá disponibilidad.",
+    icon: "🏠",
+    featured: false,
+  },
+];
+---
+
+<section id="servicios" class="bg-white py-section">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-primary-600">
+        Nuestros servicios
+      </p>
+      <h2 class="mt-2 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">
+        ¿Qué servicios ofrecemos?
+      </h2>
+      <p class="mx-auto mt-4 max-w-2xl text-lg text-neutral-500">
+        <!-- PLACEHOLDER: confirm services description with Paula -->
+        Brindamos atención integral para tu mascota con profesionalismo y dedicación.
+      </p>
+    </div>
+
+    <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      {services.map((service) => (
+        <div
+          class:list={[
+            "group rounded-2xl p-6 transition-all hover:shadow-lg",
+            service.featured
+              ? "border-2 border-primary-200 bg-primary-50/50 hover:border-primary-400 sm:col-span-1 lg:row-span-1"
+              : "border border-neutral-200 bg-neutral-50 hover:border-primary-300",
+          ]}
+        >
+          {service.featured && (
+            <span class="mb-3 inline-block rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-700">
+              Especialidad
+            </span>
+          )}
+          <div class:list={["mb-4", service.featured ? "text-5xl" : "text-4xl"]}>
+            {service.icon}
+          </div>
+          <h3 class:list={[
+            "font-semibold text-neutral-900",
+            service.featured ? "text-xl" : "text-lg",
+          ]}>
+            {service.title}
+          </h3>
+          <p class="mt-2 text-sm leading-relaxed text-neutral-500">
+            {service.description}
+          </p>
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class:list={[
+              "mt-4 inline-flex items-center gap-1 text-sm font-medium transition-colors",
+              service.featured
+                ? "text-primary-700 hover:text-primary-900"
+                : "text-primary-600 hover:text-primary-800",
+            ]}
+          >
+            Consultar
+            <svg class="h-4 w-4 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
