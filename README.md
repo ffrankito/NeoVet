@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NeoVet
 
-## Getting Started
+Software product for a veterinary clinic in Argentina. Monorepo with 3 independent apps.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Apps
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| App | Stack | Description | README |
+|-----|-------|-------------|--------|
+| `crm/` | Next.js 14, Drizzle, Supabase | Internal staff tool — clients, patients, appointments | [→ crm/README.md](./crm/README.md) |
+| `chatbot/` | Next.js 14, Vercel AI SDK, Claude | Conversational FAQ assistant (web widget) | [→ chatbot/README.md](./chatbot/README.md) |
+| `landing/` | Astro | Static marketing site | [→ landing/README.md](./landing/README.md) |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Each app is independent. Set up and run them separately.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Docs
 
-To learn more about Next.js, take a look at the following resources:
+| Location | Contents |
+|----------|----------|
+| `docs/standards/` | Documentation templates — charter, technical spec, ADR, handoff |
+| `chatbot/docs/` | Chatbot architecture, ADRs, charter, technical spec |
+| `crm/docs/` | CRM charter, technical spec |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Key Decisions
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **v1:** Each app works standalone, no cross-app integrations
+- **v2:** Chatbot ↔ CRM API + WhatsApp channel
+- All user-facing text is in Argentine Spanish
+- See root `CLAUDE.md` for full business context and constraints

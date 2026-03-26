@@ -1,0 +1,148 @@
+
+    Carpeta compartida: Se creará un folder en Drive para documentar y organizar el desarrollo del bot admin.
+    Definición del bot: Alinear expectativas entre el equipo sobre la visión, alcance y responsabilidades en el proyecto del bot.
+    Mejoras en CRM: Se propone desarrollar un nuevo CRM básico que integre un chatbot y automatice procesos clave.
+    Propuesta de chatbot básico: Iniciará con respuestas automáticas sobre horarios y turnos, sin hacer cambios en el sistema.
+    Reunión con Paula: Se coordinará una videollamada para revisar el negocio y aclarar dudas sobre el uso del CRM.
+    Integración técnica: Evaluación de opciones como Meta API y SDK para un chatbot personalizado y flexible en WhatsApp.
+
+
+Notes
+Planificación y Documentación del Bot Admin
+
+La reunión definió la importancia de crear una carpeta compartida para estructurar y documentar el desarrollo del bot admin, buscando claridad y colaboración desde el inicio (06:00).
+
+    Creación de carpeta y documentación básica para organizar workflows y estructura general del bot admin (06:00)
+        Tomás propone un folder en Drive para centralizar la documentación y orden de procesos.
+        Se busca una documentación funcional y flexible sin entrar en detalles técnicos profundos aún.
+        Franco se ofrece a armar la documentación inicial para ir construyendo juntos.
+        El objetivo es que ambos compartan y actualicen esta carpeta para mantener claridad y seguimiento.
+
+    Definición clara del alcance y uso del bot admin para alinear expectativas y roles en el proyecto (09:00)
+        Tomás quiere conocer bien la visión y el plan que Franco tiene para el bot.
+        Se busca que Franco se sienta protagonista en la definición y desarrollo.
+        Se abre la puerta para dividir tareas entre ambos para lograr una documentación y plan inicial consistentes.
+        La idea es tener un plan claro para facilitar futuras etapas y asignaciones.
+
+Evaluación y Mejoras del CRM Veterinario
+
+Se acordó que el CRM actual es funcional pero carece de automatización, por lo que se propone desarrollar un CRM básico nuevo que permita integrar el chatbot y automatizar procesos clave (16:00).
+
+    Análisis del CRM actual y limitaciones para automatización detectadas por Franco y Tomás (15:00)
+        Franco revisó el CRM y confirmó que está bien ordenado pero sin automatización real.
+        La agenda se maneja manualmente, y hay duplicidad con un calendario externo.
+        La veterinaria busca reducir la carga operativa y depende mucho de la gestión manual.
+        Tomás confirma que el CRM no tiene API ni forma sencilla de integrarse para automatización.
+
+    Propuesta de crear un CRM básico propio para integrar chatbot y automatizar funciones (22:00)
+        Franco sugiere un CRM similar al actual pero con mayor libertad y capacidad de automatización.
+        El CRM nuevo serviría para almacenar horarios, turnos y datos claves para el chatbot.
+        Se plantea usar este CRM como base para un MVP que permita probar el chatbot.
+        Tomás apoya la idea para tener control sobre la información y funciones del bot.
+
+    Importancia de la información para el chatbot y niveles de impacto propuestos (23:00)
+        Se propone un chatbot básico que responda consultas sobre horarios y turnos sin modificar datos.
+        Un segundo nivel de chatbot más avanzado podría gestionar turnos y notificar a recepcionistas.
+        Esto permitiría controlar el impacto y evitar errores hasta validar la solución.
+        La información proveniente del CRM es vital para contextualizar las respuestas del bot.
+
+    Acceso y exportación de datos del CRM actual para alimentar el nuevo sistema (25:00)
+        Franco verificó que se pueden descargar listas de pacientes y otras tablas en formato Excel.
+        Se evaluará cómo importar esos datos al nuevo CRM para mantener coherencia.
+        Se considera preguntar directamente a la veterinaria por accesos o posibles integraciones.
+        Esto permitirá tener una base sólida para el chatbot y facilitar futuras automatizaciones.
+
+Estrategia de Chatbot para Comunicación y Atención
+
+Se acordó que el chatbot iniciará con respuestas básicas para consultas frecuentes, con posibilidad de escalar a funciones más avanzadas en el futuro (20:00).
+
+    Diseño inicial de chatbot con respuestas automáticas sin impacto directo (23:00)
+        El chatbot podrá contestar preguntas sencillas como horarios o confirmación de turnos.
+        No realizará cambios en el sistema ni reservas sin intervención humana.
+        Se notificará a recepcionistas si el usuario quiere hacer un turno o consulta avanzada.
+        Esto reduce riesgos y permite probar la herramienta con bajo impacto.
+
+    Visión para un chatbot avanzado con integración completa (23:30)
+        Futuramente, el bot podrá gestionar turnos, responder preguntas y manejar datos del CRM.
+        Se buscará que el bot escale consultas complejas a humanos para mantener calidad.
+        Se plantea un sistema mixto que priorice la automatización sin perder control humano.
+        Esto permitirá mejorar la experiencia y liberar carga de trabajo en la veterinaria.
+
+    Incorporación de IA para análisis de imágenes médicas (51:00)
+        Se habló de probar una IA que analice radiografías o fotos enviadas por clientes.
+        Esta IA serviría para validar urgencias o dar respuestas preliminares.
+        La idea es que el bot derive casos complejos a la veterinaria.
+        Esta función está en etapa exploratoria y requiere pruebas para validación.
+
+Coordinación de Próximas Reuniones y Seguimiento
+
+Se planificó una reunión online con Paula para aclarar dudas del negocio y definir mejor el proyecto, buscando simplificar y alinear expectativas (10:00).
+
+    Organización de reunión con Paula para revisar negocio y preguntas (10:00)
+        Tomás propone coordinar con Paula una videollamada para el fin de semana.
+        El objetivo es aclarar puntos del negocio y uso del CRM.
+        Se busca que Paula entienda mejor las posibilidades con la tecnología.
+        Franco se ofrece a estar disponible para la reunión y aportar.
+
+    Seguimiento continuo con notas y documentación para mantener el control del proyecto (14:00)
+        Se usarán las notas de Fireflies para registrar avances y planificar pasos.
+        Tomás y Franco irán documentando cada paso para no perder detalles.
+        Se pretende tener un backlog claro para futuras tareas y validaciones.
+        Esto ayudará a mantener foco y organizar el desarrollo de bot admin y CRM.
+
+    Implicación futura mayor de Franco en el proyecto tras finalizar sus estudios (09:00)
+        Tomás anticipa que Franco tendrá más tiempo para liderar el proyecto.
+        Se busca que Franco tome protagonismo en las decisiones técnicas y operativas.
+        Hay voluntad de colaboración estrecha para mejorar la solución.
+        Esto garantiza continuidad y compromiso a largo plazo con el desarrollo.
+
+Aspectos Técnicos y Herramientas para Integración
+
+Se discutieron opciones técnicas para la integración y desarrollo del chatbot, con foco en APIs y SDKs para WhatsApp y manejo de datos (49:00).
+
+    Evaluación de plataformas para integrar WhatsApp con chatbot (49:00)
+        Se mencionaron herramientas como Meta API, Wait, Respondo y Capso.
+        Franco usó la API de Meta, pero debe evaluar otras opciones disponibles.
+        Tomás pide hacer una comparación para elegir la mejor herramienta.
+        La elección impactará la calidad y flexibilidad del chatbot.
+
+    Uso de SDK para construir un chatbot con código personalizado (50:00)
+        Franco propone usar SDK para tener control total en la creación del bot.
+        Esto permitirá agregar funcionalidades avanzadas y personalizadas.
+        Se busca que el bot pueda manejar multimedia y responder con IA.
+        Esta arquitectura facilitará futuras mejoras y escalabilidad.
+
+    Implementación de IA para reconocimiento y análisis multimedia (51:00)
+        Se planea probar IA que pueda interpretar imágenes enviadas por clientes.
+        Esto añade valor diferencial al chatbot veterinario.
+        Se debe validar que la IA funcione bien antes de integrarla plenamente.
+        Esta función complementará la atención automatizada con soporte visual.
+
+    Gestión de accesos y control de colaboradores en repositorios (30:00)
+        Tomás y Franco revisaron permisos para el repositorio GitHub del proyecto.
+        Se acordó mantener el repositorio actualizado para facilitar la colaboración.
+        Esto asegura que ambos tengan acceso y control sobre el código y documentación.
+        Permite un desarrollo ordenado y seguimiento de cambios.
+
+
+Action items
+Franco Zancocchia
+
+    Terminar el desarrollo de la versión 1.5 del bot admin orientada a meetings y compartirlo para revisión (02:41)
+    Crear un CRM básico adaptado a las necesidades de la veterinaria para probar integración con chatbot (29:38)
+    Revisar y extraer datos descargables del CRM actual para alimentación de la base de datos del chatbot (26:11)
+    Preparar prompt para IA que contenga comprensión del negocio y facilite desarrollo colaborativo (39:28)
+    Explorar y probar diferentes SDKs para integrar WhatsApp con chatbot y hacer una comparación (50:30)
+    Investigar y probar IA para análisis de imágenes médicas (rayos X) para eventual integración (51:56)
+
+Tomás Pinolini
+
+    Armar carpeta de documentación en Drive para bot admin, enfocada en workflows y estructura, y compartirla con Franco (05:56)
+    Coordinar reunión online con Paula para clarificar uso del CRM veterinario, preguntas de negocios y evaluación de automatización (10:54)
+    Tomar nota y hacer seguimiento de las entrevistas y documentación en Fireflies y Google Docs (13:33)
+    Avanzar en la generación de prompts y control de versionado en GitHub para el proyecto bot admin (34:57)
+    Buscar y compartir información sobre el CRM Geovet para mejor entendimiento y posible integración (47:51)
+    Gestionar y seleccionar la mejor herramienta para integración WhatsApp-chatbot para el proyecto (49:43)
+    Planificar dos tipos de chatbot con distintos impactos en la empresa, uno informativo y otro con función de gestión (22:14)
+
+

@@ -1,0 +1,62 @@
+# CRM — Claude Instructions
+
+> This app is part of the NeoVet monorepo. Read the root `CLAUDE.md` first — it contains business context, the v1/v2/v3 rule, the language policy, and cross-cutting constraints that apply here.
+
+---
+
+## What This App Is
+
+Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patients (pets), clinical history, and appointment calendar. Used by Paula and her reception team — not exposed to the public.
+
+---
+
+## Stack
+
+| Layer | Tool |
+|-------|------|
+| Framework | Next.js 14 App Router + TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| ORM | Drizzle ORM |
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase SSR |
+| Hosting | Vercel |
+
+---
+
+## v1 Scope
+
+- Staff-only CRUD: clients, patients, clinical history, appointments
+- Appointment calendar (manual management by staff)
+- Email login via Supabase Auth
+- One-time data import from Geovet Excel exports
+
+**Hard boundaries for v1 — do not implement without explicitly upgrading the version target:**
+
+- No public API — the CRM exposes no endpoints to the chatbot or any external system
+- No chatbot integration — the CRM and chatbot are fully independent in v1
+- No automation or notifications — all operations are manual
+- No reporting or analytics
+
+---
+
+## Patterns to Follow
+
+- Use **shadcn/ui** primitives for all UI — do not install other component libraries
+- Use **Drizzle ORM** for all DB operations — no raw SQL unless Drizzle cannot express it
+- **Server components by default** — use client components only when interactivity requires it
+- Protect all routes via Supabase SSR middleware
+
+---
+
+## Documentation Standards
+
+Before creating any documentation artifact for this app, use the templates from `docs/standards/` at the monorepo root:
+
+| When | Template | Output |
+|------|----------|--------|
+| New project or major initiative | `01-project-charter.md` | `crm/docs/charter.md` |
+| Technical design phase | `02-technical-spec.md` | `crm/docs/technical-spec.md` |
+| Significant technical decision | `03-adr-template.md` | `crm/docs/architecture/ADR-NNN-title.md` |
+| Project delivery | `04-client-handoff.md` | `crm/docs/handoff.md` |
+
+A decision is "significant" if making it differently would change the architecture, cost structure, or maintenance burden. Check `crm/docs/architecture/` for existing ADRs before proposing new approaches.
