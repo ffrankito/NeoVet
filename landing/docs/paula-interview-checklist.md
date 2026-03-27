@@ -1,6 +1,8 @@
 # Entrevista con Paula — Checklist para la Landing Page
 
-> Los ítems marcados con ❗ bloquean la publicación del contenido final. Los marcados con 📌 se pueden publicar con placeholders pero hay que resolverlos antes de salir a producción.
+> ⚠️ **Este archivo fue reemplazado.** La fuente única de verdad para la reunión con Paula está en [`docs/paula-meeting.md`](../../docs/paula-meeting.md) en la raíz del monorepo. Ese archivo incluye tanto las preguntas de la landing como las del CRM.
+>
+> No agregar preguntas aquí — usar el archivo raíz.
 
 ---
 
