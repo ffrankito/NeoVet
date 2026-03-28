@@ -36,6 +36,20 @@
       "when": 1774700585668,
       "tag": "0004_youthful_madame_hydra",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774703605349,
+      "tag": "0005_ancient_layla_miller",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1774704825373,
+      "tag": "0006_high_speedball",
+      "breakpoints": true
     }
   ]
 }

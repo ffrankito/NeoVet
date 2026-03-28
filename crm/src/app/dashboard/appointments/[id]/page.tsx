@@ -135,6 +135,27 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
+      {/* Register consultation — only when completed */}
+      {apt.status === "completed" && (
+        <>
+          <Separator />
+          <div className="flex items-center justify-between rounded-lg border p-4">
+            <div>
+              <p className="font-medium">Historia clínica</p>
+              <p className="text-sm text-muted-foreground">
+                El turno está completado. Registrá la consulta clínica del paciente.
+              </p>
+            </div>
+            <a
+              href={`/dashboard/consultations/new?patientId=${apt.patientId}&appointmentId=${id}`}
+              className={buttonVariants()}
+            >
+              Registrar consulta
+            </a>
+          </div>
+        </>
+      )}
+
       {/* Back link */}
       <a
         href="/dashboard/appointments"

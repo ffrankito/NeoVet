@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getPatient } from "../actions";
+import { getConsultationsByPatient } from "@/app/dashboard/consultations/actions";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { DeletePatientButton } from "@/components/admin/patients/delete-patient-button";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,10 @@ interface Props {
 
 export default async function PatientDetailPage({ params }: Props) {
   const { id } = await params;
-  const patient = await getPatient(id);
+  const [patient, consultationHistory] = await Promise.all([
+    getPatient(id),
+    getConsultationsByPatient(id),
+  ]);
 
   if (!patient) notFound();
 
@@ -166,6 +170,57 @@ export default async function PatientDetailPage({ params }: Props) {
                 ))}
               </TableBody>
             </Table>
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      {/* Clinical history */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Historia clínica</h2>
+          <a
+            href={`/dashboard/consultations/new?patientId=${id}`}
+            className={buttonVariants({ size: "sm" })}
+          >
+            + Nueva consulta
+          </a>
+        </div>
+
+        {consultationHistory.length === 0 ? (
+          <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
+            No hay consultas registradas para este paciente.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {consultationHistory.map((c) => (
+              <a
+                key={c.id}
+                href={`/dashboard/consultations/${c.id}`}
+                className="block rounded-lg border p-4 hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">
+                      {c.assessment ?? "Sin diagnóstico registrado"}
+                    </p>
+                    {c.subjective && (
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {c.subjective}
+                      </p>
+                    )}
+                  </div>
+                  <p className="shrink-0 text-xs text-muted-foreground">
+                    {new Date(c.createdAt).toLocaleDateString("es-AR", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+              </a>
+            ))}
           </div>
         )}
       </div>

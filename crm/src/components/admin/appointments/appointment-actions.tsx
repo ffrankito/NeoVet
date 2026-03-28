@@ -14,19 +14,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { updateAppointmentStatus } from "@/app/dashboard/appointments/actions";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 
 interface AppointmentActionsProps {
   appointmentId: string;
+  patientId: string;
   status: "pending" | "confirmed" | "cancelled" | "completed";
 }
 
-export function AppointmentActions({ appointmentId, status }: AppointmentActionsProps) {
+export function AppointmentActions({ appointmentId, patientId, status }: AppointmentActionsProps) {
   const [isPending, setIsPending] = useState(false);
 
   async function handleConfirm() {
     setIsPending(true);
     await updateAppointmentStatus(appointmentId, "confirmed");
+    setIsPending(false);
+  }
+
+  async function handleComplete() {
+    setIsPending(true);
+    await updateAppointmentStatus(appointmentId, "completed");
     setIsPending(false);
   }
 
@@ -36,8 +44,17 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
     setIsPending(false);
   }
 
-  if (status === "completed" || status === "cancelled") {
-    return null;
+  if (status === "cancelled") return null;
+
+  if (status === "completed") {
+    return (
+      <a
+        href={`/dashboard/consultations/new?patientId=${patientId}&appointmentId=${appointmentId}`}
+        className={buttonVariants({ size: "sm" })}
+      >
+        Registrar consulta
+      </a>
+    );
   }
 
   return (
@@ -50,6 +67,17 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
           onClick={handleConfirm}
         >
           Confirmar
+        </Button>
+      )}
+
+      {status === "confirmed" && (
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={isPending}
+          onClick={handleComplete}
+        >
+          Completar
         </Button>
       )}
 

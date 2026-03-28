@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createPatient, updatePatient } from "@/app/dashboard/patients/actions";
-import { createBrowserClient } from "@supabase/ssr";
+import { createPatient, updatePatient, uploadPatientAvatar } from "@/app/dashboard/patients/actions";
 import type { Patient } from "@/db/schema";
 
 type FieldErrors = { name?: string; species?: string; clientId?: string; dateOfBirth?: string };
@@ -29,14 +28,6 @@ function getGlobalError(result: ActionResult): string | null {
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024; // 2 MB
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-function getFileExtension(mimeType: string): string {
-  const map: Record<string, string> = {
-    "image/jpeg": "jpg",
-    "image/png": "png",
-    "image/webp": "webp",
-  };
-  return map[mimeType] ?? "jpg";
-}
 
 interface PatientFormProps {
   patient?: Patient;
@@ -97,35 +88,15 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
     let newAvatarUrl: string | null | undefined = undefined;
 
     if (file) {
-      try {
-        const supabase = createBrowserClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        );
-
-        const ext = getFileExtension(file.type);
-        const path = `${patient!.id}/avatar.${ext}`;
-
-        const { error: storageError } = await supabase.storage
-          .from("patient-avatars")
-          .upload(path, file, { upsert: true, contentType: file.type });
-
-        if (storageError) {
-          setUploadError("No se pudo subir la imagen. Intenta de nuevo.");
-          setIsSubmitting(false);
-          return;
-        }
-
-        const { data: urlData } = supabase.storage
-          .from("patient-avatars")
-          .getPublicUrl(path);
-
-        newAvatarUrl = urlData.publicUrl;
-      } catch {
-        setUploadError("No se pudo subir la imagen. Intenta de nuevo.");
+      const avatarFormData = new FormData();
+      avatarFormData.set("avatar", file);
+      const uploadResult = await uploadPatientAvatar(patient!.id, avatarFormData);
+      if ("error" in uploadResult) {
+        setUploadError(uploadResult.error ?? null);
         setIsSubmitting(false);
         return;
       }
+      newAvatarUrl = uploadResult.url;
     }
 
     const result = await updatePatient(patient!.id, formData, newAvatarUrl);

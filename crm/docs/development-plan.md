@@ -106,30 +106,30 @@ v1 is divided into phases. Each phase must be complete before the next starts.
 
 ---
 
-#### C.1 — Patient status + avatar
+#### C.1 — Patient status + avatar ✅ Done
 
 **Migrations:** add `deceased boolean NOT NULL DEFAULT false` and `avatar_url text` to `patients`.
 
 | Deliverable | Status |
 |---|---|
-| `deceased` flag + "Fallecido" badge on patient detail and client detail | 🔲 |
-| Avatar upload to Supabase Storage (`patient-avatars` bucket, public read) | 🔲 |
-| Deceased patients dimmed/badged on patient list | 🔲 |
+| `deceased` flag + "Fallecido" badge on patient detail and client detail | ✅ |
+| Avatar upload to Supabase Storage (`patient-avatars` bucket, public read) | ✅ |
+| Deceased patients dimmed/badged on patient list | ✅ |
 
 ---
 
-#### C.2 — Consultations + SOAP + vitals
+#### C.2 — Consultations + SOAP + vitals ✅ Done
 
 **New table:** `consultations` — links to patient + optional appointment; SOAP fields (all optional) + free-text `notes` fallback + vitals (weight, temperature, heart rate, respiratory rate) + diagnosis.
 
 | Deliverable | Status |
 |---|---|
-| `consultations` schema + migration | 🔲 |
-| `/dashboard/consultations/new?patientId=` — create form | 🔲 |
-| `/dashboard/consultations/[id]` — detail page | 🔲 |
-| `/dashboard/consultations/[id]/edit` — edit page | 🔲 |
-| Patient detail: "Historia clínica" section with timeline | 🔲 |
-| Appointment detail: "Registrar consulta" button when status=completed | 🔲 |
+| `consultations` schema + migration | ✅ |
+| `/dashboard/consultations/new?patientId=` — create form | ✅ |
+| `/dashboard/consultations/[id]` — detail page | ✅ |
+| `/dashboard/consultations/[id]/edit` — edit page | ✅ |
+| Patient detail: "Historia clínica" section with timeline | ✅ |
+| Appointment detail: "Registrar consulta" button when status=completed | ✅ |
 
 ---
 

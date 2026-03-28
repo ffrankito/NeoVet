@@ -177,7 +177,7 @@ async function main() {
   const { default: postgres } = await import("postgres");
   const { drizzle } = await import("drizzle-orm/postgres-js");
   const { clients, patients } = await import("../src/db/schema/index.js");
-  const { eq, sql } = await import("drizzle-orm");
+  const { eq, sql, and } = await import("drizzle-orm");
 
   const client = postgres(DATABASE_URL, { max: 1 });
   const db = drizzle(client, { schema: { clients, patients } });
@@ -367,12 +367,30 @@ async function main() {
 
       const clientId = matchingClients[0].id;
 
-      // Skip if already imported (safe to re-run)
+      // Skip if already imported (safe to re-run).
+      // Primary key: gvetId (exact match). Fallback for rows without a gvetId:
+      // composite check on clientId + name + species (case-insensitive).
       if (gvetId) {
         const existingPatient = await db
           .select({ id: patients.id })
           .from(patients)
           .where(eq(patients.gvetId, gvetId))
+          .limit(1);
+        if (existingPatient.length > 0) {
+          patientsSkipped++;
+          continue;
+        }
+      } else {
+        const existingPatient = await db
+          .select({ id: patients.id })
+          .from(patients)
+          .where(
+            and(
+              eq(patients.clientId, clientId),
+              sql`lower(${patients.name}) = lower(${name})`,
+              eq(patients.species, species),
+            ),
+          )
           .limit(1);
         if (existingPatient.length > 0) {
           patientsSkipped++;

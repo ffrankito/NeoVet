@@ -7,6 +7,44 @@ import { patients, clients, appointments } from "@/db/schema";
 import { patientId } from "@/lib/ids";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
+import { createClient } from "@supabase/supabase-js";
+
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
+
+function getServiceRoleClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
+
+export async function uploadPatientAvatar(patientId: string, formData: FormData) {
+  const file = formData.get("avatar") as File | null;
+  if (!file || file.size === 0) return { error: "No se recibió ningún archivo." };
+
+  if (!ALLOWED_MIME_TYPES.includes(file.type))
+    return { error: "Solo se aceptan imágenes JPG, PNG o WebP." };
+
+  if (file.size > MAX_FILE_SIZE_BYTES)
+    return { error: "La imagen no puede superar 2 MB." };
+
+  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+  const path = `${patientId}/avatar.${ext}`;
+
+  const supabase = getServiceRoleClient();
+  const { error: storageError } = await supabase.storage
+    .from("patient-avatars")
+    .upload(path, file, { upsert: true, contentType: file.type });
+
+  if (storageError) {
+    console.error("[uploadPatientAvatar]", storageError);
+    return { error: "No se pudo subir la imagen. Intenta de nuevo." };
+  }
+
+  const { data } = supabase.storage.from("patient-avatars").getPublicUrl(path);
+  return { url: data.publicUrl };
+}
 
 const patientSchema = z.object({
   name: z.string().min(1, "El nombre de la mascota es obligatorio."),

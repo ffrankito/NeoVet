@@ -140,6 +140,7 @@ async function DashboardContent() {
                 {/* Inline actions */}
                 <AppointmentActions
                   appointmentId={apt.id}
+                  patientId={apt.patientId}
                   status={apt.status as "pending" | "confirmed" | "cancelled" | "completed"}
                 />
               </div>
