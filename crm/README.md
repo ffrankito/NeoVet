@@ -67,19 +67,34 @@ App runs at [http://localhost:3000](http://localhost:3000).
 ```
 src/
 ├── app/
-│   ├── (admin)/          # Auth-protected staff dashboard
-│   └── (auth)/           # Login page
+│   ├── dashboard/
+│   │   ├── appointments/     # Appointment CRUD + detail
+│   │   ├── clients/          # Client CRUD
+│   │   ├── consultations/    # Clinical consultation CRUD (SOAP + vitals + treatments)
+│   │   └── patients/         # Patient CRUD + vaccinations + deworming + documents
+│   └── login/                # Auth page
 ├── components/
-│   ├── ui/               # shadcn/ui primitives
-│   └── admin/            # CRM-specific components
+│   ├── ui/                   # shadcn/ui primitives
+│   └── admin/
+│       ├── appointments/
+│       ├── clients/
+│       ├── consultations/
+│       └── patients/
 ├── db/
-│   ├── index.ts          # Drizzle client singleton
-│   └── schema/           # Table definitions
-└── lib/                  # Utilities and helpers
+│   ├── index.ts              # Drizzle client singleton
+│   └── schema/               # Table definitions (one file per domain)
+├── lib/
+│   ├── ids.ts                # Prefixed ID generators
+│   └── supabase/             # Supabase client helpers
+scripts/
+├── import-gvet.ts            # One-time client/patient import from GVet CSV
+├── import-visitas.ts         # One-time consultation import from GVet Visitas CSV
+├── dedupe-patients.ts        # Deduplication cleanup for imported patients
+└── backfill-appointments-from-consultations.ts  # Creates appointments from imported consultations
 ```
 
 ---
 
 ## v1 Scope
 
-Staff-only CRUD — clients, patients, clinical history, appointments. No public API. No chatbot integration. See `docs/charter.md` for full scope definition.
+Staff-only CRUD — clients, patients, clinical history (SOAP consultations + treatment plans), appointments, vaccinations, deworming records, and document storage. No public API. No chatbot integration. See `docs/charter.md` for full scope definition.

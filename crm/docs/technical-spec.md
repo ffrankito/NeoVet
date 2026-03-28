@@ -5,8 +5,8 @@
 | **Project** | NeoVet CRM |
 | **Version** | 1.0 |
 | **Author(s)** | Franco Zancocchia |
-| **Status** | Draft |
-| **Last updated** | 2026-03-26 |
+| **Status** | Active |
+| **Last updated** | 2026-03-28 |
 | **Related charter** | `crm/docs/charter.md` v1.0 |
 
 ---
@@ -30,9 +30,10 @@ graph TD
 
 | Component | Technology | Purpose | Hosted at |
 |---|---|---|---|
-| Staff dashboard | Next.js 14 App Router | UI for all CRM operations | Vercel |
+| Staff dashboard | Next.js App Router | UI for all CRM operations | Vercel |
 | Database | Supabase PostgreSQL | Persistent data store | Supabase |
 | Auth | Supabase SSR | Email login for staff | Supabase |
+| File storage | Supabase Storage | Patient avatars (public) + clinical documents (private, signed URLs) | Supabase |
 
 ---
 
@@ -53,7 +54,7 @@ graph TD
 
 ### Entity Relationship Summary
 
-A **Client** (owner) has many **Patients** (pets). A **Patient** has many **ClinicalHistory** entries and many **Appointments**.
+A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appointments**, **Consultations**, **Vaccinations**, **DewormingRecords**, and **Documents**. A **Consultation** optionally links to one **Appointment** and has many **TreatmentItems**.
 
 ### Core Tables
 
@@ -79,6 +80,8 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Clin
 | `species` | text | No | e.g. "perro", "gato" |
 | `breed` | text | Yes | e.g. "bulldog inglés" |
 | `date_of_birth` | date | Yes | |
+| `deceased` | boolean | No | Default false — shows "Fallecido" badge |
+| `avatar_url` | text | Yes | Public URL from `patient-avatars` Storage bucket |
 | `created_at` | timestamptz | No | |
 | `updated_at` | timestamptz | No | |
 
@@ -95,6 +98,80 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Clin
 | `staff_notes` | text | Yes | |
 | `created_at` | timestamptz | No | |
 | `updated_at` | timestamptz | No | |
+
+#### `consultations`
+
+| Column | Type | Nullable | Description |
+|---|---|---|---|
+| `id` | text | No | Prefixed ID (`con_`) |
+| `patient_id` | text | No | FK → patients (cascade delete) |
+| `appointment_id` | text | Yes | FK → appointments (set null on delete) |
+| `subjective` | text | Yes | SOAP S — owner's report |
+| `objective` | text | Yes | SOAP O — vet's observations |
+| `assessment` | text | Yes | SOAP A — diagnosis |
+| `plan` | text | Yes | SOAP P — next steps |
+| `weight_kg` | numeric(5,2) | Yes | |
+| `temperature` | numeric(4,1) | Yes | °C |
+| `heart_rate` | numeric(5,0) | Yes | bpm |
+| `respiratory_rate` | numeric(4,0) | Yes | rpm |
+| `notes` | text | Yes | Free-text fallback (no SOAP structure required) |
+| `created_at` | timestamptz | No | Set to historical visit date on import |
+| `updated_at` | timestamptz | No | |
+
+#### `treatment_items`
+
+| Column | Type | Nullable | Description |
+|---|---|---|---|
+| `id` | text | No | Prefixed ID (`trt_`) |
+| `consultation_id` | text | No | FK → consultations (cascade delete) |
+| `description` | text | No | |
+| `order` | integer | No | Display order within the consultation |
+| `status` | enum | No | `pending` / `active` / `completed` |
+
+#### `vaccinations`
+
+| Column | Type | Nullable | Description |
+|---|---|---|---|
+| `id` | text | No | Prefixed ID (`vac_`) |
+| `patient_id` | text | No | FK → patients (cascade delete) |
+| `consultation_id` | text | Yes | FK → consultations (set null on delete) |
+| `vaccine_name` | text | No | |
+| `applied_at` | text | Yes | YYYY-MM-DD |
+| `next_due_at` | text | Yes | YYYY-MM-DD |
+| `batch_number` | text | Yes | |
+| `notes` | text | Yes | |
+
+#### `deworming_records`
+
+| Column | Type | Nullable | Description |
+|---|---|---|---|
+| `id` | text | No | Prefixed ID (`dew_`) |
+| `patient_id` | text | No | FK → patients (cascade delete) |
+| `consultation_id` | text | Yes | FK → consultations (set null on delete) |
+| `product` | text | No | Product name |
+| `applied_at` | text | Yes | YYYY-MM-DD |
+| `next_due_at` | text | Yes | YYYY-MM-DD |
+| `dose` | text | Yes | |
+| `notes` | text | Yes | |
+
+#### `documents`
+
+| Column | Type | Nullable | Description |
+|---|---|---|---|
+| `id` | text | No | Prefixed ID (`doc_`) |
+| `patient_id` | text | No | FK → patients (cascade delete) |
+| `file_name` | text | No | Original filename |
+| `storage_path` | text | No | Path within `clinical-documents` Storage bucket |
+| `mime_type` | text | No | |
+| `size_bytes` | integer | No | |
+| `created_at` | timestamptz | No | |
+
+### Storage Buckets
+
+| Bucket | Access | Max file size | Purpose |
+|---|---|---|---|
+| `patient-avatars` | Public read / auth write | 2 MB | Patient profile photos |
+| `clinical-documents` | Auth only (signed URLs, 60s expiry) | 10 MB | Radiographs, lab results, etc. |
 
 ---
 
@@ -141,6 +218,8 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Clin
 
 | # | Question | Owner | Resolution |
 |---|---|---|---|
-| 1 | Geovet Excel export format — column names and structure | Tomás / Paula | <!-- TODO --> |
-| 2 | Do we need clinical history as structured data or free-text notes? | Tomás / Paula | <!-- TODO --> |
-| 3 | Should deleted records be soft-deleted or hard-deleted? | Franco | <!-- TODO --> |
+| 1 | Geovet export format | Tomás / Paula | ✅ Resolved — CSV export analyzed and imported |
+| 2 | Clinical history: structured vs free-text | Tomás / Paula | ✅ Resolved — SOAP implemented; all fields optional; free-text `notes` fallback |
+| 3 | Soft-delete vs hard-delete | Franco | 🔲 Pending Paula meeting — currently hard-delete |
+| 4 | AFIP billing from day 1 or deferred? | Paula | 🔲 Pending Paula meeting — blocks Phase D |
+| 5 | Staff roles and access levels | Paula | 🔲 Pending Paula meeting — blocks Phase E |

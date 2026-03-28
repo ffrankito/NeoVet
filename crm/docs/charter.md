@@ -10,7 +10,7 @@
 | **Start date** | <!-- YYYY-MM-DD --> |
 | **Target delivery (v1)** | <!-- YYYY-MM-DD --> |
 | **Charter version** | 1.0 |
-| **Last updated** | 2026-03-26 |
+| **Last updated** | 2026-03-28 |
 
 ---
 
@@ -31,11 +31,13 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 ### In scope (v1)
 
 - Client (owner) CRUD: name, contact info, WhatsApp number
-- Patient (pet) CRUD: name, species, breed, linked to owner
-- Clinical history per patient
-- Appointment management: create, view, update, cancel
+- Patient (pet) CRUD: name, species, breed, avatar, deceased flag — linked to owner
+- Clinical history: SOAP consultations with vitals, treatment plans, vaccinations, deworming records
+- Document storage per patient (Supabase Storage, signed-URL downloads)
+- Appointment management: create, view, update, cancel, complete
+- Appointment → consultation flow (complete a visit and register clinical notes inline)
 - Email login for staff (Supabase Auth)
-- One-time data import from Geovet Excel exports
+- One-time data import from Geovet CSV exports (clients, patients, consultations)
 
 ### Out of scope (v1)
 
@@ -55,9 +57,13 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 
 | # | Deliverable | Owner | Status |
 |---|---|---|---|
-| D1 | Staff can log in and manage clients/patients | Franco | Pending |
-| D2 | Appointment calendar with CRUD | Franco | Pending |
-| D3 | Data imported from Geovet export | Franco + Paula | Pending |
+| D1 | Staff can log in and manage clients/patients | Franco | ✅ Done |
+| D2 | Appointment calendar with CRUD | Franco | ✅ Done |
+| D3 | Data imported from Geovet export | Franco + Paula | ✅ Done (1,771 clients · 1,380 patients · ~1,300 consultations) |
+| D4 | Clinical history: SOAP consultations + treatment plans | Franco | ✅ Done |
+| D5 | Vaccinations, deworming records, document storage | Franco | ✅ Done |
+| D6 | Billing / AFIP integration | Franco | 🔲 Pending Paula confirmation |
+| D7 | Staff profiles and role-based access control | Franco | 🔲 Pending Paula confirmation |
 
 ---
 
@@ -65,11 +71,13 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 
 | Phase | Description | Status |
 |---|---|---|
-| Discovery | Data model requirements, Geovet export analysis | Pending |
-| Build | CRM implementation | Pending |
-| QA | Internal testing with real clinic data | Pending |
-| UAT | Paula and team acceptance testing | Pending |
-| Launch | Deploy to Vercel | Pending |
+| Discovery | Data model requirements, Geovet export analysis | ✅ Done |
+| Build — Phases A–C | Foundation, CRUD, clinical records, data import | ✅ Done |
+| Build — Phase D | Billing + AFIP integration | 🔲 Blocked on Paula meeting |
+| Build — Phase E | Staff + access control | 🔲 Blocked on Paula meeting |
+| QA | Internal testing with real clinic data | 🔄 In progress |
+| UAT | Paula and team acceptance testing | 🔲 Pending |
+| Launch | Deploy to Vercel | 🔲 Pending |
 
 ---
 
@@ -84,6 +92,6 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 
 ## Success Criteria
 
-- Paula and her team can fully manage clients, patients, and appointments without using Geovet
+- Paula uses NeoVet as her primary tool for daily operations (replaces Geovet)
 - Historical data imported from Geovet with no data loss
-- <!-- TODO: add measurable acceptance criteria with Paula -->
+- Paula can register a full clinic visit (consultation + SOAP + vitals + treatments + vaccination) in one flow
