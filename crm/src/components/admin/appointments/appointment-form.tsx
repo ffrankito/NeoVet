@@ -114,7 +114,7 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
               </SelectTrigger>
               <SelectContent>
                 {clients.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
+                  <SelectItem key={c.id} value={c.id} label={c.name}>
                     {c.name}
                   </SelectItem>
                 ))}
@@ -139,7 +139,7 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
                   </SelectTrigger>
                   <SelectContent>
                     {filteredPatients.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
+                      <SelectItem key={p.id} value={p.id} label={`${p.name} (${p.species})`}>
                         {p.name} ({p.species})
                       </SelectItem>
                     ))}
@@ -202,10 +202,10 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending">Pendiente</SelectItem>
-              <SelectItem value="confirmed">Confirmado</SelectItem>
-              <SelectItem value="completed">Completado</SelectItem>
-              <SelectItem value="cancelled">Cancelado</SelectItem>
+              <SelectItem value="pending" label="Pendiente">Pendiente</SelectItem>
+              <SelectItem value="confirmed" label="Confirmado">Confirmado</SelectItem>
+              <SelectItem value="completed" label="Completado">Completado</SelectItem>
+              <SelectItem value="cancelled" label="Cancelado">Cancelado</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -84,11 +84,11 @@ export function AppointmentTable({ data, total, page, totalPages }: AppointmentT
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="pending">Pendiente</SelectItem>
-              <SelectItem value="confirmed">Confirmado</SelectItem>
-              <SelectItem value="completed">Completado</SelectItem>
-              <SelectItem value="cancelled">Cancelado</SelectItem>
+              <SelectItem value="all" label="Todos">Todos</SelectItem>
+              <SelectItem value="pending" label="Pendiente">Pendiente</SelectItem>
+              <SelectItem value="confirmed" label="Confirmado">Confirmado</SelectItem>
+              <SelectItem value="completed" label="Completado">Completado</SelectItem>
+              <SelectItem value="cancelled" label="Cancelado">Cancelado</SelectItem>
             </SelectContent>
           </Select>
         </div>

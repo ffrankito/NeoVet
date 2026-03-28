@@ -79,9 +79,9 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
             <SelectValue placeholder="Seleccioná la especie" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="perro">Perro</SelectItem>
-            <SelectItem value="gato">Gato</SelectItem>
-            <SelectItem value="otro">Otro</SelectItem>
+            <SelectItem value="perro" label="Perro">Perro</SelectItem>
+            <SelectItem value="gato" label="Gato">Gato</SelectItem>
+            <SelectItem value="otro" label="Otro">Otro</SelectItem>
           </SelectContent>
         </Select>
         {errors.species && (
