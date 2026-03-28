@@ -50,6 +50,20 @@
       "when": 1774704825373,
       "tag": "0006_high_speedball",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1774706365957,
+      "tag": "0007_simple_lady_vermin",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1774707152278,
+      "tag": "0008_easy_shiver_man",
+      "breakpoints": true
     }
   ]
 }

@@ -4,3 +4,6 @@ export * from "./appointments";
 export * from "./staff";
 export * from "./consultations";
 export * from "./treatment_items";
+export * from "./vaccinations";
+export * from "./deworming_records";
+export * from "./documents";

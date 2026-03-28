@@ -135,23 +135,83 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Register consultation — only when completed */}
+      {/* Consultation — only when completed */}
       {apt.status === "completed" && (
         <>
           <Separator />
-          <div className="flex items-center justify-between rounded-lg border p-4">
-            <div>
-              <p className="font-medium">Historia clínica</p>
-              <p className="text-sm text-muted-foreground">
-                El turno está completado. Registrá la consulta clínica del paciente.
-              </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Historia clínica</h2>
+              {apt.consultationId ? (
+                <a
+                  href={`/dashboard/consultations/${apt.consultationId}/edit`}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  Editar consulta
+                </a>
+              ) : (
+                <a
+                  href={`/dashboard/consultations/new?patientId=${apt.patientId}&appointmentId=${id}`}
+                  className={buttonVariants({ size: "sm" })}
+                >
+                  + Registrar consulta
+                </a>
+              )}
             </div>
-            <a
-              href={`/dashboard/consultations/new?patientId=${apt.patientId}&appointmentId=${id}`}
-              className={buttonVariants()}
-            >
-              Registrar consulta
-            </a>
+
+            {apt.consultationId ? (
+              <div className="space-y-6 rounded-lg border p-4">
+                {/* Vitals */}
+                {(apt.consultationWeightKg || apt.consultationTemperature || apt.consultationHeartRate || apt.consultationRespRate) && (
+                  <div className="grid gap-4 sm:grid-cols-4">
+                    {apt.consultationWeightKg && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Peso</p>
+                        <p className="mt-0.5 text-sm">{apt.consultationWeightKg} kg</p>
+                      </div>
+                    )}
+                    {apt.consultationTemperature && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">Temperatura</p>
+                        <p className="mt-0.5 text-sm">{apt.consultationTemperature} °C</p>
+                      </div>
+                    )}
+                    {apt.consultationHeartRate && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">FC</p>
+                        <p className="mt-0.5 text-sm">{apt.consultationHeartRate} lpm</p>
+                      </div>
+                    )}
+                    {apt.consultationRespRate && (
+                      <div>
+                        <p className="text-xs font-medium text-muted-foreground">FR</p>
+                        <p className="mt-0.5 text-sm">{apt.consultationRespRate} rpm</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SOAP */}
+                {[
+                  { label: "Subjetivo", value: apt.consultationSubjective },
+                  { label: "Objetivo", value: apt.consultationObjective },
+                  { label: "Diagnóstico", value: apt.consultationAssessment },
+                  { label: "Plan", value: apt.consultationPlan },
+                  { label: "Notas", value: apt.consultationNotes },
+                ]
+                  .filter((f) => f.value)
+                  .map((f) => (
+                    <div key={f.label}>
+                      <p className="text-sm font-semibold">{f.label}</p>
+                      <p className="mt-0.5 whitespace-pre-wrap text-sm">{f.value}</p>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed py-6 text-center text-sm text-muted-foreground">
+                No hay consulta registrada para este turno.
+              </div>
+            )}
           </div>
         </>
       )}

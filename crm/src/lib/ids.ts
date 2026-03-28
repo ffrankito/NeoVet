@@ -10,3 +10,6 @@ export const appointmentId = () => createId("apt");
 export const staffId = () => createId("stf");
 export const consultationId = () => createId("con");
 export const treatmentItemId = () => createId("trt");
+export const vaccinationId = () => createId("vac");
+export const dewormingId = () => createId("dew");
+export const documentId = () => createId("doc");

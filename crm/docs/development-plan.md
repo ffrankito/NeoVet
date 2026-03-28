@@ -133,41 +133,40 @@ v1 is divided into phases. Each phase must be complete before the next starts.
 
 ---
 
-#### C.3 — Treatment plan
+#### C.3 — Treatment plan ✅ Done
 
 **New table:** `treatment_items` — ordered list scoped to a consultation; status: `pending` / `active` / `completed`.
 
 | Deliverable | Status |
 |---|---|
-| `treatment_items` schema + `treatment_status` enum + migration | 🔲 |
-| Dynamic treatment item list inside consultation form | 🔲 |
-| Inline status toggle on consultation detail page | 🔲 |
+| `treatment_items` schema + `treatment_status` enum + migration | ✅ |
+| Dynamic treatment item list inside consultation form | ✅ |
+| Inline status toggle on consultation detail page | ✅ |
 
 ---
 
-#### C.4 — Vaccinations and deworming
+#### C.4 — Vaccinations and deworming ✅ Done
 
 **New tables:** `vaccinations`, `deworming_records` — both scoped to patient; optionally linked to a consultation.
 
 | Deliverable | Status |
 |---|---|
-| `vaccinations` + `deworming_records` schemas + migration | 🔲 |
-| Vaccination CRUD under patient detail (table + create/edit forms) | 🔲 |
-| Deworming CRUD under patient detail (table + create/edit forms) | 🔲 |
+| `vaccinations` + `deworming_records` schemas + migration | ✅ |
+| Vaccination CRUD under patient detail (table + create/edit forms) | ✅ |
+| Deworming CRUD under patient detail (table + create/edit forms) | ✅ |
 
 ---
 
-#### C.5 — Document storage
+#### C.5 — Document storage ✅ Done
 
 **New table:** `documents` — file metadata; files stored in Supabase Storage (`clinical-documents` bucket, authenticated access + signed URLs for download).
 
 | Deliverable | Status |
 |---|---|
-| `documents` schema + migration | 🔲 |
-| `clinical-documents` Storage bucket + RLS policy | 🔲 |
-| Document upload on consultation detail page | 🔲 |
-| Document upload on patient detail page (patient-level docs) | 🔲 |
-| Signed-URL download + delete | 🔲 |
+| `documents` schema + migration | ✅ |
+| `clinical-documents` Storage bucket (private) | ✅ |
+| Document upload on patient detail page | ✅ |
+| Signed-URL download + delete | ✅ |
 
 ---
 

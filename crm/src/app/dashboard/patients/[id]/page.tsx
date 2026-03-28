@@ -1,8 +1,15 @@
 import { notFound } from "next/navigation";
 import { getPatient } from "../actions";
 import { getConsultationsByPatient } from "@/app/dashboard/consultations/actions";
+import { getVaccinationsByPatient } from "@/app/dashboard/patients/vaccination-actions";
+import { getDewormingByPatient } from "@/app/dashboard/patients/deworming-actions";
+import { getDocumentsByPatient } from "@/app/dashboard/patients/document-actions";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { DeletePatientButton } from "@/components/admin/patients/delete-patient-button";
+import { VaccinationSection } from "@/components/admin/patients/vaccination-section";
+import { DewormingSection } from "@/components/admin/patients/deworming-section";
+import { DocumentSection } from "@/components/admin/patients/document-section";
+import { TabNav } from "@/components/admin/patients/tab-nav";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -14,16 +21,41 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface Props {
-  params: Promise<{ id: string }>;
+type TabValue = "informacion" | "historia" | "vacunas" | "desparasitaciones" | "documentos";
+
+const VALID_TABS: TabValue[] = [
+  "informacion",
+  "historia",
+  "vacunas",
+  "desparasitaciones",
+  "documentos",
+];
+
+function resolveTab(raw: string | undefined): TabValue {
+  if (raw && (VALID_TABS as string[]).includes(raw)) {
+    return raw as TabValue;
+  }
+  return "informacion";
 }
 
-export default async function PatientDetailPage({ params }: Props) {
+interface Props {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}
+
+export default async function PatientDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
-  const [patient, consultationHistory] = await Promise.all([
-    getPatient(id),
-    getConsultationsByPatient(id),
-  ]);
+  const { tab: rawTab } = await searchParams;
+  const activeTab = resolveTab(rawTab);
+
+  const [patient, consultationHistory, vaccinationHistory, dewormingHistory, documentHistory] =
+    await Promise.all([
+      getPatient(id),
+      getConsultationsByPatient(id),
+      getVaccinationsByPatient(id),
+      getDewormingByPatient(id),
+      getDocumentsByPatient(id),
+    ]);
 
   if (!patient) notFound();
 
@@ -42,8 +74,8 @@ export default async function PatientDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* Header — always visible */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
           {patient.avatarUrl ? (
@@ -90,140 +122,163 @@ export default async function PatientDetailPage({ params }: Props) {
 
       <Separator />
 
-      {/* Patient info */}
-      <div className="grid gap-6 sm:grid-cols-4">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Especie</p>
-          <p className="mt-1 capitalize">{patient.species}</p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Raza</p>
-          <p className="mt-1">{patient.breed ?? "—"}</p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Nacimiento</p>
-          <p className="mt-1">
-            {patient.dateOfBirth
-              ? new Date(patient.dateOfBirth).toLocaleDateString("es-AR")
-              : "—"}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">Turnos</p>
-          <p className="mt-1">{patient.appointments.length}</p>
-        </div>
-      </div>
+      {/* Tab navigation */}
+      <TabNav activeTab={activeTab} patientId={id} />
 
-      <Separator />
-
-      {/* Appointments */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Turnos</h2>
-          <a
-            href={`/dashboard/appointments/new?patientId=${id}`}
-            className={buttonVariants({ size: "sm" })}
-          >
-            + Nuevo turno
-          </a>
-        </div>
-
-        {patient.appointments.length === 0 ? (
-          <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
-            No hay turnos registrados para esta mascota.
+      {/* Tab: Información */}
+      {activeTab === "informacion" && (
+        <div className="space-y-8">
+          {/* Patient info grid */}
+          <div className="grid gap-6 sm:grid-cols-4">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Especie</p>
+              <p className="mt-1 capitalize">{patient.species}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Raza</p>
+              <p className="mt-1">{patient.breed ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Nacimiento</p>
+              <p className="mt-1">
+                {patient.dateOfBirth
+                  ? new Date(patient.dateOfBirth).toLocaleDateString("es-AR")
+                  : "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Turnos</p>
+              <p className="mt-1">{patient.appointments.length}</p>
+            </div>
           </div>
-        ) : (
-          <div className="rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Duración</TableHead>
-                  <TableHead>Motivo</TableHead>
-                  <TableHead>Estado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {patient.appointments.map((apt) => (
-                  <TableRow key={apt.id}>
-                    <TableCell>
-                      <a
-                        href={`/dashboard/appointments/${apt.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {new Date(apt.scheduledAt).toLocaleString("es-AR", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                        })}
-                      </a>
-                    </TableCell>
-                    <TableCell>{apt.durationMinutes} min</TableCell>
-                    <TableCell>{apt.reason ?? "—"}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[apt.status] ?? ""}`}
-                      >
-                        {statusLabels[apt.status] ?? apt.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
 
-      <Separator />
+          <Separator />
 
-      {/* Clinical history */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Historia clínica</h2>
-          <a
-            href={`/dashboard/consultations/new?patientId=${id}`}
-            className={buttonVariants({ size: "sm" })}
-          >
-            + Nueva consulta
-          </a>
-        </div>
-
-        {consultationHistory.length === 0 ? (
-          <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
-            No hay consultas registradas para este paciente.
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {consultationHistory.map((c) => (
+          {/* Appointments */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Turnos</h2>
               <a
-                key={c.id}
-                href={`/dashboard/consultations/${c.id}`}
-                className="block rounded-lg border p-4 hover:bg-muted/50 transition-colors"
+                href={`/dashboard/appointments/new?patientId=${id}`}
+                className={buttonVariants({ size: "sm" })}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">
-                      {c.assessment ?? "Sin diagnóstico registrado"}
-                    </p>
-                    {c.subjective && (
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {c.subjective}
-                      </p>
-                    )}
-                  </div>
-                  <p className="shrink-0 text-xs text-muted-foreground">
-                    {new Date(c.createdAt).toLocaleDateString("es-AR", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
+                + Nuevo turno
               </a>
-            ))}
+            </div>
+
+            {patient.appointments.length === 0 ? (
+              <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
+                No hay turnos registrados para esta mascota.
+              </div>
+            ) : (
+              <div className="rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Duración</TableHead>
+                      <TableHead>Motivo</TableHead>
+                      <TableHead>Estado</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {patient.appointments.map((apt) => (
+                      <TableRow key={apt.id}>
+                        <TableCell>
+                          <a
+                            href={`/dashboard/appointments/${apt.id}`}
+                            className="text-primary hover:underline"
+                          >
+                            {new Date(apt.scheduledAt).toLocaleString("es-AR", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                            })}
+                          </a>
+                        </TableCell>
+                        <TableCell>{apt.durationMinutes} min</TableCell>
+                        <TableCell>{apt.reason ?? "—"}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[apt.status] ?? ""}`}
+                          >
+                            {statusLabels[apt.status] ?? apt.status}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Tab: Historia clínica */}
+      {activeTab === "historia" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Historia clínica</h2>
+            <a
+              href={`/dashboard/consultations/new?patientId=${id}`}
+              className={buttonVariants({ size: "sm" })}
+            >
+              + Nueva consulta
+            </a>
+          </div>
+
+          {consultationHistory.length === 0 ? (
+            <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
+              No hay consultas registradas para este paciente.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {consultationHistory.map((c) => (
+                <a
+                  key={c.id}
+                  href={`/dashboard/consultations/${c.id}`}
+                  className="block rounded-lg border p-4 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">
+                        {c.assessment ?? "Sin diagnóstico registrado"}
+                      </p>
+                      {c.subjective && (
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {c.subjective}
+                        </p>
+                      )}
+                    </div>
+                    <p className="shrink-0 text-xs text-muted-foreground">
+                      {new Date(c.createdAt).toLocaleDateString("es-AR", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Vacunas */}
+      {activeTab === "vacunas" && (
+        <VaccinationSection patientId={id} vaccinations={vaccinationHistory} />
+      )}
+
+      {/* Tab: Desparasitaciones */}
+      {activeTab === "desparasitaciones" && (
+        <DewormingSection patientId={id} records={dewormingHistory} />
+      )}
+
+      {/* Tab: Documentos */}
+      {activeTab === "documentos" && (
+        <DocumentSection patientId={id} documents={documentHistory} />
+      )}
 
       {/* Back link */}
       <a

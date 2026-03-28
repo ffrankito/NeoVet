@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { appointments, patients, clients } from "@/db/schema";
+import { appointments, patients, clients, consultations } from "@/db/schema";
 import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -110,10 +110,21 @@ export async function getAppointment(id: string) {
       clientId: clients.id,
       clientName: clients.name,
       clientPhone: clients.phone,
+      consultationId:          consultations.id,
+      consultationSubjective:  consultations.subjective,
+      consultationObjective:   consultations.objective,
+      consultationAssessment:  consultations.assessment,
+      consultationPlan:        consultations.plan,
+      consultationNotes:       consultations.notes,
+      consultationWeightKg:    consultations.weightKg,
+      consultationTemperature: consultations.temperature,
+      consultationHeartRate:   consultations.heartRate,
+      consultationRespRate:    consultations.respiratoryRate,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(clients, eq(patients.clientId, clients.id))
+    .leftJoin(consultations, eq(consultations.appointmentId, appointments.id))
     .where(eq(appointments.id, id))
     .limit(1);
 
