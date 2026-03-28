@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { getAppointment, updateAppointmentStatus } from "../actions";
 import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Separator } from "@/components/ui/separator";
+import { CancelAppointmentButton } from "@/components/admin/appointments/cancel-appointment-button";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -110,24 +111,25 @@ export default async function AppointmentDetailPage({ params }: Props) {
           <div className="space-y-3">
             <p className="text-sm font-medium text-muted-foreground">Cambiar estado</p>
             <div className="flex gap-2">
-              {actions.map((action) => (
-                <form
-                  key={action.value}
-                  action={async () => {
-                    "use server";
-                    await updateAppointmentStatus(
-                      id,
-                      action.value as "pending" | "confirmed" | "cancelled" | "completed"
-                    );
-                  }}
-                >
-                  <Button
-                    variant={action.value === "cancelled" ? "destructive" : "outline"}
+              {actions.map((action) => {
+                if (action.value === "cancelled") {
+                  return <CancelAppointmentButton key="cancel" appointmentId={id} />;
+                }
+                return (
+                  <form
+                    key={action.value}
+                    action={async () => {
+                      "use server";
+                      await updateAppointmentStatus(
+                        id,
+                        action.value as "pending" | "confirmed" | "cancelled" | "completed"
+                      );
+                    }}
                   >
-                    {action.label}
-                  </Button>
-                </form>
-              ))}
+                    <Button variant="outline">{action.label}</Button>
+                  </form>
+                );
+              })}
             </div>
           </div>
         </>

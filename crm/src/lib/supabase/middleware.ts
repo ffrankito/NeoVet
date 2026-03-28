@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users to login (except for auth routes)
+  // Redirect unauthenticated users to login
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
@@ -47,8 +47,21 @@ export async function updateSession(request: NextRequest) {
   // Redirect authenticated users away from login
   if (user && request.nextUrl.pathname.startsWith("/login")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Forward the role from app_metadata (set via service role, embedded in JWT)
+  // so server components can read it via getRole() without a DB query.
+  if (user) {
+    const role = (user.app_metadata?.role as string) ?? null;
+    if (!role) {
+      // Auth user exists but has no role — deny access defensively
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+    supabaseResponse.headers.set("x-user-role", role);
   }
 
   return supabaseResponse;

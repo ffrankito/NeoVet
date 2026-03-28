@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getAppointments } from "./actions";
 import { AppointmentTable } from "@/components/admin/appointments/appointment-table";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {

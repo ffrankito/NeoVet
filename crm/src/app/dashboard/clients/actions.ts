@@ -7,6 +7,13 @@ import { clients } from "@/db/schema";
 import { clientId } from "@/lib/ids";
 import { eq, ilike, or, sql, desc } from "drizzle-orm";
 import { patients } from "@/db/schema";
+import { z } from "zod";
+
+const clientSchema = z.object({
+  name: z.string().min(1, "El nombre es obligatorio."),
+  phone: z.string().min(1, "El teléfono es obligatorio."),
+  email: z.string().email("El email no es válido.").optional().or(z.literal("")),
+});
 
 export async function getClients(opts?: {
   search?: string;
@@ -76,48 +83,73 @@ export async function getClient(id: string) {
 }
 
 export async function createClient(formData: FormData) {
-  const name = formData.get("name") as string;
-  const phone = formData.get("phone") as string;
-  const email = (formData.get("email") as string) || null;
+  const raw = {
+    name: (formData.get("name") as string)?.trim() ?? "",
+    phone: (formData.get("phone") as string)?.trim() ?? "",
+    email: (formData.get("email") as string)?.trim() ?? "",
+  };
 
-  if (!name?.trim() || !phone?.trim()) {
-    return { error: "Nombre y teléfono son obligatorios." };
+  const parsed = clientSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        name: fieldErrors.name?.[0],
+        phone: fieldErrors.phone?.[0],
+        email: fieldErrors.email?.[0],
+      },
+    };
   }
 
-  const id = clientId();
-
-  await db.insert(clients).values({
-    id,
-    name: name.trim(),
-    phone: phone.trim(),
-    email: email?.trim() || null,
-  });
-
-  revalidatePath("/dashboard/clients");
-  redirect(`/dashboard/clients/${id}`);
+  try {
+    const id = clientId();
+    await db.insert(clients).values({
+      id,
+      name: parsed.data.name,
+      phone: parsed.data.phone,
+      email: parsed.data.email || null,
+    });
+    revalidatePath("/dashboard/clients");
+    redirect(`/dashboard/clients/${id}`);
+  } catch (err) {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
 }
 
 export async function updateClient(id: string, formData: FormData) {
-  const name = formData.get("name") as string;
-  const phone = formData.get("phone") as string;
-  const email = (formData.get("email") as string) || null;
+  const raw = {
+    name: (formData.get("name") as string)?.trim() ?? "",
+    phone: (formData.get("phone") as string)?.trim() ?? "",
+    email: (formData.get("email") as string)?.trim() ?? "",
+  };
 
-  if (!name?.trim() || !phone?.trim()) {
-    return { error: "Nombre y teléfono son obligatorios." };
+  const parsed = clientSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        name: fieldErrors.name?.[0],
+        phone: fieldErrors.phone?.[0],
+        email: fieldErrors.email?.[0],
+      },
+    };
   }
 
-  await db
-    .update(clients)
-    .set({
-      name: name.trim(),
-      phone: phone.trim(),
-      email: email?.trim() || null,
-      updatedAt: new Date(),
-    })
-    .where(eq(clients.id, id));
-
-  revalidatePath("/dashboard/clients");
-  redirect(`/dashboard/clients/${id}`);
+  try {
+    await db
+      .update(clients)
+      .set({
+        name: parsed.data.name,
+        phone: parsed.data.phone,
+        email: parsed.data.email || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(clients.id, id));
+    revalidatePath("/dashboard/clients");
+    redirect(`/dashboard/clients/${id}`);
+  } catch (err) {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
 }
 
 export async function deleteClient(id: string) {

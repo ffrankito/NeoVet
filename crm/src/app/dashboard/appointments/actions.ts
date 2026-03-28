@@ -6,6 +6,30 @@ import { db } from "@/db";
 import { appointments, patients, clients } from "@/db/schema";
 import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
+import { z } from "zod";
+
+const appointmentSchema = z.object({
+  patientId: z.string().min(1, "El paciente es obligatorio."),
+  scheduledAt: z
+    .string()
+    .min(1, "La fecha y hora son obligatorias.")
+    .refine((v) => !isNaN(Date.parse(v)), { message: "La fecha no es válida." }),
+  durationMinutes: z
+    .number()
+    .int()
+    .positive("La duración debe ser mayor a 0."),
+});
+
+const appointmentUpdateSchema = z.object({
+  scheduledAt: z
+    .string()
+    .min(1, "La fecha y hora son obligatorias.")
+    .refine((v) => !isNaN(Date.parse(v)), { message: "La fecha no es válida." }),
+  durationMinutes: z
+    .number()
+    .int()
+    .positive("La duración debe ser mayor a 0."),
+});
 
 export async function getAppointments(opts?: {
   status?: string;
@@ -97,58 +121,82 @@ export async function getAppointment(id: string) {
 }
 
 export async function createAppointment(formData: FormData) {
-  const patientId = formData.get("patientId") as string;
-  const scheduledAt = formData.get("scheduledAt") as string;
-  const durationMinutes = Number(formData.get("durationMinutes")) || 30;
-  const reason = (formData.get("reason") as string) || null;
-  const staffNotes = (formData.get("staffNotes") as string) || null;
+  const raw = {
+    patientId: (formData.get("patientId") as string)?.trim() ?? "",
+    scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
+    durationMinutes: Number(formData.get("durationMinutes")) || 30,
+  };
+  const reason = (formData.get("reason") as string)?.trim() || null;
+  const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
 
-  if (!patientId || !scheduledAt) {
-    return { error: "Paciente y fecha/hora son obligatorios." };
+  const parsed = appointmentSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        patientId: fieldErrors.patientId?.[0],
+        scheduledAt: fieldErrors.scheduledAt?.[0],
+        durationMinutes: fieldErrors.durationMinutes?.[0],
+      },
+    };
   }
 
-  const id = appointmentId();
-
-  await db.insert(appointments).values({
-    id,
-    patientId,
-    scheduledAt: new Date(scheduledAt),
-    durationMinutes,
-    reason: reason?.trim() || null,
-    staffNotes: staffNotes?.trim() || null,
-    status: "pending",
-  });
-
-  revalidatePath("/dashboard/appointments");
-  revalidatePath(`/dashboard/patients/${patientId}`);
-  redirect(`/dashboard/appointments/${id}`);
+  try {
+    const id = appointmentId();
+    await db.insert(appointments).values({
+      id,
+      patientId: parsed.data.patientId,
+      scheduledAt: new Date(parsed.data.scheduledAt),
+      durationMinutes: parsed.data.durationMinutes,
+      reason,
+      staffNotes,
+      status: "pending",
+    });
+    revalidatePath("/dashboard/appointments");
+    revalidatePath(`/dashboard/patients/${parsed.data.patientId}`);
+    redirect(`/dashboard/appointments/${id}`);
+  } catch (err) {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
 }
 
 export async function updateAppointment(id: string, formData: FormData) {
-  const scheduledAt = formData.get("scheduledAt") as string;
-  const durationMinutes = Number(formData.get("durationMinutes")) || 30;
-  const reason = (formData.get("reason") as string) || null;
-  const staffNotes = (formData.get("staffNotes") as string) || null;
+  const raw = {
+    scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
+    durationMinutes: Number(formData.get("durationMinutes")) || 30,
+  };
+  const reason = (formData.get("reason") as string)?.trim() || null;
+  const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
   const status = formData.get("status") as string;
 
-  if (!scheduledAt) {
-    return { error: "Fecha/hora es obligatoria." };
+  const parsed = appointmentUpdateSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        scheduledAt: fieldErrors.scheduledAt?.[0],
+        durationMinutes: fieldErrors.durationMinutes?.[0],
+      },
+    };
   }
 
-  await db
-    .update(appointments)
-    .set({
-      scheduledAt: new Date(scheduledAt),
-      durationMinutes,
-      reason: reason?.trim() || null,
-      staffNotes: staffNotes?.trim() || null,
-      status: (status as "pending" | "confirmed" | "cancelled" | "completed") ?? "pending",
-      updatedAt: new Date(),
-    })
-    .where(eq(appointments.id, id));
-
-  revalidatePath("/dashboard/appointments");
-  redirect(`/dashboard/appointments/${id}`);
+  try {
+    await db
+      .update(appointments)
+      .set({
+        scheduledAt: new Date(parsed.data.scheduledAt),
+        durationMinutes: parsed.data.durationMinutes,
+        reason,
+        staffNotes,
+        status: (status as "pending" | "confirmed" | "cancelled" | "completed") ?? "pending",
+        updatedAt: new Date(),
+      })
+      .where(eq(appointments.id, id));
+    revalidatePath("/dashboard/appointments");
+    redirect(`/dashboard/appointments/${id}`);
+  } catch (err) {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
 }
 
 export async function updateAppointmentStatus(id: string, status: "pending" | "confirmed" | "cancelled" | "completed") {

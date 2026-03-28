@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,32 +8,43 @@ import { Label } from "@/components/ui/label";
 import { createClient, updateClient } from "@/app/dashboard/clients/actions";
 import type { Client } from "@/db/schema";
 
+type FieldErrors = { name?: string; phone?: string; email?: string };
+type ActionResult =
+  | { errors: FieldErrors }
+  | { error: string }
+  | undefined;
+
+function getFieldErrors(result: ActionResult): FieldErrors {
+  if (result && "errors" in result) return result.errors;
+  return {};
+}
+
+function getGlobalError(result: ActionResult): string | null {
+  if (result && "error" in result) return result.error;
+  return null;
+}
+
 interface ClientFormProps {
   client?: Client;
 }
 
 export function ClientForm({ client }: ClientFormProps) {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const isEdit = !!client;
 
-  async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    setError(null);
-    const result = isEdit
-      ? await updateClient(client!.id, formData)
-      : await createClient(formData);
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
-    }
-  }
+  const action = isEdit
+    ? async (_prev: ActionResult, formData: FormData) => updateClient(client!.id, formData)
+    : async (_prev: ActionResult, formData: FormData) => createClient(formData);
+
+  const [result, dispatch, isPending] = useActionState(action, undefined);
+
+  const errors = getFieldErrors(result);
+  const globalError = getGlobalError(result);
 
   return (
-    <form action={handleSubmit} className="max-w-lg space-y-6">
-      {error && (
+    <form action={dispatch} className="max-w-lg space-y-6">
+      {globalError && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
+          {globalError}
         </div>
       )}
 
@@ -42,10 +53,13 @@ export function ClientForm({ client }: ClientFormProps) {
         <Input
           id="name"
           name="name"
-          required
           defaultValue={client?.name ?? ""}
           placeholder="Juan Pérez"
+          aria-invalid={!!errors.name}
         />
+        {errors.name && (
+          <p className="text-sm text-destructive mt-1">{errors.name}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -54,10 +68,13 @@ export function ClientForm({ client }: ClientFormProps) {
           id="phone"
           name="phone"
           type="tel"
-          required
           defaultValue={client?.phone ?? ""}
           placeholder="+54 341 123 4567"
+          aria-invalid={!!errors.phone}
         />
+        {errors.phone && (
+          <p className="text-sm text-destructive mt-1">{errors.phone}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -68,12 +85,16 @@ export function ClientForm({ client }: ClientFormProps) {
           type="email"
           defaultValue={client?.email ?? ""}
           placeholder="juan@email.com"
+          aria-invalid={!!errors.email}
         />
+        {errors.email && (
+          <p className="text-sm text-destructive mt-1">{errors.email}</p>
+        )}
       </div>
 
       <div className="flex gap-3">
-        <Button disabled={loading}>
-          {loading
+        <Button disabled={isPending}>
+          {isPending
             ? isEdit
               ? "Guardando..."
               : "Creando..."

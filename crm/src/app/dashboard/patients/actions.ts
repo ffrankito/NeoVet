@@ -6,6 +6,20 @@ import { db } from "@/db";
 import { patients, clients, appointments } from "@/db/schema";
 import { patientId } from "@/lib/ids";
 import { eq, desc } from "drizzle-orm";
+import { z } from "zod";
+
+const patientSchema = z.object({
+  name: z.string().min(1, "El nombre de la mascota es obligatorio."),
+  species: z.string().min(1, "La especie es obligatoria."),
+  clientId: z.string().min(1, "El cliente es obligatorio."),
+  breed: z.string().optional(),
+  dateOfBirth: z
+    .string()
+    .optional()
+    .refine((v) => !v || !isNaN(Date.parse(v)), {
+      message: "La fecha de nacimiento no es válida.",
+    }),
+});
 
 export async function getPatientsByClient(clientId: string) {
   return db
@@ -40,61 +54,89 @@ export async function getPatient(id: string) {
 }
 
 export async function createPatient(formData: FormData) {
-  const clientId = formData.get("clientId") as string;
-  const name = formData.get("name") as string;
-  const species = formData.get("species") as string;
-  const breed = (formData.get("breed") as string) || null;
-  const dateOfBirth = (formData.get("dateOfBirth") as string) || null;
+  const raw = {
+    clientId: (formData.get("clientId") as string)?.trim() ?? "",
+    name: (formData.get("name") as string)?.trim() ?? "",
+    species: (formData.get("species") as string)?.trim() ?? "",
+    breed: (formData.get("breed") as string)?.trim() ?? "",
+    dateOfBirth: (formData.get("dateOfBirth") as string)?.trim() ?? "",
+  };
 
-  if (!name?.trim() || !species?.trim() || !clientId) {
-    return { error: "Nombre y especie son obligatorios." };
+  const parsed = patientSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        name: fieldErrors.name?.[0],
+        species: fieldErrors.species?.[0],
+        clientId: fieldErrors.clientId?.[0],
+        dateOfBirth: fieldErrors.dateOfBirth?.[0],
+      },
+    };
   }
 
-  const id = patientId();
-
-  await db.insert(patients).values({
-    id,
-    clientId,
-    name: name.trim(),
-    species: species.trim(),
-    breed: breed?.trim() || null,
-    dateOfBirth: dateOfBirth || null,
-  });
-
-  revalidatePath(`/dashboard/clients/${clientId}`);
-  revalidatePath(`/dashboard/patients/${id}`);
-  redirect(`/dashboard/patients/${id}`);
+  try {
+    const id = patientId();
+    await db.insert(patients).values({
+      id,
+      clientId: parsed.data.clientId,
+      name: parsed.data.name,
+      species: parsed.data.species,
+      breed: parsed.data.breed || null,
+      dateOfBirth: parsed.data.dateOfBirth || null,
+    });
+    revalidatePath(`/dashboard/clients/${parsed.data.clientId}`);
+    revalidatePath(`/dashboard/patients/${id}`);
+    redirect(`/dashboard/patients/${id}`);
+  } catch (err) {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
 }
 
 export async function updatePatient(id: string, formData: FormData) {
-  const name = formData.get("name") as string;
-  const species = formData.get("species") as string;
-  const breed = (formData.get("breed") as string) || null;
-  const dateOfBirth = (formData.get("dateOfBirth") as string) || null;
-
-  if (!name?.trim() || !species?.trim()) {
-    return { error: "Nombre y especie son obligatorios." };
-  }
-
-  const [patient] = await db
+  const [existing] = await db
     .select({ clientId: patients.clientId })
     .from(patients)
     .where(eq(patients.id, id))
     .limit(1);
 
-  await db
-    .update(patients)
-    .set({
-      name: name.trim(),
-      species: species.trim(),
-      breed: breed?.trim() || null,
-      dateOfBirth: dateOfBirth || null,
-      updatedAt: new Date(),
-    })
-    .where(eq(patients.id, id));
+  const raw = {
+    clientId: existing?.clientId ?? "",
+    name: (formData.get("name") as string)?.trim() ?? "",
+    species: (formData.get("species") as string)?.trim() ?? "",
+    breed: (formData.get("breed") as string)?.trim() ?? "",
+    dateOfBirth: (formData.get("dateOfBirth") as string)?.trim() ?? "",
+  };
 
-  revalidatePath(`/dashboard/clients/${patient?.clientId}`);
-  redirect(`/dashboard/patients/${id}`);
+  const parsed = patientSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors = parsed.error.flatten().fieldErrors;
+    return {
+      errors: {
+        name: fieldErrors.name?.[0],
+        species: fieldErrors.species?.[0],
+        clientId: fieldErrors.clientId?.[0],
+        dateOfBirth: fieldErrors.dateOfBirth?.[0],
+      },
+    };
+  }
+
+  try {
+    await db
+      .update(patients)
+      .set({
+        name: parsed.data.name,
+        species: parsed.data.species,
+        breed: parsed.data.breed || null,
+        dateOfBirth: parsed.data.dateOfBirth || null,
+        updatedAt: new Date(),
+      })
+      .where(eq(patients.id, id));
+    revalidatePath(`/dashboard/clients/${existing?.clientId}`);
+    redirect(`/dashboard/patients/${id}`);
+  } catch (err) {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
 }
 
 export async function deletePatient(id: string) {

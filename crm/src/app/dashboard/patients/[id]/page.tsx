@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { getPatient, deletePatient } from "../actions";
-import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/button";
+import { getPatient } from "../actions";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { DeletePatientButton } from "@/components/admin/patients/delete-patient-button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -60,14 +60,7 @@ export default async function PatientDetailPage({ params }: Props) {
           >
             Editar
           </a>
-          <form
-            action={async () => {
-              "use server";
-              await deletePatient(id);
-            }}
-          >
-            <Button variant="destructive">Eliminar</Button>
-          </form>
+          <DeletePatientButton patientId={id} />
         </div>
       </div>
 

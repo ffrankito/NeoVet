@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,36 +9,52 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { createPatient, updatePatient } from "@/app/dashboard/patients/actions";
 import type { Patient } from "@/db/schema";
 
+type FieldErrors = { name?: string; species?: string; clientId?: string; dateOfBirth?: string };
+type ActionResult =
+  | { errors: FieldErrors }
+  | { error: string }
+  | undefined;
+
+function getFieldErrors(result: ActionResult): FieldErrors {
+  if (result && "errors" in result) return result.errors;
+  return {};
+}
+
+function getGlobalError(result: ActionResult): string | null {
+  if (result && "error" in result) return result.error;
+  return null;
+}
+
 interface PatientFormProps {
   patient?: Patient;
   clientId: string;
 }
 
 export function PatientForm({ patient, clientId }: PatientFormProps) {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [species, setSpecies] = useState(patient?.species ?? "");
   const isEdit = !!patient;
+  const [species, setSpecies] = useState(patient?.species ?? "");
 
-  async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    setError(null);
-    formData.set("species", species);
-    if (!isEdit) formData.set("clientId", clientId);
-    const result = isEdit
-      ? await updatePatient(patient!.id, formData)
-      : await createPatient(formData);
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
-    }
-  }
+  const action = isEdit
+    ? async (_prev: ActionResult, formData: FormData) => {
+        formData.set("species", species);
+        return updatePatient(patient!.id, formData);
+      }
+    : async (_prev: ActionResult, formData: FormData) => {
+        formData.set("species", species);
+        formData.set("clientId", clientId);
+        return createPatient(formData);
+      };
+
+  const [result, dispatch, isPending] = useActionState(action, undefined);
+
+  const errors = getFieldErrors(result);
+  const globalError = getGlobalError(result);
 
   return (
-    <form action={handleSubmit} className="max-w-lg space-y-6">
-      {error && (
+    <form action={dispatch} className="max-w-lg space-y-6">
+      {globalError && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
+          {globalError}
         </div>
       )}
 
@@ -47,16 +63,19 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
         <Input
           id="name"
           name="name"
-          required
           defaultValue={patient?.name ?? ""}
           placeholder="Luna"
+          aria-invalid={!!errors.name}
         />
+        {errors.name && (
+          <p className="text-sm text-destructive mt-1">{errors.name}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label>Especie *</Label>
-        <Select value={species} onValueChange={(v) => v && setSpecies(v)} required>
-          <SelectTrigger>
+        <Select value={species} onValueChange={(v) => v && setSpecies(v)}>
+          <SelectTrigger aria-invalid={!!errors.species}>
             <SelectValue placeholder="Seleccioná la especie" />
           </SelectTrigger>
           <SelectContent>
@@ -65,6 +84,9 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
             <SelectItem value="otro">Otro</SelectItem>
           </SelectContent>
         </Select>
+        {errors.species && (
+          <p className="text-sm text-destructive mt-1">{errors.species}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -84,12 +106,16 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
           name="dateOfBirth"
           type="date"
           defaultValue={patient?.dateOfBirth ?? ""}
+          aria-invalid={!!errors.dateOfBirth}
         />
+        {errors.dateOfBirth && (
+          <p className="text-sm text-destructive mt-1">{errors.dateOfBirth}</p>
+        )}
       </div>
 
       <div className="flex gap-3">
-        <Button disabled={loading}>
-          {loading
+        <Button disabled={isPending}>
+          {isPending
             ? isEdit
               ? "Guardando..."
               : "Creando..."

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { getClient, deleteClient } from "../actions";
-import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/button";
+import { getClient } from "../actions";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { DeleteClientButton } from "@/components/admin/clients/delete-client-button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -45,14 +45,7 @@ export default async function ClientDetailPage({ params }: Props) {
           >
             Editar
           </a>
-          <form
-            action={async () => {
-              "use server";
-              await deleteClient(id);
-            }}
-          >
-            <Button variant="destructive">Eliminar</Button>
-          </form>
+          <DeleteClientButton clientId={id} />
         </div>
       </div>
 

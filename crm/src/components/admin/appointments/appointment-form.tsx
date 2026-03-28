@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,22 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createAppointment, updateAppointment } from "@/app/dashboard/appointments/actions";
+
+type FieldErrors = { patientId?: string; scheduledAt?: string; durationMinutes?: string };
+type ActionResult =
+  | { errors: FieldErrors }
+  | { error: string }
+  | undefined;
+
+function getFieldErrors(result: ActionResult): FieldErrors {
+  if (result && "errors" in result) return result.errors;
+  return {};
+}
+
+function getGlobalError(result: ActionResult): string | null {
+  if (result && "error" in result) return result.error;
+  return null;
+}
 
 interface PatientOption {
   id: string;
@@ -32,46 +48,45 @@ interface AppointmentFormProps {
   defaultPatientId?: string;
 }
 
+function formatDateTimeLocal(date: Date): string {
+  const d = new Date(date);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function AppointmentForm({ appointment, patients, defaultPatientId }: AppointmentFormProps) {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const isEdit = !!appointment;
   const [selectedPatient, setSelectedPatient] = useState(appointment?.patientId ?? defaultPatientId ?? "");
   const [status, setStatus] = useState(appointment?.status ?? "pending");
-  const isEdit = !!appointment;
 
-  function formatDateTimeLocal(date: Date): string {
-    const d = new Date(date);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
+  const action = isEdit
+    ? async (_prev: ActionResult, formData: FormData) => {
+        formData.set("status", status);
+        return updateAppointment(appointment!.id, formData);
+      }
+    : async (_prev: ActionResult, formData: FormData) => {
+        formData.set("patientId", selectedPatient);
+        return createAppointment(formData);
+      };
 
-  async function handleSubmit(formData: FormData) {
-    setLoading(true);
-    setError(null);
-    if (!isEdit) formData.set("patientId", selectedPatient);
-    if (isEdit) formData.set("status", status);
-    const result = isEdit
-      ? await updateAppointment(appointment!.id, formData)
-      : await createAppointment(formData);
-    if (result?.error) {
-      setError(result.error);
-      setLoading(false);
-    }
-  }
+  const [result, dispatch, isPending] = useActionState(action, undefined);
+
+  const errors = getFieldErrors(result);
+  const globalError = getGlobalError(result);
 
   return (
-    <form action={handleSubmit} className="max-w-lg space-y-6">
-      {error && (
+    <form action={dispatch} className="max-w-lg space-y-6">
+      {globalError && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
+          {globalError}
         </div>
       )}
 
       {!isEdit && (
         <div className="space-y-2">
           <Label>Paciente *</Label>
-          <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)} required>
-            <SelectTrigger className="w-full">
+          <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)}>
+            <SelectTrigger className="w-full" aria-invalid={!!errors.patientId}>
               <SelectValue placeholder="Seleccioná un paciente" />
             </SelectTrigger>
             <SelectContent>
@@ -82,6 +97,9 @@ export function AppointmentForm({ appointment, patients, defaultPatientId }: App
               ))}
             </SelectContent>
           </Select>
+          {errors.patientId && (
+            <p className="text-sm text-destructive mt-1">{errors.patientId}</p>
+          )}
         </div>
       )}
 
@@ -91,9 +109,12 @@ export function AppointmentForm({ appointment, patients, defaultPatientId }: App
           id="scheduledAt"
           name="scheduledAt"
           type="datetime-local"
-          required
           defaultValue={appointment ? formatDateTimeLocal(appointment.scheduledAt) : ""}
+          aria-invalid={!!errors.scheduledAt}
         />
+        {errors.scheduledAt && (
+          <p className="text-sm text-destructive mt-1">{errors.scheduledAt}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -105,7 +126,11 @@ export function AppointmentForm({ appointment, patients, defaultPatientId }: App
           min={5}
           max={480}
           defaultValue={appointment?.durationMinutes ?? 30}
+          aria-invalid={!!errors.durationMinutes}
         />
+        {errors.durationMinutes && (
+          <p className="text-sm text-destructive mt-1">{errors.durationMinutes}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -147,8 +172,8 @@ export function AppointmentForm({ appointment, patients, defaultPatientId }: App
       </div>
 
       <div className="flex gap-3">
-        <Button disabled={loading}>
-          {loading
+        <Button disabled={isPending}>
+          {isPending
             ? isEdit ? "Guardando..." : "Creando..."
             : isEdit ? "Guardar cambios" : "Crear turno"}
         </Button>

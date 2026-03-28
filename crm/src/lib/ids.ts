@@ -7,3 +7,4 @@ export function createId(prefix: string): string {
 export const clientId = () => createId("cli");
 export const patientId = () => createId("pat");
 export const appointmentId = () => createId("apt");
+export const staffId = () => createId("stf");
