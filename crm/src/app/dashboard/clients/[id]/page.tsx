@@ -100,12 +100,17 @@ export default async function ClientDetailPage({ params }: Props) {
                 {client.patients.map((patient) => (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">
-                      <a
-                        href={`/dashboard/patients/${patient.id}`}
-                        className="text-primary hover:underline"
-                      >
-                        {patient.name}
-                      </a>
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`/dashboard/patients/${patient.id}`}
+                          className="text-primary hover:underline"
+                        >
+                          {patient.name}
+                        </a>
+                        {patient.deceased && (
+                          <Badge variant="outline">Fallecido</Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="capitalize">{patient.species}</TableCell>
                     <TableCell>{patient.breed ?? "—"}</TableCell>

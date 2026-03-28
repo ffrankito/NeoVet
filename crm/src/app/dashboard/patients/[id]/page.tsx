@@ -41,17 +41,37 @@ export default async function PatientDetailPage({ params }: Props) {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{patient.name}</h1>
-          <p className="mt-1 text-muted-foreground">
-            Mascota de{" "}
-            <a
-              href={`/dashboard/clients/${patient.clientId}`}
-              className="text-primary hover:underline"
-            >
-              {patient.client?.name}
-            </a>
-          </p>
+        <div className="flex items-center gap-4">
+          {patient.avatarUrl ? (
+            <img
+              src={patient.avatarUrl}
+              alt={patient.name}
+              className="size-16 rounded-full object-cover shrink-0"
+            />
+          ) : (
+            <div className="size-16 rounded-full bg-muted flex items-center justify-center shrink-0">
+              <span className="text-xl font-semibold text-muted-foreground">
+                {patient.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">{patient.name}</h1>
+              {patient.deceased && (
+                <Badge variant="destructive">Fallecido</Badge>
+              )}
+            </div>
+            <p className="mt-1 text-muted-foreground">
+              Mascota de{" "}
+              <a
+                href={`/dashboard/clients/${patient.clientId}`}
+                className="text-primary hover:underline"
+              >
+                {patient.client?.name}
+              </a>
+            </p>
+          </div>
         </div>
         <div className="flex gap-2">
           <a

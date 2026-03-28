@@ -16,6 +16,8 @@ export const patients = pgTable("patients", {
   microchip: text("microchip"),
   gvetHistoryNumber: text("gvet_history_number"),
   gvetId: text("gvet_id"),
+  deceased: boolean("deceased").notNull().default(false),
+  avatarUrl: text("avatar_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

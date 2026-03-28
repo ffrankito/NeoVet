@@ -29,6 +29,13 @@
       "when": 1774666067249,
       "tag": "0003_square_anthem",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774700585668,
+      "tag": "0004_youthful_madame_hydra",
+      "breakpoints": true
     }
   ]
 }

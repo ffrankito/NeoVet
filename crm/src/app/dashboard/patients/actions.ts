@@ -95,7 +95,11 @@ export async function createPatient(formData: FormData) {
   redirect(`/dashboard/patients/${id}`);
 }
 
-export async function updatePatient(id: string, formData: FormData) {
+export async function updatePatient(
+  id: string,
+  formData: FormData,
+  avatarUrl?: string | null,
+) {
   const [existing] = await db
     .select({ clientId: patients.clientId })
     .from(patients)
@@ -109,6 +113,8 @@ export async function updatePatient(id: string, formData: FormData) {
     breed: (formData.get("breed") as string)?.trim() ?? "",
     dateOfBirth: (formData.get("dateOfBirth") as string)?.trim() ?? "",
   };
+
+  const deceased = formData.get("deceased") === "true";
 
   const parsed = patientSchema.safeParse(raw);
   if (!parsed.success) {
@@ -131,6 +137,8 @@ export async function updatePatient(id: string, formData: FormData) {
         species: parsed.data.species,
         breed: parsed.data.breed || null,
         dateOfBirth: parsed.data.dateOfBirth || null,
+        deceased,
+        ...(avatarUrl !== undefined ? { avatarUrl } : {}),
         updatedAt: new Date(),
       })
       .where(eq(patients.id, id));
@@ -141,6 +149,15 @@ export async function updatePatient(id: string, formData: FormData) {
   revalidatePath(`/dashboard/clients/${existing?.clientId}`);
   revalidatePath(`/dashboard/patients/${id}`);
   redirect(`/dashboard/patients/${id}`);
+}
+
+export async function deletePatientAvatar(patientId: string) {
+  await db
+    .update(patients)
+    .set({ avatarUrl: null, updatedAt: new Date() })
+    .where(eq(patients.id, patientId));
+
+  revalidatePath(`/dashboard/patients/${patientId}`);
 }
 
 export async function deletePatient(id: string) {
