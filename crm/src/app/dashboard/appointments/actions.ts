@@ -141,8 +141,9 @@ export async function createAppointment(formData: FormData) {
     };
   }
 
+  let id: string;
   try {
-    const id = appointmentId();
+    id = appointmentId();
     await db.insert(appointments).values({
       id,
       patientId: parsed.data.patientId,
@@ -152,12 +153,13 @@ export async function createAppointment(formData: FormData) {
       staffNotes,
       status: "pending",
     });
-    revalidatePath("/dashboard/appointments");
-    revalidatePath(`/dashboard/patients/${parsed.data.patientId}`);
-    redirect(`/dashboard/appointments/${id}`);
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
+
+  revalidatePath("/dashboard/appointments");
+  revalidatePath(`/dashboard/patients/${parsed.data.patientId}`);
+  redirect(`/dashboard/appointments/${id}`);
 }
 
 export async function updateAppointment(id: string, formData: FormData) {
@@ -180,7 +182,15 @@ export async function updateAppointment(id: string, formData: FormData) {
     };
   }
 
+  let patientId: string | undefined;
   try {
+    const [existing] = await db
+      .select({ patientId: appointments.patientId })
+      .from(appointments)
+      .where(eq(appointments.id, id))
+      .limit(1);
+    patientId = existing?.patientId;
+
     await db
       .update(appointments)
       .set({
@@ -192,11 +202,13 @@ export async function updateAppointment(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(appointments.id, id));
-    revalidatePath("/dashboard/appointments");
-    redirect(`/dashboard/appointments/${id}`);
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
+
+  revalidatePath("/dashboard/appointments");
+  if (patientId) revalidatePath(`/dashboard/patients/${patientId}`);
+  redirect(`/dashboard/appointments/${id}`);
 }
 
 export async function updateAppointmentStatus(id: string, status: "pending" | "confirmed" | "cancelled" | "completed") {
@@ -215,9 +227,17 @@ export async function getAllPatientsForSelect() {
       id: patients.id,
       name: patients.name,
       species: patients.species,
+      clientId: clients.id,
       clientName: clients.name,
     })
     .from(patients)
     .innerJoin(clients, eq(patients.clientId, clients.id))
     .orderBy(clients.name, patients.name);
+}
+
+export async function getAllClientsForSelect() {
+  return db
+    .select({ id: clients.id, name: clients.name })
+    .from(clients)
+    .orderBy(clients.name);
 }

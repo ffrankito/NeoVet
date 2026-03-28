@@ -93,7 +93,7 @@ export function ClientForm({ client }: ClientFormProps) {
       </div>
 
       <div className="flex gap-3">
-        <Button disabled={isPending}>
+        <Button type="submit" disabled={isPending}>
           {isPending
             ? isEdit
               ? "Guardando..."

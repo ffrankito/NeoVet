@@ -75,8 +75,9 @@ export async function createPatient(formData: FormData) {
     };
   }
 
+  let id: string;
   try {
-    const id = patientId();
+    id = patientId();
     await db.insert(patients).values({
       id,
       clientId: parsed.data.clientId,
@@ -85,12 +86,13 @@ export async function createPatient(formData: FormData) {
       breed: parsed.data.breed || null,
       dateOfBirth: parsed.data.dateOfBirth || null,
     });
-    revalidatePath(`/dashboard/clients/${parsed.data.clientId}`);
-    revalidatePath(`/dashboard/patients/${id}`);
-    redirect(`/dashboard/patients/${id}`);
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
+
+  revalidatePath(`/dashboard/clients/${parsed.data.clientId}`);
+  revalidatePath(`/dashboard/patients/${id}`);
+  redirect(`/dashboard/patients/${id}`);
 }
 
 export async function updatePatient(id: string, formData: FormData) {
@@ -132,11 +134,13 @@ export async function updatePatient(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(patients.id, id));
-    revalidatePath(`/dashboard/clients/${existing?.clientId}`);
-    redirect(`/dashboard/patients/${id}`);
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
+
+  revalidatePath(`/dashboard/clients/${existing?.clientId}`);
+  revalidatePath(`/dashboard/patients/${id}`);
+  redirect(`/dashboard/patients/${id}`);
 }
 
 export async function deletePatient(id: string) {

@@ -101,19 +101,21 @@ export async function createClient(formData: FormData) {
     };
   }
 
+  let id: string;
   try {
-    const id = clientId();
+    id = clientId();
     await db.insert(clients).values({
       id,
       name: parsed.data.name,
       phone: parsed.data.phone,
       email: parsed.data.email || null,
     });
-    revalidatePath("/dashboard/clients");
-    redirect(`/dashboard/clients/${id}`);
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
+
+  revalidatePath("/dashboard/clients");
+  redirect(`/dashboard/clients/${id}`);
 }
 
 export async function updateClient(id: string, formData: FormData) {
@@ -145,11 +147,12 @@ export async function updateClient(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(clients.id, id));
-    revalidatePath("/dashboard/clients");
-    redirect(`/dashboard/clients/${id}`);
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
+
+  revalidatePath("/dashboard/clients");
+  redirect(`/dashboard/clients/${id}`);
 }
 
 export async function deleteClient(id: string) {

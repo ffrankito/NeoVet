@@ -29,7 +29,13 @@ interface PatientOption {
   id: string;
   name: string;
   species: string;
+  clientId: string;
   clientName: string;
+}
+
+interface ClientOption {
+  id: string;
+  name: string;
 }
 
 interface AppointmentData {
@@ -45,6 +51,7 @@ interface AppointmentData {
 interface AppointmentFormProps {
   appointment?: AppointmentData;
   patients: PatientOption[];
+  clients?: ClientOption[];
   defaultPatientId?: string;
 }
 
@@ -54,10 +61,25 @@ function formatDateTimeLocal(date: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function AppointmentForm({ appointment, patients, defaultPatientId }: AppointmentFormProps) {
+export function AppointmentForm({ appointment, patients, clients = [], defaultPatientId }: AppointmentFormProps) {
   const isEdit = !!appointment;
+
+  // When a defaultPatientId is provided (e.g. from patient detail page), pre-select
+  // both the patient and its owning client so the second dropdown is immediately visible.
+  const defaultClientId = defaultPatientId
+    ? (patients.find((p) => p.id === defaultPatientId)?.clientId ?? "")
+    : "";
+
   const [selectedPatient, setSelectedPatient] = useState(appointment?.patientId ?? defaultPatientId ?? "");
+  const [selectedClient, setSelectedClient] = useState(defaultClientId);
   const [status, setStatus] = useState(appointment?.status ?? "pending");
+
+  const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
+
+  function handleClientChange(clientId: string) {
+    setSelectedClient(clientId);
+    setSelectedPatient(""); // reset patient whenever client changes
+  }
 
   const action = isEdit
     ? async (_prev: ActionResult, formData: FormData) => {
@@ -83,24 +105,53 @@ export function AppointmentForm({ appointment, patients, defaultPatientId }: App
       )}
 
       {!isEdit && (
-        <div className="space-y-2">
-          <Label>Paciente *</Label>
-          <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)}>
-            <SelectTrigger className="w-full" aria-invalid={!!errors.patientId}>
-              <SelectValue placeholder="Seleccioná un paciente" />
-            </SelectTrigger>
-            <SelectContent>
-              {patients.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name} ({p.species}) — {p.clientName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.patientId && (
-            <p className="text-sm text-destructive mt-1">{errors.patientId}</p>
+        <>
+          <div className="space-y-2">
+            <Label>Cliente *</Label>
+            <Select value={selectedClient} onValueChange={(v) => v && handleClientChange(v)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Seleccioná un cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedClient !== "" && (
+            <div className="space-y-2">
+              <Label>Paciente *</Label>
+              {filteredPatients.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Este cliente no tiene pacientes.{" "}
+                  <a href="/dashboard/patients/new" className="underline">
+                    Creá uno primero.
+                  </a>
+                </p>
+              ) : (
+                <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)}>
+                  <SelectTrigger className="w-full" aria-invalid={!!errors.patientId}>
+                    <SelectValue placeholder="Seleccioná un paciente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredPatients.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.name} ({p.species})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {errors.patientId && (
+                <p className="text-sm text-destructive mt-1">{errors.patientId}</p>
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
 
       <div className="space-y-2">
@@ -172,7 +223,7 @@ export function AppointmentForm({ appointment, patients, defaultPatientId }: App
       </div>
 
       <div className="flex gap-3">
-        <Button disabled={isPending}>
+        <Button type="submit" disabled={isPending}>
           {isPending
             ? isEdit ? "Guardando..." : "Creando..."
             : isEdit ? "Guardar cambios" : "Crear turno"}

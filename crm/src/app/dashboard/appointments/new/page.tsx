@@ -1,4 +1,4 @@
-import { getAllPatientsForSelect } from "../actions";
+import { getAllPatientsForSelect, getAllClientsForSelect } from "../actions";
 import { AppointmentForm } from "@/components/admin/appointments/appointment-form";
 
 interface Props {
@@ -7,7 +7,10 @@ interface Props {
 
 export default async function NewAppointmentPage({ searchParams }: Props) {
   const params = await searchParams;
-  const patients = await getAllPatientsForSelect();
+  const [allPatients, allClients] = await Promise.all([
+    getAllPatientsForSelect(),
+    getAllClientsForSelect(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -15,7 +18,11 @@ export default async function NewAppointmentPage({ searchParams }: Props) {
         <h1 className="text-2xl font-bold tracking-tight">Nuevo turno</h1>
         <p className="text-muted-foreground">Agendá una nueva cita veterinaria</p>
       </div>
-      <AppointmentForm patients={patients} defaultPatientId={params.patientId} />
+      <AppointmentForm
+        patients={allPatients}
+        clients={allClients}
+        defaultPatientId={params.patientId}
+      />
     </div>
   );
 }
