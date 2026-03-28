@@ -13,21 +13,41 @@ import path from "path";
 import { randomUUID } from "crypto";
 
 // ---------------------------------------------------------------------------
-// Column mapping — adjust these strings to match your actual GVet CSV headers
+// Column mapping — matched to actual GVet CSV headers
 // ---------------------------------------------------------------------------
 const CLIENT_MAP = {
   name: "Nombre",
-  phone: "Teléfono",
-  email: "Email",
+  phone: "Teléfono móvil", // primary; falls back to "Teléfono" if empty
+  phoneFallback: "Teléfono",
+  email: "E-mail",
+  address: "Dirección",
+  gvetId: "Identificación",
 } as const;
 
+// Patients CSV has duplicate column names: "Nombre" and "Identificación" each
+// appear twice (patient fields first, owner fields second). The parser renames
+// duplicates by appending _2, _3, etc., so owner name becomes "Nombre_2".
 const PATIENT_MAP = {
-  ownerName: "Propietario", // used to look up the client FK by name
-  name: "Nombre",
+  gvetId: "Identificación",           // GVet patient ID (1st occurrence)
+  gvetHistoryNumber: "Historia N°",
+  name: "Nombre",                     // patient name (1st occurrence)
+  sex: "Sexo",                        // "Macho" | "Hembra"
+  dob: "Fecha de nacimiento",         // format: DD/MM/YYYY
   species: "Especie",
   breed: "Raza",
-  dob: "Fecha de nacimiento",
+  weightKg: "Peso",
+  microchip: "Chip",
+  neutered: "Está castrado",          // "Sí" → true, "No" → false
+  deceased: "Falleció",               // "Sí" → skip
+  ownerName: "Nombre_2",             // owner name (2nd occurrence — used to look up client FK)
 } as const;
+
+// GVet species values → NeoVet schema values
+const SPECIES_MAP: Record<string, string> = {
+  canino: "perro",
+  felino: "gato",
+  // anything else falls through to "otro"
+};
 
 // ---------------------------------------------------------------------------
 // ID helpers (mirrors src/lib/ids.ts — kept inline to avoid tsconfig path issues)
@@ -43,7 +63,20 @@ function parseCSV(content: string): Array<Record<string, string>> {
   const lines = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
   if (lines.length < 2) return [];
 
-  const headers = splitCSVLine(lines[0]);
+  // Handle duplicate headers by appending _2, _3, etc.
+  const rawHeaders = splitCSVLine(lines[0]);
+  const headerCounts: Record<string, number> = {};
+  const headers = rawHeaders.map((h) => {
+    const key = h.trim();
+    if (headerCounts[key] === undefined) {
+      headerCounts[key] = 1;
+      return key;
+    } else {
+      headerCounts[key]++;
+      return `${key}_${headerCounts[key]}`;
+    }
+  });
+
   const rows: Array<Record<string, string>> = [];
 
   for (let i = 1; i < lines.length; i++) {
@@ -53,7 +86,7 @@ function parseCSV(content: string): Array<Record<string, string>> {
     const values = splitCSVLine(line);
     const row: Record<string, string> = {};
     headers.forEach((header, idx) => {
-      row[header.trim()] = (values[idx] ?? "").trim();
+      row[header] = (values[idx] ?? "").trim();
     });
     rows.push(row);
   }
@@ -174,8 +207,10 @@ async function main() {
       const rowNum = i + 2; // +2 because 1-indexed + skip header
 
       const name = row[CLIENT_MAP.name];
-      const phone = row[CLIENT_MAP.phone];
+      const phone = row[CLIENT_MAP.phone] || row[CLIENT_MAP.phoneFallback];
       const email = row[CLIENT_MAP.email] || null;
+      const address = row[CLIENT_MAP.address] || null;
+      const gvetId = row[CLIENT_MAP.gvetId] || null;
 
       if (!name) {
         console.warn(`  ⚠️  Fila ${rowNum}: nombre vacío — omitiendo.`);
@@ -211,6 +246,8 @@ async function main() {
         name,
         phone,
         email,
+        address,
+        gvetId,
         importedFromGvet: true,
       });
 
@@ -239,16 +276,40 @@ async function main() {
 
       const ownerName = row[PATIENT_MAP.ownerName];
       const name = row[PATIENT_MAP.name];
-      const species = row[PATIENT_MAP.species];
+      const speciesRaw = row[PATIENT_MAP.species];
       const breed = row[PATIENT_MAP.breed] || null;
       const dobRaw = row[PATIENT_MAP.dob] || null;
+      const deceased = row[PATIENT_MAP.deceased];
+      const gvetId = row[PATIENT_MAP.gvetId] || null;
+      const gvetHistoryNumber = row[PATIENT_MAP.gvetHistoryNumber] || null;
+      const sex = row[PATIENT_MAP.sex]?.toLowerCase() || null; // "macho" | "hembra"
+      const weightRaw = row[PATIENT_MAP.weightKg];
+      let weightKg: string | null = null;
+      if (weightRaw) {
+        const raw = parseFloat(weightRaw.replace(",", "."));
+        if (!isNaN(raw) && raw > 0) {
+          // GVet stores some weights in grams — if > 500, assume grams and convert
+          const kg = raw > 500 ? raw / 1000 : raw;
+          weightKg = String(Math.round(kg * 100) / 100);
+        }
+      }
+      const microchip = row[PATIENT_MAP.microchip] || null;
+      const neuteredRaw = row[PATIENT_MAP.neutered];
+      const neutered = neuteredRaw ? neuteredRaw.toLowerCase() === "sí" : null;
+
+      // Skip deceased patients
+      if (deceased && deceased.toLowerCase() === "sí") {
+        console.log(`  ↷  Fila ${rowNum}: "${name}" falleció — omitiendo.`);
+        patientsSkipped++;
+        continue;
+      }
 
       if (!name) {
         console.warn(`  ⚠️  Fila ${rowNum}: nombre de mascota vacío — omitiendo.`);
         patientsSkipped++;
         continue;
       }
-      if (!species) {
+      if (!speciesRaw) {
         console.warn(`  ⚠️  Fila ${rowNum}: especie vacía (mascota: "${name}") — omitiendo.`);
         patientsSkipped++;
         continue;
@@ -259,22 +320,31 @@ async function main() {
         continue;
       }
 
-      // Normalize date — try to parse various formats
+      // Map GVet species ("Canino" → "perro", "Felino" → "gato", else "otro")
+      const species = SPECIES_MAP[speciesRaw.toLowerCase()] ?? "otro";
+
+      // Parse DD/MM/YYYY date format from GVet
       let dateOfBirth: string | null = null;
       if (dobRaw) {
-        const parsed = new Date(dobRaw);
-        if (!isNaN(parsed.getTime())) {
-          dateOfBirth = parsed.toISOString().split("T")[0];
+        const ddmmyyyy = dobRaw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (ddmmyyyy) {
+          dateOfBirth = `${ddmmyyyy[3]}-${ddmmyyyy[2]}-${ddmmyyyy[1]}`;
         } else {
-          console.warn(
-            `  ⚠️  Fila ${rowNum}: fecha de nacimiento inválida "${dobRaw}" (mascota: "${name}") — ignorando fecha.`
-          );
+          // Fallback: try native Date parse
+          const parsed = new Date(dobRaw);
+          if (!isNaN(parsed.getTime())) {
+            dateOfBirth = parsed.toISOString().split("T")[0];
+          } else {
+            console.warn(
+              `  ⚠️  Fila ${rowNum}: fecha de nacimiento inválida "${dobRaw}" (mascota: "${name}") — ignorando fecha.`
+            );
+          }
         }
       }
 
       if (dryRun) {
         console.log(
-          `  [dry-run] Insertaría paciente: "${name}" (${species}) — dueño: "${ownerName}"`
+          `  [dry-run] Insertaría paciente: "${name}" (${speciesRaw} → ${species}) — dueño: "${ownerName}"`
         );
         patientsInserted++;
         continue;
@@ -297,13 +367,32 @@ async function main() {
 
       const clientId = matchingClients[0].id;
 
+      // Skip if already imported (safe to re-run)
+      if (gvetId) {
+        const existingPatient = await db
+          .select({ id: patients.id })
+          .from(patients)
+          .where(eq(patients.gvetId, gvetId))
+          .limit(1);
+        if (existingPatient.length > 0) {
+          patientsSkipped++;
+          continue;
+        }
+      }
+
       await db.insert(patients).values({
         id: createId("pat"),
         clientId,
         name,
-        species: species.toLowerCase(),
+        species,
         breed,
         dateOfBirth,
+        sex,
+        neutered,
+        weightKg,
+        microchip,
+        gvetHistoryNumber,
+        gvetId,
       });
 
       patientsInserted++;

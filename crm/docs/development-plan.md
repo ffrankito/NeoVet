@@ -98,23 +98,136 @@ v1 is divided into phases. Each phase must be complete before the next starts.
 
 ---
 
-### Phase C — Clinical Records 🔲 Pending design
+### Phase C — Clinical Records 🔲 Ready to build
 
-> Blocked on: Paula interview (see `../../docs/paula-meeting.md` — clinical history format question)
+> Open questions for Paula meeting listed below. Schema is designed; SOAP field labels and some UX decisions pending her input before C.2 UI is built. C.1 can start immediately.
 
 **Goal:** Paula can record and retrieve full clinical history per patient from NeoVet.
 
-| Feature | Notes |
+---
+
+#### C.1 — Patient status + avatar
+
+**Migrations:** add `deceased boolean NOT NULL DEFAULT false` and `avatar_url text` to `patients`.
+
+| Deliverable | Status |
 |---|---|
-| SOAP notes per consultation | Subjective, Objective, Assessment, Plan — structured or free-text (pending Paula) |
-| Vital signs — weight, temperature, heart rate, respiratory rate | Logged per visit |
-| Diagnosis — free text (ICD-10 optional) | |
-| Treatment plan — ordered list with status | |
-| Vaccination records — vaccine name, lot, date, next due | |
-| Deworming / parasite control schedule | |
-| Patient photo / avatar | Upload + display on patient detail |
-| Deceased / inactive flag | Archive without data loss |
-| Document storage — attach PDFs, lab results, images | |
+| `deceased` flag + "Fallecido" badge on patient detail and client detail | 🔲 |
+| Avatar upload to Supabase Storage (`patient-avatars` bucket, public read) | 🔲 |
+| Deceased patients dimmed/badged on patient list | 🔲 |
+
+---
+
+#### C.2 — Consultations + SOAP + vitals
+
+**New table:** `consultations` — links to patient + optional appointment; SOAP fields (all optional) + free-text `notes` fallback + vitals (weight, temperature, heart rate, respiratory rate) + diagnosis.
+
+| Deliverable | Status |
+|---|---|
+| `consultations` schema + migration | 🔲 |
+| `/dashboard/consultations/new?patientId=` — create form | 🔲 |
+| `/dashboard/consultations/[id]` — detail page | 🔲 |
+| `/dashboard/consultations/[id]/edit` — edit page | 🔲 |
+| Patient detail: "Historia clínica" section with timeline | 🔲 |
+| Appointment detail: "Registrar consulta" button when status=completed | 🔲 |
+
+---
+
+#### C.3 — Treatment plan
+
+**New table:** `treatment_items` — ordered list scoped to a consultation; status: `pending` / `active` / `completed`.
+
+| Deliverable | Status |
+|---|---|
+| `treatment_items` schema + `treatment_status` enum + migration | 🔲 |
+| Dynamic treatment item list inside consultation form | 🔲 |
+| Inline status toggle on consultation detail page | 🔲 |
+
+---
+
+#### C.4 — Vaccinations and deworming
+
+**New tables:** `vaccinations`, `deworming_records` — both scoped to patient; optionally linked to a consultation.
+
+| Deliverable | Status |
+|---|---|
+| `vaccinations` + `deworming_records` schemas + migration | 🔲 |
+| Vaccination CRUD under patient detail (table + create/edit forms) | 🔲 |
+| Deworming CRUD under patient detail (table + create/edit forms) | 🔲 |
+
+---
+
+#### C.5 — Document storage
+
+**New table:** `documents` — file metadata; files stored in Supabase Storage (`clinical-documents` bucket, authenticated access + signed URLs for download).
+
+| Deliverable | Status |
+|---|---|
+| `documents` schema + migration | 🔲 |
+| `clinical-documents` Storage bucket + RLS policy | 🔲 |
+| Document upload on consultation detail page | 🔲 |
+| Document upload on patient detail page (patient-level docs) | 🔲 |
+| Signed-URL download + delete | 🔲 |
+
+---
+
+#### C.6 — Patient detail page tab redesign
+
+UI-only refactor — no new data. Consolidates the patient detail page (which by C.5 is very long) into tabs: Información · Historia clínica · Vacunas · Desparasitaciones · Documentos. Active tab reflected in `?tab=` query param for deep-linking.
+
+---
+
+#### New schema files
+
+| File | Tables |
+|---|---|
+| `src/db/schema/consultations.ts` | `consultations` |
+| `src/db/schema/treatment_items.ts` | `treatmentStatusEnum`, `treatmentItems` |
+| `src/db/schema/vaccinations.ts` | `vaccinations` |
+| `src/db/schema/deworming_records.ts` | `dewormingRecords` |
+| `src/db/schema/documents.ts` | `documents` |
+
+New ID prefixes to add to `src/lib/ids.ts`: `con_`, `trt_`, `vac_`, `dew_`, `doc_`.
+
+#### New Supabase Storage buckets
+
+| Bucket | Access | Max size |
+|---|---|---|
+| `patient-avatars` | Public read / auth write | 2 MB |
+| `clinical-documents` | Auth only (signed URLs) | 10 MB |
+
+---
+
+#### Open questions for Paula (before building C.2 UI)
+
+| # | Question | Blocks |
+|---|---|---|
+| OQ-C1 | Do all four SOAP fields work for her, or does she prefer different labels (e.g. "Motivo + Hallazgos + Plan")? | C.2 form labels |
+| OQ-C2 | Should free-text `notes` always be visible alongside SOAP, or only as a fallback? | C.2 form layout |
+| OQ-C3 | Are heart rate and respiratory rate routinely recorded, or mostly weight + temperature? | C.2 vitals UI prominence |
+| OQ-C4 | Treatment items: should pending items carry forward to the next consultation, or is each list independent? | C.3 model |
+| OQ-C5 | Does the clinic follow a standard vaccination schedule that could auto-populate "next due date"? | C.4 UX |
+| OQ-C6 | Are 10 MB per document and 50 MB total Storage (free tier) sufficient? | C.5 limits |
+| OQ-C7 | "Fallecido" vs "inactivo" — is there a meaningful distinction, or is one flag enough? | C.1 schema |
+| OQ-C8 | When a consultation is linked to an appointment, should saving the consultation auto-mark the appointment as `completed`? | C.2 actions |
+
+---
+
+#### Phase C verification checklist
+
+- [ ] `npm run build` passes after each sub-phase migration
+- [ ] All CRUD flows for consultations, vaccinations, deworming, documents work end-to-end
+- [ ] Deceased flag shows badge in all relevant places; does not delete data
+- [ ] Avatar upload and replacement work; broken images never appear
+- [ ] SOAP fields all optional — consultation with only `notes` saves correctly
+- [ ] Vital signs save as correct numeric types
+- [ ] Treatment item status toggle works without full page reload
+- [ ] Documents: upload, download (signed URL), and delete all work; large/invalid files rejected
+- [ ] `?tab=` deep-links open the correct tab on patient detail
+- [ ] All new server actions protected by Supabase session (no unprotected routes)
+- [ ] All Zod errors display in Spanish under the correct fields
+- [ ] Migration files committed and sequential in `drizzle/migrations/`
+- [ ] Paula UAT: full visit (consultation + SOAP + vitals + 2 treatment items + 1 vaccination + 1 document) created and viewable
 
 ---
 

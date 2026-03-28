@@ -1,4 +1,4 @@
-import { pgTable, text, date, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, boolean, numeric, date, timestamp } from "drizzle-orm/pg-core";
 import { clients } from "./clients";
 
 export const patients = pgTable("patients", {
@@ -10,6 +10,12 @@ export const patients = pgTable("patients", {
   species: text("species").notNull(),
   breed: text("breed"),
   dateOfBirth: date("date_of_birth"),
+  sex: text("sex"),                          // "macho" | "hembra"
+  neutered: boolean("neutered"),
+  weightKg: numeric("weight_kg", { precision: 5, scale: 2 }),
+  microchip: text("microchip"),
+  gvetHistoryNumber: text("gvet_history_number"),
+  gvetId: text("gvet_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
