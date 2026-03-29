@@ -51,6 +51,14 @@ Conversational assistant for NeoVet clinic clients. v1 delivers via a web widget
 
 ---
 
+## Database
+
+The chatbot has **no database in v1**. It is a stateless web widget.
+
+When a DB is added (v2), it will use Supabase and follow the same branching strategy as the CRM — see root `CLAUDE.md` for details.
+
+---
+
 ## Documentation Standards
 
 Before creating any documentation artifact for this app, use the templates from `docs/standards/` at the monorepo root:

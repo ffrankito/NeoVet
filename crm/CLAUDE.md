@@ -55,6 +55,20 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ---
 
+## Database & Migrations
+
+This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
+
+**Migration workflow:**
+- Write schema changes in `src/db/schema/`
+- Run `npm run db:generate` to generate the SQL migration file in `drizzle/migrations/`
+- Commit the migration file — Supabase will apply it automatically when the branch is pushed
+- **Never run `npm run db:migrate` manually on production.** Only run it locally against the preview DB if needed for testing before pushing.
+
+**Supabase CLI** is configured in `supabase/` and linked to project ref `ajpzsmcqlbbuzimjjwyi`.
+
+---
+
 ## Documentation Standards
 
 Before creating any documentation artifact for this app, use the templates from `docs/standards/` at the monorepo root:

@@ -156,6 +156,30 @@ If you are about to suggest something that touches the stack, database schema, W
 
 ---
 
+## Git & Database Branching Strategy
+
+The project uses two long-lived git branches tied to two Supabase database environments:
+
+| Branch | Supabase DB | Purpose |
+|--------|-------------|---------|
+| `main` | Production DB | Stable, production-ready code. Migrations here go to the real clinic DB. |
+| `dev` | Preview DB (Supabase Branch) | Active development and testing. Safe to break. |
+
+**How it works:**
+- Pushing to `dev` triggers Supabase to run pending migrations on the **preview database** automatically.
+- Merging `dev` → `main` triggers Supabase to run those same migrations on the **production database**.
+- Never run migrations manually on production — let the Supabase branching integration handle it.
+
+**Local env setup:**
+- `.env.local` → production Supabase credentials (used when you want to connect to prod locally — careful)
+- `.env.dev` → preview branch credentials (use this when doing development work on the `dev` branch)
+
+To get preview branch credentials: Supabase dashboard → your project → Branches → select the `dev` branch → API settings.
+
+**Supabase CLI** is set up in `crm/supabase/`. The project is linked to ref `ajpzsmcqlbbuzimjjwyi`.
+
+---
+
 ## Stack Reference
 
 | Layer | Tool | Scope |
