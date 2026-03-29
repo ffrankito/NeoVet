@@ -144,8 +144,8 @@ Each app owns its docs. **Before proposing any architectural or technical decisi
 | `chatbot/docs/architecture-phase1.md` | Full chatbot Phase 1 blueprint: stack, schema, message flow, build order |
 | `chatbot/docs/charter.md` | Chatbot project scope, deliverables, success criteria |
 | `chatbot/docs/technical-spec.md` | Chatbot technical specification |
-| `crm/docs/charter.md` | CRM project scope, deliverables, success criteria |
-| `crm/docs/technical-spec.md` | CRM technical specification |
+| `crm/docs/v1/charter.md` | CRM v1 project scope, deliverables, success criteria |
+| `crm/docs/v1/technical-spec.md` | CRM v1 technical specification |
 | `docs/standards/` | Agency documentation templates (charter, technical spec, ADR, handoff) |
 | `landing/docs/` | Paula interview checklist, optimization overview, ADRs |
 

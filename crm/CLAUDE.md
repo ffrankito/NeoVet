@@ -54,9 +54,9 @@ Before creating any documentation artifact for this app, use the templates from 
 
 | When | Template | Output |
 |------|----------|--------|
-| New project or major initiative | `01-project-charter.md` | `crm/docs/charter.md` |
-| Technical design phase | `02-technical-spec.md` | `crm/docs/technical-spec.md` |
-| Significant technical decision | `03-adr-template.md` | `crm/docs/architecture/ADR-NNN-title.md` |
-| Project delivery | `04-client-handoff.md` | `crm/docs/handoff.md` |
+| New project or major initiative | `01-project-charter.md` | `crm/docs/v{N}/charter.md` |
+| Technical design phase | `02-technical-spec.md` | `crm/docs/v{N}/technical-spec.md` |
+| Significant technical decision | `03-adr-template.md` | `crm/docs/v{N}/architecture/ADR-NNN-title.md` |
+| Project delivery | `04-client-handoff.md` | `crm/docs/v{N}/handoff.md` |
 
-A decision is "significant" if making it differently would change the architecture, cost structure, or maintenance burden. Check `crm/docs/architecture/` for existing ADRs before proposing new approaches.
+A decision is "significant" if making it differently would change the architecture, cost structure, or maintenance burden. Check `crm/docs/v1/architecture/` for existing ADRs before proposing new approaches.
