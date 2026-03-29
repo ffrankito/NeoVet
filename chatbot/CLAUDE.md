@@ -55,7 +55,13 @@ Conversational assistant for NeoVet clinic clients. v1 delivers via a web widget
 
 The chatbot has **no database in v1**. It is a stateless web widget.
 
-When a DB is added (v2), it will use Supabase and follow the same branching strategy as the CRM — see root `CLAUDE.md` for details.
+When a DB is added (v2), it will use Supabase and follow the same branching strategy as the CRM. The env switch pattern will be identical:
+```bash
+cp .env.development .env.local   # → preview DB
+cp .env.production  .env.local   # → production DB
+```
+
+See root `CLAUDE.md` for the full branching strategy.
 
 ---
 
