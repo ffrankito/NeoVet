@@ -1,6 +1,6 @@
 {
-  "id": "9d4ff0f3-4081-403a-8efc-b857fb75ed2d",
-  "prevId": "422a309e-1407-437c-8a8d-8a9f680bcf67",
+  "id": "e39dd2bb-6413-444f-a893-2edeacba25c6",
+  "prevId": "9d4ff0f3-4081-403a-8efc-b857fb75ed2d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -256,6 +256,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'pending'"
+        },
+        "consultation_type": {
+          "name": "consultation_type",
+          "type": "consultation_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
         },
         "staff_notes": {
           "name": "staff_notes",
@@ -532,6 +539,30 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "medication": {
+          "name": "medication",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dose": {
+          "name": "dose",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "frequency": {
+          "name": "frequency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration_days": {
+          "name": "duration_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "status": {
           "name": "status",
@@ -834,6 +865,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "document_category",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -1147,6 +1185,70 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.complementary_methods": {
+      "name": "complementary_methods",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "consultation_id": {
+          "name": "consultation_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "study_type": {
+          "name": "study_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content": {
+          "name": "content",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "photo_path": {
+          "name": "photo_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "complementary_methods_consultation_id_consultations_id_fk": {
+          "name": "complementary_methods_consultation_id_consultations_id_fk",
+          "tableFrom": "complementary_methods",
+          "tableTo": "consultations",
+          "columnsFrom": [
+            "consultation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -1168,6 +1270,15 @@
         "grooming"
       ]
     },
+    "public.consultation_type": {
+      "name": "consultation_type",
+      "schema": "public",
+      "values": [
+        "clinica",
+        "virtual",
+        "domicilio"
+      ]
+    },
     "public.treatment_status": {
       "name": "treatment_status",
       "schema": "public",
@@ -1175,6 +1286,17 @@
         "pending",
         "active",
         "completed"
+      ]
+    },
+    "public.document_category": {
+      "name": "document_category",
+      "schema": "public",
+      "values": [
+        "laboratorio",
+        "radiografia",
+        "ecografia",
+        "foto",
+        "otro"
       ]
     },
     "public.price_tier": {

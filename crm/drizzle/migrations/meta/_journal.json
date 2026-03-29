@@ -71,6 +71,13 @@
       "when": 1774790083387,
       "tag": "0009_odd_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774818115789,
+      "tag": "0010_high_wallflower",
+      "breakpoints": true
     }
   ]
 }

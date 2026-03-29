@@ -93,7 +93,7 @@ export async function createConsultation(formData: FormData) {
 
   const d = parsed.data;
 
-  let itemsRaw: { description: string }[] = [];
+  let itemsRaw: { description: string; medication?: string | null; dose?: string | null; frequency?: string | null; durationDays?: number | null }[] = [];
   try {
     const json = formData.get("treatmentItems") as string | null;
     if (json) itemsRaw = JSON.parse(json);
@@ -154,7 +154,7 @@ export async function updateConsultation(id: string, formData: FormData) {
 
   const d = parsed.data;
 
-  let itemsRaw: { description: string }[] = [];
+  let itemsRaw: { description: string; medication?: string | null; dose?: string | null; frequency?: string | null; durationDays?: number | null }[] = [];
   try {
     const json = formData.get("treatmentItems") as string | null;
     if (json) itemsRaw = JSON.parse(json);

@@ -13,6 +13,10 @@ export const treatmentItems = pgTable("treatment_items", {
     .notNull()
     .references(() => consultations.id, { onDelete: "cascade" }),
   description:    text("description").notNull(),
+  medication:     text("medication"),
+  dose:           text("dose"),
+  frequency:      text("frequency"),
+  durationDays:   integer("duration_days"),
   status:         treatmentStatusEnum("status").default("pending").notNull(),
   order:          integer("order").default(0).notNull(),
   createdAt:      timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

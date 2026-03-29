@@ -14,6 +14,12 @@ export const appointmentTypeEnum = pgEnum("appointment_type", [
   "grooming",
 ]);
 
+export const consultationTypeEnum = pgEnum("consultation_type", [
+  "clinica",
+  "virtual",
+  "domicilio",
+]);
+
 export const appointments = pgTable("appointments", {
   id: text("id").primaryKey(),
   patientId: text("patient_id")
@@ -29,6 +35,7 @@ export const appointments = pgTable("appointments", {
   durationMinutes: integer("duration_minutes").default(30).notNull(),
   reason: text("reason"),
   status: appointmentStatusEnum("status").default("pending").notNull(),
+  consultationType: consultationTypeEnum("consultation_type"),
   staffNotes: text("staff_notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

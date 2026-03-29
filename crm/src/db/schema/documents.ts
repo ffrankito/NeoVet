@@ -1,6 +1,14 @@
-import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
 import { consultations } from "./consultations";
+
+export const documentCategoryEnum = pgEnum("document_category", [
+  "laboratorio",
+  "radiografia",
+  "ecografia",
+  "foto",
+  "otro",
+]);
 
 export const documents = pgTable("documents", {
   id:             text("id").primaryKey(),
@@ -13,6 +21,7 @@ export const documents = pgTable("documents", {
   storagePath:    text("storage_path").notNull(),   // path inside the bucket
   mimeType:       text("mime_type").notNull(),
   sizeBytes:      integer("size_bytes").notNull(),
+  category:       documentCategoryEnum("category"),
   createdAt:      timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

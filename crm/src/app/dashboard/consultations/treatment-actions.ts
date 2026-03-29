@@ -9,6 +9,10 @@ import { z } from "zod";
 
 const treatmentItemSchema = z.object({
   description: z.string().min(1, "La descripción es obligatoria."),
+  medication: z.string().nullable().optional(),
+  dose: z.string().nullable().optional(),
+  frequency: z.string().nullable().optional(),
+  durationDays: z.number().int().positive().nullable().optional(),
 });
 
 export async function getTreatmentItems(consultationId: string) {
@@ -21,7 +25,13 @@ export async function getTreatmentItems(consultationId: string) {
 
 export async function saveTreatmentItems(
   consultationId: string,
-  items: { description: string }[],
+  items: {
+    description: string;
+    medication?: string | null;
+    dose?: string | null;
+    frequency?: string | null;
+    durationDays?: number | null;
+  }[],
 ) {
   // Replace all items for this consultation atomically:
   // delete existing ones, insert the new list with updated order.
@@ -36,6 +46,10 @@ export async function saveTreatmentItems(
       id:             treatmentItemId(),
       consultationId,
       description:    item.description.trim(),
+      medication:     item.medication ?? null,
+      dose:           item.dose ?? null,
+      frequency:      item.frequency ?? null,
+      durationDays:   item.durationDays ?? null,
       status:         "pending" as const,
       order:          index,
     })),

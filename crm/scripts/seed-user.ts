@@ -166,6 +166,7 @@ async function main() {
     await db.insert(staff).values({
       id: createId("stf"),
       userId: authUserId,
+      email,
       name,
       role,
     });

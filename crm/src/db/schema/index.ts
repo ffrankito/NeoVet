@@ -10,3 +10,4 @@ export * from "./documents";
 export * from "./grooming_profiles";
 export * from "./grooming_sessions";
 export * from "./settings";
+export * from "./complementary_methods";

@@ -1,1 +1,0 @@
-ALTER TABLE "staff" ADD COLUMN "email" text NOT NULL;
