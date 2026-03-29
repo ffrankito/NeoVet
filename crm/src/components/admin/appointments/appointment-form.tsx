@@ -47,6 +47,7 @@ interface AppointmentData {
   status: string;
   patientId: string;
   appointmentType: string;
+  consultationType: string | null;
 }
 
 interface AppointmentFormProps {
@@ -75,6 +76,7 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
   const [selectedClient, setSelectedClient] = useState(defaultClientId);
   const [status, setStatus] = useState(appointment?.status ?? "pending");
   const [appointmentType, setAppointmentType] = useState(appointment?.appointmentType ?? "veterinary");
+  const [consultationType, setConsultationType] = useState(appointment?.consultationType ?? "clinica");
 
   const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
 
@@ -87,11 +89,13 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
     ? async (_prev: ActionResult, formData: FormData) => {
         formData.set("status", status);
         formData.set("appointmentType", appointmentType);
+        formData.set("consultationType", consultationType);
         return updateAppointment(appointment!.id, formData);
       }
     : async (_prev: ActionResult, formData: FormData) => {
         formData.set("patientId", selectedPatient);
         formData.set("appointmentType", appointmentType);
+        formData.set("consultationType", consultationType);
         return createAppointment(formData);
       };
 
@@ -160,7 +164,7 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
 
       <div className="space-y-2">
         <Label>Tipo de turno</Label>
-        <Select value={appointmentType} onValueChange={(v) => v && setAppointmentType(v)}>
+        <Select value={appointmentType} onValueChange={(v) => { if (v) { setAppointmentType(v); if (v === "grooming") setConsultationType("clinica"); } }}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
@@ -170,6 +174,22 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
           </SelectContent>
         </Select>
       </div>
+
+      {appointmentType === "veterinary" && (
+        <div className="space-y-2">
+          <Label>Modalidad</Label>
+          <Select value={consultationType} onValueChange={(v) => v && setConsultationType(v)}>
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="clinica" label="En clínica">En clínica</SelectItem>
+              <SelectItem value="virtual" label="Virtual">Virtual</SelectItem>
+              <SelectItem value="domicilio" label="A domicilio">A domicilio</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="scheduledAt">Fecha y hora *</Label>

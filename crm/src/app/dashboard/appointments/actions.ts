@@ -19,6 +19,7 @@ const appointmentSchema = z.object({
     .int()
     .positive("La duración debe ser mayor a 0."),
   appointmentType: z.enum(["veterinary", "grooming"]).default("veterinary"),
+  consultationType: z.enum(["clinica", "virtual", "domicilio"]).optional(),
 });
 
 const appointmentUpdateSchema = z.object({
@@ -31,6 +32,7 @@ const appointmentUpdateSchema = z.object({
     .int()
     .positive("La duración debe ser mayor a 0."),
   appointmentType: z.enum(["veterinary", "grooming"]).default("veterinary"),
+  consultationType: z.enum(["clinica", "virtual", "domicilio"]).optional(),
 });
 
 export async function getAppointments(opts?: {
@@ -123,6 +125,7 @@ export async function getAppointment(id: string) {
       status: appointments.status,
       staffNotes: appointments.staffNotes,
       appointmentType: appointments.appointmentType,
+      consultationType: appointments.consultationType,
       assignedStaffId: appointments.assignedStaffId,
       assignedStaffName: assignedStaff.name,
       patientId: appointments.patientId,
@@ -161,6 +164,7 @@ export async function createAppointment(formData: FormData) {
     scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
     durationMinutes: Number(formData.get("durationMinutes")) || 30,
     appointmentType: (formData.get("appointmentType") as string) || "veterinary",
+    consultationType: (formData.get("consultationType") as string) || undefined,
   };
   const reason = (formData.get("reason") as string)?.trim() || null;
   const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
@@ -184,6 +188,7 @@ export async function createAppointment(formData: FormData) {
       id,
       patientId: parsed.data.patientId,
       appointmentType: parsed.data.appointmentType,
+      consultationType: parsed.data.consultationType ?? null,
       scheduledAt: new Date(parsed.data.scheduledAt),
       durationMinutes: parsed.data.durationMinutes,
       reason,
@@ -204,6 +209,7 @@ export async function updateAppointment(id: string, formData: FormData) {
     scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
     durationMinutes: Number(formData.get("durationMinutes")) || 30,
     appointmentType: (formData.get("appointmentType") as string) || "veterinary",
+    consultationType: (formData.get("consultationType") as string) || undefined,
   };
   const reason = (formData.get("reason") as string)?.trim() || null;
   const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
@@ -235,6 +241,7 @@ export async function updateAppointment(id: string, formData: FormData) {
         scheduledAt: new Date(parsed.data.scheduledAt),
         durationMinutes: parsed.data.durationMinutes,
         appointmentType: parsed.data.appointmentType,
+        consultationType: parsed.data.consultationType ?? null,
         reason,
         staffNotes,
         status: (status as "pending" | "confirmed" | "cancelled" | "completed") ?? "pending",

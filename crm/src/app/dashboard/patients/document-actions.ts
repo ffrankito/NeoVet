@@ -28,6 +28,11 @@ export async function uploadDocument(patientId: string, formData: FormData) {
   const file = formData.get("file") as File | null;
   if (!file || file.size === 0) return { error: "No se recibió ningún archivo." };
 
+  const categoryRaw = (formData.get("category") as string) || null;
+  const validCategories = ["laboratorio", "radiografia", "ecografia", "foto", "otro"] as const;
+  type DocCategory = typeof validCategories[number];
+  const category = validCategories.includes(categoryRaw as DocCategory) ? (categoryRaw as DocCategory) : null;
+
   const storagePath = `${patientId}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_")}`;
 
   const supabase = getServiceRoleClient();
@@ -48,6 +53,7 @@ export async function uploadDocument(patientId: string, formData: FormData) {
       storagePath,
       mimeType:    file.type || "application/octet-stream",
       sizeBytes:   file.size,
+      category,
     });
   } catch {
     // If DB insert fails, clean up the uploaded file

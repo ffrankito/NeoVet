@@ -35,6 +35,12 @@ const typeColors: Record<string, string> = {
   grooming: "bg-pink-100 text-pink-800",
 };
 
+const consultationTypeLabels: Record<string, string> = {
+  clinica: "En clínica",
+  virtual: "Virtual",
+  domicilio: "A domicilio",
+};
+
 export default async function AppointmentDetailPage({ params }: Props) {
   const { id } = await params;
   const [apt, role] = await Promise.all([getAppointment(id), getRole()]);
@@ -103,6 +109,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
             {typeLabels[apt.appointmentType] ?? apt.appointmentType}
           </span>
         </div>
+        {apt.appointmentType === "veterinary" && apt.consultationType && (
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Modalidad</p>
+            <p className="mt-1">{consultationTypeLabels[apt.consultationType] ?? apt.consultationType}</p>
+          </div>
+        )}
         <div>
           <p className="text-sm font-medium text-muted-foreground">Duración</p>
           <p className="mt-1">{apt.durationMinutes} minutos</p>

@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import { getConsultation } from "../actions";
 import { getTreatmentItems } from "../treatment-actions";
+import { getComplementaryMethods } from "../complementary-actions";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Separator } from "@/components/ui/separator";
 import { DeleteConsultationButton } from "@/components/admin/consultations/delete-consultation-button";
 import { TreatmentItemToggle } from "@/components/admin/consultations/treatment-item-toggle";
+import { ComplementaryMethodsSection } from "@/components/admin/consultations/complementary-methods-section";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -32,9 +34,10 @@ function SoapSection({ label, value }: { label: string; value: string | null }) 
 
 export default async function ConsultationDetailPage({ params }: Props) {
   const { id } = await params;
-  const [consultation, items] = await Promise.all([
+  const [consultation, items, methods] = await Promise.all([
     getConsultation(id),
     getTreatmentItems(id),
+    getComplementaryMethods(id),
   ]);
 
   if (!consultation) notFound();
@@ -133,13 +136,34 @@ export default async function ConsultationDetailPage({ params }: Props) {
             <h2 className="text-lg font-semibold">Plan de tratamiento</h2>
             <div className="space-y-2">
               {items.map((item) => (
-                <TreatmentItemToggle key={item.id} item={item} />
+                <div key={item.id} className="space-y-1">
+                  <TreatmentItemToggle item={item} />
+                  {(item.dose || item.frequency || item.durationDays) && (
+                    <p className="pl-7 text-xs text-muted-foreground">
+                      {[
+                        item.dose,
+                        item.frequency,
+                        item.durationDays ? `${item.durationDays} días` : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  )}
+                </div>
               ))}
             </div>
           </div>
           <Separator />
         </>
       )}
+
+      {/* Complementary methods */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">Métodos complementarios</h2>
+        <ComplementaryMethodsSection consultationId={id} methods={methods} />
+      </div>
+
+      <Separator />
 
       {/* Linked appointment */}
       {consultation.appointment && (

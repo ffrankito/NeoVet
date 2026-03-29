@@ -15,3 +15,4 @@ export const dewormingId = () => createId("dew");
 export const documentId = () => createId("doc");
 export const groomingProfileId = () => createId("gpr");
 export const groomingSessionId = () => createId("gss");
+export const complementaryMethodId = () => createId("cmp");
