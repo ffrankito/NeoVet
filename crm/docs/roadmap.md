@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Project** | NeoVet CRM |
-| **Última actualización** | 2026-03-29 |
+| **Última actualización** | 2026-03-30 |
 
 Este documento describe el plan de largo plazo del CRM en tres versiones. Cada versión tiene su propio plan detallado en `crm/docs/vN/development-plan.md`.
 
