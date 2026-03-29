@@ -55,8 +55,10 @@ export async function updateSession(request: NextRequest) {
   // so server components can read it via getRole() without a DB query.
   if (user) {
     const role = (user.app_metadata?.role as string) ?? null;
-    if (!role) {
-      // Auth user exists but has no role — deny access defensively
+    const disabled = user.app_metadata?.disabled === true;
+
+    if (!role || disabled) {
+      // Auth user exists but has no role or was deactivated — deny access
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       return NextResponse.redirect(url);

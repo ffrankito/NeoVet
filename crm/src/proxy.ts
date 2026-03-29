@@ -1,18 +1,46 @@
-import { type NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
+// Routes each role is blocked from accessing (prefix match)
+const ROLE_BLOCKS: Record<string, string[]> = {
+  vet: [
+    "/dashboard/settings",
+    "/dashboard/billing",
+    "/dashboard/grooming",
+  ],
+  groomer: [
+    "/dashboard/settings",
+    "/dashboard/billing",
+    "/dashboard/clients",
+    "/dashboard/patients",
+    "/dashboard/consultations",
+  ],
+};
+
 export async function proxy(request: NextRequest) {
-  return await updateSession(request);
+  const response = await updateSession(request);
+
+  // updateSession returns a redirect for unauthenticated/no-role users — pass it through
+  if (response.status !== 200) return response;
+
+  const role = response.headers.get("x-user-role");
+  const pathname = request.nextUrl.pathname;
+
+  if (role && role !== "admin") {
+    const blocked = ROLE_BLOCKS[role] ?? [];
+    const isBlocked = blocked.some((prefix) => pathname.startsWith(prefix));
+    if (isBlocked) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/dashboard";
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return response;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

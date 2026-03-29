@@ -1,5 +1,6 @@
 import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
+import { staff } from "./staff";
 
 export const appointmentStatusEnum = pgEnum("appointment_status", [
   "pending",
@@ -8,11 +9,22 @@ export const appointmentStatusEnum = pgEnum("appointment_status", [
   "completed",
 ]);
 
+export const appointmentTypeEnum = pgEnum("appointment_type", [
+  "veterinary",
+  "grooming",
+]);
+
 export const appointments = pgTable("appointments", {
   id: text("id").primaryKey(),
   patientId: text("patient_id")
     .notNull()
     .references(() => patients.id, { onDelete: "cascade" }),
+  appointmentType: appointmentTypeEnum("appointment_type")
+    .default("veterinary")
+    .notNull(),
+  assignedStaffId: text("assigned_staff_id").references(() => staff.id, {
+    onDelete: "set null",
+  }),
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
   durationMinutes: integer("duration_minutes").default(30).notNull(),
   reason: text("reason"),

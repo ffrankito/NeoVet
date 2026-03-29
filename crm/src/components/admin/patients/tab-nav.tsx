@@ -5,7 +5,7 @@ interface Tab {
   value: string;
 }
 
-const TABS: Tab[] = [
+const BASE_TABS: Tab[] = [
   { label: "Información", value: "informacion" },
   { label: "Historia clínica", value: "historia" },
   { label: "Vacunas", value: "vacunas" },
@@ -13,15 +13,20 @@ const TABS: Tab[] = [
   { label: "Documentos", value: "documentos" },
 ];
 
+const GROOMING_TAB: Tab = { label: "Peluquería", value: "peluqueria" };
+
 interface TabNavProps {
   activeTab: string;
   patientId: string;
+  showGrooming?: boolean;
 }
 
-export function TabNav({ activeTab, patientId }: TabNavProps) {
+export function TabNav({ activeTab, patientId, showGrooming = false }: TabNavProps) {
+  const tabs = showGrooming ? [...BASE_TABS, GROOMING_TAB] : BASE_TABS;
+
   return (
     <nav className="flex gap-1 border-b mb-6" aria-label="Secciones del paciente">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const isActive = activeTab === tab.value;
         const href =
           tab.value === "informacion"

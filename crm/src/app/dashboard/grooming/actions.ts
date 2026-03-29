@@ -1,0 +1,219 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { db } from "@/db";
+import {
+  groomingProfiles,
+  groomingSessions,
+  appointments,
+  patients,
+  clients,
+  staff,
+  settings,
+} from "@/db/schema";
+import { groomingProfileId, groomingSessionId } from "@/lib/ids";
+import { eq, desc } from "drizzle-orm";
+import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
+import { randomUUID } from "crypto";
+
+// ── Grooming Profile ─────────────────────────────────────────────────────────
+
+const profileSchema = z.object({
+  behaviorScore: z.number().int().min(1).max(10).nullable().optional(),
+  coatType: z.string().optional(),
+  coatDifficulties: z.string().optional(),
+  behaviorNotes: z.string().optional(),
+  estimatedMinutes: z.number().int().positive().nullable().optional(),
+});
+
+export async function getGroomingProfile(patientId: string) {
+  const [row] = await db
+    .select()
+    .from(groomingProfiles)
+    .where(eq(groomingProfiles.patientId, patientId))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function upsertGroomingProfile(patientId: string, formData: FormData) {
+  const raw = {
+    behaviorScore: formData.get("behaviorScore") ? Number(formData.get("behaviorScore")) : null,
+    coatType: (formData.get("coatType") as string)?.trim() || undefined,
+    coatDifficulties: (formData.get("coatDifficulties") as string)?.trim() || undefined,
+    behaviorNotes: (formData.get("behaviorNotes") as string)?.trim() || undefined,
+    estimatedMinutes: formData.get("estimatedMinutes") ? Number(formData.get("estimatedMinutes")) : null,
+  };
+
+  const parsed = profileSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const existing = await getGroomingProfile(patientId);
+
+  if (existing) {
+    await db
+      .update(groomingProfiles)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(groomingProfiles.patientId, patientId));
+  } else {
+    await db.insert(groomingProfiles).values({
+      id: groomingProfileId(),
+      patientId,
+      ...parsed.data,
+    });
+  }
+
+  revalidatePath(`/dashboard/patients/${patientId}`);
+  return { success: true };
+}
+
+// ── Grooming Sessions ─────────────────────────────────────────────────────────
+
+export async function getGroomingSessions(patientId: string) {
+  const groomedBy = db.$with("groomed_by").as(
+    db.select({ id: staff.id, name: staff.name }).from(staff)
+  );
+
+  return db
+    .with(groomedBy)
+    .select({
+      id: groomingSessions.id,
+      patientId: groomingSessions.patientId,
+      appointmentId: groomingSessions.appointmentId,
+      priceTier: groomingSessions.priceTier,
+      finalPrice: groomingSessions.finalPrice,
+      beforePhotoPath: groomingSessions.beforePhotoPath,
+      afterPhotoPath: groomingSessions.afterPhotoPath,
+      findings: groomingSessions.findings,
+      notes: groomingSessions.notes,
+      createdAt: groomingSessions.createdAt,
+      groomedByName: groomedBy.name,
+    })
+    .from(groomingSessions)
+    .leftJoin(groomedBy, eq(groomingSessions.groomedById, groomedBy.id))
+    .where(eq(groomingSessions.patientId, patientId))
+    .orderBy(desc(groomingSessions.createdAt));
+}
+
+export async function getGroomingPrices() {
+  const rows = await db
+    .select()
+    .from(settings)
+    .where(
+      eq(settings.key, "grooming_price_min")
+    );
+  // Fetch all three
+  const all = await db.select().from(settings);
+  const map = Object.fromEntries(all.map((r) => [r.key, r.value]));
+  return {
+    min: map["grooming_price_min"] ?? "",
+    mid: map["grooming_price_mid"] ?? "",
+    hard: map["grooming_price_hard"] ?? "",
+  };
+}
+
+const sessionSchema = z.object({
+  groomedById: z.string().min(1, "El peluquero es obligatorio."),
+  priceTier: z.enum(["min", "mid", "hard"], { message: "El nivel de dificultad es inválido." }),
+  finalPrice: z.number().nonnegative("El precio debe ser mayor o igual a 0.").nullable().optional(),
+  notes: z.string().optional(),
+  findings: z.array(z.string()).optional(),
+});
+
+export async function createGroomingSession(
+  patientId: string,
+  appointmentId: string | null,
+  formData: FormData
+) {
+  const findingsRaw = formData.getAll("findings") as string[];
+
+  const raw = {
+    groomedById: (formData.get("groomedById") as string)?.trim() ?? "",
+    priceTier: (formData.get("priceTier") as string) ?? "",
+    finalPrice: formData.get("finalPrice") ? Number(formData.get("finalPrice")) : null,
+    notes: (formData.get("notes") as string)?.trim() || undefined,
+    findings: findingsRaw.length > 0 ? findingsRaw : undefined,
+  };
+
+  const parsed = sessionSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Resolve createdById from the auth user
+  const [staffRow] = user
+    ? await db.select({ id: staff.id }).from(staff).where(eq(staff.userId, user.id)).limit(1)
+    : [null];
+
+  // Handle photo uploads
+  let beforePhotoPath: string | null = null;
+  let afterPhotoPath: string | null = null;
+
+  const beforeFile = formData.get("beforePhoto") as File | null;
+  const afterFile = formData.get("afterPhoto") as File | null;
+
+  if (beforeFile && beforeFile.size > 0) {
+    const ext = beforeFile.name.split(".").pop();
+    const path = `${patientId}/before_${randomUUID()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("grooming-photos")
+      .upload(path, beforeFile);
+    if (!error) beforePhotoPath = path;
+  }
+
+  if (afterFile && afterFile.size > 0) {
+    const ext = afterFile.name.split(".").pop();
+    const path = `${patientId}/after_${randomUUID()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("grooming-photos")
+      .upload(path, afterFile);
+    if (!error) afterPhotoPath = path;
+  }
+
+  await db.insert(groomingSessions).values({
+    id: groomingSessionId(),
+    patientId,
+    appointmentId: appointmentId || null,
+    groomedById: parsed.data.groomedById,
+    priceTier: parsed.data.priceTier,
+    finalPrice: parsed.data.finalPrice ? String(parsed.data.finalPrice) : null,
+    beforePhotoPath,
+    afterPhotoPath,
+    findings: parsed.data.findings ?? [],
+    notes: parsed.data.notes ?? null,
+    createdById: staffRow?.id ?? null,
+  });
+
+  // Auto-create grooming profile if it doesn't exist yet
+  const existing = await getGroomingProfile(patientId);
+  if (!existing) {
+    await db.insert(groomingProfiles).values({
+      id: groomingProfileId(),
+      patientId,
+    });
+  }
+
+  revalidatePath(`/dashboard/patients/${patientId}`);
+  return { success: true };
+}
+
+export async function getSignedPhotoUrl(path: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.storage
+    .from("grooming-photos")
+    .createSignedUrl(path, 300); // 5 minutes
+  return data?.signedUrl ?? null;
+}
+
+export async function getGroomersForSelect() {
+  return db
+    .select({ id: staff.id, name: staff.name })
+    .from(staff)
+    .where(eq(staff.isActive, true))
+    .orderBy(staff.name);
+}

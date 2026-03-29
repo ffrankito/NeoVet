@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { appointments, patients, clients, consultations } from "@/db/schema";
+import { appointments, patients, clients, consultations, staff } from "@/db/schema";
 import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -18,6 +18,7 @@ const appointmentSchema = z.object({
     .number()
     .int()
     .positive("La duración debe ser mayor a 0."),
+  appointmentType: z.enum(["veterinary", "grooming"]).default("veterinary"),
 });
 
 const appointmentUpdateSchema = z.object({
@@ -29,10 +30,12 @@ const appointmentUpdateSchema = z.object({
     .number()
     .int()
     .positive("La duración debe ser mayor a 0."),
+  appointmentType: z.enum(["veterinary", "grooming"]).default("veterinary"),
 });
 
 export async function getAppointments(opts?: {
   status?: string;
+  appointmentType?: "veterinary" | "grooming";
   from?: string;
   to?: string;
   page?: number;
@@ -46,6 +49,9 @@ export async function getAppointments(opts?: {
   if (opts?.status) {
     conditions.push(eq(appointments.status, opts.status as "pending" | "confirmed" | "cancelled" | "completed"));
   }
+  if (opts?.appointmentType) {
+    conditions.push(eq(appointments.appointmentType, opts.appointmentType));
+  }
   if (opts?.from) {
     conditions.push(gte(appointments.scheduledAt, new Date(opts.from)));
   }
@@ -55,8 +61,13 @@ export async function getAppointments(opts?: {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
+  const assignedStaff = db.$with("assigned_staff").as(
+    db.select({ id: staff.id, name: staff.name }).from(staff)
+  );
+
   const [data, countResult] = await Promise.all([
     db
+      .with(assignedStaff)
       .select({
         id: appointments.id,
         scheduledAt: appointments.scheduledAt,
@@ -64,6 +75,9 @@ export async function getAppointments(opts?: {
         reason: appointments.reason,
         status: appointments.status,
         staffNotes: appointments.staffNotes,
+        appointmentType: appointments.appointmentType,
+        assignedStaffId: appointments.assignedStaffId,
+        assignedStaffName: assignedStaff.name,
         patientId: appointments.patientId,
         patientName: patients.name,
         patientSpecies: patients.species,
@@ -74,6 +88,7 @@ export async function getAppointments(opts?: {
       .from(appointments)
       .innerJoin(patients, eq(appointments.patientId, patients.id))
       .innerJoin(clients, eq(patients.clientId, clients.id))
+      .leftJoin(assignedStaff, eq(appointments.assignedStaffId, assignedStaff.id))
       .where(whereClause)
       .orderBy(desc(appointments.scheduledAt))
       .limit(limit)
@@ -94,7 +109,12 @@ export async function getAppointments(opts?: {
 }
 
 export async function getAppointment(id: string) {
+  const assignedStaff = db.$with("assigned_staff").as(
+    db.select({ id: staff.id, name: staff.name }).from(staff)
+  );
+
   const [row] = await db
+    .with(assignedStaff)
     .select({
       id: appointments.id,
       scheduledAt: appointments.scheduledAt,
@@ -102,6 +122,9 @@ export async function getAppointment(id: string) {
       reason: appointments.reason,
       status: appointments.status,
       staffNotes: appointments.staffNotes,
+      appointmentType: appointments.appointmentType,
+      assignedStaffId: appointments.assignedStaffId,
+      assignedStaffName: assignedStaff.name,
       patientId: appointments.patientId,
       createdAt: appointments.createdAt,
       updatedAt: appointments.updatedAt,
@@ -125,6 +148,7 @@ export async function getAppointment(id: string) {
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(clients, eq(patients.clientId, clients.id))
     .leftJoin(consultations, eq(consultations.appointmentId, appointments.id))
+    .leftJoin(assignedStaff, eq(appointments.assignedStaffId, assignedStaff.id))
     .where(eq(appointments.id, id))
     .limit(1);
 
@@ -136,6 +160,7 @@ export async function createAppointment(formData: FormData) {
     patientId: (formData.get("patientId") as string)?.trim() ?? "",
     scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
     durationMinutes: Number(formData.get("durationMinutes")) || 30,
+    appointmentType: (formData.get("appointmentType") as string) || "veterinary",
   };
   const reason = (formData.get("reason") as string)?.trim() || null;
   const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
@@ -158,6 +183,7 @@ export async function createAppointment(formData: FormData) {
     await db.insert(appointments).values({
       id,
       patientId: parsed.data.patientId,
+      appointmentType: parsed.data.appointmentType,
       scheduledAt: new Date(parsed.data.scheduledAt),
       durationMinutes: parsed.data.durationMinutes,
       reason,
@@ -177,6 +203,7 @@ export async function updateAppointment(id: string, formData: FormData) {
   const raw = {
     scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
     durationMinutes: Number(formData.get("durationMinutes")) || 30,
+    appointmentType: (formData.get("appointmentType") as string) || "veterinary",
   };
   const reason = (formData.get("reason") as string)?.trim() || null;
   const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
@@ -207,6 +234,7 @@ export async function updateAppointment(id: string, formData: FormData) {
       .set({
         scheduledAt: new Date(parsed.data.scheduledAt),
         durationMinutes: parsed.data.durationMinutes,
+        appointmentType: parsed.data.appointmentType,
         reason,
         staffNotes,
         status: (status as "pending" | "confirmed" | "cancelled" | "completed") ?? "pending",
@@ -220,6 +248,23 @@ export async function updateAppointment(id: string, formData: FormData) {
   revalidatePath("/dashboard/appointments");
   if (patientId) revalidatePath(`/dashboard/patients/${patientId}`);
   redirect(`/dashboard/appointments/${id}`);
+}
+
+export async function assignStaffToAppointment(id: string, staffId: string | null) {
+  await db
+    .update(appointments)
+    .set({ assignedStaffId: staffId, updatedAt: new Date() })
+    .where(eq(appointments.id, id));
+
+  revalidatePath(`/dashboard/appointments/${id}`);
+}
+
+export async function getAllStaffForSelect() {
+  return db
+    .select({ id: staff.id, name: staff.name, role: staff.role })
+    .from(staff)
+    .where(eq(staff.isActive, true))
+    .orderBy(staff.name);
 }
 
 export async function updateAppointmentStatus(id: string, status: "pending" | "confirmed" | "cancelled" | "completed") {

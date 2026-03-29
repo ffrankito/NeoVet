@@ -6,15 +6,18 @@ import { logout } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
+import type { StaffRole } from "@/db/schema";
 
-const navItems = [
-  { href: "/dashboard", label: "Inicio", icon: "🏠" },
-  { href: "/dashboard/clients", label: "Clientes", icon: "👤" },
-  { href: "/dashboard/appointments", label: "Turnos", icon: "📅" },
+const ALL_NAV_ITEMS = [
+  { href: "/dashboard", label: "Inicio", icon: "🏠", roles: ["admin", "vet", "groomer"] },
+  { href: "/dashboard/clients", label: "Clientes", icon: "👤", roles: ["admin", "vet"] },
+  { href: "/dashboard/appointments", label: "Turnos", icon: "📅", roles: ["admin", "vet", "groomer"] },
+  { href: "/dashboard/settings", label: "Configuración", icon: "⚙️", roles: ["admin"] },
 ];
 
-export function AppSidebar({ user }: { user: User }) {
+export function AppSidebar({ user, role }: { user: User; role: StaffRole | null }) {
   const pathname = usePathname();
+  const navItems = ALL_NAV_ITEMS.filter((item) => !role || item.roles.includes(role));
 
   return (
     <aside className="flex w-60 flex-col border-r border-sidebar-border bg-sidebar">
@@ -54,7 +57,7 @@ export function AppSidebar({ user }: { user: User }) {
       <div className="border-t border-sidebar-border p-4">
         <p className="truncate text-xs text-muted-foreground">{user.email}</p>
         <form action={logout}>
-          <Button variant="ghost" size="sm" className="mt-2 w-full justify-start">
+          <Button type="submit" variant="ghost" size="sm" className="mt-2 w-full justify-start">
             Cerrar sesión
           </Button>
         </form>

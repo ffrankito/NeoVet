@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
-import { getAppointment, updateAppointmentStatus } from "../actions";
+import { getAppointment, updateAppointmentStatus, getAllStaffForSelect, assignStaffToAppointment } from "../actions";
+import { getRole } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Separator } from "@/components/ui/separator";
 import { CancelAppointmentButton } from "@/components/admin/appointments/cancel-appointment-button";
+import { AssignStaffSelect } from "@/components/admin/appointments/assign-staff-select";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -23,11 +25,24 @@ const statusColors: Record<string, string> = {
   cancelled: "bg-red-100 text-red-800",
 };
 
+const typeLabels: Record<string, string> = {
+  veterinary: "Veterinario",
+  grooming: "Peluquería",
+};
+
+const typeColors: Record<string, string> = {
+  veterinary: "bg-violet-100 text-violet-800",
+  grooming: "bg-pink-100 text-pink-800",
+};
+
 export default async function AppointmentDetailPage({ params }: Props) {
   const { id } = await params;
-  const apt = await getAppointment(id);
+  const [apt, role] = await Promise.all([getAppointment(id), getRole()]);
 
   if (!apt) notFound();
+
+  const isAdmin = role === "admin";
+  const allStaff = isAdmin ? await getAllStaffForSelect() : [];
 
   const nextStatuses: Record<string, { value: string; label: string }[]> = {
     pending: [
@@ -62,12 +77,14 @@ export default async function AppointmentDetailPage({ params }: Props) {
             </a>
           </p>
         </div>
-        <a
-          href={`/dashboard/appointments/${id}/edit`}
-          className={buttonVariants({ variant: "outline" })}
-        >
-          Editar
-        </a>
+        {isAdmin && (
+          <a
+            href={`/dashboard/appointments/${id}/edit`}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Editar
+          </a>
+        )}
       </div>
 
       <Separator />
@@ -81,6 +98,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
           </span>
         </div>
         <div>
+          <p className="text-sm font-medium text-muted-foreground">Tipo</p>
+          <span className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${typeColors[apt.appointmentType] ?? ""}`}>
+            {typeLabels[apt.appointmentType] ?? apt.appointmentType}
+          </span>
+        </div>
+        <div>
           <p className="text-sm font-medium text-muted-foreground">Duración</p>
           <p className="mt-1">{apt.durationMinutes} minutos</p>
         </div>
@@ -91,6 +114,19 @@ export default async function AppointmentDetailPage({ params }: Props) {
         <div>
           <p className="text-sm font-medium text-muted-foreground">Teléfono dueño</p>
           <p className="mt-1">{apt.clientPhone}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Profesional asignado</p>
+          {isAdmin ? (
+            <AssignStaffSelect
+              appointmentId={id}
+              currentStaffId={apt.assignedStaffId ?? null}
+              currentStaffName={apt.assignedStaffName ?? null}
+              allStaff={allStaff}
+            />
+          ) : (
+            <p className="mt-1">{apt.assignedStaffName ?? "—"}</p>
+          )}
         </div>
       </div>
 
@@ -135,8 +171,8 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Consultation — only when completed */}
-      {apt.status === "completed" && (
+      {/* Consultation — only for completed veterinary appointments */}
+      {apt.status === "completed" && apt.appointmentType !== "grooming" && (
         <>
           <Separator />
           <div className="space-y-4">
@@ -212,6 +248,27 @@ export default async function AppointmentDetailPage({ params }: Props) {
                 No hay consulta registrada para este turno.
               </div>
             )}
+          </div>
+        </>
+      )}
+
+      {/* Grooming session — only for completed grooming appointments */}
+      {apt.status === "completed" && apt.appointmentType === "grooming" && (
+        <>
+          <Separator />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Sesión de peluquería</h2>
+              <a
+                href={`/dashboard/patients/${apt.patientId}/grooming/new?appointmentId=${id}`}
+                className={buttonVariants({ size: "sm" })}
+              >
+                + Registrar sesión
+              </a>
+            </div>
+            <div className="rounded-lg border border-dashed py-6 text-center text-sm text-muted-foreground">
+              Registrá los detalles de la sesión desde el perfil del paciente.
+            </div>
           </div>
         </>
       )}

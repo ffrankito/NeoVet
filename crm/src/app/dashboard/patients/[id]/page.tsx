@@ -4,11 +4,17 @@ import { getConsultationsByPatient } from "@/app/dashboard/consultations/actions
 import { getVaccinationsByPatient } from "@/app/dashboard/patients/vaccination-actions";
 import { getDewormingByPatient } from "@/app/dashboard/patients/deworming-actions";
 import { getDocumentsByPatient } from "@/app/dashboard/patients/document-actions";
+import { getGroomingProfile, getGroomingSessions } from "@/app/dashboard/grooming/actions";
+import { db } from "@/db";
+import { appointments } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { getRole } from "@/lib/auth";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { DeletePatientButton } from "@/components/admin/patients/delete-patient-button";
 import { VaccinationSection } from "@/components/admin/patients/vaccination-section";
 import { DewormingSection } from "@/components/admin/patients/deworming-section";
 import { DocumentSection } from "@/components/admin/patients/document-section";
+import { GroomingSection } from "@/components/admin/patients/grooming-section";
 import { TabNav } from "@/components/admin/patients/tab-nav";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -21,7 +27,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type TabValue = "informacion" | "historia" | "vacunas" | "desparasitaciones" | "documentos";
+type TabValue = "informacion" | "historia" | "vacunas" | "desparasitaciones" | "documentos" | "peluqueria";
 
 const VALID_TABS: TabValue[] = [
   "informacion",
@@ -29,6 +35,7 @@ const VALID_TABS: TabValue[] = [
   "vacunas",
   "desparasitaciones",
   "documentos",
+  "peluqueria",
 ];
 
 function resolveTab(raw: string | undefined): TabValue {
@@ -48,6 +55,18 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
   const { tab: rawTab } = await searchParams;
   const activeTab = resolveTab(rawTab);
 
+  const role = await getRole();
+
+  // Check if patient has any grooming appointments (determines tab visibility)
+  const [groomingAptCheck] = await db
+    .select({ id: appointments.id })
+    .from(appointments)
+    .where(and(eq(appointments.patientId, id), eq(appointments.appointmentType, "grooming")))
+    .limit(1);
+
+  const hasGroomingHistory = !!groomingAptCheck;
+  const showGrooming = hasGroomingHistory && (role === "admin" || role === "groomer");
+
   const [patient, consultationHistory, vaccinationHistory, dewormingHistory, documentHistory] =
     await Promise.all([
       getPatient(id),
@@ -58,6 +77,12 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
     ]);
 
   if (!patient) notFound();
+
+  // Fetch grooming data only if the tab is active and visible
+  const [groomingProfile, groomingSessions] =
+    activeTab === "peluqueria" && showGrooming
+      ? await Promise.all([getGroomingProfile(id), getGroomingSessions(id)])
+      : [null, []];
 
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-100 text-yellow-800",
@@ -123,7 +148,7 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
       <Separator />
 
       {/* Tab navigation */}
-      <TabNav activeTab={activeTab} patientId={id} />
+      <TabNav activeTab={activeTab} patientId={id} showGrooming={showGrooming} />
 
       {/* Tab: Información */}
       {activeTab === "informacion" && (
@@ -278,6 +303,16 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
       {/* Tab: Documentos */}
       {activeTab === "documentos" && (
         <DocumentSection patientId={id} documents={documentHistory} />
+      )}
+
+      {/* Tab: Peluquería */}
+      {activeTab === "peluqueria" && showGrooming && (
+        <GroomingSection
+          patientId={id}
+          profile={groomingProfile}
+          sessions={groomingSessions}
+          canEdit={role === "admin" || role === "groomer"}
+        />
       )}
 
       {/* Back link */}

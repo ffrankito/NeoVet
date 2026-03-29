@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { getAppointments } from "./actions";
+import { getRole } from "@/lib/auth";
 import { AppointmentTable } from "@/components/admin/appointments/appointment-table";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,27 +9,45 @@ interface Props {
   searchParams: Promise<{ status?: string; from?: string; to?: string; page?: string }>;
 }
 
+const subtitleByRole: Record<string, string> = {
+  vet: "Turnos veterinarios",
+  groomer: "Turnos de peluquería",
+  admin: "Gestión de turnos",
+};
+
 export default async function AppointmentsPage({ searchParams }: Props) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
+  const role = await getRole();
+
+  // Vets see only veterinary appointments; groomers see only grooming appointments
+  const typeFilter =
+    role === "vet" ? "veterinary" :
+    role === "groomer" ? "grooming" :
+    undefined;
 
   const result = await getAppointments({
     status: params.status,
+    appointmentType: typeFilter,
     from: params.from,
     to: params.to,
     page,
   });
+
+  const isAdmin = role === "admin";
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Turnos</h1>
-          <p className="text-muted-foreground">Gestión de citas veterinarias</p>
+          <p className="text-muted-foreground">{subtitleByRole[role ?? "admin"] ?? "Gestión de turnos"}</p>
         </div>
-        <a href="/dashboard/appointments/new" className={buttonVariants()}>
-          + Nuevo turno
-        </a>
+        {isAdmin && (
+          <a href="/dashboard/appointments/new" className={buttonVariants()}>
+            + Nuevo turno
+          </a>
+        )}
       </div>
 
       <Suspense fallback={<Skeleton className="h-96 w-full" />}>

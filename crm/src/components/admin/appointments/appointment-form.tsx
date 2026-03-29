@@ -46,6 +46,7 @@ interface AppointmentData {
   staffNotes: string | null;
   status: string;
   patientId: string;
+  appointmentType: string;
 }
 
 interface AppointmentFormProps {
@@ -73,6 +74,7 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
   const [selectedPatient, setSelectedPatient] = useState(appointment?.patientId ?? defaultPatientId ?? "");
   const [selectedClient, setSelectedClient] = useState(defaultClientId);
   const [status, setStatus] = useState(appointment?.status ?? "pending");
+  const [appointmentType, setAppointmentType] = useState(appointment?.appointmentType ?? "veterinary");
 
   const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
 
@@ -84,10 +86,12 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
   const action = isEdit
     ? async (_prev: ActionResult, formData: FormData) => {
         formData.set("status", status);
+        formData.set("appointmentType", appointmentType);
         return updateAppointment(appointment!.id, formData);
       }
     : async (_prev: ActionResult, formData: FormData) => {
         formData.set("patientId", selectedPatient);
+        formData.set("appointmentType", appointmentType);
         return createAppointment(formData);
       };
 
@@ -153,6 +157,19 @@ export function AppointmentForm({ appointment, patients, clients = [], defaultPa
           )}
         </>
       )}
+
+      <div className="space-y-2">
+        <Label>Tipo de turno</Label>
+        <Select value={appointmentType} onValueChange={(v) => v && setAppointmentType(v)}>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="veterinary" label="Veterinario">Veterinario</SelectItem>
+            <SelectItem value="grooming" label="Peluquería">Peluquería</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="scheduledAt">Fecha y hora *</Label>

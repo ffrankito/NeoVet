@@ -6,7 +6,7 @@
  *
  * Usage:
  *   npx tsx scripts/seed-user.ts --email tomas@neovet.com --password secret123 --name "Tomás" --role admin
- *   npx tsx scripts/seed-user.ts --email recep@neovet.com --password secret456 --name "Laura" --role receptionist
+ *   npx tsx scripts/seed-user.ts --email vet@neovet.com --password secret456 --name "Laura" --role vet
  */
 
 import fs from "fs";
@@ -78,7 +78,7 @@ async function main() {
   const email = args["email"];
   const password = args["password"];
   const name = args["name"];
-  const role = (args["role"] ?? "admin") as "admin" | "receptionist";
+  const role = (args["role"] ?? "admin") as "admin" | "vet" | "groomer";
   const existingUserId = args["user-id"]; // skip auth creation, link existing Supabase user
 
   // Validate required flags
@@ -99,8 +99,8 @@ async function main() {
     process.exit(1);
   }
 
-  if (role !== "admin" && role !== "receptionist") {
-    console.error(`Error: --role debe ser "admin" o "receptionist". Recibido: "${role}"`);
+  if (role !== "admin" && role !== "vet" && role !== "groomer") {
+    console.error(`Error: --role debe ser "admin", "vet" o "groomer". Recibido: "${role}"`);
     process.exit(1);
   }
 

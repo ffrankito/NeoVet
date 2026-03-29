@@ -7,3 +7,6 @@ export * from "./treatment_items";
 export * from "./vaccinations";
 export * from "./deworming_records";
 export * from "./documents";
+export * from "./grooming_profiles";
+export * from "./grooming_sessions";
+export * from "./settings";
