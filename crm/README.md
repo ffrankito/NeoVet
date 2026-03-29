@@ -1,6 +1,6 @@
 # NeoVet CRM
 
-Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owners), patients (pets), clinical history, and appointments.
+Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owners), patients (pets), clinical history, appointments, grooming sessions, and billing.
 
 **Used by:** Paula Silveira and the clinic reception team.
 **Not public-facing.**
@@ -9,10 +9,11 @@ Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owner
 
 ## Stack
 
-- Next.js 14 App Router + TypeScript
+- Next.js 16 App Router + TypeScript
 - Tailwind CSS + shadcn/ui
 - Drizzle ORM + Supabase (PostgreSQL)
 - Supabase Auth (email login)
+- Resend + Vercel Cron (email reminders)
 - Deployed to Vercel
 
 ---
@@ -68,10 +69,14 @@ App runs at [http://localhost:3000](http://localhost:3000).
 src/
 ├── app/
 │   ├── dashboard/
-│   │   ├── appointments/     # Appointment CRUD + detail
+│   │   ├── appointments/     # Appointment CRUD + detail + inline consultation view
 │   │   ├── clients/          # Client CRUD
 │   │   ├── consultations/    # Clinical consultation CRUD (SOAP + vitals + treatments)
-│   │   └── patients/         # Patient CRUD + vaccinations + deworming + documents
+│   │   ├── grooming/         # Grooming profiles + session records
+│   │   ├── patients/         # Patient CRUD + vaccinations + deworming + documents
+│   │   ├── billing/          # Payments + ARCA electronic invoicing
+│   │   ├── settings/         # Grooming pricing tiers + service catalog
+│   │   └── staff/            # Staff management (admin only)
 │   └── login/                # Auth page
 ├── components/
 │   ├── ui/                   # shadcn/ui primitives
@@ -79,6 +84,7 @@ src/
 │       ├── appointments/
 │       ├── clients/
 │       ├── consultations/
+│       ├── grooming/
 │       └── patients/
 ├── db/
 │   ├── index.ts              # Drizzle client singleton
@@ -97,4 +103,15 @@ scripts/
 
 ## v1 Scope
 
-Staff-only CRUD — clients, patients, clinical history (SOAP consultations + treatment plans), appointments, vaccinations, deworming records, and document storage. No public API. No chatbot integration. See `docs/charter.md` for full scope definition.
+Staff-only tool covering:
+
+- **Clients & patients** — CRUD, avatars, deceased flag
+- **Clinical history** — SOAP consultations + vitals + treatment plans + vaccines + deworming + documents + complementary studies
+- **Appointments** — create, confirm, complete, assign to staff; weekly calendar with free-slot view; service catalog with block durations for surgeries
+- **Grooming module** — per-patient profile (behavior, coat, estimated time) + session records (photos, findings, 3-tier pricing)
+- **Billing** — payment registration + ARCA electronic invoicing (Factura A/B/C); two fiscal entities
+- **Roles** — admin / vet / groomer with isolated access
+- **Email reminders** — appointment (48h/24h), vaccine (7 days before), post-consultation follow-ups via Resend + Vercel Cron
+- **Data import** — one-time migration from Geovet CSV exports
+
+No public API. No chatbot integration. No WhatsApp (v2). See `docs/v1/charter.md` for full scope.

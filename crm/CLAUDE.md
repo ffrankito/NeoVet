@@ -6,7 +6,7 @@
 
 ## What This App Is
 
-Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patients (pets), clinical history, and appointment calendar. Used by Paula and her reception team — not exposed to the public.
+Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patients (pets), clinical history, appointments, grooming sessions, and billing. Role-based access control for admin, vet, and groomer. Email reminders via Resend. Used by Paula and her clinic team — not exposed to the public.
 
 ---
 
@@ -14,19 +14,26 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 | Layer | Tool |
 |-------|------|
-| Framework | Next.js 14 App Router + TypeScript |
+| Framework | Next.js 16 App Router + TypeScript |
 | Styling | Tailwind CSS + shadcn/ui |
 | ORM | Drizzle ORM |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase SSR |
+| Email | Resend + Vercel Cron |
 | Hosting | Vercel |
 
 ---
 
 ## v1 Scope
 
-- Staff-only CRUD: clients, patients, clinical history, appointments
-- Appointment calendar (manual management by staff)
+- Staff-only CRUD: clients, patients, clinical history (SOAP + vitals + treatment + vaccines + deworming + documents)
+- Appointment calendar with weekly view and free-slot visualization; service catalog with block durations for surgeries
+- Role-based access control: `admin` (full), `vet` (clinical records), `groomer` (grooming only)
+- Staff management UI (admin only)
+- Grooming module: per-patient grooming profile + session records with before/after photos and findings; 3-tier pricing
+- Billing: payment registration + ARCA electronic invoicing (Factura A/B/C); two fiscal entities; MercadoPago payments require invoice
+- Email reminders via Resend + Vercel Cron: appointment 48h/24h, vaccine 7 days before, post-consultation follow-ups
+- Mobile-responsive UI
 - Email login via Supabase Auth
 - One-time data import from Geovet Excel exports
 
@@ -34,7 +41,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 - No public API — the CRM exposes no endpoints to the chatbot or any external system
 - No chatbot integration — the CRM and chatbot are fully independent in v1
-- No automation or notifications — all operations are manual
+- No WhatsApp notifications — email only in v1; WhatsApp reminders are v2
 - No reporting or analytics
 
 ---

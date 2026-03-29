@@ -1,345 +1,548 @@
-# CRM Development Plan
+# Plan de Desarrollo — NeoVet CRM v1
 
-| Field | Value |
+| Campo | Valor |
 |---|---|
-| **Project** | NeoVet CRM |
-| **Author** | Tomás Pinolini |
-| **Status** | Active |
-| **Last updated** | 2026-03-27 |
-| **Related docs** | `charter.md`, `technical-spec.md`, `../../GVet_Research_and_Benchmarking.md`, `../../docs/paula-meeting.md` |
+| **Proyecto** | NeoVet CRM |
+| **Autor** | Tomás Pinolini |
+| **Estado** | Activo |
+| **Última actualización** | 2026-03-29 |
+| **Roadmap completo** | `crm/docs/roadmap.md` |
+| **Docs relacionados** | `charter.md`, `technical-spec.md`, `../../docs/paula-meeting.md` |
 
 ---
 
-## Goal per version
+## Objetivo v1
 
-| Version | Definition | Exit criteria |
+Paula puede gestionar clientes, pacientes, turnos e historia clínica desde NeoVet sin necesidad de abrir GVet para las operaciones del día a día.
+
+**Exit criteria:** Paula usa NeoVet como herramienta principal.
+
+---
+
+## Stack
+
+Next.js **16.1.6** + React 19 + TypeScript + Tailwind CSS + shadcn/ui + Drizzle ORM + Supabase (PostgreSQL + Auth + Storage).
+
+> El charter original y el tech spec referenciaban Next.js 14 — la versión instalada es 16. El código manda.
+
+---
+
+## Fases
+
+Cada fase debe estar completa antes de iniciar la siguiente.
+
+---
+
+### Fase A — Fundación + CRUD básico ✅ Completada
+
+> Completada en commit `9fe42ba`.
+
+| Entregable | Estado |
+|---|---|
+| Schema DB: clients, patients, appointments | ✅ |
+| Cliente Drizzle + migraciones | ✅ |
+| Auth Supabase SSR + middleware | ✅ |
+| Login por email (`/login`) | ✅ |
+| Shell del dashboard + nav lateral | ✅ |
+| CRUD de Clientes (lista, crear, ver, editar, eliminar) | ✅ |
+| CRUD de Pacientes (vinculado a cliente) | ✅ |
+| CRUD de Turnos (lista, crear, ver, editar, cancelar) | ✅ |
+| Componentes base shadcn/ui | ✅ |
+
+---
+
+### Fase B — Calidad, Dashboard e Importación ✅ Completada
+
+**Objetivo:** El CRM es de calidad de producción y los datos de Paula están migrados.
+
+| Entregable | Estado |
+|---|---|
+| Validación Zod server-side en todos los formularios | ✅ |
+| Errores de campo bajo cada input | ✅ |
+| `loading.tsx` + skeletons en páginas de lista y detalle | ✅ |
+| AlertDialog de confirmación en todas las acciones destructivas | ✅ |
+| Dashboard home: 3 cards resumen + lista de turnos del día + acciones inline | ✅ |
+| Script `import-gvet.ts` — importación one-time desde CSV de GVet | ✅ |
+| Script `dedupe-patients.ts` — limpieza de pacientes duplicados | ✅ |
+| 1.771 clientes y 1.380 pacientes importados | ✅ |
+
+---
+
+### Fase C — Historia Clínica ✅ Completada
+
+**Objetivo:** Paula puede registrar y consultar la historia clínica completa de cada paciente.
+
+#### C.1 — Estado del paciente + avatar ✅
+
+| Entregable | Estado |
+|---|---|
+| Flag `deceased` + badge "Fallecido" en detalle y lista | ✅ |
+| Upload de avatar a Supabase Storage (`patient-avatars`, público) | ✅ |
+| Pacientes fallecidos atenuados en la lista | ✅ |
+
+#### C.2 — Consultas + SOAP + signos vitales ✅
+
+**Nueva tabla:** `consultations` — vinculada a paciente + turno opcional; campos SOAP (todos opcionales) + `notes` como fallback + signos vitales.
+
+| Entregable | Estado |
+|---|---|
+| Schema `consultations` + migración | ✅ |
+| Formulario de creación `/dashboard/consultations/new` | ✅ |
+| Página de detalle `/dashboard/consultations/[id]` | ✅ |
+| Página de edición `/dashboard/consultations/[id]/edit` | ✅ |
+| Sección "Historia clínica" en detalle del paciente | ✅ |
+| Botón "Registrar consulta" en turno completado | ✅ |
+| Vista inline de consulta dentro del turno | ✅ |
+
+#### C.3 — Plan de tratamiento ✅
+
+**Nueva tabla:** `treatment_items` — lista ordenada por consulta; estados: `pending` / `active` / `completed`.
+
+| Entregable | Estado |
+|---|---|
+| Schema `treatment_items` + enum + migración | ✅ |
+| Lista dinámica de ítems dentro del formulario de consulta | ✅ |
+| Toggle de estado inline en el detalle de consulta | ✅ |
+
+#### C.4 — Vacunas y desparasitaciones ✅
+
+| Entregable | Estado |
+|---|---|
+| Schemas `vaccinations` + `deworming_records` + migraciones | ✅ |
+| CRUD de vacunas bajo detalle del paciente | ✅ |
+| CRUD de desparasitaciones bajo detalle del paciente | ✅ |
+
+#### C.5 — Almacenamiento de documentos ✅
+
+| Entregable | Estado |
+|---|---|
+| Schema `documents` + migración | ✅ |
+| Bucket `clinical-documents` (privado, Supabase Storage) | ✅ |
+| Upload de documentos en detalle del paciente | ✅ |
+| Descarga por URL firmada (60s) + eliminación | ✅ |
+
+#### C.6 — Rediseño en pestañas del detalle del paciente ✅
+
+Refactor UI — sin datos nuevos. Pestañas: Información · Historia clínica · Vacunas · Desparasitaciones · Documentos. Tab activo reflejado en `?tab=` para deep-linking.
+
+#### Scripts de importación histórica ✅
+
+| Script | Descripción | Estado |
 |---|---|---|
-| **v1** | Paula can manage clients, patients, appointments, and clinical records from NeoVet without opening GVet for daily operations | Paula uses NeoVet as her primary tool |
-| **v2** | Chatbot ↔ CRM integration live. WhatsApp channel active. Automated reminders and online booking | Clients interact with the chatbot; staff handles fewer manual tasks |
-| **v3** | Intelligence, reporting, and advanced automation | Data-driven decisions; near-zero manual admin overhead |
+| `import-visitas.ts` | Importa ~1.300 consultas históricas desde `Visitas-03-2026.csv` | ✅ |
+| `backfill-appointments-from-consultations.ts` | Crea turnos retroactivos para cada consulta importada | ✅ |
 
 ---
 
-## Stack (corrected from earlier docs)
+### Fase D — Facturación Electrónica 🔲 Pendiente de build
 
-Next.js **16.1.6** + React 19 + TypeScript + Tailwind CSS + shadcn/ui + Drizzle ORM + Supabase (PostgreSQL + Auth).
+**Objetivo:** Los admins pueden registrar pagos y generar comprobantes electrónicos (ARCA) de forma opcional, con control de límites por entidad fiscal.
 
-> The charter and original tech spec referenced Next.js 14 — the installed version is 16. Code is truth.
+#### Contexto de negocio
 
----
+- Paula factura manualmente, dos días a fin de mes. La facturación en el CRM es **opcional** — no obligatoria en cada transacción.
+- Existen **dos entidades fiscales separadas** que se deben gestionar de forma independiente:
+  - **Paula Silveira** — servicios veterinarios (monotributo)
+  - **Miguel** — peluquería canina y pet shop (monotributo separado)
+- Control crítico: no superar el límite de facturación anual para no ser recategorizado como responsable inscripto.
+- **MercadoPago** → siempre debe generar comprobante (transacción digital rastreable).
+- **Efectivo** → no es obligatorio facturar.
 
-## v1 — Paula replaces GVet
+#### D.1 — Registro de pagos
 
-v1 is divided into phases. Each phase must be complete before the next starts.
-
-### Phase A — Foundation + Basic CRUD ✅ Done
-
-> Completed in commit `9fe42ba`.
-
-| Deliverable | Status |
+| Entregable | Notas |
 |---|---|
-| DB schema: clients, patients, appointments | ✅ |
-| Drizzle client + migrations | ✅ |
-| Supabase SSR auth + middleware | ✅ |
-| Email login (`/login`) | ✅ |
-| Dashboard shell + sidebar nav | ✅ |
-| Clients CRUD (list, create, view, edit, delete) | ✅ |
-| Patients CRUD (linked to client) | ✅ |
-| Appointments CRUD (list, create, view, edit, cancel) | ✅ |
-| shadcn/ui core components | ✅ |
+| Registrar un pago contra una consulta o sesión de peluquería | |
+| Métodos de pago: efectivo, transferencia, débito, crédito, Mercado Pago | |
+| Regla automática: pago por Mercado Pago → fuerza generación de comprobante | |
+| Campo opcional para asociar el pago a una entidad fiscal (Paula / Miguel) | |
 
----
+#### D.2 — Gestión de entidades fiscales
 
-### Phase B — Polish, Dashboard & Data Import 🔄 In progress
-
-> Spec: `../../docs/superpowers/specs/2026-03-27-crm-phase4-import-design.md`
-
-**Goal:** The CRM is production-quality and Paula's existing data is migrated.
-
-#### B.1 — Form Validation
-- Zod server-side validation on all create/edit actions
-- Field-level error display under each input (replace single top-level error string)
-- Validated fields: name, phone, date formats, required FKs
-
-#### B.2 — Loading States
-- `loading.tsx` files for all list and detail pages
-- `TableSkeleton`, `DetailSkeleton`, `CardSkeleton` components in `src/components/admin/skeletons.tsx`
-
-#### B.3 — Delete Confirmations
-- shadcn/ui `AlertDialog` on every destructive action
-- Client delete: warns that linked patients will also be removed (cascade)
-- Patient delete: standard confirmation
-- Appointment cancel: separate copy ("cancelar" not "eliminar")
-
-#### B.4 — Dashboard Home
-- 3 summary cards: total clients · total patients · today's appointments
-- Quick-action buttons: Nuevo cliente · Nuevo turno
-- Today's appointments list with inline Confirmar / Cancelar per row
-- Empty state: "No hay turnos para hoy."
-
-#### B.5 — CSV Import Script
-- `scripts/import-gvet.ts` — CLI only, one-time use
-- Supports `--clients` and `--patients` CSV flags
-- Adjustable `COLUMN_MAP` config at top of file (mapped after reviewing actual GVet exports)
-- `--dry-run` mode for safe preview before writing
-- Sets `importedFromGvet: true` on all inserted rows
-- Logs inserted / skipped counts
-
-#### B.6 — Verification
-- [ ] `npm run build` passes clean
-- [ ] All CRUD flows work end-to-end
-- [ ] Field errors appear under the correct inputs
-- [ ] Skeletons show while data loads
-- [ ] Delete dialogs fire before any destructive action
-- [ ] Dashboard cards show correct counts
-- [ ] Today's appointments list reflects real data
-- [ ] CSV import runs with `--dry-run` without errors
-- [ ] Deployed to Vercel, Paula can log in
-
----
-
-### Phase C — Clinical Records 🔲 Ready to build
-
-> Open questions for Paula meeting listed below. Schema is designed; SOAP field labels and some UX decisions pending her input before C.2 UI is built. C.1 can start immediately.
-
-**Goal:** Paula can record and retrieve full clinical history per patient from NeoVet.
-
----
-
-#### C.1 — Patient status + avatar ✅ Done
-
-**Migrations:** add `deceased boolean NOT NULL DEFAULT false` and `avatar_url text` to `patients`.
-
-| Deliverable | Status |
+| Entregable | Notas |
 |---|---|
-| `deceased` flag + "Fallecido" badge on patient detail and client detail | ✅ |
-| Avatar upload to Supabase Storage (`patient-avatars` bucket, public read) | ✅ |
-| Deceased patients dimmed/badged on patient list | ✅ |
+| Dos entidades configurables con CUIT, razón social, punto de venta y credenciales ARCA | |
+| Contador mensual de facturación por entidad | |
+| Admin puede editar límite anual configurable por entidad | |
 
----
+#### D.3 — Generación de comprobantes (ARCA)
 
-#### C.2 — Consultations + SOAP + vitals ✅ Done
-
-**New table:** `consultations` — links to patient + optional appointment; SOAP fields (all optional) + free-text `notes` fallback + vitals (weight, temperature, heart rate, respiratory rate) + diagnosis.
-
-| Deliverable | Status |
+| Entregable | Notas |
 |---|---|
-| `consultations` schema + migration | ✅ |
-| `/dashboard/consultations/new?patientId=` — create form | ✅ |
-| `/dashboard/consultations/[id]` — detail page | ✅ |
-| `/dashboard/consultations/[id]/edit` — edit page | ✅ |
-| Patient detail: "Historia clínica" section with timeline | ✅ |
-| Appointment detail: "Registrar consulta" button when status=completed | ✅ |
+| Tipos de comprobante: Factura A, Factura B, Factura C | |
+| Integración con ARCA (ex-AFIP) — web service WSFE | |
+| Flujo de autorización CAE | |
+| PDF del comprobante generado y almacenado por factura | |
 
----
+> ⚠️ **Pendiente:** Durante la semana de la reunión, Paula iba a pedir datos sobre cómo integrar con ARCA. Confirmar endpoint, certificado digital y punto de venta antes de iniciar D.3.
 
-#### C.3 — Treatment plan ✅ Done
+#### D.4 — Control de límites de facturación
 
-**New table:** `treatment_items` — ordered list scoped to a consultation; status: `pending` / `active` / `completed`.
-
-| Deliverable | Status |
+| Entregable | Notas |
 |---|---|
-| `treatment_items` schema + `treatment_status` enum + migration | ✅ |
-| Dynamic treatment item list inside consultation form | ✅ |
-| Inline status toggle on consultation detail page | ✅ |
+| Widget en el dashboard mostrando monto facturado en el mes por entidad | |
+| Alerta visual en rojo cuando se supera el 80% del límite configurado | |
+| Bloqueo suave al 100% con mensaje explicativo | |
 
----
+#### D.5 — Historial de facturas
 
-#### C.4 — Vaccinations and deworming ✅ Done
-
-**New tables:** `vaccinations`, `deworming_records` — both scoped to patient; optionally linked to a consultation.
-
-| Deliverable | Status |
+| Entregable | Notas |
 |---|---|
-| `vaccinations` + `deworming_records` schemas + migration | ✅ |
-| Vaccination CRUD under patient detail (table + create/edit forms) | ✅ |
-| Deworming CRUD under patient detail (table + create/edit forms) | ✅ |
+| Lista de comprobantes por paciente / consulta | |
+| Filtros por entidad, rango de fechas, estado (autorizado / pendiente / anulado) | |
+
+#### Checklist de verificación Fase D
+
+- [ ] Credenciales ARCA configuradas en Vercel (producción)
+- [ ] Certificado digital de Paula activo y cargado
+- [ ] Punto de venta registrado en ARCA para cada entidad
+- [ ] Pago MercadoPago fuerza comprobante — testeado end-to-end
+- [ ] Pago en efectivo no fuerza comprobante
+- [ ] Generación de Factura A, B y C — todos los tipos funcionan en producción
+- [ ] CAE recibido correctamente y almacenado en DB
+- [ ] Límite de facturación muestra alerta en rojo al llegar al 80%
+- [ ] PDF del comprobante generado y descargable
 
 ---
 
-#### C.5 — Document storage ✅ Done
+### Fase E — Staff y Control de Acceso 🔄 En progreso
 
-**New table:** `documents` — file metadata; files stored in Supabase Storage (`clinical-documents` bucket, authenticated access + signed URLs for download).
+**Objetivo:** Cada integrante del equipo tiene un usuario con acceso correspondiente a su rol. La peluquería tiene su propio módulo dentro del CRM.
 
-| Deliverable | Status |
+#### E.1 — Roles y permisos
+
+**Actualización del enum `role`:** `admin | receptionist` → `admin | vet | groomer`
+
+| Rol | Acceso |
 |---|---|
-| `documents` schema + migration | ✅ |
-| `clinical-documents` Storage bucket (private) | ✅ |
-| Document upload on patient detail page | ✅ |
-| Signed-URL download + delete | ✅ |
+| **admin** | Todo — clientes, pacientes, turnos, historia clínica, peluquería, facturación, staff, configuración |
+| **vet** | Leer clientes · Leer y editar pacientes · Ver turnos veterinarios · CRUD completo de consultas |
+| **groomer** | Ver turnos de peluquería · CRUD de sesiones de peluquería · Editar perfil de peluquería del paciente |
 
----
-
-#### C.6 — Patient detail page tab redesign
-
-UI-only refactor — no new data. Consolidates the patient detail page (which by C.5 is very long) into tabs: Información · Historia clínica · Vacunas · Desparasitaciones · Documentos. Active tab reflected in `?tab=` query param for deep-linking.
-
----
-
-#### New schema files
-
-| File | Tables |
+| Entregable | Estado |
 |---|---|
-| `src/db/schema/consultations.ts` | `consultations` |
-| `src/db/schema/treatment_items.ts` | `treatmentStatusEnum`, `treatmentItems` |
-| `src/db/schema/vaccinations.ts` | `vaccinations` |
-| `src/db/schema/deworming_records.ts` | `dewormingRecords` |
-| `src/db/schema/documents.ts` | `documents` |
+| Migración: actualizar enum `role` en tabla `staff` | 🔲 |
+| Middleware: redirigir según rol al acceder a rutas no autorizadas | 🔲 |
+| Vistas filtradas por tipo de turno (vet ve solo veterinarios, groomer ve solo grooming) | 🔲 |
+| Columna `appointmentType` (`veterinary \| grooming`) en tabla `appointments` | 🔲 |
+| Columna `assignedStaffId` (nullable FK → staff) en tabla `appointments` | 🔲 |
+| UI de asignación de profesional en detalle del turno (solo admin) | 🔲 |
 
-New ID prefixes to add to `src/lib/ids.ts`: `con_`, `trt_`, `vac_`, `dew_`, `doc_`.
+#### E.2 — Gestión de staff (admin only)
 
-#### New Supabase Storage buckets
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/settings/staff` — lista de miembros del equipo | 🔲 |
+| Crear nuevo miembro: nombre, email, rol → crea cuenta en Supabase Auth | 🔲 |
+| Editar nombre y rol de un miembro existente | 🔲 |
+| Desactivar acceso (no eliminar — preservar datos históricos) | 🔲 |
 
-| Bucket | Access | Max size |
+#### E.3 — Perfil de peluquería por paciente
+
+**Nueva tabla:** `grooming_profiles` — una fila por paciente; se crea automáticamente en el primer turno de peluquería.
+
+| Campo | Tipo | Descripción |
 |---|---|---|
-| `patient-avatars` | Public read / auth write | 2 MB |
-| `clinical-documents` | Auth only (signed URLs) | 10 MB |
+| `patientId` | FK → patients (unique) | |
+| `behaviorScore` | integer (1–10) | Puntaje de comportamiento general |
+| `coatType` | text | Tipo de pelaje |
+| `coatDifficulties` | text | Nudos, doble capa, etc. |
+| `behaviorNotes` | text | "Se porta bien", "muerde", "necesita bozal" |
+| `estimatedMinutes` | integer | Tiempo estimado manual (automático en v3) |
 
----
+| Entregable | Estado |
+|---|---|
+| Schema `grooming_profiles` + migración | 🔲 |
+| Pestaña "Peluquería" en detalle del paciente — solo visible si tuvo al menos un turno de peluquería | 🔲 |
+| Formulario de edición del perfil (admin y groomer) | 🔲 |
 
-#### Open questions for Paula (before building C.2 UI)
+#### E.4 — Sesiones de peluquería
 
-| # | Question | Blocks |
+**Nueva tabla:** `grooming_sessions` — un registro por visita de peluquería.
+
+| Campo | Tipo | Descripción |
 |---|---|---|
-| OQ-C1 | Do all four SOAP fields work for her, or does she prefer different labels (e.g. "Motivo + Hallazgos + Plan")? | C.2 form labels |
-| OQ-C2 | Should free-text `notes` always be visible alongside SOAP, or only as a fallback? | C.2 form layout |
-| OQ-C3 | Are heart rate and respiratory rate routinely recorded, or mostly weight + temperature? | C.2 vitals UI prominence |
-| OQ-C4 | Treatment items: should pending items carry forward to the next consultation, or is each list independent? | C.3 model |
-| OQ-C5 | Does the clinic follow a standard vaccination schedule that could auto-populate "next due date"? | C.4 UX |
-| OQ-C6 | Are 10 MB per document and 50 MB total Storage (free tier) sufficient? | C.5 limits |
-| OQ-C7 | "Fallecido" vs "inactivo" — is there a meaningful distinction, or is one flag enough? | C.1 schema |
-| OQ-C8 | When a consultation is linked to an appointment, should saving the consultation auto-mark the appointment as `completed`? | C.2 actions |
+| `patientId` | FK → patients (cascade) | |
+| `appointmentId` | FK → appointments (set null) | |
+| `groomedById` | FK → staff | Peluquero que atendió |
+| `priceTier` | enum `min \| mid \| hard` | Nivel de dificultad |
+| `finalPrice` | numeric | Precio final (puede diferir del base del tier) |
+| `beforePhotoPath` | text (nullable) | Path en Supabase Storage |
+| `afterPhotoPath` | text (nullable) | Path en Supabase Storage |
+| `findings` | text[] | Checkboxes: pulgas, garrapatas, tumores, otitis, dermatitis |
+| `notes` | text | Otras observaciones libres |
+| `createdById` | FK → staff | Para auditoría ligera |
 
----
-
-#### Phase C verification checklist
-
-- [ ] `npm run build` passes after each sub-phase migration
-- [ ] All CRUD flows for consultations, vaccinations, deworming, documents work end-to-end
-- [ ] Deceased flag shows badge in all relevant places; does not delete data
-- [ ] Avatar upload and replacement work; broken images never appear
-- [ ] SOAP fields all optional — consultation with only `notes` saves correctly
-- [ ] Vital signs save as correct numeric types
-- [ ] Treatment item status toggle works without full page reload
-- [ ] Documents: upload, download (signed URL), and delete all work; large/invalid files rejected
-- [ ] `?tab=` deep-links open the correct tab on patient detail
-- [ ] All new server actions protected by Supabase session (no unprotected routes)
-- [ ] All Zod errors display in Spanish under the correct fields
-- [ ] Migration files committed and sequential in `drizzle/migrations/`
-- [ ] Paula UAT: full visit (consultation + SOAP + vitals + 2 treatment items + 1 vaccination + 1 document) created and viewable
-
----
-
-### Phase D — Billing & Invoicing 🔲 Pending Paula confirmation
-
-> Blocked on: Paula interview — does she need AFIP on day 1, or will she keep GVet for billing during parallel operation?
-
-**Goal:** Paula can invoice clients and comply with AFIP requirements from NeoVet.
-
-| Feature | Notes |
+| Entregable | Estado |
 |---|---|
-| Invoice generation per consultation or service bundle | |
-| Electronic billing — AFIP integration | Argentina legal requirement |
-| Product & service price list | Configurable by staff |
-| Payment recording — cash, card, transfer | |
-| Outstanding balances view | |
+| Schema `grooming_sessions` + migración | 🔲 |
+| Bucket `grooming-photos` en Supabase Storage (privado, signed URLs) | 🔲 |
+| Formulario de registro de sesión (groomer lo completa al finalizar) | 🔲 |
+| Vista de última sesión en el perfil de peluquería del paciente | 🔲 |
+| Historial de sesiones anteriores (lista cronológica) | 🔲 |
 
-> ⚠️ AFIP integration is a significant engineering effort. If Paula confirms she can run GVet for billing during a parallel operation period, this phase can be deferred to after Phase C ships.
+#### E.5 — Precios de peluquería (configuración)
 
----
+**Nueva tabla:** `settings` — clave/valor para configuración del sistema.
 
-### Phase E — Staff & Access Control 🔲 Pending design
-
-> Blocked on: Paula interview — how many staff members, what roles exist
-
-**Goal:** Each staff member has an account with appropriate access level.
-
-| Feature | Notes |
+| Clave | Valor por defecto |
 |---|---|
-| Staff profiles — name, role, email | |
-| Role-based access control — vet vs. receptionist vs. admin | Receptionist cannot access clinical notes |
-| Role-scoped views | |
+| `grooming_price_min` | (a definir con Paula) |
+| `grooming_price_mid` | (a definir con Paula) |
+| `grooming_price_hard` | (a definir con Paula) |
 
----
-
-## v2 — Chatbot + WhatsApp + Automation
-
-> Starts only after v1 is stable and Paula is using NeoVet as her primary tool.
-
-| Feature | Area |
+| Entregable | Estado |
 |---|---|
-| CRM public API — endpoints for the chatbot to read/write appointments | Integration |
-| Online self-booking via chatbot | Scheduling |
-| WhatsApp two-way messaging (Kapso) | Communication |
-| Automated appointment reminders — 24h and 1h before | Communication |
-| Automated vaccination reminders | Communication |
-| Appointment confirmations via WhatsApp | Communication |
-| Post-visit follow-up messages | Communication |
-| No-show tracking | Scheduling |
-| Cancellation & rescheduling with audit trail | Scheduling |
-| Brachycephalic breed flags — heightened urgency triage | Triage |
-| Expense tracking | Billing |
-| Financial reporting | Reporting |
-| Appointment analytics | Reporting |
-| Audit log — all record changes with user + timestamp | Operations |
-| Calendar sync (Google / iCal) | Integration |
-| Prescription management | Clinical |
-| Lab results — attach and display | Clinical |
-| Anesthesia records | Clinical |
-| Discharge summaries | Clinical |
-| Chatbot conversation analytics | Reporting |
-| Digital whiteboard — real-time clinic status | Operations |
-| Inventory: consumption linked to consultations | Inventory |
-| Inventory: expiry date tracking | Inventory |
-| Inventory: purchase orders | Inventory |
+| Schema `settings` + seed con las 3 claves de precios | 🔲 |
+| Página `/dashboard/settings` — configuración general (admin only) | 🔲 |
+| Sección "Precios de peluquería" con los tres niveles editables | 🔲 |
+
+#### Checklist de verificación Fase E
+
+- [ ] Migración de enum `role` aplicada sin romper datos existentes
+- [ ] Un vet logueado no puede acceder a `/dashboard/clients/new` ni `/dashboard/appointments/new`
+- [ ] Un groomer logueado solo ve turnos de tipo `grooming`
+- [ ] Admin puede asignar profesional a cualquier turno
+- [ ] Perfil de peluquería no aparece en pacientes sin turnos de peluquería
+- [ ] Groomer puede registrar sesión con fotos, hallazgos y precio final
+- [ ] Admin ve precios base configurados y puede editarlos
+- [ ] `createdById` guardado correctamente en sesiones de peluquería
 
 ---
 
-## v3 — Intelligence & Advanced Automation
+### Fase F — Ampliaciones de Historia Clínica 🔲 Pendiente
 
-> Starts only after v2 is stable. These features require validated usage data from v1/v2.
+**Objetivo:** El formulario de consulta refleja exactamente lo que Paula registra en la práctica.
 
-| Feature | Area |
+> Estas son adiciones a tablas ya construidas. Requieren migraciones sobre `consultations` y `treatment_items`.
+
+#### F.1 — Campos nuevos en consultas
+
+| Entregable | Notas |
 |---|---|
-| AI SOAP dictation — voice-to-text that populates SOAP fields | Clinical AI |
-| AI record summaries for referring vets | Clinical AI |
-| Revenue dashboards — by period, vet, service | BI |
-| Patient retention metrics | BI |
-| Custom report builder | BI |
-| Business intelligence — trend analysis, forecasting | BI |
-| Online payments — MercadoPago / QR | Billing |
-| Insurance claims support | Billing |
-| Pet parent portal / app | Client-facing |
-| Birthday messages | Communication |
-| Email campaigns | Communication |
-| Boarding reservations | Scheduling |
-| Grooming bookings | Scheduling |
-| Staff scheduling / shifts | Operations |
-| Multi-location support | Operations |
-| Controlled substance log | Inventory |
-| Auto-reorder rules | Inventory |
-| Laboratory integrations (IDEXX, Antech) | Integration |
-| Imaging systems (DICOM) | Integration |
-| Accounting software export (Contabilium, Xero) | Integration |
+| Campo `consultationType` enum: `clinica \| virtual \| domicilio` en tabla `consultations` | Migración + UI en formulario |
+| Campos `mucosas` (text) y `ganglios` (text) en signos vitales | Siempre visibles junto a temperatura y peso |
+| Campo `objectiveParticular` (text) separado del `objective` general | "Examen objetivo particular — zona específica" |
 
----
+#### F.2 — Ítems de tratamiento con dosis y duración
 
-## Open questions (resolve at Paula meeting)
+Ampliar `treatment_items` con campos farmacológicos.
 
-Full list in `../../docs/paula-meeting.md`. Key blockers for this plan:
+| Campo nuevo | Tipo | Descripción |
+|---|---|---|
+| `medication` | text | Nombre del medicamento (puede ser el mismo que description) |
+| `dose` | text | Dosis (ej: "5mg/kg") |
+| `frequency` | text | Frecuencia (ej: "cada 12hs") |
+| `durationDays` | integer | Duración en días |
 
-| Question | Blocks |
+| Entregable | Estado |
 |---|---|
-| Does she need AFIP billing from day 1? | Phase D priority vs. deferral |
-| Parallel operation or hard cutover? | v1 launch strategy |
-| Clinical history format — SOAP or free text? | Phase C design |
-| How many staff members and what roles? | Phase E scope |
-| Soft-delete or hard-delete preference? | Phase B B.3 dialog copy + schema |
+| Migración: nuevos campos en `treatment_items` | 🔲 |
+| Formulario de tratamiento actualizado con los 4 campos nuevos | 🔲 |
+| Vista de detalle muestra dosis, frecuencia y duración | 🔲 |
+
+#### F.3 — Métodos complementarios e informes
+
+Nueva sección dentro de la consulta para redactar informes de estudios (ecografías, análisis de sangre, etc.) con posibilidad de adjuntar fotos.
+
+| Entregable | Notas |
+|---|---|
+| Nueva tabla `complementary_methods` — texto + tipo de estudio + foto adjunta opcional | `consultationId` FK cascade, `studyType` (text), `content` (text), `photoPath` (text nullable) |
+| Formulario inline dentro del detalle/edición de consulta | |
+| Vista de historial por tipo de estudio en la pestaña "Historia clínica" | |
+
+#### F.4 — Categorías de documentos
+
+Ampliar la tabla `documents` con un campo `category`.
+
+| Categoría | Descripción |
+|---|---|
+| `laboratorio` | Análisis de sangre, orina, etc. |
+| `radiografia` | Placas de rayos X |
+| `ecografia` | Imágenes ecográficas |
+| `foto` | Fotografías clínicas |
+| `otro` | Cualquier otro archivo |
+
+| Entregable | Estado |
+|---|---|
+| Migración: campo `category` enum en tabla `documents` | 🔲 |
+| Selector de categoría en el formulario de carga | 🔲 |
+| Filtro por categoría en la pestaña "Documentos" del paciente | 🔲 |
+
+#### Checklist de verificación Fase F
+
+- [ ] Migración de `consultations` aplicada sin pérdida de datos
+- [ ] Tipo de consulta aparece en el formulario y en el detalle
+- [ ] Mucosas y ganglios visibles siempre en el bloque de signos vitales
+- [ ] Examen objetivo particular es un campo separado del general
+- [ ] Tratamiento guarda dosis, frecuencia y duración correctamente
+- [ ] Se puede crear un informe complementario con foto adjunta
+- [ ] Los documentos se pueden filtrar por categoría
 
 ---
 
-## What is permanently out of scope
+### Fase G — Catálogo de Servicios 🔲 Pendiente
 
-- Geovet integration — no API exists, no scraping, no sync. Excel export only.
-- CRM ↔ chatbot integration in v1 — they are independent until v2.
-- WhatsApp in v1 — chatbot delivers via web widget only.
+**Objetivo:** La clínica tiene un listado de sus servicios configurable, conectado a los turnos y a la facturación.
+
+> Este catálogo es prerequisito de la Fase D (facturación) — los comprobantes necesitan referirse a un servicio.
+
+#### G.1 — Schema y gestión de servicios
+
+**Nueva tabla:** `services`
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | text (`svc_`) | |
+| `name` | text | Nombre del servicio |
+| `category` | enum | `cirugia \| consulta \| reproduccion \| cardiologia \| peluqueria \| vacunacion \| domicilio \| petshop \| otro` |
+| `defaultDurationMinutes` | integer | Duración por defecto al agendar |
+| `blockDurationMinutes` | integer nullable | Tiempo extra bloqueado (ej: cirugías) |
+| `basePrice` | numeric nullable | Precio base referencial |
+| `isActive` | boolean | Para desactivar sin eliminar |
+
+| Entregable | Estado |
+|---|---|
+| Schema `services` + migración + seed con los 9 servicios de Paula | 🔲 |
+| Página `/dashboard/settings/services` — CRUD de servicios (admin only) | 🔲 |
+| Selector de servicio al crear un turno | 🔲 |
+| `durationMinutes` del turno pre-cargado desde el servicio seleccionado | 🔲 |
+
+#### Checklist de verificación Fase G
+
+- [ ] Los 9 servicios de Paula cargados en el seed
+- [ ] Al crear un turno y elegir "Cirugía", la duración se pre-carga con el valor del servicio
+- [ ] Admin puede agregar, editar y desactivar servicios
+- [ ] Servicios desactivados no aparecen al agendar un turno nuevo
+
+---
+
+### Fase H — Agenda y Vista de Calendario 🔲 Pendiente
+
+**Objetivo:** El staff puede ver los turnos en formato calendario, identificar espacios libres y bloquear tiempo para cirugías.
+
+#### H.1 — Vista de calendario semanal
+
+| Entregable | Notas |
+|---|---|
+| Vista `/dashboard/calendar` — calendario semanal con turnos por día/hora | Columnas por día, filas por franja horaria |
+| Espacios libres visibles entre turnos | Diferencia visual entre ocupado y libre |
+| Clic en espacio libre → pre-carga formulario de nuevo turno con esa fecha/hora | |
+| Filtro por veterinario asignado | |
+
+#### H.2 — Bloqueo de tiempo para cirugías
+
+| Entregable | Notas |
+|---|---|
+| Al agendar un servicio con `blockDurationMinutes`, bloquear ese tiempo extra en la vista | Visual — no impide agendar encima, avisa |
+| Indicador visual diferenciado para cirugías en el calendario | |
+
+#### Checklist de verificación Fase H
+
+- [ ] Vista semanal muestra todos los turnos con nombre del paciente y tipo de servicio
+- [ ] Espacio libre es visualmente distinguible de los turnos ocupados
+- [ ] Clic en espacio libre abre el formulario de turno con fecha/hora pre-cargada
+- [ ] Cirugía muestra bloqueo visual del tiempo extra configurado
+
+---
+
+### Fase I — Recordatorios por Email 🔲 Pendiente
+
+**Objetivo:** El sistema envía emails automáticos para turnos, vacunas y seguimientos. WhatsApp se suma en v2.
+
+> **Stack:** Resend (email) + Vercel Cron Jobs (scheduler). Sin cola de mensajes externa — suficiente para v1.
+
+#### I.1 — Recordatorios de turno
+
+| Entregable | Notas |
+|---|---|
+| Email automático 48h antes de cada turno confirmado | Cron job diario que busca turnos en `NOW() + 48h` |
+| Email automático 24h antes | Segundo cron |
+| Contenido: nombre del paciente, fecha, hora, dirección de la clínica | |
+| Admin puede desactivar recordatorios por turno | Flag `sendReminders` en appointments |
+
+#### I.2 — Recordatorios de vacunas
+
+| Entregable | Notas |
+|---|---|
+| Email automático cuando `next_due_at` de una vacuna está a 7 días | Cron job diario |
+| Si no hay respuesta (no se agenda turno en 3 días), reenvío automático una vez | |
+| Contenido: nombre de la vacuna, fecha de vencimiento, cómo agendar | |
+
+#### I.3 — Seguimiento post-consulta
+
+| Entregable | Notas |
+|---|---|
+| Nueva tabla `follow_ups` — `patientId`, `consultationId`, `scheduledDate`, `reason`, `sentAt` | |
+| Desde el formulario de consulta: programar un control ("en 7 días por vómitos") | |
+| Cron job diario envía email en la fecha programada | |
+| Contenido: motivo del control, datos de la clínica, cómo contactar | |
+
+#### I.4 — Configuración de email
+
+| Entregable | Notas |
+|---|---|
+| Variable de entorno `RESEND_API_KEY` + dominio verificado en Resend | |
+| Templates de email en español argentino | |
+| Log de emails enviados en DB (no reenviar si ya se envió) | Idempotencia |
+
+#### Checklist de verificación Fase I
+
+- [ ] Email de 48h y 24h llegan correctamente al cliente del turno de prueba
+- [ ] Email de vacuna llega 7 días antes del vencimiento
+- [ ] Reenvío de vacuna ocurre solo si no se agendó turno en 3 días
+- [ ] Desde una consulta se puede programar un seguimiento y el email llega en esa fecha
+- [ ] Los emails no se duplican si el cron se ejecuta dos veces (idempotencia)
+- [ ] Admin puede desactivar recordatorios por turno individualmente
+
+---
+
+### Fase J — Diseño Mobile Responsive 🔲 Pendiente
+
+**Objetivo:** Paula y su equipo pueden usar el CRM desde el celular sin fricción.
+
+> No es una fase de features nuevas — es adaptar el CSS y los layouts existentes para pantallas pequeñas.
+
+| Área | Trabajo |
+|---|---|
+| Sidebar de navegación | Convertir a menú hamburguesa en mobile |
+| Tablas de lista (clientes, pacientes, turnos) | Convertir a cards apiladas en mobile |
+| Formularios | Verificar que los inputs no queden cortados en pantallas de 375px |
+| Vista de calendario | Layout alternativo simplificado en mobile (vista de día en lugar de semana) |
+| Detalle de paciente (pestañas) | Pestañas con scroll horizontal en mobile |
+| Botones de acción | Tamaño mínimo de 44px (accesibilidad táctil) |
+
+#### Checklist de verificación Fase J
+
+- [ ] Probado en iPhone SE (375px) y iPhone 14 (390px)
+- [ ] Probado en Android (360px)
+- [ ] Sidebar colapsa correctamente en mobile
+- [ ] Formularios completos sin overflow horizontal
+- [ ] Calendario usable desde celular
+
+---
+
+## Preguntas abiertas
+
+| # | Pregunta | Bloquea |
+|---|---|---|
+| OQ-D1 | ¿Cómo integra ARCA el certificado digital? Paula envía los datos durante la semana | Fase D.3 |
+| OQ-D2 | ¿Cuál es el límite anual de facturación de Paula y de Miguel? | D.4 — alerta de límite |
+| OQ-D3 | ¿El punto de venta de Paula y Miguel es el mismo o diferente? | D.2 — configuración ARCA |
+| OQ-E1 | ¿Cuáles son los precios base de peluquería por tier (min/mid/hard)? | E.5 seed |
+| OQ-E2 | Hallazgos del peluquero → ¿cómo debe notificarse al veterinario? (pendiente entrevista con peluquero) | Futura feature en v2 |
+| OQ-G1 | ¿Cuál es la duración por defecto y el bloqueo extra para cirugías? | G.1 seed de servicios |
+| OQ-I1 | ¿Desde qué dirección de email deben salir los recordatorios? (dominio verificado en Resend) | I.4 |
+
+---
+
+## Permanentemente fuera de alcance en v1
+
+- Integración Geovet — no existe API.
+- API pública del CRM — CRM y chatbot son independientes hasta v2.
+- Recordatorios por WhatsApp — v2 (en v1 solo email).
+- Mensajes masivos por WhatsApp — v2.
+- Encuestas de satisfacción — v3.
+- Portal del tutor / app para clientes — v3.
+- Reportes y analíticas — v3.
+- Alertas automáticas de hallazgos del peluquero al veterinario — v2.

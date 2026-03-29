@@ -66,7 +66,7 @@ NeoVet is a monorepo composed of 3 independent apps:
 
 | App | Stack | Description |
 |-----|-------|-------------|
-| `crm/` | Next.js 14 App Router, TypeScript, Tailwind, Drizzle ORM | Internal staff tool. CRUD for clients/patients, clinical history, appointment calendar. |
+| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, grooming module, email reminders, billing (ARCA), role-based access. |
 | `chatbot/` | Next.js 14 App Router, TypeScript, Tailwind | Conversational assistant. Web-first v1, WhatsApp via Kapso in v2. |
 | `landing/` | **Astro**, TypeScript, Tailwind | Static marketing site. Services, team, location, contact. No server-side logic. |
 
@@ -83,9 +83,9 @@ Every feature must pass 3 questions before entering v1 scope:
 3. **Is it validated?** Do we *know* users need it, or are we assuming? If assuming → defer.
 
 **Version targets:**
-- **v1** — Works, manually operated, no cross-app integrations. Each app is useful on its own.
-- **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live.
-- **v3** — Automation, reporting, advanced features.
+- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget.
+- **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live. Automated reminders via WhatsApp.
+- **v3** — AI, reporting, advanced automation.
 
 When suggesting features or scope, always flag which version they belong to. Never add v2/v3 features to v1 without explicitly calling it out.
 
@@ -96,7 +96,7 @@ When suggesting features or scope, always flag which version they belong to. Nev
 These are **hard prohibitions** for current work. Do not implement, wire up, or scaffold unless a version target is explicitly upgraded:
 
 - **No chatbot ↔ CRM integration in v1.** The chatbot and CRM are independent in v1. No API calls between them.
-- **No WhatsApp in v1.** The chatbot delivers via web widget only. WhatsApp (Kapso) is v2.
+- **No WhatsApp in v1.** The chatbot delivers via web widget only. WhatsApp (Kapso) is v2. CRM reminders use email (Resend) in v1 — WhatsApp reminders are v2.
 - **No AI image analysis in v1.** Image triage (L3) is deferred. Do not implement `analyze-image` tool or L3 logic.
 - **No Geovet integration, ever.** No sync, no scraping, no API calls to Geovet. Data migration is Excel-only, one-time.
 - **No automated urgency downgrade.** Urgency level can only go up automatically. Only a human staff member can downgrade it via the dashboard.
@@ -144,8 +144,11 @@ Each app owns its docs. **Before proposing any architectural or technical decisi
 | `chatbot/docs/architecture-phase1.md` | Full chatbot Phase 1 blueprint: stack, schema, message flow, build order |
 | `chatbot/docs/charter.md` | Chatbot project scope, deliverables, success criteria |
 | `chatbot/docs/technical-spec.md` | Chatbot technical specification |
+| `crm/docs/roadmap.md` | CRM multi-version roadmap (v1 / v2 / v3) |
+| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan (Phases A–J) |
 | `crm/docs/v1/charter.md` | CRM v1 project scope, deliverables, success criteria |
 | `crm/docs/v1/technical-spec.md` | CRM v1 technical specification |
+| `crm/docs/v1/handoff.md` | CRM v1 delivery checklist and operations manual |
 | `docs/standards/` | Agency documentation templates (charter, technical spec, ADR, handoff) |
 | `landing/docs/` | Paula interview checklist, optimization overview, ADRs |
 
@@ -157,13 +160,14 @@ If you are about to suggest something that touches the stack, database schema, W
 
 | Layer | Tool | Scope |
 |-------|------|-------|
-| CRM framework | Next.js 14 App Router + TypeScript | `crm/` only |
+| CRM framework | Next.js 16 App Router + TypeScript | `crm/` only |
 | Chatbot framework | Next.js 14 App Router + TypeScript | `chatbot/` only |
 | Landing framework | **Astro 6** + TypeScript + Tailwind CSS 4 | `landing/` only |
 | Styling | Tailwind CSS | All apps |
 | ORM | Drizzle ORM | `crm/` (and chatbot once DB is added) |
 | Database | Supabase (PostgreSQL) | `crm/` |
 | Auth | Supabase SSR | `crm/` |
+| Email | Resend + Vercel Cron | `crm/` — v1 |
 | WhatsApp | Kapso SDK | `chatbot/` — v2 only |
 | AI | Vercel AI SDK + Claude claude-sonnet-4-6 | `chatbot/` |
 | UI components | shadcn/ui | `crm/` |
