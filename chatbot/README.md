@@ -6,8 +6,8 @@
 | **Cliente** | Paula Silveira — NeoVet |
 | **Tech lead** | Franco Zancocchia |
 | **Product lead** | Tomás Pinolini |
-| **Versión del doc** | 1.2 |
-| **Última actualización** | 2026-03-28 |
+| **Versión del doc** | 2.0 |
+| **Última actualización** | 2026-03-29 |
 | **Fuente de verdad** | Código real de `crm/` + `chatbot/` en rama `main` |
 
 ---
@@ -16,14 +16,13 @@
 
 1. [Estado actual de ambos proyectos](#1-estado-actual-de-ambos-proyectos)
 2. [Filosofía de versionado](#2-filosofía-de-versionado)
-3. [Roadmap general v1–v4](#3-roadmap-general-v1v4)
-4. [v1 — Web widget FAQ estático](#4-v1--web-widget-faq-estático)
-5. [v2 — Bot con DB + dashboard admin](#5-v2--bot-con-db--dashboard-admin)
-6. [v3 — WhatsApp + integración CRM](#6-v3--whatsapp--integración-crm)
-7. [v4 — Automatización avanzada](#7-v4--automatización-avanzada)
-8. [Dependencias y blockers por versión](#8-dependencias-y-blockers-por-versión)
-9. [Criterios de paso entre versiones](#9-criterios-de-paso-entre-versiones)
-10. [Relación chatbot ↔ CRM por versión](#10-relación-chatbot--crm-por-versión)
+3. [Roadmap general v1–v3](#3-roadmap-general-v1v3)
+4. [v1 — Web widget FAQ estático (extra)](#4-v1--web-widget-faq-estático-extra)
+5. [v2 — Bot de WhatsApp (producto principal)](#5-v2--bot-de-whatsapp-producto-principal)
+6. [v3 — Canales adicionales + stock](#6-v3--canales-adicionales--stock)
+7. [Dependencias y blockers por versión](#7-dependencias-y-blockers-por-versión)
+8. [Criterios de paso entre versiones](#8-criterios-de-paso-entre-versiones)
+9. [Relación chatbot ↔ CRM por versión](#9-relación-chatbot--crm-por-versión)
 
 ---
 
@@ -31,42 +30,46 @@
 
 ### CRM — lo que hay realmente en el código
 
-> Nota: los docs del CRM mencionan Next.js 14 pero el `package.json` tiene Next.js 16. El código es la fuente de verdad.
+> Nota: el tech spec menciona Next.js 14 pero el `package.json` tiene Next.js 16. El código es la fuente de verdad.
 
 | Área | Estado real en código |
 |---|---|
-| Auth + middleware con roles | ✅ Implementado — `src/lib/supabase/middleware.ts`, `src/lib/role.ts` |
-| Schema completo (9 tablas) | ✅ `clients`, `patients`, `appointments`, `consultations`, `treatment_items`, `vaccinations`, `deworming_records`, `documents`, `staff` |
-| CRUD clientes y pacientes | ✅ Implementado con Zod, server actions, shadcn/ui |
-| Calendario de turnos | ✅ Con filtros, paginación, estado inline |
+| Auth + middleware con roles | ✅ `src/lib/supabase/middleware.ts` — roles `admin`, `vet`, `groomer` |
+| Schema DB (11+ tablas) | ✅ `clients`, `patients`, `appointments`, `consultations`, `treatment_items`, `vaccinations`, `deworming_records`, `documents`, `staff`, `grooming_profiles`, `grooming_sessions`, `settings` |
+| CRUD clientes y pacientes | ✅ Con Zod, server actions, shadcn/ui |
+| Calendario de turnos | ✅ Con filtros, paginación, tipos `veterinary` / `grooming`, asignación de staff |
 | Historial clínico SOAP | ✅ Con vitales, plan de tratamiento, toggle de estado |
 | Vacunaciones y desparasitaciones | ✅ CRUD inline en detalle de paciente |
 | Almacenamiento de documentos | ✅ Supabase Storage con signed URLs |
 | Dashboard home | ✅ Cards de resumen + turnos del día + acciones inline |
-| Importación desde Geovet | ✅ Scripts en `scripts/` — 1.771 clientes, 1.380 pacientes, ~1.300 consultas migradas |
-| Schema `staff` con roles | ✅ Definido en código — `admin` / `receptionist` |
-| Control de acceso por rol | 🔲 Schema listo, implementación UI pendiente (Fase E) |
-| Facturación / AFIP | 🔲 Pendiente confirmación de Paula (Fase D) |
-
-**Campos extra en `patients` no documentados en el tech spec:**
-`sex`, `neutered`, `weightKg`, `microchip`, `gvetId`, `gvetHistoryNumber` — provienen del import de Geovet.
+| Importación desde Geovet | ✅ 1.771 clientes · 1.380 pacientes · ~1.300 consultas migradas |
+| Módulo de peluquería (perfiles + sesiones) | ✅ `grooming_profiles`, `grooming_sessions`, fotos antes/después, hallazgos, precios por tier |
+| Gestión de staff (admin) | ✅ CRUD de miembros, roles, activación/desactivación vía Supabase Auth Admin |
+| Control de acceso por rol (vets, groomers) | ✅ Middleware + filtros por tipo de turno en UI |
+| Facturación / AFIP | 🔲 Pendiente confirmación de Paula (Fase D del CRM) |
+| API REST pública | 🔲 No existe — se construye en paralelo con v2 del chatbot |
+| Catálogo de servicios | 🔲 Pendiente (Fase G del CRM) |
+| Vista de calendario semanal | 🔲 Pendiente (Fase H del CRM) |
+| Recordatorios por email | 🔲 Pendiente (Fase I del CRM) |
 
 ### Chatbot — lo que hay realmente en el código
 
 | Área | Estado real |
 |---|---|
-| Scaffold Next.js | ✅ |
-| Dependencias AI (`ai`, `@ai-sdk/anthropic`, `@ai-sdk/react`) | ✅ ai@4 · @ai-sdk/anthropic@1 · @ai-sdk/react@1 |
-| API route `/api/chat` | ✅ streamText() con Claude claude-sonnet-4-6 |
-| Widget de chat | ✅ Con quick replies y streaming |
-| System prompt | ✅ Datos reales de NeoVet |
-| Lógica de negocio v1 | ✅ FAQ stateless completo |
+| Scaffold Next.js 16 | ✅ |
+| Dependencias AI | ✅ `ai@4` · `@ai-sdk/anthropic@1` · `@ai-sdk/react@1` |
+| API route `/api/chat` | ✅ `streamText()` con `claude-sonnet-4-6` |
+| Widget de chat con quick replies | ✅ Streaming en tiempo real |
+| System prompt con datos reales | ✅ Dirección, horarios, servicios, WhatsApp de la clínica |
+| Documentación de versiones | ✅ Este documento |
 
-v1 completo y funcionando en local. Pendiente deploy a Vercel y aprobación de Paula.
+v1 completo y funcionando en local. Pendiente: deploy a Vercel y aprobación del system prompt por Paula.
 
 ---
 
 ## 2. Filosofía de versionado
+
+**El producto principal es el bot de WhatsApp.** El widget web (v1) es un extra para la landing — no el foco del proyecto.
 
 Cada feature pasa tres filtros antes de entrar en scope:
 
@@ -76,89 +79,36 @@ Cada feature pasa tres filtros antes de entrar en scope:
 
 ---
 
-## 3. Roadmap general v1–v4
+## 3. Roadmap general v1–v3
 
 ```
-v1  Web widget FAQ estático
-    └── Instalar ai + @ai-sdk/anthropic · API route · widget · system prompt
+v1  Web widget FAQ estático (extra para la landing)
+    └── streamText() + system prompt fijo · sin DB · sin CRM
     └── CRM: independiente — no requiere nada del CRM
 
-v2  Bot con DB + dashboard admin
-    └── Supabase del CRM reutilizado · schema propio · urgencias L1–L4 · booking
-    └── CRM: Fases A–C completas ✅ · Supabase activo ✅
+v2  Bot de WhatsApp (producto principal)
+    └── TypeScript + Express · Kapso · Supabase del CRM · Claude AI
+    └── Booking de turnos · urgencias L1–L4 · recordatorios · dashboard en CRM
+    └── CRM: necesita API REST expuesta + Fases E y G completas
 
-v3  WhatsApp + integración CRM
-    └── Kapso live · chatbot lee/escribe en CRM via API · análisis de imágenes
-    └── CRM: API REST expuesta · Fase E (roles) implementada
-
-v4  Automatización avanzada
-    └── CRM como sistema central · historial clínico accesible desde el bot
-    └── CRM: Fase D (facturación) definida · sistema 100% validado por Paula
+v3  Canales adicionales + stock
+    └── TikTok DMs · stock farmacia/pet shop · recordatorios de vacunas
+    └── CRM: necesita inventario construido (Fase v2 del roadmap del CRM)
 ```
 
 | Versión | Estado chatbot | Blocker principal |
 |---|---|---|
 | v1 | ✅ Completo en local | Deploy a Vercel · aprobación de Paula |
-| v2 | 🔲 Pendiente | v1 live · Kapso configurado |
-| v3 | 🔲 Pendiente | v2 estable · CRM API expuesta · Fase E del CRM |
-| v4 | Sin fecha | v3 validado · CRM Fase D definida |
+| v2 | 🔲 Pendiente | CRM API REST expuesta · Kapso configurado · Fases E + G del CRM |
+| v3 | 🔲 Pendiente | v2 estable · inventario en CRM |
 
 ---
 
-## 4. v1 — Web widget FAQ estático
+## 4. v1 — Web widget FAQ estático (extra)
 
 ### Descripción
 
-Widget de chat embebible que responde preguntas frecuentes de los clientes. Completamente stateless — sin DB, sin auth, sin llamadas al CRM. El system prompt se arma con los datos reales de la clínica.
-
-### Lo que hay que construir (desde cero)
-
-```
-chatbot/
-├── package.json          ← agregar: ai, @ai-sdk/anthropic
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── chat/
-│   │   │       └── route.ts     ← streamText() con system prompt
-│   │   ├── page.tsx             ← reemplazar placeholder con widget
-│   │   └── globals.css
-│   └── components/
-│       └── chat-widget.tsx      ← UI del chat
-└── src/lib/
-    └── prompts/
-        └── system.ts            ← system prompt con datos de Paula
-```
-
-### Stack
-
-| Capa | Herramienta |
-|---|---|
-| Framework | Next.js 16 App Router + TypeScript |
-| AI / LLM | Vercel AI SDK (`ai@4`) + `@ai-sdk/anthropic@1` · `claude-sonnet-4-6` |
-| Estilo | Tailwind CSS |
-| Hosting | Vercel |
-
-### Features incluidas
-
-| Feature | Detalle |
-|---|---|
-| FAQ stateless | Horarios, precios, servicios, ubicación, cómo sacar turno |
-| Respuesta en streaming | `streamText()` via Vercel AI SDK |
-| System prompt seeded | Datos reales de Paula — horarios, servicios, precios |
-| Widget embebible | Standalone URL o iframe en landing |
-| Español argentino | Tono clínica de bulldogs y razas braquicéfalas |
-| Sin persistencia | Sesión independiente, sin historial |
-
-### Features fuera de scope
-
-- WhatsApp
-- Booking de turnos
-- Integración con CRM
-- Sistema de urgencias L1–L4
-- Análisis de imágenes
-- Base de datos
-- Autenticación
+Widget de chat embebible en la landing de NeoVet. Responde preguntas frecuentes de forma stateless — sin DB, sin auth, sin llamadas al CRM. Es un extra útil, no el producto central.
 
 ### Arquitectura
 
@@ -166,7 +116,7 @@ chatbot/
 Cliente (browser)
     │
     ▼
-Web Chat Widget (Next.js)
+Web Chat Widget (Next.js 16)
     │  POST /api/chat
     ▼
 API Route — streamText()
@@ -178,47 +128,127 @@ Claude claude-sonnet-4-6 (Anthropic API)
 Respuesta renderizada al usuario
 ```
 
-### Variables de entorno requeridas
+### Archivos relevantes
+
+```
+chatbot/
+├── src/app/api/chat/route.ts          ← streamText() con system prompt
+├── src/components/chat-widget.tsx     ← UI con quick replies y streaming
+├── src/lib/prompts/system.ts          ← datos reales de NeoVet
+└── src/app/page.tsx                   ← página con el widget
+```
+
+### Stack
+
+| Capa | Herramienta |
+|---|---|
+| Framework | Next.js 16 App Router + TypeScript |
+| AI / LLM | `ai@4` + `@ai-sdk/anthropic@1` · `claude-sonnet-4-6` |
+| Estilo | Tailwind CSS |
+| Hosting | Vercel |
+
+### Features incluidas
+
+| Feature | Detalle |
+|---|---|
+| FAQ stateless | Horarios, servicios, ubicación, cómo sacar turno |
+| Respuesta en streaming | `streamText()` vía Vercel AI SDK |
+| System prompt seeded | Datos reales de Paula — horarios, servicios, WhatsApp |
+| Widget embebible | URL standalone o iframe en la landing |
+| Español argentino | Tono de clínica de razas braquicéfalas |
+| Sin persistencia | Sesión independiente, sin historial |
+
+### Features fuera de scope
+
+- WhatsApp o cualquier otro canal de mensajería
+- Booking de turnos
+- Sistema de urgencias
+- Integración con CRM
+- Base de datos propia
+- Análisis de imágenes
+
+### Variables de entorno
 
 ```bash
 ANTHROPIC_API_KEY=
 NEXT_PUBLIC_APP_URL=
 ```
 
+### Pendientes para go-live
+
+| # | Tarea | Responsable |
+|---|---|---|
+| P1 | Paula aprueba el contenido del system prompt | Tomás + Paula |
+| P2 | Definir dónde se embebe el widget (landing, iframe) | Tomás |
+| P3 | Deploy a Vercel | Franco |
+
 ### Criterios de éxito
 
-- El bot responde correctamente al menos 10 preguntas frecuentes en español argentino.
+- El bot responde correctamente las preguntas frecuentes principales en español argentino.
 - Tiempo de respuesta menor a 3 segundos en el 95% de los mensajes.
-- Paula revisa y aprueba las respuestas antes del lanzamiento.
+- Paula revisó y aprobó las respuestas antes del lanzamiento.
 
 ---
 
-## 5. v2 — Bot con DB + dashboard admin
+## 5. v2 — Bot de WhatsApp (producto principal)
 
 ### Descripción
 
-El chatbot deja de ser stateless y persiste conversaciones, detecta urgencias y permite al staff gestionar escalaciones desde un dashboard. La infraestructura Supabase ya existe — fue creada por el CRM.
+El canal principal de comunicación de la clínica con sus clientes. El bot recibe mensajes de WhatsApp vía Kapso, persiste conversaciones, detecta urgencias y permite al staff gestionar todo desde una sección integrada dentro del CRM existente.
+
+**Importante:** el dashboard admin del bot vive dentro del CRM — no es una app separada. Se agrega como sección en `crm/src/app/dashboard/bot/`. El staff ya está en el CRM todo el día; el auth y los roles son los mismos.
 
 ### Prerrequisitos
 
 - v1 live y aprobado por Paula.
-- Proyecto Supabase ya creado y activo ✅ (existe por el CRM).
-- Kapso configurado con número de WhatsApp.
-- Migraciones del chatbot ejecutadas en el mismo Supabase del CRM.
+- CRM con API REST expuesta (nueva — no existe aún).
+- CRM Fase E completa (roles `vet` / `groomer` con RBAC UI).
+- CRM Fase G completa (catálogo de servicios con duraciones).
+- Kapso configurado con el número de WhatsApp Business de Paula.
+- Migraciones `bot_*` ejecutadas en el mismo Supabase del CRM.
+
+### Arquitectura
+
+```
+Cliente (WhatsApp)
+    │
+    ▼
+Kapso Platform — POST /api/webhook
+    │
+    ▼
+Bot Server (TypeScript + Express — app separada en chatbot/)
+    1. Verificar HMAC Kapso
+    2. Retornar 200 inmediatamente (timeout Kapso: 5s)
+    3. Background:
+       a. Upsert bot_contact
+       b. Upsert bot_conversation
+       c. Persistir mensaje
+       d. Fast-path L4 → si match: escalación inmediata, skip AI
+       e. Parseo de intents (Claude Haiku)
+       f. State machine / herramientas del agente
+    │
+    ▼
+CRM API REST (nueva — crm/src/app/api/bot/)
+    │  Lectura/escritura de clientes, pacientes, turnos
+    ▼
+Supabase PostgreSQL (mismo proyecto que el CRM)
+    │
+    ▼
+Kapso → sendMessage() → Usuario
+```
 
 ### Schema propio del chatbot
 
-Estas tablas son del chatbot — se crean en el mismo Supabase del CRM pero con prefijos distintos para evitar colisiones:
+Tablas en el mismo Supabase del CRM con prefijo `bot_` para evitar colisiones:
 
 | Tabla | Descripción |
 |---|---|
-| `bot_contacts` | Clientes identificados por WhatsApp ID |
+| `bot_contacts` | Clientes identificados por número de WhatsApp |
 | `bot_conversations` | Threads con estado y nivel de urgencia |
-| `bot_messages` | Mensajes con análisis AI |
-| `bot_appointments` | Turnos creados por el bot — pendientes de sync con CRM en v3 |
-| `availability_rules` | Slots configurables por el staff |
-| `business_context` | FAQ editable por Paula desde el dashboard |
-| `urgency_escalations` | Log de escalaciones con acciones del staff |
+| `bot_messages` | Mensajes con metadata de análisis AI |
+| `bot_escalations` | Log de escalaciones con acciones del staff |
+| `bot_availability_rules` | Slots configurables desde el dashboard |
+| `bot_business_context` | FAQ/horarios/precios editables por Paula |
 
 > El prefijo `bot_` evita colisiones con las tablas del CRM (`clients`, `appointments`, etc.) que ya existen en el mismo Supabase.
 
@@ -227,60 +257,30 @@ Estas tablas son del chatbot — se crean en el mismo Supabase del CRM pero con 
 | Nivel | Trigger | Acción del bot |
 |---|---|---|
 | L1 | Info general, precios, ubicación | Responde automáticamente |
-| L2 | Booking de turno | Ejecuta flujo de reserva |
-| L3 | Descripción de síntomas | AI analiza, flag para revisión veterinaria |
+| L2 | Booking de turno | Ejecuta flujo de reserva vía CRM API |
+| L3 | Descripción de síntomas | AI analiza → flag para revisión veterinaria |
 | L4 | Keywords de emergencia | Fast-path pre-AI, escalación inmediata |
 
-**Regla de seguridad crítica:** `urgencyLevel` solo sube, nunca baja automáticamente. Solo el staff puede bajar el nivel desde el dashboard.
+**Regla de seguridad crítica:** `urgencyLevel` solo sube, nunca baja automáticamente. Solo el staff puede bajar el nivel desde el dashboard del CRM.
 
 **Keywords L4 (español argentino):** convulsión, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción, emergencia, urgente, se está muriendo.
 
-**Por qué el fast-path es crítico:** La clínica atiende razas braquicéfalas con alta predisposición a emergencias respiratorias. El keyword check corre antes del agente, sin excepciones, sin depender de la disponibilidad de la AI.
+**Por qué el fast-path es crítico:** La clínica atiende razas braquicéfalas con alta predisposición a emergencias respiratorias. El keyword check corre antes del agente, sin excepciones, sin depender de la disponibilidad de la API de AI.
 
 ### Herramientas del agente
 
-| Tool | Descripción |
-|---|---|
-| `get_business_context` | Lee FAQ/horarios/precios desde `business_context` |
-| `get_availability` | Consulta slots desde `availability_rules` |
-| `book_appointment` | Crea turno en `bot_appointments` |
-| `cancel_appointment` | Cancela turno existente |
-| `escalate_to_human` | Crea escalación y notifica al staff |
+| Tool | Descripción | API del CRM que usa |
+|---|---|---|
+| `get_business_context` | Lee FAQ/horarios desde `bot_business_context` | — (tabla propia del bot) |
+| `get_client` | Busca cliente existente por teléfono | `GET /api/bot/clients?phone=` |
+| `get_availability` | Consulta slots disponibles | `GET /api/bot/availability` |
+| `book_appointment` | Crea turno en el CRM | `POST /api/bot/appointments` |
+| `cancel_appointment` | Cancela turno existente | `PATCH /api/bot/appointments/:id` |
+| `escalate_to_human` | Crea escalación en `bot_escalations` | — (tabla propia del bot) |
 
-### Flujo de mensajes
+### Dashboard admin del bot (dentro del CRM)
 
-```
-Usuario
-    │
-    ▼
-Kapso Platform — POST /api/webhook
-    │
-    ▼
-webhook/route.ts
-    1. Verificar HMAC → 401 si inválido
-    2. Retornar 200 inmediatamente (timeout Kapso: 5s)
-    3. waitUntil() — background:
-       a. Upsert bot_contact
-       b. Upsert bot_conversation
-       c. Descargar media → Supabase Storage
-       d. Persistir mensaje
-       e. Fast-path L4 → si match: escalación inmediata, skip AI
-       f. Handoff al agente
-    │
-    ▼
-agent/index.ts
-    1. Cargar historial desde DB
-    2. buildSystemPrompt() → consulta business_context (cache 5min)
-    3. Clasificador de urgencia
-    4. generateText({ model: claude-sonnet-4-6, tools })
-    5. Actualizar urgencyLevel en DB
-    6. Persistir respuesta
-    │
-    ▼
-kapso/client.ts → sendMessage() → Usuario
-```
-
-### Dashboard admin
+Ubicación: `crm/src/app/dashboard/bot/`
 
 | Sección | Features |
 |---|---|
@@ -289,198 +289,206 @@ kapso/client.ts → sendMessage() → Usuario
 | Business context | Editor de FAQ, horarios, precios — Paula sin tocar código |
 | Disponibilidad | Configuración de slots y bloqueos por fecha |
 
-### Auth
+**Auth:** mismo Supabase SSR del CRM. Solo accesible para roles `admin`.
 
-Supabase SSR — mismo proveedor que el CRM. El CRM ya tiene `staff` table con roles `admin` / `receptionist`. El chatbot dashboard usa el mismo sistema de auth.
+### Recordatorios automáticos
+
+| Trigger | Momento | Canal |
+|---|---|---|
+| Recordatorio de turno | 48h antes | WhatsApp vía Kapso |
+| Recordatorio de turno | 24h antes | WhatsApp vía Kapso |
+| Recordatorio especial peluquería | 24h antes | WhatsApp — "venir con correa, collar, sin garrapatas" |
+
+Los recordatorios los dispara un cron job en Vercel que consulta la tabla `appointments` del CRM.
+
+### Tipos de turno reconocidos por el bot
+
+Confirmados por Paula en la entrevista:
+
+| Tipo | Duración base | Nota |
+|---|---|---|
+| Consulta general | 30 min | — |
+| Cirugía | Variable | Bloqueo extra de 2hs post-cirugía |
+| Estética / peluquería | Variable | Perfil del paciente define duración |
+| Colocación de collar | 15 min | — |
+| Colocación de correa | 15 min | — |
+| Antiparasitario | 15 min | — |
+
+**Guardia pasiva dominical:** la clínica tiene guardia pasiva los domingos de 9:00 a 20:00. El bot informa esto pero no toma turnos domingos.
 
 ### Variables de entorno requeridas
 
 ```bash
-# Ya existen — reutilizar del CRM
+# Reutilizar del CRM
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
 
-# Nuevas para el chatbot
+# Nuevas para el bot
 ANTHROPIC_API_KEY=
 KAPSO_API_KEY=
 KAPSO_WEBHOOK_SECRET=
 WHATSAPP_PHONE_NUMBER_ID=
 NEXT_PUBLIC_APP_URL=
-NEXT_PUBLIC_CLINIC_EMERGENCY_PHONE=
+CLINIC_EMERGENCY_PHONE=
 ```
+
+### Pendientes para arrancar v2
+
+| # | Tarea | Responsable |
+|---|---|---|
+| P4 | Confirmar que Paula tiene WhatsApp Business activo | Tomás |
+| P5 | Tomás inicia proceso de onboarding en Kapso | Tomás |
+| P6 | Definir qué hace el bot con L3 — ¿deriva a WhatsApp o abre turno urgente? | Tomás + Paula |
+| P7 | Definir L4 — ¿notifica solo a Paula o hay guardia rotativa? | Tomás + Paula |
+| P8 | Fases E + G del CRM completas | Franco |
+| P9 | CRM API REST diseñada y expuesta | Franco |
+| P10 | Migraciones `bot_*` ejecutadas en Supabase del CRM | Franco |
 
 ### Criterios de éxito
 
-- Mensajes persistidos correctamente en DB.
+- Mensajes de WhatsApp persistidos correctamente en DB.
 - Fast-path L4 escala en menos de 200ms sin pasar por AI.
-- Staff gestiona conversaciones y escalaciones desde el dashboard.
-- Paula edita el FAQ sin tocar código.
-- Booking crea turno y staff puede confirmarlo.
+- Staff gestiona conversaciones y escalaciones desde el dashboard del CRM.
+- Paula edita el FAQ del bot sin tocar código.
+- Booking crea turno directamente en el calendario del CRM.
+- Recordatorios se envían 48h y 24h antes del turno.
+- Clientes existentes en el CRM son reconocidos por número de teléfono.
 
 ---
 
-## 6. v3 — WhatsApp + integración CRM
+## 6. v3 — Canales adicionales + stock
 
 ### Descripción
 
-El chatbot se conecta con el CRM via API interna. Los contactos del bot se cruzan con los `clients` reales del CRM. Los turnos creados por el bot aparecen en el calendario del CRM (`appointments`). Se activa el análisis de imágenes (triage L3) y recordatorios automáticos.
-
-### Qué tiene el CRM que el chatbot puede usar en v3
-
-| Tabla CRM | Qué le sirve al chatbot |
-|---|---|
-| `clients` | Match por `phone` para identificar clientes existentes |
-| `patients` | Consultar mascotas del cliente identificado |
-| `appointments` | Crear/cancelar turnos directamente en el CRM |
-| `vaccinations` | Consultar próximas vacunas (alertas automatizadas) |
-| `documents` | Adjuntar fotos de síntomas al paciente |
-| `staff` | Saber a quién escalar según el rol |
+Se agregan canales nuevos (TikTok DMs) y el bot gana acceso al inventario del CRM para responder consultas de stock de farmacia y pet shop. También se activan los recordatorios automáticos de vacunas.
 
 ### Prerrequisitos
 
-- v2 estable en producción — mínimo 2 semanas sin incidentes.
-- CRM con API REST expuesta (no existe en v1 del CRM — se construye en paralelo).
-- Fase E del CRM (roles + RBAC UI) implementada.
-- Kapso outbound activo y testeado.
-- Número de WhatsApp definitivo confirmado por Paula.
+- v2 estable en producción — mínimo 2 semanas sin incidentes críticos.
+- CRM con módulo de inventario construido (Fase v2 del roadmap del CRM).
+- TikTok Business API configurada.
 
 ### Features incluidas
 
-| Feature | Detalle |
-|---|---|
-| Canal WhatsApp activo | Kapso outbound — mensajes reales a clientes |
-| Chatbot ↔ CRM API | Contactos y turnos sincronizados |
-| Análisis de imágenes (L3) | Claude vision — foto de síntomas → triage + escalación |
-| Recordatorios de turnos | WhatsApp 24hs antes del turno |
-| Reportes básicos | Métricas de uso, distribución de urgencias |
+| Feature | Detalle | Dato del CRM que usa |
+|---|---|---|
+| TikTok DMs | Tercer canal — consultas de ubicación y servicios | — |
+| Consulta de stock | Farmacia y pet shop desde el bot | Inventario del CRM (Fase v2 CRM) |
+| Recordatorios de vacunas | Alertas automáticas por WhatsApp | `vaccinations.next_due_at` |
+| Seguimiento post-consulta | Mensaje de seguimiento automático | `consultations.plan` + `appointments` |
+
+### Features fuera de scope en v3
+
+- Historial clínico completo accesible desde el bot
+- Facturación vía bot
+- Portal del cliente / app
 
 ### Criterios de éxito
 
-- WhatsApp responde en menos de 5 segundos.
-- Fotos generan análisis AI y escalación L3 visible en dashboard.
-- Turnos del bot aparecen en el calendario del CRM.
-- Recordatorios automáticos se envían 24hs antes del turno.
-- Clientes existentes en CRM son reconocidos por número de teléfono (`clients.phone`).
+- TikTok DMs responden correctamente preguntas de ubicación y servicios.
+- Consulta de stock devuelve resultado correcto del inventario del CRM.
+- Recordatorios de vacunas se envían 7 días antes del vencimiento de `next_due_at`.
+- Sin regresiones en el flujo de WhatsApp v2.
 
 ---
 
-## 7. v4 — Automatización avanzada
-
-### Descripción
-
-El CRM es el sistema central único. El bot accede al historial clínico del paciente para contextualizar respuestas. Flujos end-to-end automatizados.
-
-### Prerrequisitos
-
-- v3 estable mínimo 2–3 meses en producción.
-- CRM Fase D (facturación/AFIP) definida.
-- Paula usa el CRM como único sistema.
-
-### Features contempladas (sin fecha)
-
-| Feature | Dato del CRM que usa |
-|---|---|
-| Historial clínico via bot | `consultations`, `treatment_items` |
-| Alertas de vacunas próximas | `vaccinations.next_due_at` |
-| Re-engagement de clientes inactivos | `appointments.scheduled_at` + `patients` |
-| Seguimiento post-consulta | `consultations.plan` + `appointments` |
-| Integración facturación | Fase D del CRM (AFIP) |
-
----
-
-## 8. Dependencias y blockers por versión
+## 7. Dependencias y blockers por versión
 
 ### v1
 
 | # | Blocker | Responsable | Estado |
 |---|---|---|---|
-| B1 | Instalar dependencias AI | Franco | ✅ Hecho — ai@4 · @ai-sdk/anthropic@1 · @ai-sdk/react@1 |
+| B1 | Dependencias AI instaladas | Franco | ✅ `ai@4` · `@ai-sdk/anthropic@1` · `@ai-sdk/react@1` |
 | B2 | Paula aprueba contenido del system prompt | Tomás + Paula | 🔲 Pendiente |
-| B3 | Definir dónde se embebe el widget | Tomás | 🔲 Pendiente |
+| B3 | Definir dónde se embebe el widget en la landing | Tomás | 🔲 Pendiente |
+| B4 | Deploy a Vercel | Franco | 🔲 Pendiente |
 
 ### v2
 
 | # | Blocker | Responsable | Estado |
 |---|---|---|---|
-| B4 | v1 live y aprobado | Franco | 🔲 Pendiente |
-| B5 | Supabase ya existe por el CRM — reutilizar credenciales | Franco | ✅ Desbloqueado |
-| B6 | Migraciones del chatbot (`bot_*` tablas) ejecutadas en Supabase del CRM | Franco | 🔲 Pendiente |
-| B7 | Cuenta Kapso creada con número de WhatsApp conectado | Tomás + Paula | 🔲 Pendiente |
-| B8 | `KAPSO_WEBHOOK_SECRET` generado y configurado | Franco | 🔲 Pendiente |
-| B9 | Número de WhatsApp definitivo de la clínica | Paula | 🔲 Pendiente |
-| B10 | Seeding inicial de `business_context` con datos reales | Tomás + Paula | 🔲 Pendiente |
+| B5 | v1 live y aprobado | Franco | 🔲 Pendiente |
+| B6 | Supabase del CRM reutilizado — credenciales disponibles | Franco | ✅ Desbloqueado |
+| B7 | CRM Fase E completa (roles RBAC + UI) | Franco | 🔲 En progreso |
+| B8 | CRM Fase G completa (catálogo de servicios) | Franco | 🔲 Pendiente |
+| B9 | CRM API REST diseñada, implementada y documentada | Franco | 🔲 Pendiente — no existe aún |
+| B10 | Migraciones `bot_*` ejecutadas en Supabase del CRM | Franco | 🔲 Pendiente |
+| B11 | Paula confirma número de WhatsApp Business | Tomás + Paula | 🔲 Pendiente |
+| B12 | Onboarding en Kapso iniciado — aprobación Meta puede tardar semanas | Tomás | 🔲 Pendiente |
+| B13 | `KAPSO_WEBHOOK_SECRET` generado y configurado | Franco | 🔲 Pendiente |
+| B14 | Seeding inicial de `bot_business_context` con datos reales de Paula | Tomás + Paula | 🔲 Pendiente |
 
 ### v3
 
 | # | Blocker | Responsable | Estado |
 |---|---|---|---|
-| B11 | v2 estable — mínimo 2 semanas sin incidentes críticos | Franco | 🔲 Pendiente |
-| B12 | CRM API REST documentada y expuesta | Franco | 🔲 Pendiente |
-| B13 | Fase E del CRM (roles + RBAC UI) implementada — pendiente reunión con Paula | Tomás + Paula | 🔲 Bloqueado |
-| B14 | Kapso outbound activo y testeado | Franco | 🔲 Pendiente |
-
-### v4
-
-| # | Blocker | Responsable | Estado |
-|---|---|---|---|
-| B15 | v3 validado en producción por Paula | Tomás + Paula | Sin fecha |
-| B16 | CRM Fase D (facturación/AFIP) definida o descartada formalmente | Franco + Paula | 🔲 Bloqueado |
+| B15 | v2 estable — mínimo 2 semanas sin incidentes críticos | Franco | 🔲 Pendiente |
+| B16 | CRM con módulo de inventario construido | Franco | 🔲 Pendiente — Fase v2 del CRM |
+| B17 | TikTok Business API configurada y aprobada | Tomás | 🔲 Pendiente |
 
 ---
 
-## 9. Criterios de paso entre versiones
+## 8. Criterios de paso entre versiones
 
 ### v1 → v2
 
 - [ ] Widget deployado en Vercel y funcionando.
 - [ ] Paula aprobó respuestas FAQ en español argentino.
 - [ ] Bot responde en menos de 3s en el 95% de los casos.
-- [ ] Sin errores críticos en producción durante al menos 1 semana.
-- [ ] Migraciones `bot_*` ejecutadas en Supabase del CRM (B6).
-- [ ] Kapso configurado con webhook URL y secret (B7, B8).
+- [ ] Sin errores críticos durante al menos 1 semana.
+- [ ] CRM Fases E + G completas.
+- [ ] CRM API REST expuesta y documentada (B9).
+- [ ] Kapso configurado con webhook URL y secret (B12, B13).
+- [ ] Migraciones `bot_*` ejecutadas en Supabase del CRM (B10).
 
 ### v2 → v3
 
-- [ ] Mensajes persistidos correctamente en DB.
+- [ ] Mensajes de WhatsApp persistidos correctamente en DB.
 - [ ] Fast-path L4 escala en menos de 200ms — verificado con keyword de prueba.
-- [ ] Paula usa el dashboard admin diariamente sin incidentes críticos.
+- [ ] Paula usa el dashboard del bot en el CRM sin incidentes críticos.
 - [ ] Booking end-to-end funciona: creación, confirmación, cancelación.
+- [ ] Turnos del bot aparecen en el calendario del CRM.
+- [ ] Recordatorios de 48h y 24h funcionando en producción.
 - [ ] Business context editor en uso por el equipo.
 - [ ] Sin incidentes críticos durante 2 semanas con tráfico real.
-- [ ] CRM API REST expuesta y documentada (B12).
-- [ ] Fase E del CRM (roles) implementada (B13).
-
-### v3 → v4
-
-- [ ] v3 en producción mínimo 2–3 meses sin incidentes críticos.
-- [ ] WhatsApp con volumen real de mensajes de clientes.
-- [ ] Paula usa el CRM como sistema principal.
-- [ ] CRM Fase D definida o descartada formalmente.
+- [ ] CRM con inventario construido (B16).
 
 ---
 
-## 10. Relación chatbot ↔ CRM por versión
+## 9. Relación chatbot ↔ CRM por versión
 
 | Versión | Relación | Detalle |
 |---|---|---|
 | v1 | Ninguna | Bot stateless. System prompt con datos estáticos. CRM no sabe que el bot existe. |
-| v2 | Infraestructura compartida | Mismo Supabase, schemas separados (`bot_*` vs tablas del CRM). Sin llamadas entre apps. |
-| v3 | Integración real via API | Bot lee/escribe en CRM. Turnos del bot → `appointments`. Fotos → `documents`. |
-| v4 | Sistema unificado | Bot opera sobre datos del CRM directamente. Historial clínico como contexto. |
+| v2 | Integración vía API REST | Bot lee/escribe en CRM. Turnos del bot → `appointments` del CRM. Dashboard del bot vive dentro del CRM. |
+| v3 | Integración extendida | v2 + stock de inventario + vacunas + TikTok DMs. |
 
 ### Tablas del CRM que el chatbot toca por versión
 
-| Tabla CRM | v1 | v2 | v3 | v4 |
-|---|---|---|---|---|
-| `clients` | — | — | Lectura (match por `phone`) | Lectura + escritura |
-| `patients` | — | — | Lectura (mascotas del cliente) | Lectura + contexto clínico |
-| `appointments` | — | — | Escritura (turnos del bot) | Escritura + follow-up |
-| `consultations` | — | — | — | Lectura (historial para contexto) |
-| `vaccinations` | — | — | — | Lectura (alertas de vencimiento) |
-| `documents` | — | — | Escritura (fotos de síntomas) | Lectura + escritura |
-| `staff` | — | — | Lectura (a quién escalar) | Lectura |
+| Tabla CRM | v1 | v2 | v3 |
+|---|---|---|---|
+| `clients` | — | Lectura (match por `phone`) | Lectura |
+| `patients` | — | Lectura (mascotas del cliente) | Lectura |
+| `appointments` | — | Escritura (turnos del bot) | Escritura |
+| `vaccinations` | — | — | Lectura (`next_due_at` para alertas) |
+| `consultations` | — | — | Lectura (seguimiento post-consulta) |
+| `staff` | — | Lectura (a quién escalar) | Lectura |
+| Inventario (futuro) | — | — | Lectura (stock farmacia/pet shop) |
+
+### Endpoints del CRM que el bot consume en v2
+
+Estos endpoints son **nuevos** — no existen en el CRM hoy. Se construyen en paralelo:
+
+| Endpoint | Método | Descripción |
+|---|---|---|
+| `/api/bot/clients` | GET | Buscar cliente por `phone` |
+| `/api/bot/availability` | GET | Consultar slots disponibles por fecha y servicio |
+| `/api/bot/appointments` | POST | Crear turno |
+| `/api/bot/appointments/:id` | PATCH | Cancelar / confirmar turno |
+| `/api/bot/services` | GET | Listar servicios activos con duración |
+
+Todos los endpoints del bot requieren autenticación por API key en headers. No usan Supabase SSR — son llamadas server-to-server desde el proceso Express del bot.
 
 ---
 
@@ -488,12 +496,14 @@ El CRM es el sistema central único. El bot accede al historial clínico del pac
 
 | Capa | Herramienta | Scope |
 |---|---|---|
-| Framework | Next.js 16 App Router + TypeScript | `chatbot/` |
-| AI / LLM | Vercel AI SDK + Claude claude-sonnet-4-6 | `chatbot/` |
+| Widget web (v1) | Next.js 16 App Router + TypeScript | `chatbot/` |
+| Bot server (v2+) | TypeScript + Express | `chatbot/` — proceso separado |
+| AI / LLM (intents) | Claude Haiku — `@anthropic-ai/sdk` | v2+ |
+| AI / LLM (respuestas) | Claude Sonnet — `claude-sonnet-4-6` | Todas las versiones |
 | Base de datos | Supabase PostgreSQL — mismo proyecto que CRM | v2+ |
 | ORM | Drizzle ORM | v2+ |
-| Auth | Supabase SSR — mismo proveedor que CRM | v2+ |
-| WhatsApp | Kapso SDK | v3 |
+| Auth (dashboard bot) | Supabase SSR — mismo que CRM | v2+ |
+| WhatsApp | Kapso SDK | v2+ |
 | Estilo | Tailwind CSS | `chatbot/` |
 | Hosting | Vercel | Todas las versiones |
 
@@ -501,14 +511,10 @@ El CRM es el sistema central único. El bot accede al historial clínico del pac
 
 | Documento | Ubicación |
 |---|---|
-| Charter del chatbot | `chatbot/docs/charter.md` |
-| Technical spec del chatbot | `chatbot/docs/technical-spec.md` |
-| Architecture Phase 1 Blueprint | `chatbot/docs/architecture-phase1.md` |
-| ADR-001 AI provider | `chatbot/docs/architecture/ADR-001-ai-provider-claude.md` |
-| ADR-003 Webhook strategy | `chatbot/docs/architecture/ADR-003-webhook-response-strategy.md` |
-| ADR-005 Urgency system | `chatbot/docs/architecture/ADR-005-urgency-system-l1-l4.md` |
-| ADR-006 Auth | `chatbot/docs/architecture/ADR-006-auth-supabase-ssr.md` |
-| Charter del CRM | `crm/docs/charter.md` |
-| Technical spec del CRM | `crm/docs/technical-spec.md` |
-| Plan de desarrollo del CRM | `crm/docs/development-plan.md` |
+| Charter del CRM | `crm/docs/v1/charter.md` |
+| Plan de desarrollo del CRM v1 | `crm/docs/v1/development-plan.md` |
+| Roadmap del CRM | `crm/docs/roadmap.md` |
+| Technical spec del CRM | `crm/docs/v1/technical-spec.md` |
+| ADR-002 WhatsApp Kapso | `crm/docs/v1/architecture/ADR-002-whatsapp-kapso.md` |
+| ADR-004 Base de datos | `crm/docs/v1/architecture/ADR-004-database-drizzle-supabase.md` |
 | Contexto general del negocio | `CLAUDE.md` (raíz del monorepo) |
