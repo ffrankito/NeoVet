@@ -61,9 +61,15 @@ This app uses **Supabase branching** — see root `CLAUDE.md` for the full strat
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`
-- Run `npm run db:generate` to generate the SQL migration file in `drizzle/migrations/`
-- Commit the migration file — Supabase will apply it automatically when the branch is pushed
-- **Never run `npm run db:migrate` manually on production.** Only run it locally against the preview DB if needed for testing before pushing.
+- Run `npm run db:generate` to generate the SQL migration file in `supabase/migrations/`
+- Commit the migration file and push to `dev` — then run `npm run db:migrate` against the preview DB to apply it
+- When merging to `main`, run `npm run db:migrate` against production
+
+**Switching environments locally** — `.env.local` is the active env, swap it by copying:
+```bash
+cp .env.development .env.local   # → preview DB (dev branch)
+cp .env.production  .env.local   # → production DB (careful)
+```
 
 **Supabase CLI** is configured in `supabase/` and linked to project ref `ajpzsmcqlbbuzimjjwyi`.
 

@@ -170,9 +170,20 @@ The project uses two long-lived git branches tied to two Supabase database envir
 - Merging `dev` → `main` triggers Supabase to run those same migrations on the **production database**.
 - Never run migrations manually on production — let the Supabase branching integration handle it.
 
-**Local env setup:**
-- `.env.local` → production Supabase credentials (used when you want to connect to prod locally — careful)
-- `.env.dev` → preview branch credentials (use this when doing development work on the `dev` branch)
+**Local env setup — `.env.local` is a switch:**
+
+There are two credential files. `.env.local` is what Next.js reads — it is never committed and acts as the active environment. You switch by copying the right file over it:
+
+```bash
+cp crm/.env.development crm/.env.local   # → point to preview DB (dev branch work)
+cp crm/.env.production  crm/.env.local   # → point to production DB (careful)
+```
+
+| File | Committed | Purpose |
+|------|-----------|---------|
+| `.env.local` | No | Active environment — always a copy of one of the below |
+| `.env.production` | No | Production Supabase credentials |
+| `.env.development` | No | Preview branch (dev) Supabase credentials |
 
 To get preview branch credentials: Supabase dashboard → your project → Branches → select the `dev` branch → API settings.
 
