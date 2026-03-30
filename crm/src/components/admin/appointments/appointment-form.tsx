@@ -59,6 +59,7 @@ interface AppointmentFormProps {
   clients?: ClientOption[];
   services?: Service[];
   defaultPatientId?: string;
+  defaultScheduledAt?: string;
 }
 
 function formatDateTimeLocal(date: Date): string {
@@ -67,7 +68,14 @@ function formatDateTimeLocal(date: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-export function AppointmentForm({ appointment, patients, clients = [], services = [], defaultPatientId }: AppointmentFormProps) {
+export function AppointmentForm({
+  appointment,
+  patients,
+  clients = [],
+  services = [],
+  defaultPatientId,
+  defaultScheduledAt,
+}: AppointmentFormProps) {
   const isEdit = !!appointment;
 
   const defaultClientId = defaultPatientId
@@ -250,7 +258,11 @@ export function AppointmentForm({ appointment, patients, clients = [], services 
           id="scheduledAt"
           name="scheduledAt"
           type="datetime-local"
-          defaultValue={appointment ? formatDateTimeLocal(appointment.scheduledAt) : ""}
+          defaultValue={
+            appointment
+              ? formatDateTimeLocal(appointment.scheduledAt)
+              : (defaultScheduledAt ?? "")
+          }
           aria-invalid={!!errors.scheduledAt}
         />
         {errors.scheduledAt && (

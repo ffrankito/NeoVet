@@ -3,7 +3,7 @@ import { getActiveServices } from "@/app/dashboard/settings/services/actions";
 import { AppointmentForm } from "@/components/admin/appointments/appointment-form";
 
 interface Props {
-  searchParams: Promise<{ patientId?: string }>;
+  searchParams: Promise<{ patientId?: string; date?: string; time?: string }>;
 }
 
 export default async function NewAppointmentPage({ searchParams }: Props) {
@@ -13,6 +13,12 @@ export default async function NewAppointmentPage({ searchParams }: Props) {
     getAllClientsForSelect(),
     getActiveServices(),
   ]);
+
+  // Construimos el defaultScheduledAt si vienen date y time desde el calendario
+  let defaultScheduledAt: string | undefined;
+  if (params.date && params.time) {
+    defaultScheduledAt = `${params.date}T${params.time}`;
+  }
 
   return (
     <div className="space-y-6">
@@ -25,6 +31,7 @@ export default async function NewAppointmentPage({ searchParams }: Props) {
         clients={allClients}
         services={activeServices}
         defaultPatientId={params.patientId}
+        defaultScheduledAt={defaultScheduledAt}
       />
     </div>
   );
