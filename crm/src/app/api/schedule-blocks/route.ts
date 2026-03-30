@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-// DESPUÉS
 import { scheduleBlocks, staff, appointments } from "@/db/schema";
 import { eq, and, gte, lte } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";

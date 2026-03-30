@@ -440,16 +440,27 @@ durationMinutes del turno pre-cargado desde el servicio seleccionado ✅
 | Al agendar un servicio con `blockDurationMinutes`, bloquear ese tiempo extra en la vista | ✅ |
 | Indicador visual diferenciado para cirugías en el calendario | ✅ |
 
-### H.3 — Suspensión de agenda 🔲 Pendiente
+### H.3 — Suspensión de agenda ✅ Completada
 Objetivo: El admin puede bloquear días, semanas u horarios específicos. El chatbot notifica automáticamente a los pacientes con turnos afectados.
 
-| Entregable | Notas |
+Acá están los cambios exactos para el development-plan.md. Solo la sección de H.3 que hay que actualizar:
+markdown### H.3 — Suspensión de agenda ✅ Completada
+
+**Objetivo:** El admin y cada profesional puede bloquear su propia agenda por días, semanas o franjas horarias específicas.
+
+| Entregable | Estado |
 |---|---|
-| Nueva tabla `schedule_blocks` (desde, hasta, horario opcional, motivo, creadoPor) | |
-| UI en `/dashboard/calendar` para crear/ver/eliminar bloqueos | Solo admin |
-| Bloqueos visibles en el calendario (franja gris con motivo) | |
-| Chatbot v2 consulta bloqueos antes de confirmar un turno | |
-| Chatbot v2 notifica por WhatsApp a pacientes con turnos en el rango bloqueado | Pendiente chatbot v2 |
+| Nueva tabla `schedule_blocks` (desde, hasta, horario opcional, motivo, staffId) | ✅ |
+| API `GET /api/schedule-blocks` — lista bloqueos del staff logueado por rango | ✅ |
+| API `POST /api/schedule-blocks` — crea bloqueo y cancela turnos afectados | ✅ |
+| API `DELETE /api/schedule-blocks/[id]` — elimina bloqueo propio | ✅ |
+| Botón "Bloquear agenda" en el calendario | ✅ |
+| Modal para crear bloqueos por día(s) completo(s) o franja horaria | ✅ |
+| Bloqueos visibles en el calendario con ícono de candado y motivo | ✅ |
+| Cada profesional ve y gestiona solo sus propios bloqueos | ✅ |
+| Cancelación automática de turnos existentes en el rango bloqueado | ✅ |
+| API preparada para integración con chatbot v2 | ✅ |
+
 
 #### Checklist de verificación Fase H
 
