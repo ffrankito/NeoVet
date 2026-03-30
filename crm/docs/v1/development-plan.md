@@ -438,6 +438,17 @@ durationMinutes del turno pre-cargado desde el servicio seleccionado ✅
 | Al agendar un servicio con `blockDurationMinutes`, bloquear ese tiempo extra en la vista | Visual — no impide agendar encima, avisa |
 | Indicador visual diferenciado para cirugías en el calendario | |
 
+### H.3 — Suspensión de agenda 🔲 Pendiente
+Objetivo: El admin puede bloquear días, semanas u horarios específicos. El chatbot notifica automáticamente a los pacientes con turnos afectados.
+
+| Entregable | Notas |
+|---|---|
+| Nueva tabla `schedule_blocks` (desde, hasta, horario opcional, motivo, creadoPor) | |
+| UI en `/dashboard/calendar` para crear/ver/eliminar bloqueos | Solo admin |
+| Bloqueos visibles en el calendario (franja gris con motivo) | |
+| Chatbot v2 consulta bloqueos antes de confirmar un turno | |
+| Chatbot v2 notifica por WhatsApp a pacientes con turnos en el rango bloqueado | Pendiente chatbot v2 |
+
 #### Checklist de verificación Fase H
 
 - [✅] Vista semanal muestra todos los turnos con nombre del paciente y tipo de servicio
@@ -461,6 +472,8 @@ durationMinutes del turno pre-cargado desde el servicio seleccionado ✅
 | Email automático 24h antes | Segundo cron |
 | Contenido: nombre del paciente, fecha, hora, dirección de la clínica | |
 | Admin puede desactivar recordatorios por turno | Flag `sendReminders` en appointments |
+
+> **Nota:** La cancelación de turnos desde el chatbot (v2) debe registrarse en la tabla `appointments` con `status = cancelled` para mantener la auditoría del historial del paciente. El slot queda disponible automáticamente.
 
 #### I.2 — Recordatorios de vacunas
 
@@ -538,7 +551,8 @@ durationMinutes del turno pre-cargado desde el servicio seleccionado ✅
 ---
 
 ## Permanentemente fuera de alcance en v1
-
+- Cancelación de turnos desde chatbot — v2 (en v1 solo desde el CRM).
+- Notificación de suspensión de agenda por WhatsApp — v2.
 - Integración Geovet — no existe API.
 - API pública del CRM — CRM y chatbot son independientes hasta v2.
 - Recordatorios por WhatsApp — v2 (en v1 solo email).
