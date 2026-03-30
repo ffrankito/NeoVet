@@ -12,7 +12,9 @@ const ALL_NAV_ITEMS = [
   { href: "/dashboard", label: "Inicio", icon: "🏠", roles: ["admin", "vet", "groomer"] },
   { href: "/dashboard/clients", label: "Clientes", icon: "👤", roles: ["admin", "vet"] },
   { href: "/dashboard/appointments", label: "Turnos", icon: "📅", roles: ["admin", "vet", "groomer"] },
+  { href: "/dashboard/settings/services", label: "Servicios", icon: "🩺", roles: ["admin"] },
   { href: "/dashboard/settings", label: "Configuración", icon: "⚙️", roles: ["admin"] },
+  
 ];
 
 export function AppSidebar({ user, role }: { user: User; role: StaffRole | null }) {

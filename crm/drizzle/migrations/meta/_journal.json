@@ -78,6 +78,27 @@
       "when": 1774818115789,
       "tag": "0010_high_wallflower",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774817126206,
+      "tag": "0010_milky_komodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1774834210999,
+      "tag": "0011_wealthy_steel_serpent",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1774835324182,
+      "tag": "0012_long_alex_power",
+      "breakpoints": true
     }
   ]
 }

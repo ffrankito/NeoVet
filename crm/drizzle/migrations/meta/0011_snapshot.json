@@ -1,6 +1,6 @@
 {
-  "id": "37b48526-ed1d-40d0-8b1e-17d073dd7dda",
-  "prevId": "9d4ff0f3-4081-403a-8efc-b857fb75ed2d",
+  "id": "08340a9d-a46d-422f-b112-d818b83573eb",
+  "prevId": "37b48526-ed1d-40d0-8b1e-17d073dd7dda",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1267,7 +1267,6 @@
         "cardiologia",
         "peluqueria",
         "vacunacion",
-        "domicilio",
         "petshop",
         "otro"
       ]

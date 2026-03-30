@@ -128,6 +128,7 @@ export async function getAppointment(id: string) {
       consultationType: appointments.consultationType,
       assignedStaffId: appointments.assignedStaffId,
       assignedStaffName: assignedStaff.name,
+      serviceId: appointments.serviceId,
       patientId: appointments.patientId,
       createdAt: appointments.createdAt,
       updatedAt: appointments.updatedAt,
@@ -168,6 +169,7 @@ export async function createAppointment(formData: FormData) {
   };
   const reason = (formData.get("reason") as string)?.trim() || null;
   const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
+  const serviceId = (formData.get("serviceId") as string) || null;
 
   const parsed = appointmentSchema.safeParse(raw);
   if (!parsed.success) {
@@ -193,6 +195,7 @@ export async function createAppointment(formData: FormData) {
       durationMinutes: parsed.data.durationMinutes,
       reason,
       staffNotes,
+      serviceId,
       status: "pending",
     });
   } catch (err) {
@@ -214,6 +217,7 @@ export async function updateAppointment(id: string, formData: FormData) {
   const reason = (formData.get("reason") as string)?.trim() || null;
   const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
   const status = formData.get("status") as string;
+  const serviceId = (formData.get("serviceId") as string) || null;
 
   const parsed = appointmentUpdateSchema.safeParse(raw);
   if (!parsed.success) {
@@ -244,6 +248,7 @@ export async function updateAppointment(id: string, formData: FormData) {
         consultationType: parsed.data.consultationType ?? null,
         reason,
         staffNotes,
+        serviceId,
         status: (status as "pending" | "confirmed" | "cancelled" | "completed") ?? "pending",
         updatedAt: new Date(),
       })
