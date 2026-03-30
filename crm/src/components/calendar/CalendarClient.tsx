@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, BanIcon } from "lucide-react";
 import { WeekView } from "./WeekView";
 import { DayView } from "./DayView";
 import { AppointmentModal } from "./AppointmentModal";
+import { BlockCalendarModal } from "./BlockCalendarModal";
 import { StaffFilter } from "./StaffFilter";
 import { CalendarAppointment } from "./AppointmentCard";
+import { ScheduleBlock } from "@/db/schema";
 import {
   getWeekStart,
   getWeekDays,
@@ -25,9 +27,11 @@ export function CalendarClient({ staffList }: Props) {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
+  const [blocks, setBlocks] = useState<ScheduleBlock[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
   const [selectedAppointment, setSelectedAppointment] = useState<CalendarAppointment | null>(null);
+  const [blockModalOpen, setBlockModalOpen] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -39,29 +43,35 @@ export function CalendarClient({ staffList }: Props) {
   const weekStart = getWeekStart(currentDate);
   const weekDays = getWeekDays(weekStart);
 
-  const fromDate = isMobile
-    ? formatDateKey(currentDate)
-    : formatDateKey(weekStart);
-  const toDate = isMobile
-    ? formatDateKey(currentDate)
-    : formatDateKey(weekDays[6]);
+  const fromDate = isMobile ? formatDateKey(currentDate) : formatDateKey(weekStart);
+  const toDate = isMobile ? formatDateKey(currentDate) : formatDateKey(weekDays[6]);
 
-  const fetchAppointments = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ from: fromDate, to: toDate });
       if (selectedStaffId) params.set("staffId", selectedStaffId);
-      const res = await fetch(`/api/appointments/calendar?${params}`);
-      const data = await res.json();
-      setAppointments(data);
+
+      const [apptRes, blocksRes] = await Promise.all([
+        fetch(`/api/appointments/calendar?${params}`),
+        fetch(`/api/schedule-blocks?from=${fromDate}&to=${toDate}`),
+      ]);
+
+      const [apptData, blocksData] = await Promise.all([
+        apptRes.json(),
+        blocksRes.json(),
+      ]);
+
+      setAppointments(apptData);
+      setBlocks(blocksData);
     } finally {
       setLoading(false);
     }
   }, [fromDate, toDate, selectedStaffId]);
 
   useEffect(() => {
-    fetchAppointments();
-  }, [fetchAppointments]);
+    fetchData();
+  }, [fetchData]);
 
   function goToPrev() {
     const d = new Date(currentDate);
@@ -79,9 +89,14 @@ export function CalendarClient({ staffList }: Props) {
     setCurrentDate(new Date());
   }
 
-   function handleAppointmentCancelled(id: string) {
-   setAppointments((prev) => prev.filter((a) => a.id !== id));
-   }
+  function handleAppointmentCancelled(id: string) {
+    setAppointments((prev) => prev.filter((a) => a.id !== id));
+  }
+
+  async function handleDeleteBlock(id: string) {
+    await fetch(`/api/schedule-blocks/${id}`, { method: "DELETE" });
+    setBlocks((prev) => prev.filter((b) => b.id !== id));
+  }
 
   const periodTitle = isMobile
     ? formatDayHeader(currentDate)
@@ -110,11 +125,22 @@ export function CalendarClient({ staffList }: Props) {
           <span className="text-sm font-medium text-gray-700 ml-1">{periodTitle}</span>
         </div>
 
-        <StaffFilter
-          staffList={staffList}
-          selectedStaffId={selectedStaffId}
-          onChange={setSelectedStaffId}
-        />
+        <div className="flex items-center gap-2">
+          <StaffFilter
+            staffList={staffList}
+            selectedStaffId={selectedStaffId}
+            onChange={setSelectedStaffId}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setBlockModalOpen(true)}
+            className="text-destructive border-destructive/40 hover:bg-destructive/10"
+          >
+            <BanIcon className="h-4 w-4 mr-1" />
+            Bloquear agenda
+          </Button>
+        </div>
       </div>
 
       {/* Leyenda de colores */}
@@ -133,6 +159,10 @@ export function CalendarClient({ staffList }: Props) {
             {label}
           </span>
         ))}
+        <span className="flex items-center gap-1 text-xs text-gray-600">
+          <span className="w-3 h-3 rounded-full bg-gray-300" />
+          Bloqueado
+        </span>
       </div>
 
       {/* Calendario */}
@@ -146,22 +176,31 @@ export function CalendarClient({ staffList }: Props) {
           <DayView
             date={currentDate}
             appointments={appointments}
+            blocks={blocks}
             onAppointmentClick={setSelectedAppointment}
+            onDeleteBlock={handleDeleteBlock}
           />
         ) : (
           <WeekView
             weekStart={weekStart}
             appointments={appointments}
+            blocks={blocks}
             onAppointmentClick={setSelectedAppointment}
+            onDeleteBlock={handleDeleteBlock}
           />
         )}
       </div>
 
-      {/* Modal detalle / cancelación */}
       <AppointmentModal
         appointment={selectedAppointment}
         onClose={() => setSelectedAppointment(null)}
         onCancelled={handleAppointmentCancelled}
+      />
+
+      <BlockCalendarModal
+        open={blockModalOpen}
+        onClose={() => setBlockModalOpen(false)}
+        onCreated={fetchData}
       />
     </div>
   );

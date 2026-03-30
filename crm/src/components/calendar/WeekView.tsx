@@ -1,6 +1,8 @@
 "use client";
 
 import { CalendarAppointment, AppointmentCard } from "./AppointmentCard";
+import { ScheduleBlockCard } from "./ScheduleBlock";
+import { ScheduleBlock } from "@/db/schema";
 import {
   generateDaySlots,
   getWeekDays,
@@ -14,10 +16,12 @@ const SLOT_HEIGHT = 56;
 type Props = {
   weekStart: Date;
   appointments: CalendarAppointment[];
+  blocks: ScheduleBlock[];
   onAppointmentClick: (appointment: CalendarAppointment) => void;
+  onDeleteBlock: (id: string) => void;
 };
 
-export function WeekView({ weekStart, appointments, onAppointmentClick }: Props) {
+export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, onDeleteBlock }: Props) {
   const days = getWeekDays(weekStart);
   const slots = generateDaySlots();
   const today = formatDateKey(new Date());
@@ -51,6 +55,11 @@ export function WeekView({ weekStart, appointments, onAppointmentClick }: Props)
         const isToday = dayKey === today;
         const dayAppts = appointmentsByDay[dayKey] ?? [];
 
+        // Bloqueos que cubren este día
+        const dayBlocks = blocks.filter(
+          (b) => b.startDate <= dayKey && b.endDate >= dayKey
+        );
+
         return (
           <div key={dayKey} className="flex-1 min-w-[100px] border-r border-gray-200 last:border-r-0">
             <div
@@ -61,48 +70,62 @@ export function WeekView({ weekStart, appointments, onAppointmentClick }: Props)
               {formatDayHeader(day)}
             </div>
 
-            {slots.map((slot) => {
-              const slotMinutes = toMinutes(slot.hour, slot.minute);
+            <div className="relative">
+              {/* Bloqueos */}
+              {dayBlocks.map((block) => (
+                <ScheduleBlockCard
+                  key={block.id}
+                  block={block}
+                  slotHeight={SLOT_HEIGHT}
+                  totalSlots={slots.length}
+                  onDelete={onDeleteBlock}
+                />
+              ))}
 
-              const apptAtSlot = dayAppts.find((a) => {
-                const d = new Date(a.scheduledAt);
-                return toMinutes(d.getHours(), d.getMinutes()) === slotMinutes;
-              });
+              {/* Slots */}
+              {slots.map((slot) => {
+                const slotMinutes = toMinutes(slot.hour, slot.minute);
 
-              const slotCovered = dayAppts.some((a) => {
-                const d = new Date(a.scheduledAt);
-                const start = toMinutes(d.getHours(), d.getMinutes());
-                const duration = (a.durationMinutes ?? 30) + (a.blockDurationMinutes ?? 0);
-                const end = start + duration;
-                return slotMinutes > start && slotMinutes < end;
-              });
+                const apptAtSlot = dayAppts.find((a) => {
+                  const d = new Date(a.scheduledAt);
+                  return toMinutes(d.getHours(), d.getMinutes()) === slotMinutes;
+                });
 
-              if (slotCovered) {
+                const slotCovered = dayAppts.some((a) => {
+                  const d = new Date(a.scheduledAt);
+                  const start = toMinutes(d.getHours(), d.getMinutes());
+                  const duration = (a.durationMinutes ?? 30) + (a.blockDurationMinutes ?? 0);
+                  const end = start + duration;
+                  return slotMinutes > start && slotMinutes < end;
+                });
+
+                if (slotCovered) {
+                  return (
+                    <div
+                      key={slot.label}
+                      style={{ height: SLOT_HEIGHT }}
+                      className="border-b border-gray-100"
+                    />
+                  );
+                }
+
                 return (
                   <div
                     key={slot.label}
                     style={{ height: SLOT_HEIGHT }}
-                    className="border-b border-gray-100"
-                  />
+                    className="relative border-b border-gray-100"
+                  >
+                    {apptAtSlot && (
+                      <AppointmentCard
+                        appointment={apptAtSlot}
+                        slotHeight={SLOT_HEIGHT}
+                        onClick={onAppointmentClick}
+                      />
+                    )}
+                  </div>
                 );
-              }
-
-              return (
-                <div
-                  key={slot.label}
-                  style={{ height: SLOT_HEIGHT }}
-                  className="relative border-b border-gray-100"
-                >
-                  {apptAtSlot && (
-                    <AppointmentCard
-                      appointment={apptAtSlot}
-                      slotHeight={SLOT_HEIGHT}
-                      onClick={onAppointmentClick}
-                    />
-                  )}
-                </div>
-              );
-            })}
+              })}
+            </div>
           </div>
         );
       })}

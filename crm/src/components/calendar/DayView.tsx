@@ -1,9 +1,12 @@
 "use client";
 
 import { CalendarAppointment, AppointmentCard } from "./AppointmentCard";
+import { ScheduleBlockCard } from "./ScheduleBlock";
+import { ScheduleBlock } from "@/db/schema";
 import {
   generateDaySlots,
   toMinutes,
+  formatDateKey,
 } from "@/lib/calendar-utils";
 
 const SLOT_HEIGHT = 64;
@@ -11,11 +14,18 @@ const SLOT_HEIGHT = 64;
 type Props = {
   date: Date;
   appointments: CalendarAppointment[];
+  blocks: ScheduleBlock[];
   onAppointmentClick: (appointment: CalendarAppointment) => void;
+  onDeleteBlock: (id: string) => void;
 };
 
-export function DayView({ date, appointments, onAppointmentClick }: Props) {
+export function DayView({ date, appointments, blocks, onAppointmentClick, onDeleteBlock }: Props) {
   const slots = generateDaySlots();
+  const dayKey = formatDateKey(date);
+
+  const dayBlocks = blocks.filter(
+    (b) => b.startDate <= dayKey && b.endDate >= dayKey
+  );
 
   return (
     <div className="flex">
@@ -31,7 +41,19 @@ export function DayView({ date, appointments, onAppointmentClick }: Props) {
         ))}
       </div>
 
-      <div className="flex-1">
+      <div className="flex-1 relative">
+        {/* Bloqueos */}
+        {dayBlocks.map((block) => (
+          <ScheduleBlockCard
+            key={block.id}
+            block={block}
+            slotHeight={SLOT_HEIGHT}
+            totalSlots={slots.length}
+            onDelete={onDeleteBlock}
+          />
+        ))}
+
+        {/* Slots */}
         {slots.map((slot) => {
           const slotMinutes = toMinutes(slot.hour, slot.minute);
 

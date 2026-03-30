@@ -12,3 +12,4 @@ export * from "./grooming_sessions";
 export * from "./settings";
 export * from "./complementary_methods";
 export * from "./services";
+export * from "./schedule_blocks";

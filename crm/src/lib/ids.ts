@@ -17,3 +17,4 @@ export const groomingProfileId = () => createId("gpr");
 export const groomingSessionId = () => createId("gss");
 export const complementaryMethodId = () => createId("cmp");
 export const serviceId = () => createId("svc");
+export const scheduleBlockId = () => `blk_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
