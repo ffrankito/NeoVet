@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+// DESPUÉS
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays, BanIcon } from "lucide-react";
 import { WeekView } from "./WeekView";
@@ -43,8 +44,14 @@ export function CalendarClient({ staffList }: Props) {
   const weekStart = getWeekStart(currentDate);
   const weekDays = getWeekDays(weekStart);
 
-  const fromDate = isMobile ? formatDateKey(currentDate) : formatDateKey(weekStart);
-  const toDate = isMobile ? formatDateKey(currentDate) : formatDateKey(weekDays[6]);
+const fromDate = useMemo(
+  () => isMobile ? formatDateKey(currentDate) : formatDateKey(weekStart),
+  [isMobile, currentDate, weekStart]
+);
+const toDate = useMemo(
+  () => isMobile ? formatDateKey(currentDate) : formatDateKey(weekDays[6]),
+  [isMobile, currentDate, weekDays]
+);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
