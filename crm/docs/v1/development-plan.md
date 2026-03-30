@@ -426,17 +426,19 @@ durationMinutes del turno pre-cargado desde el servicio seleccionado ✅
 
 | Entregable | Notas |
 |---|---|
-| Vista `/dashboard/calendar` — calendario semanal con turnos por día/hora | Columnas por día, filas por franja horaria |
-| Espacios libres visibles entre turnos | Diferencia visual entre ocupado y libre |
-| Clic en espacio libre → pre-carga formulario de nuevo turno con esa fecha/hora | |
-| Filtro por veterinario asignado | |
+| Vista `/dashboard/calendar` — calendario semanal (desktop) y diaria (mobile) | ✅ |
+| Colores por categoría de servicio | ✅ |
+| Clic en turno → modal con detalle completo | ✅ |
+| Cancelación de turno desde el modal con confirmación | ✅ |
+| Turnos cancelados no aparecen en el calendario — slot queda libre | ✅ |
+| Filtro por profesional asignado | ✅ |
 
 #### H.2 — Bloqueo de tiempo para cirugías
 
 | Entregable | Notas |
 |---|---|
-| Al agendar un servicio con `blockDurationMinutes`, bloquear ese tiempo extra en la vista | Visual — no impide agendar encima, avisa |
-| Indicador visual diferenciado para cirugías en el calendario | |
+| Al agendar un servicio con `blockDurationMinutes`, bloquear ese tiempo extra en la vista | ✅ |
+| Indicador visual diferenciado para cirugías en el calendario | ✅ |
 
 ### H.3 — Suspensión de agenda 🔲 Pendiente
 Objetivo: El admin puede bloquear días, semanas u horarios específicos. El chatbot notifica automáticamente a los pacientes con turnos afectados.
@@ -454,7 +456,8 @@ Objetivo: El admin puede bloquear días, semanas u horarios específicos. El cha
 - [✅] Vista semanal muestra todos los turnos con nombre del paciente y tipo de servicio
 - [✅ ] Espacio libre es visualmente distinguible de los turnos ocupados
 - [✅] Clic en espacio libre abre el formulario de turno con fecha/hora pre-cargada
-- [✅ ] Cirugía muestra bloqueo visual del tiempo extra configurado
+- [✅] Cirugía muestra bloqueo visual del tiempo extra configurado
+- [ ] H.3 Suspensión de agenda — pendiente
 
 ---
 

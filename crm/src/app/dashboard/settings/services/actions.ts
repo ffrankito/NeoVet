@@ -91,3 +91,8 @@ export async function toggleServiceActive(id: string, isActive: boolean) {
 
   revalidatePath("/dashboard/settings/services");
 }
+
+export async function deleteService(id: string) {
+  await db.delete(services).where(eq(services.id, id));
+  revalidatePath("/dashboard/settings/services");
+}

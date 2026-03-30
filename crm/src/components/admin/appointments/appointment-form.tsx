@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createAppointment, updateAppointment } from "@/app/dashboard/appointments/actions";
 import type { Service } from "@/db/schema";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 type FieldErrors = { patientId?: string; scheduledAt?: string; durationMinutes?: string };
 type ActionResult =
@@ -144,18 +145,14 @@ export function AppointmentForm({
         <>
           <div className="space-y-2">
             <Label>Cliente *</Label>
-            <Select value={selectedClient} onValueChange={(v) => v && handleClientChange(v)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Seleccioná un cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((c) => (
-                  <SelectItem key={c.id} value={c.id} label={c.name}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+            options={clients.map((c) => ({ value: c.id, label: c.name }))}
+            value={selectedClient}
+            onChange={(v) => v && handleClientChange(v)}
+            placeholder="Seleccioná un cliente"
+            searchPlaceholder="Buscar cliente..."
+            emptyMessage="No se encontró ningún cliente."
+            />
           </div>
 
           {selectedClient !== "" && (
@@ -169,18 +166,18 @@ export function AppointmentForm({
                   </Link>
                 </p>
               ) : (
-                <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)}>
-                  <SelectTrigger className="w-full" aria-invalid={!!errors.patientId}>
-                    <SelectValue placeholder="Seleccioná un paciente" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filteredPatients.map((p) => (
-                      <SelectItem key={p.id} value={p.id} label={`${p.name} (${p.species})`}>
-                        {p.name} ({p.species})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                options={filteredPatients.map((p) => ({
+                value: p.id,
+                label: p.name,
+                sublabel: p.species,
+                }))}
+                value={selectedPatient}
+                onChange={(v) => v && setSelectedPatient(v)}
+               placeholder="Seleccioná un paciente"
+                searchPlaceholder="Buscar paciente..."
+                emptyMessage="No se encontró ningún paciente."
+                  />
               )}
               {errors.patientId && (
                 <p className="text-sm text-destructive mt-1">{errors.patientId}</p>

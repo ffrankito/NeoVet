@@ -3,7 +3,18 @@
 import { useTransition } from "react";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Button } from "@/components/ui/button";
-import { toggleServiceActive } from "@/app/dashboard/settings/services/actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toggleServiceActive, deleteService } from "@/app/dashboard/settings/services/actions";
 import type { Service } from "@/db/schema";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -40,6 +51,42 @@ function ToggleActiveButton({ service }: { service: Service }) {
     >
       {service.isActive ? "Desactivar" : "Activar"}
     </Button>
+  );
+}
+
+function DeleteServiceButton({ service }: { service: Service }) {
+  const [isPending, startTransition] = useTransition();
+
+  function handleDelete() {
+    startTransition(async () => {
+      await deleteService(service.id);
+    });
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger
+        className="inline-flex items-center justify-center rounded-lg px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 disabled:opacity-50 disabled:pointer-events-none"
+        disabled={isPending}
+      >
+        Eliminar
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Eliminar "{service.name}"?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Esta acción no se puede deshacer. El servicio será eliminado permanentemente
+            y dejará de estar disponible para nuevos turnos.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+            Sí, eliminar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -96,10 +143,13 @@ export function ServiceList({ services }: Props) {
               <td className="px-4 py-3 text-right">
                 <div className="flex items-center justify-end gap-2">
                   
-                   <a href={`/dashboard/settings/services/${service.id}/edit`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                    <a href={`/dashboard/settings/services/${service.id}/edit`}
+                    className={buttonVariants({ variant: "ghost", size: "sm" })}
+                  >
                     Editar
                   </a>
                   <ToggleActiveButton service={service} />
+                  <DeleteServiceButton service={service} />
                 </div>
               </td>
             </tr>
