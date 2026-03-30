@@ -1,6 +1,7 @@
 import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
 import { staff } from "./staff";
+import { services } from "./services";
 
 export const appointmentStatusEnum = pgEnum("appointment_status", [
   "pending",
@@ -29,6 +30,9 @@ export const appointments = pgTable("appointments", {
     .default("veterinary")
     .notNull(),
   assignedStaffId: text("assigned_staff_id").references(() => staff.id, {
+    onDelete: "set null",
+  }),
+  serviceId: text("service_id").references(() => services.id, {
     onDelete: "set null",
   }),
   scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),

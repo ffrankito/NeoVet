@@ -382,7 +382,7 @@ Ampliar la tabla `documents` con un campo `category`.
 
 ---
 
-### Fase G — Catálogo de Servicios 🔲 Pendiente
+### Fase G — Catálogo de Servicios ✅ Completada
 
 **Objetivo:** La clínica tiene un listado de sus servicios configurable, conectado a los turnos y a la facturación.
 
@@ -411,10 +411,10 @@ Ampliar la tabla `documents` con un campo `category`.
 
 #### Checklist de verificación Fase G
 
-- [ ] Los 9 servicios de Paula cargados en el seed
-- [ ] Al crear un turno y elegir "Cirugía", la duración se pre-carga con el valor del servicio
-- [ ] Admin puede agregar, editar y desactivar servicios
-- [ ] Servicios desactivados no aparecen al agendar un turno nuevo
+- [x] Los 9 servicios de Paula cargados en el seed
+- [x] Al crear un turno y elegir "Cirugía", la duración se pre-carga con el valor del servicio
+- [x] Admin puede agregar, editar y desactivar servicios
+- [x] Servicios desactivados no aparecen al agendar un turno nuevo
 
 ---
 

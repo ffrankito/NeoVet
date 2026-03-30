@@ -1,4 +1,5 @@
 import { getAllPatientsForSelect, getAllClientsForSelect } from "../actions";
+import { getActiveServices } from "@/app/dashboard/settings/services/actions";
 import { AppointmentForm } from "@/components/admin/appointments/appointment-form";
 
 interface Props {
@@ -7,9 +8,10 @@ interface Props {
 
 export default async function NewAppointmentPage({ searchParams }: Props) {
   const params = await searchParams;
-  const [allPatients, allClients] = await Promise.all([
+  const [allPatients, allClients, activeServices] = await Promise.all([
     getAllPatientsForSelect(),
     getAllClientsForSelect(),
+    getActiveServices(),
   ]);
 
   return (
@@ -21,6 +23,7 @@ export default async function NewAppointmentPage({ searchParams }: Props) {
       <AppointmentForm
         patients={allPatients}
         clients={allClients}
+        services={activeServices}
         defaultPatientId={params.patientId}
       />
     </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { getClients } from "./actions";
 import { ClientTable } from "@/components/admin/clients/client-table";
@@ -22,9 +23,10 @@ export default async function ClientsPage({ searchParams }: Props) {
           <h1 className="text-2xl font-bold tracking-tight">Clientes</h1>
           <p className="text-muted-foreground">Dueños de mascotas registrados</p>
         </div>
-        <a href="/dashboard/clients/new" className={buttonVariants()}>
+
+        <Link href="/dashboard/clients/new" className={buttonVariants()}>
           + Nuevo cliente
-        </a>
+        </Link>
       </div>
 
       <Suspense fallback={<Skeleton className="h-96 w-full" />}>

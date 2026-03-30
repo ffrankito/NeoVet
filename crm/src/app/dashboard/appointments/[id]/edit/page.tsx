@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getAppointment, getAllPatientsForSelect } from "../../actions";
+import { getActiveServices } from "@/app/dashboard/settings/services/actions";
 import { AppointmentForm } from "@/components/admin/appointments/appointment-form";
 
 interface Props {
@@ -8,9 +9,10 @@ interface Props {
 
 export default async function EditAppointmentPage({ params }: Props) {
   const { id } = await params;
-  const [apt, patients] = await Promise.all([
+  const [apt, patients, activeServices] = await Promise.all([
     getAppointment(id),
     getAllPatientsForSelect(),
+    getActiveServices(),
   ]);
 
   if (!apt) notFound();
@@ -23,7 +25,7 @@ export default async function EditAppointmentPage({ params }: Props) {
           {apt.patientName} — {new Date(apt.scheduledAt).toLocaleDateString("es-AR")}
         </p>
       </div>
-      <AppointmentForm appointment={apt} patients={patients} />
+      <AppointmentForm appointment={apt} patients={patients} services={activeServices} />
     </div>
   );
 }

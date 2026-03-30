@@ -30,7 +30,21 @@ export default async function SettingsPage() {
       </section>
 
       <div className="border-t" />
-
+  {/* Catálogo de servicios */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Catálogo de servicios</h2>
+            <p className="text-sm text-muted-foreground">
+              Servicios disponibles para agendar turnos.
+            </p>
+          </div>
+          <a href="/dashboard/settings/services" className={buttonVariants({ variant: "outline" })}>
+            Gestionar servicios →
+          </a>
+        </div>
+      </section>
+      
       {/* Grooming prices */}
       <section className="space-y-4">
         <div>

@@ -1,6 +1,6 @@
 {
-  "id": "37b48526-ed1d-40d0-8b1e-17d073dd7dda",
-  "prevId": "9d4ff0f3-4081-403a-8efc-b857fb75ed2d",
+  "id": "fc5a0c32-6751-423c-a286-4eec5fc047f3",
+  "prevId": "08340a9d-a46d-422f-b112-d818b83573eb",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -230,6 +230,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "service_id": {
+          "name": "service_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "scheduled_at": {
           "name": "scheduled_at",
           "type": "timestamp with time zone",
@@ -299,6 +305,19 @@
           "tableTo": "staff",
           "columnsFrom": [
             "assigned_staff_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "appointments_service_id_services_id_fk": {
+          "name": "appointments_service_id_services_id_fk",
+          "tableFrom": "appointments",
+          "tableTo": "services",
+          "columnsFrom": [
+            "service_id"
           ],
           "columnsTo": [
             "id"
@@ -1267,7 +1286,6 @@
         "cardiologia",
         "peluqueria",
         "vacunacion",
-        "domicilio",
         "petshop",
         "otro"
       ]

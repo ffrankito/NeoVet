@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { getAppointments } from "./actions";
 import { getRole } from "@/lib/auth";
@@ -20,7 +21,6 @@ export default async function AppointmentsPage({ searchParams }: Props) {
   const page = Number(params.page) || 1;
   const role = await getRole();
 
-  // Vets see only veterinary appointments; groomers see only grooming appointments
   const typeFilter =
     role === "vet" ? "veterinary" :
     role === "groomer" ? "grooming" :
@@ -41,12 +41,15 @@ export default async function AppointmentsPage({ searchParams }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Turnos</h1>
-          <p className="text-muted-foreground">{subtitleByRole[role ?? "admin"] ?? "Gestión de turnos"}</p>
+          <p className="text-muted-foreground">
+            {subtitleByRole[role ?? "admin"] ?? "Gestión de turnos"}
+          </p>
         </div>
+
         {isAdmin && (
-          <a href="/dashboard/appointments/new" className={buttonVariants()}>
+          <Link href="/dashboard/appointments/new" className={buttonVariants()}>
             + Nuevo turno
-          </a>
+          </Link>
         )}
       </div>
 

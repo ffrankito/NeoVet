@@ -69,7 +69,7 @@ export function TreatmentItemsInput({ defaultItems = [] }: TreatmentItemsInputPr
 
       {items.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          No hay ítems de tratamiento. Hacé clic en "Agregar ítem" para añadir uno.
+          No hay ítems de tratamiento. Hacé clic en &quot;Agregar ítem&quot; para añadir uno.
         </p>
       )}
 
