@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { appointments, patients, clients, services, staff } from "@/db/schema";
-import { and, gte, lte, eq } from "drizzle-orm";
+import { and, gte, lte, eq, ne } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const from = searchParams.get("from"); // YYYY-MM-DD
-  const to = searchParams.get("to");     // YYYY-MM-DD
-  const staffId = searchParams.get("staffId"); // opcional
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+  const staffId = searchParams.get("staffId");
 
   if (!from || !to) {
     return NextResponse.json({ error: "Parámetros from/to requeridos" }, { status: 400 });
@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
   const conditions = [
     gte(appointments.scheduledAt, fromDate),
     lte(appointments.scheduledAt, toDate),
+    ne(appointments.status, "cancelled"),
   ];
 
   if (staffId) {

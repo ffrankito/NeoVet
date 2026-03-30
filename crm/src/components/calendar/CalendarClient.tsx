@@ -79,11 +79,9 @@ export function CalendarClient({ staffList }: Props) {
     setCurrentDate(new Date());
   }
 
-  function handleAppointmentCancelled(id: string) {
-    setAppointments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: "cancelled" } : a))
-    );
-  }
+function handleAppointmentCancelled(id: string) {
+  setAppointments((prev) => prev.filter((a) => a.id !== id));
+}
 
   const periodTitle = isMobile
     ? formatDayHeader(currentDate)
