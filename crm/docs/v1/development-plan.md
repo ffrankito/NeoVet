@@ -404,10 +404,10 @@ Ampliar la tabla `documents` con un campo `category`.
 
 | Entregable | Estado |
 |---|---|
-| Schema `services` + migración + seed con los 9 servicios de Paula | 🔲 |
-| Página `/dashboard/settings/services` — CRUD de servicios (admin only) | 🔲 |
-| Selector de servicio al crear un turno | 🔲 |
-| `durationMinutes` del turno pre-cargado desde el servicio seleccionado | 🔲 |
+Schema services + migración + seed con los 9 servicios de Paula ✅
+Página /dashboard/settings/services — CRUD de servicios (admin only) ✅
+Selector de servicio al crear un turno ✅
+durationMinutes del turno pre-cargado desde el servicio seleccionado ✅
 
 #### Checklist de verificación Fase G
 
@@ -418,7 +418,7 @@ Ampliar la tabla `documents` con un campo `category`.
 
 ---
 
-### Fase H — Agenda y Vista de Calendario 🔲 Pendiente
+### Fase H — Agenda y Vista de Calendario ✅ Completada
 
 **Objetivo:** El staff puede ver los turnos en formato calendario, identificar espacios libres y bloquear tiempo para cirugías.
 
@@ -440,10 +440,10 @@ Ampliar la tabla `documents` con un campo `category`.
 
 #### Checklist de verificación Fase H
 
-- [ ] Vista semanal muestra todos los turnos con nombre del paciente y tipo de servicio
-- [ ] Espacio libre es visualmente distinguible de los turnos ocupados
-- [ ] Clic en espacio libre abre el formulario de turno con fecha/hora pre-cargada
-- [ ] Cirugía muestra bloqueo visual del tiempo extra configurado
+- [✅] Vista semanal muestra todos los turnos con nombre del paciente y tipo de servicio
+- [✅ ] Espacio libre es visualmente distinguible de los turnos ocupados
+- [✅] Clic en espacio libre abre el formulario de turno con fecha/hora pre-cargada
+- [✅ ] Cirugía muestra bloqueo visual del tiempo extra configurado
 
 ---
 
