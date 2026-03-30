@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
@@ -155,9 +156,9 @@ export function AppointmentForm({ appointment, patients, clients = [], services 
               {filteredPatients.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   Este cliente no tiene pacientes.{" "}
-                  <a href="/dashboard/patients/new" className="underline">
+                  <Link href="/dashboard/patients/new" className="underline">
                     Creá uno primero.
-                  </a>
+                  </Link>
                 </p>
               ) : (
                 <Select value={selectedPatient} onValueChange={(v) => v && setSelectedPatient(v)}>
@@ -207,12 +208,15 @@ export function AppointmentForm({ appointment, patients, clients = [], services 
       {!selectedServiceId && (
         <div className="space-y-2">
           <Label>Tipo de turno</Label>
-          <Select value={appointmentType} onValueChange={(v) => {
-            if (v) {
-              setAppointmentType(v);
-              if (v === "grooming") setConsultationType("clinica");
-            }
-          }}>
+          <Select
+            value={appointmentType}
+            onValueChange={(v) => {
+              if (v) {
+                setAppointmentType(v);
+                if (v === "grooming") setConsultationType("clinica");
+              }
+            }}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
@@ -315,12 +319,13 @@ export function AppointmentForm({ appointment, patients, clients = [], services 
             ? isEdit ? "Guardando..." : "Creando..."
             : isEdit ? "Guardar cambios" : "Crear turno"}
         </Button>
-        
-         <a href={isEdit ? `/dashboard/appointments/${appointment!.id}` : "/dashboard/appointments"}
+
+        <Link
+          href={isEdit ? `/dashboard/appointments/${appointment!.id}` : "/dashboard/appointments"}
           className={buttonVariants({ variant: "outline" })}
         >
           Cancelar
-        </a>
+        </Link>
       </div>
     </form>
   );

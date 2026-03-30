@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAppointment, updateAppointmentStatus, getAllStaffForSelect, assignStaffToAppointment } from "../actions";
+import { getAppointment, updateAppointmentStatus, getAllStaffForSelect } from "../actions";
 import { getRole } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button-variants";
@@ -67,66 +68,81 @@ export default async function AppointmentDetailPage({ params }: Props) {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Turno — {new Date(apt.scheduledAt).toLocaleString("es-AR", {
+            Turno —{" "}
+            {new Date(apt.scheduledAt).toLocaleString("es-AR", {
               dateStyle: "long",
               timeStyle: "short",
             })}
           </h1>
           <p className="mt-1 text-muted-foreground">
             {apt.patientName} ({apt.patientSpecies}) — dueño:{" "}
-            <a href={`/dashboard/clients/${apt.clientId}`} className="text-primary hover:underline">
+            <Link
+              href={`/dashboard/clients/${apt.clientId}`}
+              className="text-primary hover:underline"
+            >
               {apt.clientName}
-            </a>
+            </Link>
           </p>
         </div>
+
         {isAdmin && (
-          <a
+          <Link
             href={`/dashboard/appointments/${id}/edit`}
             className={buttonVariants({ variant: "outline" })}
           >
             Editar
-          </a>
+          </Link>
         )}
       </div>
 
       <Separator />
 
-      {/* Info grid */}
       <div className="grid gap-6 sm:grid-cols-4">
         <div>
           <p className="text-sm font-medium text-muted-foreground">Estado</p>
-          <span className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[apt.status] ?? ""}`}>
+          <span
+            className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColors[apt.status] ?? ""}`}
+          >
             {statusLabels[apt.status] ?? apt.status}
           </span>
         </div>
+
         <div>
           <p className="text-sm font-medium text-muted-foreground">Tipo</p>
-          <span className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${typeColors[apt.appointmentType] ?? ""}`}>
+          <span
+            className={`mt-1 inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${typeColors[apt.appointmentType] ?? ""}`}
+          >
             {typeLabels[apt.appointmentType] ?? apt.appointmentType}
           </span>
         </div>
+
         {apt.appointmentType === "veterinary" && apt.consultationType && (
           <div>
             <p className="text-sm font-medium text-muted-foreground">Modalidad</p>
-            <p className="mt-1">{consultationTypeLabels[apt.consultationType] ?? apt.consultationType}</p>
+            <p className="mt-1">
+              {consultationTypeLabels[apt.consultationType] ?? apt.consultationType}
+            </p>
           </div>
         )}
+
         <div>
           <p className="text-sm font-medium text-muted-foreground">Duración</p>
           <p className="mt-1">{apt.durationMinutes} minutos</p>
         </div>
+
         <div>
           <p className="text-sm font-medium text-muted-foreground">Motivo</p>
           <p className="mt-1">{apt.reason ?? "—"}</p>
         </div>
+
         <div>
           <p className="text-sm font-medium text-muted-foreground">Teléfono dueño</p>
           <p className="mt-1">{apt.clientPhone}</p>
         </div>
+
         <div>
           <p className="text-sm font-medium text-muted-foreground">Profesional asignado</p>
           {isAdmin ? (
@@ -152,7 +168,6 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Status actions */}
       {actions.length > 0 && (
         <>
           <Separator />
@@ -163,6 +178,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
                 if (action.value === "cancelled") {
                   return <CancelAppointmentButton key="cancel" appointmentId={id} />;
                 }
+
                 return (
                   <form
                     key={action.value}
@@ -183,34 +199,36 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Consultation — only for completed veterinary appointments */}
       {apt.status === "completed" && apt.appointmentType !== "grooming" && (
         <>
           <Separator />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Historia clínica</h2>
+
               {apt.consultationId ? (
-                <a
+                <Link
                   href={`/dashboard/consultations/${apt.consultationId}/edit`}
                   className={buttonVariants({ variant: "outline", size: "sm" })}
                 >
                   Editar consulta
-                </a>
+                </Link>
               ) : (
-                <a
+                <Link
                   href={`/dashboard/consultations/new?patientId=${apt.patientId}&appointmentId=${id}`}
                   className={buttonVariants({ size: "sm" })}
                 >
                   + Registrar consulta
-                </a>
+                </Link>
               )}
             </div>
 
             {apt.consultationId ? (
               <div className="space-y-6 rounded-lg border p-4">
-                {/* Vitals */}
-                {(apt.consultationWeightKg || apt.consultationTemperature || apt.consultationHeartRate || apt.consultationRespRate) && (
+                {(apt.consultationWeightKg ||
+                  apt.consultationTemperature ||
+                  apt.consultationHeartRate ||
+                  apt.consultationRespRate) && (
                   <div className="grid gap-4 sm:grid-cols-4">
                     {apt.consultationWeightKg && (
                       <div>
@@ -218,18 +236,21 @@ export default async function AppointmentDetailPage({ params }: Props) {
                         <p className="mt-0.5 text-sm">{apt.consultationWeightKg} kg</p>
                       </div>
                     )}
+
                     {apt.consultationTemperature && (
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">Temperatura</p>
                         <p className="mt-0.5 text-sm">{apt.consultationTemperature} °C</p>
                       </div>
                     )}
+
                     {apt.consultationHeartRate && (
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">FC</p>
                         <p className="mt-0.5 text-sm">{apt.consultationHeartRate} lpm</p>
                       </div>
                     )}
+
                     {apt.consultationRespRate && (
                       <div>
                         <p className="text-xs font-medium text-muted-foreground">FR</p>
@@ -239,7 +260,6 @@ export default async function AppointmentDetailPage({ params }: Props) {
                   </div>
                 )}
 
-                {/* SOAP */}
                 {[
                   { label: "Subjetivo", value: apt.consultationSubjective },
                   { label: "Objetivo", value: apt.consultationObjective },
@@ -264,20 +284,20 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Grooming session — only for completed grooming appointments */}
       {apt.status === "completed" && apt.appointmentType === "grooming" && (
         <>
           <Separator />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Sesión de peluquería</h2>
-              <a
+              <Link
                 href={`/dashboard/patients/${apt.patientId}/grooming/new?appointmentId=${id}`}
                 className={buttonVariants({ size: "sm" })}
               >
                 + Registrar sesión
-              </a>
+              </Link>
             </div>
+
             <div className="rounded-lg border border-dashed py-6 text-center text-sm text-muted-foreground">
               Registrá los detalles de la sesión desde el perfil del paciente.
             </div>
@@ -285,13 +305,12 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Back link */}
-      <a
+      <Link
         href="/dashboard/appointments"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         ← Volver a turnos
-      </a>
+      </Link>
     </div>
   );
 }
