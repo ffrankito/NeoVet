@@ -4,7 +4,8 @@ const whatsappUrl =
 
 const schedule = [
   { day: "Lunes a Sábado", hours: "9:30 – 12:30 / 16:30 – 20:00", open: true },
-  { day: "Domingo", hours: "Cerrado", open: false },
+  { day: "Feriados", hours: "10:00 – 13:00", open: true },
+  { day: "Domingo", hours: "Guardia pasiva 9:00–20:00", open: false, note: "Llamar para consultar atención" },
   { day: "Guardia Obstétrica", hours: "Disponible las 24hs", open: true, highlight: true },
 ];
 ---
@@ -44,14 +45,19 @@ const schedule = [
               ></span>
               <span class="font-medium text-neutral-800">{item.day}</span>
             </div>
-            <span
-              class:list={[
-                "text-sm",
-                item.highlight ? "font-semibold text-accent-700" : "text-neutral-500",
-              ]}
-            >
-              {item.hours}
-            </span>
+            <div class="text-right">
+              <span
+                class:list={[
+                  "block text-sm",
+                  item.highlight ? "font-semibold text-accent-700" : "text-neutral-500",
+                ]}
+              >
+                {item.hours}
+              </span>
+              {item.note && (
+                <span class="block text-xs text-neutral-400">{item.note}</span>
+              )}
+            </div>
           </div>
         ))}
       </div>
