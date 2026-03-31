@@ -7,12 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createAppointment, updateAppointment } from "@/app/dashboard/appointments/actions";
 import type { Service } from "@/db/schema";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 
-type FieldErrors = { patientId?: string; scheduledAt?: string; durationMinutes?: string };
+type FieldErrors = {
+  patientId?: string[];
+  scheduledAt?: string[];
+  durationMinutes?: string[];
+  status?: string[];
+  appointmentType?: string[];
+  consultationType?: string[];
+  serviceId?: string[];
+  sendReminders?: string[];
+  reason?: string[];
+  staffNotes?: string[];
+};
+
 type ActionResult =
   | { errors: FieldErrors }
   | { error: string }
@@ -52,6 +70,7 @@ interface AppointmentData {
   appointmentType: string;
   consultationType: string | null;
   serviceId?: string | null;
+  sendReminders?: boolean;
 }
 
 interface AppointmentFormProps {
@@ -83,13 +102,26 @@ export function AppointmentForm({
     ? (patients.find((p) => p.id === defaultPatientId)?.clientId ?? "")
     : "";
 
-  const [selectedPatient, setSelectedPatient] = useState(appointment?.patientId ?? defaultPatientId ?? "");
+  const [selectedPatient, setSelectedPatient] = useState(
+    appointment?.patientId ?? defaultPatientId ?? ""
+  );
   const [selectedClient, setSelectedClient] = useState(defaultClientId);
   const [status, setStatus] = useState(appointment?.status ?? "pending");
-  const [appointmentType, setAppointmentType] = useState(appointment?.appointmentType ?? "veterinary");
-  const [consultationType, setConsultationType] = useState(appointment?.consultationType ?? "clinica");
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(appointment?.serviceId ?? "");
-  const [durationMinutes, setDurationMinutes] = useState(appointment?.durationMinutes ?? 30);
+  const [appointmentType, setAppointmentType] = useState(
+    appointment?.appointmentType ?? "veterinary"
+  );
+  const [consultationType, setConsultationType] = useState(
+    appointment?.consultationType ?? "clinica"
+  );
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(
+    appointment?.serviceId ?? ""
+  );
+  const [durationMinutes, setDurationMinutes] = useState(
+    appointment?.durationMinutes ?? 30
+  );
+  const [sendReminders, setSendReminders] = useState(
+    appointment?.sendReminders ?? true
+  );
 
   const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
 
@@ -101,8 +133,10 @@ export function AppointmentForm({
   function handleServiceChange(serviceId: string) {
     setSelectedServiceId(serviceId);
     const service = services.find((s) => s.id === serviceId);
+
     if (service) {
       setDurationMinutes(service.defaultDurationMinutes);
+
       if (service.category === "peluqueria") {
         setAppointmentType("grooming");
         setConsultationType("clinica");
@@ -118,13 +152,17 @@ export function AppointmentForm({
         formData.set("appointmentType", appointmentType);
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
-        return updateAppointment(appointment!.id, formData);
+        formData.set("sendReminders", sendReminders ? "true" : "false");
+
+        return updateAppointment(appointment.id, formData);
       }
     : async (_prev: ActionResult, formData: FormData) => {
         formData.set("patientId", selectedPatient);
         formData.set("appointmentType", appointmentType);
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
+        formData.set("sendReminders", sendReminders ? "true" : "false");
+
         return createAppointment(formData);
       };
 
@@ -146,12 +184,12 @@ export function AppointmentForm({
           <div className="space-y-2">
             <Label>Cliente *</Label>
             <SearchableSelect
-            options={clients.map((c) => ({ value: c.id, label: c.name }))}
-            value={selectedClient}
-            onChange={(v) => v && handleClientChange(v)}
-            placeholder="Seleccioná un cliente"
-            searchPlaceholder="Buscar cliente..."
-            emptyMessage="No se encontró ningún cliente."
+              options={clients.map((c) => ({ value: c.id, label: c.name }))}
+              value={selectedClient}
+              onChange={handleClientChange}
+              placeholder="Seleccioná un cliente"
+              searchPlaceholder="Buscar cliente..."
+              emptyMessage="No se encontró ningún cliente."
             />
           </div>
 
@@ -167,21 +205,21 @@ export function AppointmentForm({
                 </p>
               ) : (
                 <SearchableSelect
-                options={filteredPatients.map((p) => ({
-                value: p.id,
-                label: p.name,
-                sublabel: p.species,
-                }))}
-                value={selectedPatient}
-                onChange={(v) => v && setSelectedPatient(v)}
-               placeholder="Seleccioná un paciente"
-                searchPlaceholder="Buscar paciente..."
-                emptyMessage="No se encontró ningún paciente."
-                  />
+                  options={filteredPatients.map((p) => ({
+                    value: p.id,
+                    label: p.name,
+                    sublabel: p.species,
+                  }))}
+                  value={selectedPatient}
+                  onChange={setSelectedPatient}
+                  placeholder="Seleccioná un paciente"
+                  searchPlaceholder="Buscar paciente..."
+                  emptyMessage="No se encontró ningún paciente."
+                />
               )}
-              {errors.patientId && (
-                <p className="text-sm text-destructive mt-1">{errors.patientId}</p>
-              )}
+                  {errors.patientId?.[0] && (
+                    <p className="mt-1 text-sm text-destructive">{errors.patientId[0]}</p>
+                  )}
             </div>
           )}
         </>
@@ -190,7 +228,10 @@ export function AppointmentForm({
       {services.length > 0 && (
         <div className="space-y-2">
           <Label>Servicio</Label>
-          <Select value={selectedServiceId} onValueChange={(v) => v && handleServiceChange(v)}>
+          <Select
+            value={selectedServiceId}
+            onValueChange={(v) => v && handleServiceChange(v)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Seleccioná un servicio (opcional)" />
             </SelectTrigger>
@@ -216,9 +257,10 @@ export function AppointmentForm({
           <Select
             value={appointmentType}
             onValueChange={(v) => {
-              if (v) {
-                setAppointmentType(v);
-                if (v === "grooming") setConsultationType("clinica");
+              if (!v) return;
+              setAppointmentType(v);
+              if (v === "grooming") {
+                setConsultationType("clinica");
               }
             }}
           >
@@ -226,8 +268,12 @@ export function AppointmentForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="veterinary" label="Veterinario">Veterinario</SelectItem>
-              <SelectItem value="grooming" label="Peluquería">Peluquería</SelectItem>
+              <SelectItem value="veterinary" label="Veterinario">
+                Veterinario
+              </SelectItem>
+              <SelectItem value="grooming" label="Peluquería">
+                Peluquería
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -236,14 +282,23 @@ export function AppointmentForm({
       {appointmentType === "veterinary" && (
         <div className="space-y-2">
           <Label>Modalidad</Label>
-          <Select value={consultationType} onValueChange={(v) => v && setConsultationType(v)}>
+          <Select
+            value={consultationType}
+            onValueChange={(v) => v && setConsultationType(v)}
+          >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="clinica" label="En clínica">En clínica</SelectItem>
-              <SelectItem value="virtual" label="Virtual">Virtual</SelectItem>
-              <SelectItem value="domicilio" label="A domicilio">A domicilio</SelectItem>
+              <SelectItem value="clinica" label="En clínica">
+                En clínica
+              </SelectItem>
+              <SelectItem value="virtual" label="Virtual">
+                Virtual
+              </SelectItem>
+              <SelectItem value="domicilio" label="A domicilio">
+                A domicilio
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -262,9 +317,9 @@ export function AppointmentForm({
           }
           aria-invalid={!!errors.scheduledAt}
         />
-        {errors.scheduledAt && (
-          <p className="text-sm text-destructive mt-1">{errors.scheduledAt}</p>
-        )}
+            {errors.scheduledAt?.[0] && (
+            <p className="mt-1 text-sm text-destructive">{errors.scheduledAt[0]}</p>
+            )}
       </div>
 
       <div className="space-y-2">
@@ -276,12 +331,36 @@ export function AppointmentForm({
           min={5}
           max={480}
           value={durationMinutes}
-          onChange={(e) => setDurationMinutes(Math.max(5, Number(e.target.value) || 5))}
+          onChange={(e) =>
+            setDurationMinutes(Math.max(5, Number(e.target.value) || 5))
+          }
           aria-invalid={!!errors.durationMinutes}
         />
-        {errors.durationMinutes && (
-          <p className="text-sm text-destructive mt-1">{errors.durationMinutes}</p>
-        )}
+            {errors.durationMinutes?.[0] && (
+            <p className="mt-1 text-sm text-destructive">{errors.durationMinutes[0]}</p>
+            )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="sendReminders">Recordatorios automáticos</Label>
+        <div className="flex items-center gap-3 rounded-lg border px-3 py-3">
+          <input
+            id="sendReminders"
+            name="sendReminders"
+            type="checkbox"
+            checked={sendReminders}
+            onChange={(e) => setSendReminders(e.target.checked)}
+            className="h-4 w-4 rounded border-input"
+          />
+          <div className="space-y-1">
+            <p className="text-sm font-medium leading-none">
+              Enviar recordatorios por email
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Si está activado, este turno podrá entrar en los cron jobs de recordatorios.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -302,10 +381,18 @@ export function AppointmentForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending" label="Pendiente">Pendiente</SelectItem>
-              <SelectItem value="confirmed" label="Confirmado">Confirmado</SelectItem>
-              <SelectItem value="completed" label="Completado">Completado</SelectItem>
-              <SelectItem value="cancelled" label="Cancelado">Cancelado</SelectItem>
+              <SelectItem value="pending" label="Pendiente">
+                Pendiente
+              </SelectItem>
+              <SelectItem value="confirmed" label="Confirmado">
+                Confirmado
+              </SelectItem>
+              <SelectItem value="completed" label="Completado">
+                Completado
+              </SelectItem>
+              <SelectItem value="cancelled" label="Cancelado">
+                Cancelado
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -325,12 +412,20 @@ export function AppointmentForm({
       <div className="flex gap-3">
         <Button type="submit" disabled={isPending}>
           {isPending
-            ? isEdit ? "Guardando..." : "Creando..."
-            : isEdit ? "Guardar cambios" : "Crear turno"}
+            ? isEdit
+              ? "Guardando..."
+              : "Creando..."
+            : isEdit
+              ? "Guardar cambios"
+              : "Crear turno"}
         </Button>
 
         <Link
-          href={isEdit ? `/dashboard/appointments/${appointment!.id}` : "/dashboard/appointments"}
+          href={
+            isEdit
+              ? `/dashboard/appointments/${appointment.id}`
+              : "/dashboard/appointments"
+          }
           className={buttonVariants({ variant: "outline" })}
         >
           Cancelar

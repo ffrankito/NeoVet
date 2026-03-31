@@ -472,57 +472,100 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 
 ---
 
-### Fase I — Recordatorios por Email 🔲 Pendiente
+### Fase I — Automatización y Recordatorios 🔲 En curso
 
-**Objetivo:** El sistema envía emails automáticos para turnos, vacunas y seguimientos. WhatsApp se suma en v2.
+**Objetivo:** Motor de recordatorios para turnos, vacunas y seguimientos. El bot futuro usará esta misma infraestructura como canal adicional.
 
-> **Stack:** Resend (email) + Vercel Cron Jobs (scheduler). Sin cola de mensajes externa — suficiente para v1.
+> **Principios base:**
+> - CRM = fuente de verdad
+> - Bot = capa operativa sobre el CRM
+> - Sin hardcodeo de negocio cuando deba salir de modelo/configuración
+
+> **Stack:** Resend (email) + Vercel Cron Jobs. Sin cola de mensajes externa — suficiente para v1.
+
+> **Orden de cierre:** I.1 → I.3 → I.2
+
+---
 
 #### I.1 — Recordatorios de turno
 
-| Entregable | Notas |
-|---|---|
-| Email automático 48h antes de cada turno confirmado | Cron job diario que busca turnos en `NOW() + 48h` |
-| Email automático 24h antes | Segundo cron |
-| Contenido: nombre del paciente, fecha, hora, dirección de la clínica | |
-| Admin puede desactivar recordatorios por turno | Flag `sendReminders` en appointments |
+**Objetivo:** Motor de recordatorios para turnos activos.
 
-> **Nota:** La cancelación de turnos desde el chatbot (v2) debe registrarse en la tabla `appointments` con `status = cancelled` para mantener la auditoría del historial del paciente. El slot queda disponible automáticamente.
+**Reglas cerradas:**
+- Todo turno creado desde CRM (o futuro bot) nace en `confirmed`
+- Los recordatorios salen 48h antes y 24h antes
+- Solo para turnos con `status = confirmed` y `sendReminders = true`
+- Cancelación y suspensión **no** forman parte del reminder 48h/24h — son notificaciones aparte
+
+| Entregable | Estado |
+|---|---|
+| Cron 48h y 24h alineado con `status = confirmed` | ✅ |
+| Campo `sendReminders` en `appointments` operativo | ✅ |
+| Idempotencia via tabla `email_logs` | ✅ |
+| Logs de envío en DB | ✅ |
+| Templates en español argentino | ✅ |
+| Base lista para futuro canal bot | ✅ |
+| UI toggle `sendReminders` en formulario de turno | 🔲 Pendiente |
+| Prueba end-to-end en Vercel — email llega correctamente | 🔲 Pendiente |
+
+> **No hacer:** no hardcodear instrucciones por servicio en el reminder mientras no exista campo real en `services`.
+
+> **Nota chatbot v2:** La cancelación de turnos desde el bot debe registrarse con `status = cancelled` para mantener auditoría. El slot queda libre automáticamente.
+
+---
 
 #### I.2 — Recordatorios de vacunas
 
-| Entregable | Notas |
+**Objetivo:** Detectar vacunas próximas a vencer y avisar.
+
+| Entregable | Estado |
 |---|---|
-| Email automático cuando `next_due_at` de una vacuna está a 7 días | Cron job diario |
-| Si no hay respuesta (no se agenda turno en 3 días), reenvío automático una vez | |
-| Contenido: nombre de la vacuna, fecha de vencimiento, cómo agendar | |
+| Cron funcional — detecta `nextDueAt` a 7 días | ✅ |
+| No duplica envíos (idempotencia) | ✅ |
+| Preparado para futuro uso por bot como canal adicional | ✅ |
+| Prueba end-to-end — email llega correctamente | 🔲 Pendiente |
+
+---
 
 #### I.3 — Seguimiento post-consulta
 
-| Entregable | Notas |
-|---|---|
-| Nueva tabla `follow_ups` — `patientId`, `consultationId`, `scheduledDate`, `reason`, `sentAt` | |
-| Desde el formulario de consulta: programar un control ("en 7 días por vómitos") | |
-| Cron job diario envía email en la fecha programada | |
-| Contenido: motivo del control, datos de la clínica, cómo contactar | |
+**Objetivo:** Programar y ejecutar seguimientos clínicos desde una consulta.
 
-#### I.4 — Configuración de email
-
-| Entregable | Notas |
+| Entregable | Estado |
 |---|---|
-| Variable de entorno `RESEND_API_KEY` + dominio verificado en Resend | |
-| Templates de email en español argentino | |
-| Log de emails enviados en DB (no reenviar si ya se envió) | Idempotencia |
+| Tabla `follow_ups` (`patientId`, `consultationId`, `scheduledDate`, `reason`, `sentAt`) | ✅ Schema creado |
+| Cron job diario — envía email en la fecha programada | ✅ |
+| Trazabilidad de envíos | ✅ |
+| UI desde formulario de consulta para programar seguimiento | 🔲 Pendiente |
+| Preparado para bot como canal futuro | ✅ |
+
+---
+
+#### I.4 — Infraestructura de automatización
+
+**Objetivo:** Toda la automatización corre correctamente en producción.
+
+| Entregable | Estado |
+|---|---|
+| Cron jobs configurados en Vercel (`vercel.json`, schedule `0 12 * * *`) | ✅ |
+| Conexión a Supabase desde Vercel via connection pooler (puerto 6543) | ✅ |
+| `RESEND_API_KEY`, `EMAIL_FROM`, `CLINIC_ADDRESS`, `CRON_SECRET` en Vercel | ✅ |
+| Middleware (`proxy.ts`) excluye `/api/cron/` de autenticación | ✅ |
+| Observabilidad mínima — logs visibles en Vercel → Logs | ✅ |
+
+---
 
 #### Checklist de verificación Fase I
 
-- [ ] Email de 48h y 24h llegan correctamente al cliente del turno de prueba
-- [ ] Email de vacuna llega 7 días antes del vencimiento
-- [ ] Reenvío de vacuna ocurre solo si no se agendó turno en 3 días
-- [ ] Desde una consulta se puede programar un seguimiento y el email llega en esa fecha
-- [ ] Los emails no se duplican si el cron se ejecuta dos veces (idempotencia)
-- [ ] Admin puede desactivar recordatorios por turno individualmente
-
+- [x] Los tres crons responden `{"ok":true}` en local
+- [x] Crons configurados y visibles en Vercel Settings → Crons
+- [x] Conexión a Supabase desde Vercel funcionando (pooler)
+- [ ] Email de 48h y 24h llegan al cliente del turno de prueba (end-to-end)
+- [ ] Email de vacuna llega 7 días antes del vencimiento (end-to-end)
+- [ ] Desde una consulta se puede programar un seguimiento (UI pendiente)
+- [ ] Email de seguimiento llega en la fecha programada
+- [ ] Emails no se duplican si el cron corre dos veces
+- [ ] Toggle `sendReminders` visible en formulario de turno (UI pendiente)
 ---
 
 ### Fase J — Diseño Mobile Responsive 🔲 Pendiente

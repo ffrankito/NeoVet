@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { appointments, patients, clients, consultations, staff } from "@/db/schema";
 import { appointmentId } from "@/lib/ids";
-import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
+import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
 
 const appointmentSchema = z.object({
@@ -19,7 +19,9 @@ const appointmentSchema = z.object({
     .int()
     .positive("La duración debe ser mayor a 0."),
   appointmentType: z.enum(["veterinary", "grooming"]).default("veterinary"),
-  consultationType: z.enum(["clinica", "virtual", "domicilio"]).optional(),
+  consultationType: z.enum(["clinica", "virtual", "domicilio"]).nullable().optional(),
+  serviceId: z.string().nullable().optional(),
+  sendReminders: z.boolean().default(true),
 });
 
 const appointmentUpdateSchema = z.object({
@@ -32,7 +34,9 @@ const appointmentUpdateSchema = z.object({
     .int()
     .positive("La duración debe ser mayor a 0."),
   appointmentType: z.enum(["veterinary", "grooming"]).default("veterinary"),
-  consultationType: z.enum(["clinica", "virtual", "domicilio"]).optional(),
+  consultationType: z.enum(["clinica", "virtual", "domicilio"]).nullable().optional(),
+  serviceId: z.string().nullable().optional(),
+  sendReminders: z.boolean().default(true),
 });
 
 export async function getAppointments(opts?: {
@@ -48,15 +52,24 @@ export async function getAppointments(opts?: {
   const offset = (page - 1) * limit;
 
   const conditions = [];
+
   if (opts?.status) {
-    conditions.push(eq(appointments.status, opts.status as "pending" | "confirmed" | "cancelled" | "completed"));
+    conditions.push(
+      eq(
+        appointments.status,
+        opts.status as "pending" | "confirmed" | "cancelled" | "completed"
+      )
+    );
   }
+
   if (opts?.appointmentType) {
     conditions.push(eq(appointments.appointmentType, opts.appointmentType));
   }
+
   if (opts?.from) {
     conditions.push(gte(appointments.scheduledAt, new Date(opts.from)));
   }
+
   if (opts?.to) {
     conditions.push(lte(appointments.scheduledAt, new Date(opts.to)));
   }
@@ -78,6 +91,7 @@ export async function getAppointments(opts?: {
         status: appointments.status,
         staffNotes: appointments.staffNotes,
         appointmentType: appointments.appointmentType,
+        consultationType: appointments.consultationType,
         assignedStaffId: appointments.assignedStaffId,
         assignedStaffName: assignedStaff.name,
         patientId: appointments.patientId,
@@ -86,6 +100,7 @@ export async function getAppointments(opts?: {
         clientId: clients.id,
         clientName: clients.name,
         clientPhone: clients.phone,
+        sendReminders: appointments.sendReminders,
       })
       .from(appointments)
       .innerJoin(patients, eq(appointments.patientId, patients.id))
@@ -132,21 +147,22 @@ export async function getAppointment(id: string) {
       patientId: appointments.patientId,
       createdAt: appointments.createdAt,
       updatedAt: appointments.updatedAt,
+      sendReminders: appointments.sendReminders,
       patientName: patients.name,
       patientSpecies: patients.species,
       clientId: clients.id,
       clientName: clients.name,
       clientPhone: clients.phone,
-      consultationId:          consultations.id,
-      consultationSubjective:  consultations.subjective,
-      consultationObjective:   consultations.objective,
-      consultationAssessment:  consultations.assessment,
-      consultationPlan:        consultations.plan,
-      consultationNotes:       consultations.notes,
-      consultationWeightKg:    consultations.weightKg,
+      consultationId: consultations.id,
+      consultationSubjective: consultations.subjective,
+      consultationObjective: consultations.objective,
+      consultationAssessment: consultations.assessment,
+      consultationPlan: consultations.plan,
+      consultationNotes: consultations.notes,
+      consultationWeightKg: consultations.weightKg,
       consultationTemperature: consultations.temperature,
-      consultationHeartRate:   consultations.heartRate,
-      consultationRespRate:    consultations.respiratoryRate,
+      consultationHeartRate: consultations.heartRate,
+      consultationRespRate: consultations.respiratoryRate,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
@@ -159,17 +175,27 @@ export async function getAppointment(id: string) {
   return row ?? null;
 }
 
+export async function getAppointmentById(id: string) {
+  return getAppointment(id);
+}
+
 export async function createAppointment(formData: FormData) {
+  const consultationTypeRaw = ((formData.get("consultationType") as string) || "").trim();
+  const serviceIdRaw = ((formData.get("serviceId") as string) || "").trim();
+  const reason = ((formData.get("reason") as string) || "").trim() || null;
+  const staffNotes = ((formData.get("staffNotes") as string) || "").trim() || null;
+
   const raw = {
     patientId: (formData.get("patientId") as string)?.trim() ?? "",
     scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
-    durationMinutes: Number(formData.get("durationMinutes")) || 30,
-    appointmentType: (formData.get("appointmentType") as string) || "veterinary",
-    consultationType: (formData.get("consultationType") as string) || undefined,
+    durationMinutes: Number(formData.get("durationMinutes")),
+    appointmentType: ((formData.get("appointmentType") as string) || "veterinary") as
+      | "veterinary"
+      | "grooming",
+    consultationType: consultationTypeRaw || null,
+    serviceId: serviceIdRaw || null,
+    sendReminders: formData.get("sendReminders") === "true",
   };
-  const reason = (formData.get("reason") as string)?.trim() || null;
-  const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
-  const serviceId = (formData.get("serviceId") as string) || null;
 
   const parsed = appointmentSchema.safeParse(raw);
   if (!parsed.success) {
@@ -179,45 +205,58 @@ export async function createAppointment(formData: FormData) {
         patientId: fieldErrors.patientId?.[0],
         scheduledAt: fieldErrors.scheduledAt?.[0],
         durationMinutes: fieldErrors.durationMinutes?.[0],
+        appointmentType: fieldErrors.appointmentType?.[0],
+        consultationType: fieldErrors.consultationType?.[0],
+        serviceId: fieldErrors.serviceId?.[0],
+        sendReminders: fieldErrors.sendReminders?.[0],
       },
     };
   }
 
-  let id: string;
+  let createdId: string;
   try {
-    id = appointmentId();
+    createdId = appointmentId();
+
     await db.insert(appointments).values({
-      id,
+      id: createdId,
       patientId: parsed.data.patientId,
-      appointmentType: parsed.data.appointmentType,
-      consultationType: parsed.data.consultationType ?? null,
       scheduledAt: new Date(parsed.data.scheduledAt),
       durationMinutes: parsed.data.durationMinutes,
       reason,
       staffNotes,
-      serviceId,
       status: "pending",
+      appointmentType: parsed.data.appointmentType,
+      consultationType: parsed.data.consultationType ?? null,
+      serviceId: parsed.data.serviceId ?? null,
+      sendReminders: parsed.data.sendReminders,
     });
-  } catch (err) {
+  } catch {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/appointments");
   revalidatePath(`/dashboard/patients/${parsed.data.patientId}`);
-  redirect(`/dashboard/appointments/${id}`);
+  redirect(`/dashboard/appointments/${createdId}`);
 }
 
 export async function updateAppointment(id: string, formData: FormData) {
+  const consultationTypeRaw = ((formData.get("consultationType") as string) || "").trim();
+  const serviceIdRaw = ((formData.get("serviceId") as string) || "").trim();
+  const reason = ((formData.get("reason") as string) || "").trim() || null;
+  const staffNotes = ((formData.get("staffNotes") as string) || "").trim() || null;
+  const status = ((formData.get("status") as string) || "").trim();
+
   const raw = {
     scheduledAt: (formData.get("scheduledAt") as string)?.trim() ?? "",
-    durationMinutes: Number(formData.get("durationMinutes")) || 30,
-    appointmentType: (formData.get("appointmentType") as string) || "veterinary",
-    consultationType: (formData.get("consultationType") as string) || undefined,
+    durationMinutes: Number(formData.get("durationMinutes")),
+    appointmentType: ((formData.get("appointmentType") as string) || "veterinary") as
+      | "veterinary"
+      | "grooming",
+    consultationType: consultationTypeRaw || null,
+    serviceId: serviceIdRaw || null,
+    sendReminders: formData.get("sendReminders") === "true",
   };
-  const reason = (formData.get("reason") as string)?.trim() || null;
-  const staffNotes = (formData.get("staffNotes") as string)?.trim() || null;
-  const status = formData.get("status") as string;
-  const serviceId = (formData.get("serviceId") as string) || null;
 
   const parsed = appointmentUpdateSchema.safeParse(raw);
   if (!parsed.success) {
@@ -226,6 +265,10 @@ export async function updateAppointment(id: string, formData: FormData) {
       errors: {
         scheduledAt: fieldErrors.scheduledAt?.[0],
         durationMinutes: fieldErrors.durationMinutes?.[0],
+        appointmentType: fieldErrors.appointmentType?.[0],
+        consultationType: fieldErrors.consultationType?.[0],
+        serviceId: fieldErrors.serviceId?.[0],
+        sendReminders: fieldErrors.sendReminders?.[0],
       },
     };
   }
@@ -237,6 +280,7 @@ export async function updateAppointment(id: string, formData: FormData) {
       .from(appointments)
       .where(eq(appointments.id, id))
       .limit(1);
+
     patientId = existing?.patientId;
 
     await db
@@ -248,15 +292,17 @@ export async function updateAppointment(id: string, formData: FormData) {
         consultationType: parsed.data.consultationType ?? null,
         reason,
         staffNotes,
-        serviceId,
+        serviceId: parsed.data.serviceId ?? null,
+        sendReminders: parsed.data.sendReminders,
         status: (status as "pending" | "confirmed" | "cancelled" | "completed") ?? "pending",
         updatedAt: new Date(),
       })
       .where(eq(appointments.id, id));
-  } catch (err) {
+  } catch {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/appointments");
   if (patientId) revalidatePath(`/dashboard/patients/${patientId}`);
   redirect(`/dashboard/appointments/${id}`);
@@ -269,24 +315,38 @@ export async function assignStaffToAppointment(id: string, staffId: string | nul
     .where(eq(appointments.id, id));
 
   revalidatePath(`/dashboard/appointments/${id}`);
+  revalidatePath("/dashboard/appointments");
+  revalidatePath("/dashboard");
 }
 
 export async function getAllStaffForSelect() {
   return db
-    .select({ id: staff.id, name: staff.name, role: staff.role })
+    .select({ id: staff.id, name: staff.name, role: staff.role, isActive: staff.isActive })
     .from(staff)
     .where(eq(staff.isActive, true))
-    .orderBy(staff.name);
+    .orderBy(asc(staff.name));
 }
 
-export async function updateAppointmentStatus(id: string, status: "pending" | "confirmed" | "cancelled" | "completed") {
+export async function updateAppointmentStatus(
+  id: string,
+  status: "pending" | "confirmed" | "cancelled" | "completed"
+) {
   await db
     .update(appointments)
     .set({ status, updatedAt: new Date() })
     .where(eq(appointments.id, id));
 
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/appointments");
   revalidatePath(`/dashboard/appointments/${id}`);
+}
+
+export async function getAppointmentsByPatientId(patientId: string) {
+  return db
+    .select()
+    .from(appointments)
+    .where(eq(appointments.patientId, patientId))
+    .orderBy(desc(appointments.scheduledAt));
 }
 
 export async function getAllPatientsForSelect() {
