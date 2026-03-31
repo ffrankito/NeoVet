@@ -1,4 +1,4 @@
-import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
 import { staff } from "./staff";
 import { services } from "./services";
@@ -41,6 +41,7 @@ export const appointments = pgTable("appointments", {
   status: appointmentStatusEnum("status").default("pending").notNull(),
   consultationType: consultationTypeEnum("consultation_type"),
   staffNotes: text("staff_notes"),
+  sendReminders: boolean("send_reminders").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

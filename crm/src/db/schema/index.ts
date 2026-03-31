@@ -13,3 +13,5 @@ export * from "./settings";
 export * from "./complementary_methods";
 export * from "./services";
 export * from "./schedule_blocks";
+export * from "./follow_ups";
+export * from "./email_logs";
