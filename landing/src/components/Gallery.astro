@@ -12,6 +12,7 @@ import peluqueria from '../assets/images/team/peluqueria.jpeg';
 const slides = [
   { src: clinic1,   alt: "Interior de NeoVet — clínica veterinaria en Rosario", loading: "eager" as const },
   { src: clinic2,   alt: "Instalaciones de NeoVet en Rosario",                  loading: "lazy"  as const },
+  // PLACEHOLDER: add descriptive alt text for each pet photo (Phase 4 content pass)
   { src: pet1,      alt: "",                                                     loading: "lazy"  as const },
   { src: pet2,      alt: "",                                                     loading: "lazy"  as const },
   { src: pet3,      alt: "",                                                     loading: "lazy"  as const },
@@ -21,7 +22,7 @@ const slides = [
 ];
 ---
 
-<section id="galeria" class="relative h-[280px] overflow-hidden lg:h-[400px]">
+<section id="galeria" aria-label="Galería de fotos" class="relative h-[280px] overflow-hidden lg:h-[400px]">
   <!-- Slides -->
   {slides.map((slide, i) => (
     <div
@@ -104,6 +105,7 @@ const slides = [
   }
 
   .gallery-bar--active {
+    /* Duration must match INTERVAL constant in <script> — currently 4000ms */
     animation: fill-bar 4s linear forwards;
   }
 
@@ -164,6 +166,8 @@ const slides = [
   nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
   section.addEventListener('mouseenter', stopAuto);
   section.addEventListener('mouseleave', startAuto);
+  section.addEventListener('focusin', stopAuto);
+  section.addEventListener('focusout', startAuto);
 
   // Init first slide
   if (reduced) {
