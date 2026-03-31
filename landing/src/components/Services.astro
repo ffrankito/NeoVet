@@ -16,6 +16,13 @@ const services = [
     featured: true,
   },
   {
+    title: "Ecografía a Domicilio",
+    description: "Realizamos ecografías en la comodidad de tu hogar. Ideal para seguimientos gestacionales y pacientes que no pueden trasladarse.",
+    icon: "🏠",
+    featured: false,
+    isNew: true,
+  },
+  {
     title: "Cardiología",
     description: "Diagnóstico y tratamiento de patologías cardíacas en pequeños animales.",
     icon: "❤️",
@@ -95,6 +102,11 @@ const services = [
             {service.featured && (
               <span class="mb-0 hidden sm:mb-3 sm:inline-block rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-700">
                 Especialidad
+              </span>
+            )}
+            {!service.featured && service.isNew && (
+              <span class="mb-0 hidden sm:mb-3 sm:inline-block rounded-full bg-accent-100 px-2.5 py-0.5 text-xs font-semibold text-accent-700">
+                Nuevo
               </span>
             )}
             <div class:list={["shrink-0 sm:mb-4", service.featured ? "text-3xl sm:text-5xl" : "text-2xl sm:text-4xl"]}>
