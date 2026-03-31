@@ -9,6 +9,7 @@ if (dbUrl) {
   console.log("DB protocol:", parsed.protocol);
   console.log("DB username:", parsed.username);
   console.log("DB host:", parsed.host);
+  console.log("DB password length:", parsed.password.length);
 }
 // Singleton pattern: reuse the same DB connection across hot reloads in dev
 const globalForDb = globalThis as unknown as { db: ReturnType<typeof drizzle> };
