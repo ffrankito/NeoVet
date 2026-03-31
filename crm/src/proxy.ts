@@ -18,6 +18,11 @@ const ROLE_BLOCKS: Record<string, string[]> = {
 };
 
 export async function proxy(request: NextRequest) {
+  // Excluir rutas de cron de la autenticación
+  if (request.nextUrl.pathname.startsWith("/api/cron/")) {
+    return NextResponse.next();
+  }
+
   const response = await updateSession(request);
 
   // updateSession returns a redirect for unauthenticated/no-role users — pass it through
