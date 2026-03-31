@@ -1,10 +1,56 @@
 ---
+import { Image } from 'astro:assets';
+import clinic1    from '../assets/images/clinic/1.jpeg';
+import clinic2    from '../assets/images/clinic/2.jpeg';
+import pet1       from '../assets/images/pets/pet-1.jpeg';
+import pet2       from '../assets/images/pets/pet-2.jpeg';
+import pet3       from '../assets/images/pets/pet-3.jpeg';
+import pet4       from '../assets/images/pets/pet-4.jpeg';
+import pet5       from '../assets/images/pets/pet-5.jpeg';
+import peluqueria from '../assets/images/team/peluqueria.jpeg';
+
 const whatsappUrl =
   "https://api.whatsapp.com/send/?phone=543413101194&text&type=phone_number&app_absent=0";
+
+// PLACEHOLDER: add descriptive alt text for each pet photo (Phase 4 content pass)
+const slides = [
+  { src: clinic1,    alt: "Interior de NeoVet — clínica veterinaria en Rosario", loading: "eager" as const },
+  { src: clinic2,    alt: "Instalaciones de NeoVet en Rosario",                  loading: "lazy"  as const },
+  { src: pet1,       alt: "",                                                     loading: "lazy"  as const },
+  { src: pet2,       alt: "",                                                     loading: "lazy"  as const },
+  { src: pet3,       alt: "",                                                     loading: "lazy"  as const },
+  { src: pet4,       alt: "",                                                     loading: "lazy"  as const },
+  { src: pet5,       alt: "",                                                     loading: "lazy"  as const },
+  { src: peluqueria, alt: "Servicio de peluquería canina en NeoVet",             loading: "lazy"  as const },
+];
 ---
 
-<section id="inicio" class="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-800 to-primary-950 pt-20">
-  <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
+<section id="inicio" class="relative overflow-hidden pt-20">
+  <!-- Background carousel slides -->
+  {slides.map((slide, i) => (
+    <div
+      class:list={["hero-slide absolute inset-0", i === 0 ? "opacity-100" : "opacity-0"]}
+      data-index={i}
+    >
+      <Image
+        src={slide.src}
+        alt={slide.alt}
+        class="h-full w-full object-cover"
+        width={1920}
+        height={800}
+        loading={slide.loading}
+      />
+    </div>
+  ))}
+
+  <!-- Dark overlay — heavier on the left where the text lives -->
+  <div
+    class="pointer-events-none absolute inset-0"
+    style="background: linear-gradient(to right, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.60) 55%, rgba(15,23,42,0.35) 100%);"
+  ></div>
+
+  <!-- Hero content -->
+  <div class="relative z-10 mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
     <div class="max-w-2xl">
       <p class="text-sm font-semibold uppercase tracking-widest text-primary-300">
         Centro Veterinario en Rosario
@@ -31,7 +77,7 @@ const whatsappUrl =
         </a>
         <a
           href="#servicios"
-          class="inline-flex items-center justify-center rounded-lg border-2 border-primary-300 px-6 py-3 text-base font-semibold text-primary-100 transition-colors hover:bg-primary-700"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-primary-300 px-6 py-3 text-base font-semibold text-primary-100 transition-colors hover:bg-white/10"
         >
           Ver servicios
         </a>
@@ -39,7 +85,107 @@ const whatsappUrl =
     </div>
   </div>
 
-  <!-- Decorative gradient blob -->
-  <div class="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary-600/30 blur-3xl" aria-hidden="true"></div>
-  <div class="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-accent-500/10 blur-3xl" aria-hidden="true"></div>
+  <!-- Carousel controls — bottom-right -->
+  <div class="absolute bottom-6 right-6 z-10 flex flex-col items-end gap-3 lg:bottom-8 lg:right-8">
+    <div class="flex gap-2">
+      <button
+        id="hero-prev"
+        type="button"
+        aria-label="Foto anterior"
+        class="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/20"
+      >
+        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        </svg>
+      </button>
+      <button
+        id="hero-next"
+        type="button"
+        aria-label="Siguiente foto"
+        class="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/20"
+      >
+        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+    </div>
+    <div class="flex gap-1">
+      {slides.map((_, i) => (
+        <div class="h-0.5 w-6 overflow-hidden rounded-full bg-white/30">
+          <div
+            class:list={["hero-bar h-full rounded-full bg-white", i === 0 ? "hero-bar--active" : ""]}
+            style="width: 0%"
+            data-index={i}
+          ></div>
+        </div>
+      ))}
+    </div>
+  </div>
 </section>
+
+<style>
+  .hero-slide {
+    transition: opacity 0.6s ease;
+  }
+
+  .hero-bar--active {
+    /* Duration must match INTERVAL in <script> — currently 5000ms */
+    animation: hero-fill-bar 5s linear forwards;
+  }
+
+  @keyframes hero-fill-bar {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+</style>
+
+<script>
+  const INTERVAL = 5000;
+
+  const section = document.querySelector<HTMLElement>('#inicio')!;
+  const slides  = Array.from(document.querySelectorAll<HTMLElement>('.hero-slide'));
+  const bars    = Array.from(document.querySelectorAll<HTMLElement>('.hero-bar'));
+  const prevBtn = document.getElementById('hero-prev')!;
+  const nextBtn = document.getElementById('hero-next')!;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let current = 0;
+  let timer: ReturnType<typeof setInterval> | null = null;
+
+  function activateBar(index: number) {
+    const bar = bars[index];
+    if (reduced) { bar.style.width = '100%'; return; }
+    bar.classList.remove('hero-bar--active');
+    void bar.offsetWidth;
+    bar.classList.add('hero-bar--active');
+  }
+
+  function goTo(next: number) {
+    slides[current].classList.replace('opacity-100', 'opacity-0');
+    bars[current].classList.remove('hero-bar--active');
+    bars[current].style.width = '0%';
+    current = ((next % slides.length) + slides.length) % slides.length;
+    slides[current].classList.replace('opacity-0', 'opacity-100');
+    activateBar(current);
+  }
+
+  function startAuto() {
+    if (reduced) return;
+    timer = setInterval(() => goTo(current + 1), INTERVAL);
+  }
+
+  function stopAuto() {
+    if (timer !== null) { clearInterval(timer); timer = null; }
+  }
+
+  prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
+  nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
+  section.addEventListener('mouseenter', stopAuto);
+  section.addEventListener('mouseleave', startAuto);
+  section.addEventListener('focusin', stopAuto);
+  section.addEventListener('focusout', startAuto);
+
+  if (reduced) { slides.forEach(s => { s.style.transition = 'none'; }); }
+  activateBar(0);
+  startAuto();
+</script>
