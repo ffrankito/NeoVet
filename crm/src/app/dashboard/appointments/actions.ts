@@ -224,7 +224,7 @@ export async function createAppointment(formData: FormData) {
       durationMinutes: parsed.data.durationMinutes,
       reason,
       staffNotes,
-      status: "pending",
+      status: "confirmed",
       appointmentType: parsed.data.appointmentType,
       consultationType: parsed.data.consultationType ?? null,
       serviceId: parsed.data.serviceId ?? null,

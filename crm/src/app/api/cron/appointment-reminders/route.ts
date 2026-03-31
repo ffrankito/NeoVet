@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { appointments, patients, clients, services, emailLogs } from "@/db/schema";
-import { and, eq, gte, lte, ne } from "drizzle-orm";
+import { and, eq, gte, lte } from "drizzle-orm";
 import { resend, EMAIL_FROM } from "@/lib/email/resend";
 import { AppointmentReminderEmail } from "@/lib/email/templates/appointment-reminder";
 import { render } from "@react-email/render";
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
         and(
           gte(appointments.scheduledAt, getWindowStart(hours)),
           lte(appointments.scheduledAt, getWindowEnd(hours)),
-          ne(appointments.status, "cancelled"),
+          eq(appointments.status, "confirmed"),
           eq(appointments.sendReminders, true)
         )
       );

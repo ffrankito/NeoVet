@@ -19,30 +19,30 @@ import type { Service } from "@/db/schema";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 
 type FieldErrors = {
-  patientId?: string[];
-  scheduledAt?: string[];
-  durationMinutes?: string[];
-  status?: string[];
-  appointmentType?: string[];
-  consultationType?: string[];
-  serviceId?: string[];
-  sendReminders?: string[];
-  reason?: string[];
-  staffNotes?: string[];
+  patientId?: string;
+  scheduledAt?: string;
+  durationMinutes?: string;
+  status?: string;
+  appointmentType?: string;
+  consultationType?: string;
+  serviceId?: string;
+  sendReminders?: string;
+  reason?: string;
+  staffNotes?: string;
 };
 
 type ActionResult =
-  | { errors: FieldErrors }
-  | { error: string }
+  | { errors: FieldErrors; error?: never }
+  | { error: string; errors?: never }
   | undefined;
 
 function getFieldErrors(result: ActionResult): FieldErrors {
-  if (result && "errors" in result) return result.errors;
+  if (result && "errors" in result) return result.errors ?? {};
   return {};
 }
 
 function getGlobalError(result: ActionResult): string | null {
-  if (result && "error" in result) return result.error;
+  if (result && "error" in result) return result.error ?? null;
   return null;
 }
 
@@ -106,7 +106,7 @@ export function AppointmentForm({
     appointment?.patientId ?? defaultPatientId ?? ""
   );
   const [selectedClient, setSelectedClient] = useState(defaultClientId);
-  const [status, setStatus] = useState(appointment?.status ?? "pending");
+  const [status, setStatus] = useState(appointment?.status ?? "confirmed");
   const [appointmentType, setAppointmentType] = useState(
     appointment?.appointmentType ?? "veterinary"
   );
@@ -133,10 +133,8 @@ export function AppointmentForm({
   function handleServiceChange(serviceId: string) {
     setSelectedServiceId(serviceId);
     const service = services.find((s) => s.id === serviceId);
-
     if (service) {
       setDurationMinutes(service.defaultDurationMinutes);
-
       if (service.category === "peluqueria") {
         setAppointmentType("grooming");
         setConsultationType("clinica");
@@ -153,7 +151,6 @@ export function AppointmentForm({
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
         formData.set("sendReminders", sendReminders ? "true" : "false");
-
         return updateAppointment(appointment.id, formData);
       }
     : async (_prev: ActionResult, formData: FormData) => {
@@ -162,7 +159,6 @@ export function AppointmentForm({
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
         formData.set("sendReminders", sendReminders ? "true" : "false");
-
         return createAppointment(formData);
       };
 
@@ -217,9 +213,9 @@ export function AppointmentForm({
                   emptyMessage="No se encontró ningún paciente."
                 />
               )}
-                  {errors.patientId?.[0] && (
-                    <p className="mt-1 text-sm text-destructive">{errors.patientId[0]}</p>
-                  )}
+              {errors.patientId && (
+                <p className="mt-1 text-sm text-destructive">{errors.patientId}</p>
+              )}
             </div>
           )}
         </>
@@ -259,21 +255,15 @@ export function AppointmentForm({
             onValueChange={(v) => {
               if (!v) return;
               setAppointmentType(v);
-              if (v === "grooming") {
-                setConsultationType("clinica");
-              }
+              if (v === "grooming") setConsultationType("clinica");
             }}
           >
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="veterinary" label="Veterinario">
-                Veterinario
-              </SelectItem>
-              <SelectItem value="grooming" label="Peluquería">
-                Peluquería
-              </SelectItem>
+              <SelectItem value="veterinary" label="Veterinario">Veterinario</SelectItem>
+              <SelectItem value="grooming" label="Peluquería">Peluquería</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -290,15 +280,9 @@ export function AppointmentForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="clinica" label="En clínica">
-                En clínica
-              </SelectItem>
-              <SelectItem value="virtual" label="Virtual">
-                Virtual
-              </SelectItem>
-              <SelectItem value="domicilio" label="A domicilio">
-                A domicilio
-              </SelectItem>
+              <SelectItem value="clinica" label="En clínica">En clínica</SelectItem>
+              <SelectItem value="virtual" label="Virtual">Virtual</SelectItem>
+              <SelectItem value="domicilio" label="A domicilio">A domicilio</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -317,9 +301,9 @@ export function AppointmentForm({
           }
           aria-invalid={!!errors.scheduledAt}
         />
-            {errors.scheduledAt?.[0] && (
-            <p className="mt-1 text-sm text-destructive">{errors.scheduledAt[0]}</p>
-            )}
+        {errors.scheduledAt && (
+          <p className="mt-1 text-sm text-destructive">{errors.scheduledAt}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -331,14 +315,12 @@ export function AppointmentForm({
           min={5}
           max={480}
           value={durationMinutes}
-          onChange={(e) =>
-            setDurationMinutes(Math.max(5, Number(e.target.value) || 5))
-          }
+          onChange={(e) => setDurationMinutes(Math.max(5, Number(e.target.value) || 5))}
           aria-invalid={!!errors.durationMinutes}
         />
-            {errors.durationMinutes?.[0] && (
-            <p className="mt-1 text-sm text-destructive">{errors.durationMinutes[0]}</p>
-            )}
+        {errors.durationMinutes && (
+          <p className="mt-1 text-sm text-destructive">{errors.durationMinutes}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -357,7 +339,7 @@ export function AppointmentForm({
               Enviar recordatorios por email
             </p>
             <p className="text-xs text-muted-foreground">
-              Si está activado, este turno podrá entrar en los cron jobs de recordatorios.
+              Si está activado, este turno recibirá recordatorios automáticos por email.
             </p>
           </div>
         </div>
@@ -381,18 +363,10 @@ export function AppointmentForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="pending" label="Pendiente">
-                Pendiente
-              </SelectItem>
-              <SelectItem value="confirmed" label="Confirmado">
-                Confirmado
-              </SelectItem>
-              <SelectItem value="completed" label="Completado">
-                Completado
-              </SelectItem>
-              <SelectItem value="cancelled" label="Cancelado">
-                Cancelado
-              </SelectItem>
+              <SelectItem value="pending" label="Pendiente">Pendiente</SelectItem>
+              <SelectItem value="confirmed" label="Confirmado">Confirmado</SelectItem>
+              <SelectItem value="completed" label="Completado">Completado</SelectItem>
+              <SelectItem value="cancelled" label="Cancelado">Cancelado</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -412,20 +386,11 @@ export function AppointmentForm({
       <div className="flex gap-3">
         <Button type="submit" disabled={isPending}>
           {isPending
-            ? isEdit
-              ? "Guardando..."
-              : "Creando..."
-            : isEdit
-              ? "Guardar cambios"
-              : "Crear turno"}
+            ? isEdit ? "Guardando..." : "Creando..."
+            : isEdit ? "Guardar cambios" : "Crear turno"}
         </Button>
-
         <Link
-          href={
-            isEdit
-              ? `/dashboard/appointments/${appointment.id}`
-              : "/dashboard/appointments"
-          }
+          href={isEdit ? `/dashboard/appointments/${appointment.id}` : "/dashboard/appointments"}
           className={buttonVariants({ variant: "outline" })}
         >
           Cancelar

@@ -7,6 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import { DeleteConsultationButton } from "@/components/admin/consultations/delete-consultation-button";
 import { TreatmentItemToggle } from "@/components/admin/consultations/treatment-item-toggle";
 import { ComplementaryMethodsSection } from "@/components/admin/consultations/complementary-methods-section";
+import { getFollowUpsByConsultation } from "../follow-up-actions";
+import { FollowUpSection } from "@/components/admin/consultations/follow-up-section";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -34,11 +36,12 @@ function SoapSection({ label, value }: { label: string; value: string | null }) 
 
 export default async function ConsultationDetailPage({ params }: Props) {
   const { id } = await params;
-  const [consultation, items, methods] = await Promise.all([
-    getConsultation(id),
-    getTreatmentItems(id),
-    getComplementaryMethods(id),
-  ]);
+const [consultation, items, methods, fuList] = await Promise.all([
+  getConsultation(id),
+  getTreatmentItems(id),
+  getComplementaryMethods(id),
+  getFollowUpsByConsultation(id),
+]);
 
   if (!consultation) notFound();
 
@@ -164,6 +167,16 @@ export default async function ConsultationDetailPage({ params }: Props) {
       </div>
 
       <Separator />
+      
+      {/* Seguimientos programados */}
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">Controles programados</h2>
+        <FollowUpSection
+          consultationId={id}
+          patientId={consultation.patientId}
+          followUps={fuList}
+        />
+      </div>
 
       {/* Linked appointment */}
       {consultation.appointment && (

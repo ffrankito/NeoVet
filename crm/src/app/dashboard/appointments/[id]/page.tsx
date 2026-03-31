@@ -52,19 +52,16 @@ export default async function AppointmentDetailPage({ params }: Props) {
   const allStaff = isAdmin ? await getAllStaffForSelect() : [];
 
   const nextStatuses: Record<string, { value: string; label: string }[]> = {
-    pending: [
-      { value: "confirmed", label: "Confirmar" },
-      { value: "cancelled", label: "Cancelar" },
-    ],
-    confirmed: [
-      { value: "completed", label: "Completar" },
-      { value: "cancelled", label: "Cancelar" },
-    ],
-    completed: [],
-    cancelled: [],
+  confirmed: [
+    { value: "completed", label: "Completar" },
+    { value: "cancelled", label: "Cancelar" },
+  ],
+  completed: [],
+  cancelled: [],
   };
 
-  const actions = nextStatuses[apt.status] ?? [];
+const actions = nextStatuses[apt.status] ?? [];
+
 
   return (
     <div className="space-y-8">

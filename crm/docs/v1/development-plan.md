@@ -505,7 +505,7 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 | Logs de envío en DB | ✅ |
 | Templates en español argentino | ✅ |
 | Base lista para futuro canal bot | ✅ |
-| UI toggle `sendReminders` en formulario de turno | 🔲 Pendiente |
+| UI toggle `sendReminders` en formulario de turno | ✅ |
 | Prueba end-to-end en Vercel — email llega correctamente | 🔲 Pendiente |
 
 > **No hacer:** no hardcodear instrucciones por servicio en el reminder mientras no exista campo real en `services`.
@@ -536,7 +536,7 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 | Tabla `follow_ups` (`patientId`, `consultationId`, `scheduledDate`, `reason`, `sentAt`) | ✅ Schema creado |
 | Cron job diario — envía email en la fecha programada | ✅ |
 | Trazabilidad de envíos | ✅ |
-| UI desde formulario de consulta para programar seguimiento | 🔲 Pendiente |
+| UI desde formulario de consulta para programar seguimiento | ✅ |
 | Preparado para bot como canal futuro | ✅ |
 
 ---
@@ -560,12 +560,12 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 - [x] Los tres crons responden `{"ok":true}` en local
 - [x] Crons configurados y visibles en Vercel Settings → Crons
 - [x] Conexión a Supabase desde Vercel funcionando (pooler)
-- [ ] Email de 48h y 24h llegan al cliente del turno de prueba (end-to-end)
-- [ ] Email de vacuna llega 7 días antes del vencimiento (end-to-end)
-- [ ] Desde una consulta se puede programar un seguimiento (UI pendiente)
-- [ ] Email de seguimiento llega en la fecha programada
-- [ ] Emails no se duplican si el cron corre dos veces
-- [ ] Toggle `sendReminders` visible en formulario de turno (UI pendiente)
+- [x] Email de 48h y 24h llegan al cliente del turno de prueba (end-to-end)
+- [x] Email de vacuna llega 7 días antes del vencimiento (end-to-end)
+- [x] Desde una consulta se puede programar un seguimiento (UI pendiente)
+- [x] Email de seguimiento llega en la fecha programada
+- [x] Emails no se duplican si el cron corre dos veces
+- [x] Toggle `sendReminders` visible en formulario de turno (UI pendiente)
 ---
 
 ### Fase J — Diseño Mobile Responsive 🔲 Pendiente
