@@ -61,5 +61,5 @@ html {
 body {
   font-family: var(--font-sans);
   color: var(--color-neutral-800);
-  background-color: var(--color-neutral-50);
+  background-color: #e1e1e1;
 }

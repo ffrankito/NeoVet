@@ -1,68 +1,56 @@
 ---
 import { Image } from 'astro:assets';
-import clinic1    from '../assets/images/clinic/1.jpeg';
-import clinic2    from '../assets/images/clinic/2.jpeg';
-import pet1       from '../assets/images/pets/pet-1.jpeg';
-import pet2       from '../assets/images/pets/pet-2.jpeg';
-import pet3       from '../assets/images/pets/pet-3.jpeg';
-import pet4       from '../assets/images/pets/pet-4.jpeg';
-import pet5       from '../assets/images/pets/pet-5.jpeg';
-import peluqueria from '../assets/images/team/peluqueria.jpeg';
+import clinica           from '../assets/images/hero/mobile/clinica.jpeg';
+import paulaUltrasonido  from '../assets/images/hero/mobile/paula_ultrasonido.jpeg';
+import paulaVetPerro     from '../assets/images/hero/mobile/pau_vete_perro.jpeg';
+import pet2              from '../assets/images/hero/mobile/pet-2.jpeg';
+import pet5              from '../assets/images/hero/mobile/pet-5.jpeg';
 
-const whatsappUrl =
-  "https://api.whatsapp.com/send/?phone=543413101194&text&type=phone_number&app_absent=0";
+const whatsappUrl = "https://api.whatsapp.com/send/?phone=543413101194&text&type=phone_number&app_absent=0";
 
 // PLACEHOLDER: add descriptive alt text for each pet photo (Phase 4 content pass)
 const slides = [
-  { src: clinic1,    alt: "Interior de NeoVet — clínica veterinaria en Rosario", loading: "eager" as const },
-  { src: clinic2,    alt: "Instalaciones de NeoVet en Rosario",                  loading: "lazy"  as const },
-  { src: pet1,       alt: "",                                                     loading: "lazy"  as const },
-  { src: pet2,       alt: "",                                                     loading: "lazy"  as const },
-  { src: pet3,       alt: "",                                                     loading: "lazy"  as const },
-  { src: pet4,       alt: "",                                                     loading: "lazy"  as const },
-  { src: pet5,       alt: "",                                                     loading: "lazy"  as const },
-  { src: peluqueria, alt: "Servicio de peluquería canina en NeoVet",             loading: "lazy"  as const },
+  { src: clinica,          alt: "Fachada de Veterinaria NeoVet en Rosario",                  loading: "eager" as const },
+  { src: paulaUltrasonido, alt: "Dra. Paula Silveira en consultorio de reproducción canina",  loading: "lazy"  as const },
+  { src: paulaVetPerro,    alt: "Equipo veterinario de NeoVet con paciente canino",           loading: "lazy"  as const },
+  { src: pet2,             alt: "",                                                            loading: "lazy"  as const },
+  { src: pet5,             alt: "Pacientes caninos en NeoVet",                                loading: "lazy"  as const },
 ];
 ---
 
-<section id="inicio" class="relative overflow-hidden pt-20">
-  <!-- Background carousel slides -->
-  {slides.map((slide, i) => (
+<!--
+  Split layout: text left (brand dark background) / photo carousel right.
+  Portrait photos sit in their own column so object-contain works naturally —
+  no cropping, no aspect-ratio fight. When desktop landscape photos become
+  available, swap the mobile/ imports for desktop/ and switch to object-cover.
+-->
+<section id="inicio" class="relative flex min-h-screen flex-col pt-16 lg:flex-row">
+
+  <!-- ── LEFT COLUMN — text content ─────────────────────────────────────── -->
+  <div class="relative z-10 flex flex-1 flex-col justify-center bg-primary-950 px-6 py-16 sm:px-10 lg:px-16 xl:px-20">
+
+    <!-- Subtle teal glow in the top-left corner — decorative only -->
     <div
-      class:list={["hero-slide absolute inset-0", i === 0 ? "opacity-100" : "opacity-0"]}
-      data-index={i}
-    >
-      <Image
-        src={slide.src}
-        alt={slide.alt}
-        class="h-full w-full object-cover"
-        width={1920}
-        height={800}
-        loading={slide.loading}
-      />
-    </div>
-  ))}
+      class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full opacity-20"
+      style="background: radial-gradient(circle, var(--color-primary-400) 0%, transparent 70%);"
+      aria-hidden="true"
+    ></div>
 
-  <!-- Dark overlay — heavier on the left where the text lives -->
-  <div
-    class="pointer-events-none absolute inset-0"
-    style="background: linear-gradient(to right, rgba(15,23,42,0.82) 0%, rgba(15,23,42,0.60) 55%, rgba(15,23,42,0.35) 100%);"
-  ></div>
-
-  <!-- Hero content -->
-  <div class="relative z-10 mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-32 lg:px-8 lg:py-40">
-    <div class="max-w-2xl">
+    <div class="relative w-full">
       <p class="text-sm font-semibold uppercase tracking-widest text-primary-300">
         Centro Veterinario en Rosario
       </p>
-      <h1 class="mt-4 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+
+      <h1 class="mt-4 text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-[3.25rem] xl:text-6xl">
         <!-- PLACEHOLDER: confirm final headline with Paula -->
         Cuidamos a tu mascota como parte de nuestra familia
       </h1>
+
       <p class="mt-6 text-lg leading-relaxed text-primary-100 sm:text-xl">
         <!-- PLACEHOLDER: confirm final subheadline with Paula -->
         Especialistas en reproducción canina, cirugía, cardiología y más. Atención profesional con calidez humana.
       </p>
+
       <div class="mt-10 flex flex-col gap-4 sm:flex-row">
         <a
           href={whatsappUrl}
@@ -70,7 +58,7 @@ const slides = [
           rel="noopener noreferrer"
           class="inline-flex items-center justify-center gap-2 rounded-lg bg-whatsapp px-6 py-3 text-base font-semibold text-white shadow-lg transition-colors hover:bg-whatsapp-dark"
         >
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
           </svg>
           Escribinos por WhatsApp
@@ -85,42 +73,84 @@ const slides = [
     </div>
   </div>
 
-  <!-- Carousel controls — bottom-right -->
-  <div class="absolute bottom-6 right-6 z-10 flex flex-col items-end gap-3 lg:bottom-8 lg:right-8">
-    <div class="flex gap-2">
-      <button
-        id="hero-prev"
-        type="button"
-        aria-label="Foto anterior"
-        class="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/20"
+  <!-- ── RIGHT COLUMN — photo carousel ──────────────────────────────────── -->
+  <!--
+    Mobile: fixed height so the photo pane is visible but doesn't swamp the text.
+    Desktop (lg+): full height of the row, width capped at 45% of the viewport.
+    object-contain keeps portrait photos fully visible; bg-primary-900 fills
+    the letterbox bars so they blend with the brand palette.
+    When landscape desktop photos are available, switch to object-cover and
+    remove the background colour — they will fill the column perfectly.
+  -->
+  <div
+    id="hero-photo-col"
+    class="relative h-72 shrink-0 overflow-hidden bg-primary-900 sm:h-96 lg:h-auto lg:w-[35%]"
+    aria-label="Galería de fotos del consultorio"
+  >
+    <!-- Carousel slides -->
+    {slides.map((slide, i) => (
+      <div
+        class:list={["hero-slide absolute inset-0", i === 0 ? "opacity-100" : "opacity-0"]}
+        data-index={i}
       >
-        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-        </svg>
-      </button>
-      <button
-        id="hero-next"
-        type="button"
-        aria-label="Siguiente foto"
-        class="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:bg-white/20"
-      >
-        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-        </svg>
-      </button>
-    </div>
-    <div class="flex gap-1">
-      {slides.map((_, i) => (
-        <div class="h-0.5 w-6 overflow-hidden rounded-full bg-white/30">
-          <div
-            class:list={["hero-bar h-full rounded-full bg-white", i === 0 ? "hero-bar--active" : ""]}
-            style="width: 0%"
-            data-index={i}
-          ></div>
-        </div>
-      ))}
+        <Image
+          src={slide.src}
+          alt={slide.alt}
+          class="h-full w-full object-contain"
+          width={900}
+          height={1200}
+          loading={slide.loading}
+        />
+      </div>
+    ))}
+
+    <!-- Thin gradient at the bottom of the photo column — softens the edge -->
+    <div
+      class="pointer-events-none absolute inset-x-0 bottom-0 h-20"
+      style="background: linear-gradient(to top, var(--color-primary-950) 0%, transparent 100%);"
+      aria-hidden="true"
+    ></div>
+
+    <!-- Carousel controls — pinned to bottom-right of the photo column -->
+    <div class="absolute bottom-4 right-4 z-10 flex flex-col items-end gap-3">
+      <div class="flex gap-2">
+        <button
+          id="hero-prev"
+          type="button"
+          aria-label="Foto anterior"
+          class="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          </svg>
+        </button>
+        <button
+          id="hero-next"
+          type="button"
+          aria-label="Siguiente foto"
+          class="flex h-8 w-8 items-center justify-center rounded-full border border-white/40 bg-black/20 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Progress bars -->
+      <div class="flex gap-1">
+        {slides.map((_, i) => (
+          <div class="h-0.5 w-6 overflow-hidden rounded-full bg-white/30">
+            <div
+              class:list={["hero-bar h-full rounded-full bg-white", i === 0 ? "hero-bar--active" : ""]}
+              style="width: 0%"
+              data-index={i}
+            ></div>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
+
 </section>
 
 <style>
@@ -142,12 +172,12 @@ const slides = [
 <script>
   const INTERVAL = 5000;
 
-  const section = document.querySelector<HTMLElement>('#inicio')!;
-  const slides  = Array.from(document.querySelectorAll<HTMLElement>('.hero-slide'));
-  const bars    = Array.from(document.querySelectorAll<HTMLElement>('.hero-bar'));
-  const prevBtn = document.getElementById('hero-prev')!;
-  const nextBtn = document.getElementById('hero-next')!;
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const photoCol = document.getElementById('hero-photo-col')!;
+  const slides   = Array.from(document.querySelectorAll<HTMLElement>('.hero-slide'));
+  const bars     = Array.from(document.querySelectorAll<HTMLElement>('.hero-bar'));
+  const prevBtn  = document.getElementById('hero-prev')!;
+  const nextBtn  = document.getElementById('hero-next')!;
+  const reduced  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let current = 0;
   let timer: ReturnType<typeof setInterval> | null = null;
@@ -156,7 +186,7 @@ const slides = [
     const bar = bars[index];
     if (reduced) { bar.style.width = '100%'; return; }
     bar.classList.remove('hero-bar--active');
-    void bar.offsetWidth;
+    void bar.offsetWidth; // force reflow so the animation restarts cleanly
     bar.classList.add('hero-bar--active');
   }
 
@@ -180,10 +210,12 @@ const slides = [
 
   prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
   nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
-  section.addEventListener('mouseenter', stopAuto);
-  section.addEventListener('mouseleave', startAuto);
-  section.addEventListener('focusin', stopAuto);
-  section.addEventListener('focusout', startAuto);
+
+  // Pause auto-advance while the user is interacting with the photo column
+  photoCol.addEventListener('mouseenter', stopAuto);
+  photoCol.addEventListener('mouseleave', startAuto);
+  photoCol.addEventListener('focusin',    stopAuto);
+  photoCol.addEventListener('focusout',   startAuto);
 
   if (reduced) { slides.forEach(s => { s.style.transition = 'none'; }); }
   activateBar(0);
