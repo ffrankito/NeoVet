@@ -574,22 +574,22 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 
 > No es una fase de features nuevas — es adaptar el CSS y los layouts existentes para pantallas pequeñas.
 
-| Área | Trabajo |
-|---|---|
-| Sidebar de navegación | Convertir a menú hamburguesa en mobile |
-| Tablas de lista (clientes, pacientes, turnos) | Convertir a cards apiladas en mobile |
-| Formularios | Verificar que los inputs no queden cortados en pantallas de 375px |
-| Vista de calendario | Layout alternativo simplificado en mobile (vista de día en lugar de semana) |
-| Detalle de paciente (pestañas) | Pestañas con scroll horizontal en mobile |
-| Botones de acción | Tamaño mínimo de 44px (accesibilidad táctil) |
+| Área | Trabajo | Estado |
+|---|---|---|
+| Sidebar de navegación | Convertir a menú hamburguesa en mobile | ✅ |
+| Tablas de lista (clientes, pacientes, turnos) | Se ven correctamente en mobile | ✅ |
+| Formularios | Verificar que los inputs no queden cortados en pantallas de 375px | ✅ |
+| Vista de calendario | Layout alternativo simplificado en mobile (vista de día en lugar de semana) | ✅ |
+| Detalle de paciente (pestañas) | Pestañas con scroll horizontal en mobile | ✅ |
+| Botones de acción | Tamaño mínimo de 44px (accesibilidad táctil) | ✅ |
 
 #### Checklist de verificación Fase J
 
-- [ ] Probado en iPhone SE (375px) y iPhone 14 (390px)
-- [ ] Probado en Android (360px)
-- [ ] Sidebar colapsa correctamente en mobile
-- [ ] Formularios completos sin overflow horizontal
-- [ ] Calendario usable desde celular
+- [x] Probado en iPhone SE (375px) y iPhone 14 (390px)
+- [x] Probado en Android (360px)
+- [x] Sidebar colapsa correctamente en mobile
+- [x] Formularios completos sin overflow horizontal
+- [x] Calendario usable desde celular
 
 ---
 
