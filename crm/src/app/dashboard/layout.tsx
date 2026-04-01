@@ -19,14 +19,14 @@ export default async function DashboardLayout({
 
   const role = await getRole();
 
-  return (
+return (
     <div className="flex min-h-screen">
       <AppSidebar user={user} role={role} />
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto pt-14 lg:pt-0">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {children}
         </div>
       </main>
     </div>
-  );
+  )
 }
