@@ -18,3 +18,8 @@ export const groomingSessionId = () => createId("gss");
 export const complementaryMethodId = () => createId("cmp");
 export const serviceId = () => createId("svc");
 export const scheduleBlockId = () => `blk_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+export const productId  = () => createId("prd");
+export const providerId = () => createId("prv");
+export const stockEntryId = () => createId("ste");
+export const saleId     = () => createId("sal");
+export const saleItemId = () => createId("sli");
