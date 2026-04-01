@@ -33,6 +33,8 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - Grooming module: per-patient grooming profile + session records with before/after photos and findings; 3-tier pricing
 - Billing: payment registration + ARCA electronic invoicing (Factura A/B/C); two fiscal entities; MercadoPago payments require invoice
 - Email reminders via Resend + Vercel Cron: appointment 48h/24h, vaccine 7 days before, post-consultation follow-ups
+- Pet shop module: product catalog, providers, stock entries, sales with multi-item cart, payment methods
+- Cash register: daily open/close sessions, income/expense movements, breakdown by payment method
 - Mobile-responsive UI
 - Email login via Supabase Auth
 - One-time data import from Geovet Excel exports

@@ -106,6 +106,20 @@
       "when": 1775005186666,
       "tag": "0016_flimsy_venus",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1775065730803,
+      "tag": "0017_giant_scream",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1775072893647,
+      "tag": "0018_tough_the_fallen",
+      "breakpoints": true
     }
   ]
 }

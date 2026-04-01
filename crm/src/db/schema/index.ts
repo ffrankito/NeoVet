@@ -19,3 +19,4 @@ export * from "./products";
 export * from "./providers";
 export * from "./stock_entries";
 export * from "./sales";
+export * from "./cash_sessions";

@@ -5,7 +5,7 @@
 | **Proyecto** | NeoVet CRM |
 | **Autor** | Tomás Pinolini |
 | **Estado** | Activo |
-| **Última actualización** | 2026-03-30 |
+| **Última actualización** | 2026-04-01 |
 | **Roadmap completo** | `crm/docs/roadmap.md` |
 | **Docs relacionados** | `charter.md`, `technical-spec.md`, `../../docs/paula-meeting.md` |
 
@@ -590,6 +590,206 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 - [x] Sidebar colapsa correctamente en mobile
 - [x] Formularios completos sin overflow horizontal
 - [x] Calendario usable desde celular
+
+---
+
+### Fase K — Pet Shop: Inventario y Ventas ✅ Completada
+
+**Objetivo:** La clínica puede gestionar el stock del pet shop, registrar ingresos de proveedores y registrar ventas de productos desde el CRM.
+
+---
+
+#### K.1 — Schema y migraciones
+
+**5 tablas nuevas:**
+
+**`products`** (`prd_`)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | text (`prd_`) | |
+| `name` | text | Nombre del producto |
+| `category` | enum | `medicamento \| vacuna \| insumo_clinico \| higiene \| accesorio \| juguete \| alimento \| transporte \| otro` |
+| `currentStock` | numeric | Stock actual (se actualiza automáticamente) |
+| `minStock` | numeric | Umbral de stock mínimo (default 0) |
+| `costPrice` | numeric nullable | Último precio de costo conocido (se actualiza en cada ingreso) |
+| `sellPrice` | numeric | Precio de venta (sin impuesto) |
+| `taxRate` | integer | IVA: 0 o 21. Valores en v1: `0` y `21` únicamente |
+| `isActive` | boolean | Baja lógica — no eliminar si tiene ventas asociadas |
+
+**`providers`** (`prv_`)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | text (`prv_`) | |
+| `name` | text | Nombre del proveedor |
+| `address` | text nullable | Dirección |
+| `phone` | text nullable | Teléfono |
+| `email` | text nullable | Email |
+| `cuit` | text nullable | CUIT — necesario para Fase D (facturación fiscal) |
+| `notes` | text nullable | Condiciones de pago, preferencias de contacto, etc. |
+| `isActive` | boolean | Baja lógica |
+
+**`stock_entries`** (`ste_`)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | text (`ste_`) | |
+| `productId` | FK → products (cascade) | |
+| `providerId` | FK → providers (set null) nullable | |
+| `quantity` | numeric | Unidades recibidas |
+| `costPrice` | numeric nullable | Precio de costo al momento del ingreso |
+| `notes` | text nullable | |
+| `createdById` | FK → staff | Para auditoría |
+
+> Al crear un ingreso: `products.currentStock += quantity` y `products.costPrice = costPrice` (si se informó).
+
+**`sales`** (`sal_`)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | text (`sal_`) | |
+| `patientId` | FK → patients (set null) nullable | Trazabilidad opcional |
+| `soldById` | FK → staff | Quién realizó la venta (lógica de negocio) |
+| `createdById` | FK → staff | Quién creó el registro (auditoría) |
+| `paymentMethod` | text | `efectivo \| transferencia \| debito \| credito \| mercadopago` |
+| `paymentId` | text nullable | FK → payments — hook para Fase D (facturación ARCA) |
+| `notes` | text nullable | |
+
+**`sale_items`** (`sli_`)
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | text (`sli_`) | |
+| `saleId` | FK → sales (cascade) | |
+| `productId` | FK → products (RESTRICT) | Producto no se puede eliminar si tiene ventas asociadas |
+| `quantity` | numeric | |
+| `unitPrice` | numeric | Snapshot del precio al momento de la venta |
+| `taxRate` | integer | Snapshot del IVA al momento de la venta |
+
+> Al crear la venta: `products.currentStock -= quantity` por cada ítem. Los `sale_items` son inmutables — no existe flujo de edición.
+
+| Entregable | Estado |
+|---|---|
+| Schema `products` + migración | ✅ |
+| Schema `providers` + migración | ✅ |
+| Schema `stock_entries` + migración | ✅ |
+| Schema `sales` + `sale_items` + migración | ✅ |
+| Prefixed ID generators: `prd_`, `prv_`, `ste_`, `sal_`, `sli_` | ✅ |
+
+---
+
+#### K.2 — Proveedores
+
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/petshop/providers` — lista de proveedores | ✅ |
+| Crear proveedor: nombre, dirección, teléfono, email, CUIT, notas | ✅ |
+| Editar proveedor | ✅ |
+| Desactivar proveedor (baja lógica — `isActive = false`) | ✅ |
+| Script `scripts/import-providers.ts` — importación one-time desde GVet | 🔲 Pendiente |
+
+---
+
+#### K.3 — Productos
+
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/petshop/products` — lista con stock actual y badge rojo si `currentStock <= minStock` | ✅ |
+| Crear producto: nombre, categoría, precio de venta, IVA, stock mínimo | ✅ |
+| Editar producto | ✅ |
+| Desactivar producto (`isActive = false` — no eliminar si tiene ventas) | ✅ |
+| Script `scripts/import-products.ts` — importación one-time desde `lista_precios` CSV | ✅ |
+
+> El script asigna categoría automáticamente por palabras clave en el nombre del producto.
+
+---
+
+#### K.4 — Entradas de stock
+
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/petshop/stock-entries` — historial de entradas | ✅ |
+| Formulario de nueva entrada: producto, proveedor (opcional), cantidad, precio de costo, notas | ✅ |
+| Al confirmar: `currentStock` y `costPrice` se actualizan automáticamente | ✅ |
+
+---
+
+#### K.5 — Ventas
+
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/petshop/sales` — historial de ventas | ✅ |
+| Formulario "carrito" `/dashboard/petshop/sales/new` — ítems dinámicos (producto + cantidad) | ✅ |
+| Campos del encabezado de venta: método de pago, notas | ✅ |
+| `soldById` auto-asignado al usuario logueado | ✅ |
+| Al confirmar: `currentStock` baja por cada ítem | ✅ |
+| Página de detalle `/dashboard/petshop/sales/[id]` | ✅ |
+| Campo `paymentId` presente en schema — sin UI de facturación (hook Fase D) | ✅ |
+
+---
+
+#### K.6 — Importación de datos
+
+| Entregable | Estado |
+|---|---|
+| Script `import-products.ts` con categoría auto-detectada y progress bar | ✅ |
+| Script `cleanup-imported-visits.ts` para limpieza de visitas | ✅ |
+| Script `import-gvet.ts` actualizado con progress bar | ✅ |
+| Documento `pending-gvet-exports.md` con datos pendientes de exportar | ✅ |
+
+---
+
+#### Control de acceso
+
+| Acción | Admin | Vet | Groomer |
+|---|---|---|---|
+| Ver productos y stock | ✅ | ❌ | ❌ |
+| Registrar una venta | ✅ | ❌ | ❌ |
+| Crear / editar productos | ✅ | ❌ | ❌ |
+| Registrar entrada de stock | ✅ | ❌ | ❌ |
+| Gestionar proveedores | ✅ | ❌ | ❌ |
+
+---
+
+#### Checklist de verificación Fase K
+
+- [x] ~413 productos importados desde CSV con stock y precios correctos
+- [ ] Proveedores importados desde GVet
+- [x] Stock baja al registrar una venta
+- [x] Stock sube al registrar una entrada
+- [x] Badge rojo aparece en productos con `currentStock <= minStock`
+- [x] Solo admin accede al módulo Pet Shop
+- [x] Producto desactivable con `isActive = false`
+- [x] `paymentId` presente en schema pero no requerido (hook Fase D)
+- [x] Snapshots de precio e IVA correctos en `sale_items` al momento de la venta
+
+---
+
+### Fase K.B — Caja ✅ Completada
+
+**Objetivo:** El admin puede abrir y cerrar sesiones de caja, registrar movimientos (ingresos/egresos) y ver el balance diario desglosado por método de pago.
+
+#### Schema
+
+**`cash_sessions`** (`csh_`) — apertura/cierre con monto inicial, efectivo contado al cierre, notas.
+
+**`cash_movements`** (`cmv_`) — movimientos que no son ventas (pagos a proveedores, retiros, ingresos extra). Cada movimiento tiene tipo (ingreso/egreso), método de pago y descripción.
+
+El total se calcula: `inicial + ventas del período + ingresos extra - egresos`. Las ventas se toman de la tabla `sales` filtradas por fecha entre apertura y cierre.
+
+| Entregable | Estado |
+|---|---|
+| Schema `cash_sessions` + `cash_movements` + migración | ✅ |
+| Sidebar "Caja" (admin only) | ✅ |
+| Página `/dashboard/cash` — lista de sesiones con usuario, apertura, cierre, monto | ✅ |
+| Abrir caja: nombre opcional + monto inicial | ✅ |
+| Detalle de sesión: resumen, desglose por método de pago, ventas, movimientos | ✅ |
+| Agregar movimiento (ingreso/egreso) con método de pago y descripción | ✅ |
+| Cerrar caja: efectivo contado + notas de cierre | ✅ |
+| Validación: solo una caja abierta a la vez | ✅ |
+| Campo `name` para preparar múltiples cajas a futuro | ✅ |
+| 10 sesiones históricas importadas desde GVet | ✅ |
 
 ---
 

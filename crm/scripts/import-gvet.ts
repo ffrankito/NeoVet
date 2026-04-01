@@ -205,6 +205,8 @@ async function main() {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const rowNum = i + 2; // +2 because 1-indexed + skip header
+      const pct = Math.round(((i + 1) / rows.length) * 100);
+      process.stdout.write(`\r  [${pct}%] ${i + 1}/${rows.length} — insertados: ${clientsInserted}, omitidos: ${clientsSkipped}   `);
 
       const name = row[CLIENT_MAP.name];
       const phone = row[CLIENT_MAP.phone] || row[CLIENT_MAP.phoneFallback];
@@ -253,6 +255,7 @@ async function main() {
 
       clientsInserted++;
     }
+    console.log(); // newline after progress bar
   }
 
   // -------------------------------------------------------------------------
@@ -273,6 +276,8 @@ async function main() {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const rowNum = i + 2;
+      const pct = Math.round(((i + 1) / rows.length) * 100);
+      process.stdout.write(`\r  [${pct}%] ${i + 1}/${rows.length} — insertados: ${patientsInserted}, omitidos: ${patientsSkipped}   `);
 
       const ownerName = row[PATIENT_MAP.ownerName];
       const name = row[PATIENT_MAP.name];
@@ -415,6 +420,7 @@ async function main() {
 
       patientsInserted++;
     }
+    console.log(); // newline after progress bar
   }
 
   // -------------------------------------------------------------------------

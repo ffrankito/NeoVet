@@ -1,0 +1,3 @@
+CREATE TYPE "public"."payment_method" AS ENUM('efectivo', 'transferencia', 'tarjeta_debito', 'tarjeta_credito', 'mercadopago');--> statement-breakpoint
+ALTER TABLE "sales" ALTER COLUMN "payment_method" SET DATA TYPE "public"."payment_method" USING "payment_method"::"public"."payment_method";--> statement-breakpoint
+ALTER TABLE "sale_items" ADD COLUMN "created_at" timestamp with time zone DEFAULT now() NOT NULL;

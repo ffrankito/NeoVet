@@ -23,3 +23,5 @@ export const providerId = () => createId("prv");
 export const stockEntryId = () => createId("ste");
 export const saleId     = () => createId("sal");
 export const saleItemId = () => createId("sli");
+export const cashSessionId  = () => createId("csh");
+export const cashMovementId = () => createId("cmv");
