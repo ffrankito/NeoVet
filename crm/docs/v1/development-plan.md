@@ -568,7 +568,7 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 - [x] Toggle `sendReminders` visible en formulario de turno (UI pendiente)
 ---
 
-### Fase J — Diseño Mobile Responsive 🔲 Pendiente
+### Fase J — Diseño Mobile Responsive ✅ Completa
 
 **Objetivo:** Paula y su equipo pueden usar el CRM desde el celular sin fricción.
 

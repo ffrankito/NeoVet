@@ -15,3 +15,8 @@ export * from "./services";
 export * from "./schedule_blocks";
 export * from "./follow_ups";
 export * from "./email_logs";
+export * from "./bot_contacts";
+export * from "./bot_conversations";
+export * from "./bot_messages";
+export * from "./bot_escalations";
+export * from "./bot_business_context";
