@@ -15,3 +15,8 @@ export * from "./services";
 export * from "./schedule_blocks";
 export * from "./follow_ups";
 export * from "./email_logs";
+export * from "./products";
+export * from "./providers";
+export * from "./stock_entries";
+export * from "./sales";
+export * from "./cash_sessions";

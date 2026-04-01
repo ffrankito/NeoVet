@@ -1,0 +1,14 @@
+Nombre 	Dirección 	Teléfono 	E-mail 	
+AyM mascotas 	Santa fe y Provincias Unidas 	+5493417490495 	aymmascotas@gmail.com 	
+Distribuidora EPAQ 	San Luis y Carriego 	5493416211488 	distribuidoraepaq@gmail.com 	
+Drogueria EyG 	av san martin 3035 	+5493416820105 	ventas@drogueriaeyg.com.ar 	
+Drovet 	Pichincha 155 	+5493413228815 	info@drovet.com.ar 	
+Elias Alí 	--- 	+5493413559538 	bsr.insumos@gmail.com 	
+Esperanza Distribuciones 	Brig Lopez 25 	+5493496413122 	ivanudi@esperanzadistri.com.ar 	
+Fiel 	Santa Teresa 	+5493460694654 	laboratoriofiel3@gmail.com 	
+Horacio Alfavet 	-- 	3412769131 	horacioangeloni@outlook.com 	
+Kaninos 	Av. Provincias Unidas 1202, Rosario 	+543416527813 	info@kaninos.com.ar 	
+La Red 	Urquiza 3050 	---------- 	administracion@laredcomercialsrl.com.ar
+Reino DM 	Av. San José de Calasanz 9290 	+5493412797945 	katerine.reinodm@gmail.com 	
+Rosario pet 	sin direccion 	+54 3415868060 	ventas@animallsrl.com.ar 	
+ULI PETS 	Logaritmo 	+5493416138944 	basaguillermo@gmail.com
