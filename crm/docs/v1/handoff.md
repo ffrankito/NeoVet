@@ -24,7 +24,7 @@
 - [ ] `npm audit` ejecutado — sin vulnerabilidades altas o críticas
 
 ### Funcionalidad
-- [ ] Todos los entregables del charter probados en producción (D1–D8)
+- [ ] Todos los entregables del charter probados en producción (D1–D14)
 - [ ] Paula y el equipo completaron el UAT
 - [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios
 - [ ] Flujo de peluquería completo probado: crear turno de peluquería → asignar peluquero → peluquero registra sesión → fotos subidas → hallazgos registrados
@@ -32,7 +32,10 @@
 - [ ] Flujo de facturación probado: registrar pago → generar factura → enviar a ARCA → recibir CAE
 - [ ] Catálogo de servicios configurado con los servicios de Paula
 - [ ] Vista semanal de calendario verificada con slots libres y bloqueos de cirugía
+- [ ] Suspensión de agenda: profesional puede bloquear días/franjas y turnos afectados se cancelan
 - [ ] Recordatorios por email probados: turno 48h/24h, vacunas 7 días antes, seguimiento post-consulta
+- [ ] Pet shop: crear producto → registrar entrada de stock → stock sube → registrar venta → stock baja → badge de stock bajo visible
+- [ ] Caja: abrir sesión → registrar movimientos → ventas se reflejan en balance → cerrar con conteo de efectivo
 - [ ] UI verificada en mobile (celular) para los flujos principales
 
 ### Datos
@@ -63,11 +66,13 @@
 NeoVet CRM es la herramienta interna de la clínica para gestionar toda la operación diaria sin depender de GVet. Desde acá podés:
 
 - **Clientes y pacientes** — buscar cualquier dueño, ver sus mascotas, editar datos de contacto.
-- **Turnos** — crear turnos veterinarios o de peluquería, asignarlos a un profesional, confirmarlos y marcarlos como completados. Vista semanal con slots libres y bloqueos de cirugía.
+- **Turnos** — crear turnos veterinarios o de peluquería, asignarlos a un profesional, confirmarlos y marcarlos como completados. Vista semanal con slots libres y bloqueos de cirugía. Cada profesional puede suspender su propia agenda por día(s) o franja horaria.
 - **Catálogo de servicios** — lista de servicios con duración predeterminada; las cirugías bloquean el calendario el tiempo que se configure.
-- **Historia clínica** — registrar cada consulta con notas SOAP, signos vitales, plan de tratamiento, vacunas y desparasitaciones. Se pueden adjuntar documentos (radiografías, estudios, fotos) y métodos complementarios.
+- **Historia clínica** — registrar cada consulta con notas SOAP, signos vitales, plan de tratamiento (con medicamento, dosis, frecuencia y duración), vacunas y desparasitaciones. Se pueden adjuntar documentos clasificados por categoría (laboratorio, radiografía, ecografía, foto) y métodos complementarios (informes de estudios con fotos opcionales).
 - **Peluquería** — cada perro que pasa por peluquería tiene su perfil propio (comportamiento, tipo de pelaje, tiempo estimado). El peluquero registra cada sesión con fotos antes/después, hallazgos y precio final.
-- **Facturación** — registrar pagos y emitir facturas electrónicas (ARCA) de forma opcional. Control de límites por entidad fiscal para evitar recategorización.
+- **Pet shop** — catálogo de productos con 9 categorías, gestión de proveedores, ingresos de stock y ventas con carrito multi-ítem. El stock se actualiza automáticamente al registrar ingresos y ventas. Alerta visual de stock bajo.
+- **Caja** — apertura y cierre de sesiones de caja, movimientos de ingresos y egresos, desglose por método de pago. Las ventas del período se incorporan automáticamente al balance.
+- **Facturación** — registrar pagos y emitir facturas electrónicas (ARCA) de forma opcional. Control de límites por entidad fiscal para evitar recategorización. *(Fase D — pendiente de build.)*
 - **Recordatorios por email** — el sistema envía recordatorios automáticos: turno 48h y 24h antes, vacunas 7 días antes, seguimiento post-consulta.
 - **Staff y accesos** — cada integrante del equipo tiene su propio usuario con el acceso que le corresponde según su rol.
 
@@ -75,7 +80,7 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 
 | Rol | Qué puede hacer |
 |---|---|
-| **Admin** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, facturación, staff, configuración |
+| **Admin** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, pet shop, caja, facturación, staff, configuración |
 | **Veterinario/a** | Ver clientes · Ver y editar pacientes · Ver turnos veterinarios · Registrar y editar consultas |
 | **Peluquero/a** | Ver turnos de peluquería · Registrar sesiones de peluquería · Editar perfil de peluquería del paciente |
 
@@ -87,8 +92,15 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 | Asignar profesional al turno | Manual | Recepción / admin |
 | Registrar consulta | Manual | Veterinario/a |
 | Registrar sesión de peluquería | Manual | Peluquero/a |
+| Registrar venta en pet shop | Manual | Admin |
+| Abrir/cerrar caja | Manual | Admin |
+| Stock sube al registrar entrada | Automático | Sistema |
+| Stock baja al registrar venta | Automático | Sistema |
 | Emitir factura | Manual (opcional) | Admin |
 | Pago por Mercado Pago → requiere factura | Regla automática | Sistema |
+| Recordatorio de turno 48h/24h por email | Automático (Vercel Cron) | Sistema |
+| Recordatorio de vacuna 7 días antes por email | Automático (Vercel Cron) | Sistema |
+| Seguimiento post-consulta por email | Automático (fecha programada) | Sistema |
 | Notificaciones y recordatorios por WhatsApp | ❌ No disponible en v1 | — (v2) |
 
 ---
@@ -186,6 +198,7 @@ Durante el período de soporte, contactarnos ante:
 | Sin recordatorios por WhatsApp | WhatsApp es v2 — en v1 se usan emails | Los recordatorios llegan por email; WhatsApp se agrega en v2 |
 | Los hallazgos del peluquero no alertan al veterinario | Flujo pendiente de entrevista con el peluquero (v2) | El peluquero le avisa al veterinario manualmente |
 | Sin reportes ni analíticas | Son funcionalidades de v3 | Exportar datos desde Supabase si se necesita un análisis puntual |
+| Facturación ARCA pendiente | Fase D no construida aún — pendiente certificado digital y credenciales | Registrar pagos se puede hacer; la emisión de comprobantes electrónicos se agrega cuando se tengan las credenciales |
 
 ---
 
