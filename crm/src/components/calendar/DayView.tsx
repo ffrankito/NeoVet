@@ -10,6 +10,7 @@ import {
 } from "@/lib/calendar-utils";
 
 const SLOT_HEIGHT = 64;
+const BREAK_HEIGHT = 32;
 
 type Props = {
   date: Date;
@@ -33,16 +34,19 @@ export function DayView({ date, appointments, blocks, onAppointmentClick, onDele
         {slots.map((slot) => (
           <div
             key={slot.label}
-            style={{ height: SLOT_HEIGHT }}
-            className="flex items-start justify-end pr-2 pt-1 border-b border-gray-100"
+            style={{ height: slot.isBreak ? BREAK_HEIGHT : SLOT_HEIGHT }}
+            className={`flex items-start justify-end pr-2 pt-1 border-b ${
+              slot.isBreak ? "border-gray-200 bg-gray-50" : "border-gray-100"
+            }`}
           >
-            <span className="text-xs text-gray-400">{slot.label}</span>
+            {!slot.isBreak && (
+              <span className="text-xs text-gray-400">{slot.label}</span>
+            )}
           </div>
         ))}
       </div>
 
       <div className="flex-1 relative">
-        {/* Bloqueos */}
         {dayBlocks.map((block) => (
           <ScheduleBlockCard
             key={block.id}
@@ -53,8 +57,19 @@ export function DayView({ date, appointments, blocks, onAppointmentClick, onDele
           />
         ))}
 
-        {/* Slots */}
         {slots.map((slot) => {
+          if (slot.isBreak) {
+            return (
+              <div
+                key={`break-${slot.label}`}
+                style={{ height: BREAK_HEIGHT }}
+                className="border-b border-gray-200 bg-gray-50 flex items-center justify-center"
+              >
+                <span className="text-xs text-gray-400 italic">— descanso —</span>
+              </div>
+            );
+          }
+
           const slotMinutes = toMinutes(slot.hour, slot.minute);
 
           const apptAtSlot = appointments.find((a) => {

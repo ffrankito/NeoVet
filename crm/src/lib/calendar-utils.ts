@@ -1,33 +1,49 @@
 // src/lib/calendar-utils.ts
 
-export const CLINIC_START_HOUR = 9; // 9:30 en realidad, pero empezamos desde 9 para contexto
+export const CLINIC_START_HOUR = 9;
 export const CLINIC_START_MINUTE = 30;
 export const CLINIC_END_HOUR = 20;
 export const CLINIC_SLOT_MINUTES = 30;
 
+// Bloques horarios de la clínica
+export const CLINIC_MORNING_END_HOUR = 12;
+export const CLINIC_MORNING_END_MINUTE = 30;
+export const CLINIC_AFTERNOON_START_HOUR = 16;
+export const CLINIC_AFTERNOON_START_MINUTE = 30;
+
 export type TimeSlot = {
   hour: number;
   minute: number;
-  label: string; // "09:30"
+  label: string;
+  isBreak?: boolean; // true = slot de descanso visual, no disponible
 };
 
-/** Genera todos los slots del día en intervalos de 30 min */
+/** Genera todos los slots del día con el corte del mediodía */
 export function generateDaySlots(): TimeSlot[] {
   const slots: TimeSlot[] = [];
+
+  // Mañana: 9:30 a 12:30
   let hour = CLINIC_START_HOUR;
   let minute = CLINIC_START_MINUTE;
-
-  while (hour < CLINIC_END_HOUR || (hour === CLINIC_END_HOUR && minute === 0)) {
-    slots.push({
-      hour,
-      minute,
-      label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-    });
+  while (
+    hour < CLINIC_MORNING_END_HOUR ||
+    (hour === CLINIC_MORNING_END_HOUR && minute < CLINIC_MORNING_END_MINUTE)
+  ) {
+    slots.push({ hour, minute, label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` });
     minute += CLINIC_SLOT_MINUTES;
-    if (minute >= 60) {
-      minute -= 60;
-      hour += 1;
-    }
+    if (minute >= 60) { minute -= 60; hour += 1; }
+  }
+
+  // Descanso: 12:30 a 16:30
+  slots.push({ hour: 12, minute: 30, label: "12:30", isBreak: true });
+
+  // Tarde: 16:30 a 20:00
+  hour = CLINIC_AFTERNOON_START_HOUR;
+  minute = CLINIC_AFTERNOON_START_MINUTE;
+  while (hour < CLINIC_END_HOUR || (hour === CLINIC_END_HOUR && minute === 0)) {
+    slots.push({ hour, minute, label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` });
+    minute += CLINIC_SLOT_MINUTES;
+    if (minute >= 60) { minute -= 60; hour += 1; }
   }
 
   return slots;

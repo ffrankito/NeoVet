@@ -12,6 +12,7 @@ import {
 } from "@/lib/calendar-utils";
 
 const SLOT_HEIGHT = 56;
+const BREAK_HEIGHT = 32;
 
 type Props = {
   weekStart: Date;
@@ -41,10 +42,14 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
         {slots.map((slot) => (
           <div
             key={slot.label}
-            style={{ height: SLOT_HEIGHT }}
-            className="flex items-start justify-end pr-2 pt-1 border-b border-gray-100"
+            style={{ height: slot.isBreak ? BREAK_HEIGHT : SLOT_HEIGHT }}
+            className={`flex items-start justify-end pr-2 pt-1 border-b ${
+              slot.isBreak ? "border-gray-200 bg-gray-50" : "border-gray-100"
+            }`}
           >
-            <span className="text-xs text-gray-400">{slot.label}</span>
+            {!slot.isBreak && (
+              <span className="text-xs text-gray-400">{slot.label}</span>
+            )}
           </div>
         ))}
       </div>
@@ -55,7 +60,6 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
         const isToday = dayKey === today;
         const dayAppts = appointmentsByDay[dayKey] ?? [];
 
-        // Bloqueos que cubren este día
         const dayBlocks = blocks.filter(
           (b) => b.startDate <= dayKey && b.endDate >= dayKey
         );
@@ -71,7 +75,6 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
             </div>
 
             <div className="relative">
-              {/* Bloqueos */}
               {dayBlocks.map((block) => (
                 <ScheduleBlockCard
                   key={block.id}
@@ -82,8 +85,19 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
                 />
               ))}
 
-              {/* Slots */}
               {slots.map((slot) => {
+                if (slot.isBreak) {
+                  return (
+                    <div
+                      key={`break-${slot.label}`}
+                      style={{ height: BREAK_HEIGHT }}
+                      className="border-b border-gray-200 bg-gray-50 flex items-center justify-center"
+                    >
+                      <span className="text-xs text-gray-400 italic">— descanso —</span>
+                    </div>
+                  );
+                }
+
                 const slotMinutes = toMinutes(slot.hour, slot.minute);
 
                 const apptAtSlot = dayAppts.find((a) => {
