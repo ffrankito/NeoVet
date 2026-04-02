@@ -568,7 +568,7 @@ markdown### H.3 — Suspensión de agenda ✅ Completada
 - [x] Toggle `sendReminders` visible en formulario de turno (UI pendiente)
 ---
 
-### Fase J — Diseño Mobile Responsive 🔲 Pendiente
+### Fase J — Diseño Mobile Responsive ✅ Completada
 
 **Objetivo:** Paula y su equipo pueden usar el CRM desde el celular sin fricción.
 
@@ -790,6 +790,86 @@ El total se calcula: `inicial + ventas del período + ingresos extra - egresos`.
 | Validación: solo una caja abierta a la vez | ✅ |
 | Campo `name` para preparar múltiples cajas a futuro | ✅ |
 | 10 sesiones históricas importadas desde GVet | ✅ |
+
+---
+
+### Fase K — Pet Shop: Inventario y Ventas ✅ Completada
+
+**Objetivo:** La clínica puede gestionar el stock del pet shop, registrar ingresos de proveedores y registrar ventas de productos desde el CRM.
+
+#### K.1 — Schema y migraciones
+
+| Entregable | Estado |
+|---|---|
+| Schema `products`, `providers`, `stock_entries`, `sales`, `sale_items` + migraciones | ✅ |
+| Prefixed ID generators: `prd_`, `prv_`, `ste_`, `sal_`, `sli_` | ✅ |
+
+#### K.2 — Sidebar + Hub
+
+| Entregable | Estado |
+|---|---|
+| Entrada "Pet Shop" en sidebar (admin only) | ✅ |
+| Hub `/dashboard/petshop` con cards: Productos, Proveedores, Ingresos de stock, Ventas | ✅ |
+
+#### K.3 — Proveedores
+
+| Entregable | Estado |
+|---|---|
+| CRUD completo `/dashboard/petshop/providers` (lista, crear, detalle, editar) | ✅ |
+| Desactivar proveedor (baja lógica) | ✅ |
+
+#### K.4 — Productos
+
+| Entregable | Estado |
+|---|---|
+| CRUD completo `/dashboard/petshop/products` (lista, crear, detalle, editar) | ✅ |
+| Badge rojo "Bajo" cuando `currentStock <= minStock` | ✅ |
+| Desactivar producto (baja lógica) | ✅ |
+| 9 categorías con auto-detección en script de importación | ✅ |
+
+#### K.5 — Entradas de stock
+
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/petshop/stock-entries` — historial + crear | ✅ |
+| Al confirmar: `currentStock += quantity` y `costPrice` se actualizan | ✅ |
+
+#### K.6 — Ventas
+
+| Entregable | Estado |
+|---|---|
+| Página `/dashboard/petshop/sales` — historial + crear + detalle | ✅ |
+| Formulario carrito con ítems dinámicos y total en tiempo real | ✅ |
+| Al confirmar: `currentStock -= quantity` por cada ítem | ✅ |
+| Snapshots de precio e IVA en `sale_items` | ✅ |
+
+#### K.7 — Importación y scripts
+
+| Entregable | Estado |
+|---|---|
+| `import-products.ts` con categoría auto-detectada y progress bar | ✅ |
+| `cleanup-imported-visits.ts` para limpieza de visitas | ✅ |
+| `import-turnos-futuros.ts` para turnos de GVet | ✅ |
+| Progress bar en `import-gvet.ts` | ✅ |
+| `pending-gvet-exports.md` con datos pendientes de exportar | ✅ |
+
+---
+
+### Fase K.B — Caja ✅ Completada
+
+**Objetivo:** El admin puede abrir y cerrar sesiones de caja, registrar movimientos y ver el balance diario desglosado por método de pago.
+
+| Entregable | Estado |
+|---|---|
+| Schema `cash_sessions` + `cash_movements` + migración | ✅ |
+| Sidebar "Caja" (admin only) | ✅ |
+| Lista de sesiones con usuario, apertura, cierre, monto | ✅ |
+| Abrir caja: nombre opcional + monto inicial | ✅ |
+| Detalle: resumen, desglose por método de pago, ventas, movimientos | ✅ |
+| Agregar movimiento (ingreso/egreso) con método de pago | ✅ |
+| Cerrar caja: efectivo contado + notas | ✅ |
+| Validación: solo una caja abierta a la vez | ✅ |
+| 10 sesiones históricas importadas | ✅ |
 
 ---
 
