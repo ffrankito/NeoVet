@@ -10,7 +10,7 @@
 | **Start date** | 2026-03-01 |
 | **Target delivery (v1)** | TBD — pending Phase E completion and UAT |
 | **Charter version** | 1.1 |
-| **Last updated** | 2026-03-29 |
+| **Last updated** | 2026-04-02 |
 
 ---
 
@@ -32,21 +32,30 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 
 - Client (owner) CRUD: name, contact info, WhatsApp number
 - Patient (pet) CRUD: name, species, breed, avatar, deceased flag — linked to owner
-- Clinical history: SOAP consultations with vitals, treatment plans, vaccinations, deworming records
-- Document storage per patient (Supabase Storage, signed-URL downloads)
-- Appointment management: create, view, update, cancel, complete; typed as `veterinary` or `grooming`; assignable to a staff member
+- Clinical history: SOAP consultations with vitals, treatment plans (medication, dose, frequency, duration), vaccinations, deworming records
+- Complementary methods: inline reports per consultation (ultrasound, blood work, etc.) with optional photo attachments
+- Document storage per patient (Supabase Storage, signed-URL downloads) with categories (laboratorio, radiografia, ecografia, foto, otro)
+- Appointment management: create, view, update, cancel, complete; typed as `veterinary` or `grooming`; assignable to a staff member; consultation type (clínica / virtual / domicilio)
 - Appointment → consultation flow (complete a visit and register clinical notes inline)
+- Service catalog: configurable list of services with default duration and surgery block time
+- Calendar: weekly view (desktop) / daily view (mobile) with color-coded services, surgery blocks, and staff filter
+- Schedule blocks: professionals can block their own schedule by day(s) or time range; auto-cancels affected appointments
 - Grooming module: per-patient grooming profile (behavior, coat, estimated time); grooming session records (before/after photos, findings, pricing tiers); 3-tier pricing configured by admin
+- Email reminders via Resend + Vercel Cron: appointment 48h/24h before, vaccine 7 days before, post-consultation follow-ups
+- Pet shop: product catalog (9 categories), providers, stock entries, sales with multi-item cart, payment methods; stock auto-updates on entry/sale
+- Cash register: daily open/close sessions, income/expense movements, breakdown by payment method
+- Billing (Phase D — pending build): payment registration, ARCA electronic invoicing (Factura A/B/C), two fiscal entities, billing limit controls
 - Role-based access control: `admin` (full access), `vet` (clinical records only), `groomer` (grooming appointments and sessions only)
-- Staff management UI (admin only): create/edit/delete staff accounts and assign roles
+- Staff management UI (admin only): create/edit/deactivate staff accounts and assign roles
 - Settings page (admin only): configurable grooming base prices per tier
+- Mobile-responsive UI for all main flows
 - Email login for staff (Supabase Auth)
-- One-time data import from Geovet CSV exports (clients, patients, consultations)
+- One-time data import from Geovet CSV exports (clients, patients, consultations, products)
 
 ### Out of scope (v1)
 
 - Public API (no chatbot integration)
-- Automation or notifications (WhatsApp reminders are v2)
+- WhatsApp notifications (v2 — email only in v1)
 - Reporting or analytics
 - Multi-clinic or multi-location support
 - Grooming findings → vet escalation (pending groomer interview — v2)
@@ -54,7 +63,7 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 ### Assumptions
 
 - Paula will provide a Geovet Excel export for data migration testing
-- Staff will access the CRM via desktop browser — no mobile app required in v1
+- Staff will access the CRM via desktop browser and mobile browser — responsive UI, no native app
 - Each staff member is created by an admin — no self-registration
 
 ---
@@ -65,12 +74,18 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 |---|---|---|---|
 | D1 | Staff can log in and manage clients/patients | Franco | ✅ Done |
 | D2 | Appointment calendar with CRUD | Franco | ✅ Done |
-| D3 | Data imported from Geovet export | Franco + Paula | ✅ Done (1,771 clients · 1,380 patients · ~1,300 consultations) |
-| D4 | Clinical history: SOAP consultations + treatment plans | Franco | ✅ Done |
-| D5 | Vaccinations, deworming records, document storage | Franco | ✅ Done |
-| D6 | Role-based access control (admin / vet / groomer) + staff management UI | Franco | 🔄 In progress |
-| D7 | Grooming module: profiles, sessions, photos, findings, pricing tiers | Franco | 🔄 In progress |
-| D8 | Billing / AFIP electronic invoicing | Franco | 🔲 Confirmed in scope — pending build |
+| D3 | Data imported from Geovet export | Franco + Paula | ✅ Done (1,771 clients · 1,380 patients · ~1,300 consultations · ~413 products) |
+| D4 | Clinical history: SOAP consultations + treatment plans + complementary methods | Franco | ✅ Done |
+| D5 | Vaccinations, deworming records, document storage with categories | Franco | ✅ Done |
+| D6 | Role-based access control (admin / vet / groomer) + staff management UI | Franco | ✅ Done |
+| D7 | Grooming module: profiles, sessions, photos, findings, pricing tiers | Franco | ✅ Done |
+| D8 | Service catalog with default durations and surgery blocks | Franco | ✅ Done |
+| D9 | Weekly calendar view with surgery blocks, schedule suspensions, staff filter | Franco | ✅ Done |
+| D10 | Email reminders: appointment 48h/24h, vaccine 7d, post-consultation follow-ups | Franco | ✅ Done (end-to-end verification pending) |
+| D11 | Mobile-responsive UI | Franco | ✅ Done |
+| D12 | Pet shop: products, providers, stock entries, sales | Franco | ✅ Done |
+| D13 | Cash register: sessions, movements, payment method breakdown | Franco | ✅ Done |
+| D14 | Billing: ARCA electronic invoicing (Factura A/B/C), two fiscal entities, limit controls | Franco | 🔲 Pending build |
 
 ---
 
@@ -80,8 +95,15 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 |---|---|---|
 | Discovery | Data model requirements, Geovet export analysis | ✅ Done |
 | Build — Phases A–C | Foundation, CRUD, clinical records, data import | ✅ Done |
-| Build — Phase E | Staff + access control + grooming module | 🔄 In progress |
-| Build — Phase D | Billing + AFIP integration | 🔲 Confirmed — pending Phase E completion |
+| Build — Phase E | Staff + access control + grooming module | ✅ Done |
+| Build — Phase F | Clinical history enhancements (consultation types, treatment fields, complementary methods, document categories) | ✅ Done |
+| Build — Phase G | Service catalog | ✅ Done |
+| Build — Phase H | Calendar view + surgery blocks + schedule suspensions | ✅ Done |
+| Build — Phase I | Email reminders (appointment, vaccine, follow-up) | ✅ Done (e2e verification pending) |
+| Build — Phase J | Mobile-responsive UI | ✅ Done |
+| Build — Phase K | Pet shop (products, providers, stock, sales) | ✅ Done |
+| Build — Phase K.B | Cash register (sessions, movements) | ✅ Done |
+| Build — Phase D | Billing + ARCA integration | 🔲 Pending |
 | QA | Internal testing with real clinic data | 🔄 In progress |
 | UAT | Paula and team acceptance testing | 🔲 Pending |
 | Launch | Deploy to Vercel | 🔲 Pending |
@@ -92,9 +114,9 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| R1 | Geovet export format is inconsistent or incomplete | Medium | Medium | Resolved — export analyzed and imported successfully |
+| R1 | Geovet export format is inconsistent or incomplete | Medium | Medium | ✅ Resolved — export analyzed and imported successfully |
 | R2 | Scope creep into chatbot API integration | Medium | High | Enforce v1 boundary — no public API until v2 |
-| R3 | AFIP billing complexity delays v1 launch | High | High | Paula confirmed billing is required for v1 — scope it carefully, certificate setup must be done early |
+| R3 | ARCA billing complexity delays v1 launch | High | High | Paula confirmed billing is required for v1 — scope it carefully, certificate setup must be done early. Pending ARCA credentials and certificate. |
 | R4 | Grooming findings escalation logic undefined | Medium | Low | Deferred pending groomer interview — checkboxes built, alerting logic is v2 |
 
 ---
@@ -106,3 +128,6 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 - Paula can register a full clinic visit (consultation + SOAP + vitals + treatments + vaccination) in one flow
 - Groomers can register a full grooming session (profile, findings, photos, pricing) independently
 - Each staff role only sees and can do what their role requires — no overpermissioned access
+- Pet shop stock is accurate: entries increase stock, sales decrease stock, low-stock alerts visible
+- Cash register sessions can be opened, movements tracked, and closed with accurate totals
+- Email reminders arrive on time for appointments, vaccines, and follow-ups

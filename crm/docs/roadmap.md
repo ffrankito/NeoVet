@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Project** | NeoVet CRM |
-| **Última actualización** | 2026-03-30 |
+| **Última actualización** | 2026-04-02 |
 
 Este documento describe el plan de largo plazo del CRM en tres versiones. Cada versión tiene su propio plan detallado en `crm/docs/vN/development-plan.md`.
 
@@ -28,14 +28,16 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Área | Qué se construye |
 |---|---|
 | Clientes y pacientes | CRUD completo, avatar, flag de fallecido |
-| Turnos | Creación, confirmación, cancelación, asignación de profesional; tipos veterinario / peluquería |
-| Historia clínica | Consultas SOAP + signos vitales + plan de tratamiento + vacunas + desparasitaciones + documentos + métodos complementarios |
+| Turnos | Creación, confirmación, cancelación, asignación de profesional; tipos veterinario / peluquería; modalidad (clínica / virtual / domicilio) |
+| Historia clínica | Consultas SOAP + signos vitales + plan de tratamiento (con dosis, frecuencia, duración) + vacunas + desparasitaciones + documentos (con categorías) + métodos complementarios |
 | Peluquería | Perfil de peluquería por paciente, registro de sesiones con fotos y hallazgos, precios por nivel de dificultad |
 | Facturación | Registro de pagos, facturación electrónica ARCA (Factura A/B/C), dos entidades fiscales, control de límites por entidad |
 | Catálogo de servicios | Tabla de servicios con duración predeterminada y bloqueo por cirugía |
-| Calendario semanal | Vista semanal con slots libres y bloqueos de cirugía |
+| Calendario semanal | Vista semanal con slots libres, bloqueos de cirugía y suspensión de agenda por profesional |
 | Recordatorios por email | Turno 48h/24h antes, vacunas 7 días antes, seguimiento post-consulta — vía Resend + Vercel Cron |
 | Staff y accesos | Roles admin / veterinario / peluquero, gestión de staff por admin, `createdBy` en registros clave |
+| Pet shop | Catálogo de productos (9 categorías), proveedores, entradas de stock, ventas con carrito multi-ítem y métodos de pago |
+| Caja | Apertura/cierre de sesiones de caja, movimientos (ingresos/egresos), desglose por método de pago |
 | Diseño mobile | UI responsive para uso desde celular |
 | Migración de datos | Importación one-time desde exportaciones CSV de GVet |
 
