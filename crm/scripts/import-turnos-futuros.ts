@@ -264,15 +264,15 @@ async function main() {
     }
 
     await db.insert(appointments).values({
-      id: createId("apt"),
-      patientId,
-      appointmentType,
-      assignedStaffId: staffId,
-      scheduledAt,
-      durationMinutes: 30,
-      reason: apt.reason || `${apt.type} — ${apt.patientName}`,
-      status: "confirmed",
-      sendReminders: true,
+    id: createId("apt"),
+    patientId,
+    appointmentType: appointmentType as "veterinary" | "grooming",
+    assignedStaffId: staffId,
+    scheduledAt,
+    durationMinutes: 30,
+   reason: apt.reason || `${apt.type} — ${apt.patientName}`,
+   status: "confirmed",
+   sendReminders: true,
     });
 
     inserted++;
