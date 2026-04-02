@@ -1,4 +1,6 @@
-import { db } from "@/db";
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { botBusinessContext } from "@/db/schema";
 
 const contextId = (key: string) => `bbc_${key.replace(/[^a-z0-9]/g, "_")}`;
@@ -91,6 +93,7 @@ const INITIAL_CONTEXT = [
 ];
 
 async function seed() {
+  const { db } = await import("@/db");
   console.log("Seeding bot_business_context...");
 
   for (const item of INITIAL_CONTEXT) {
