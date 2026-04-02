@@ -92,6 +92,7 @@ export default async function ClientDetailPage({ params }: Props) {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Especie</TableHead>
                   <TableHead>Raza</TableHead>
+                  <TableHead>Castrado/a</TableHead>
                   <TableHead>Nacimiento</TableHead>
                 </TableRow>
               </TableHeader>
@@ -113,6 +114,7 @@ export default async function ClientDetailPage({ params }: Props) {
                     </TableCell>
                     <TableCell className="capitalize">{patient.species}</TableCell>
                     <TableCell>{patient.breed ?? "—"}</TableCell>
+                    <TableCell>{patient.neutered ? "Sí" : patient.neutered === false ? "No" : "—"}</TableCell>
                     <TableCell>
                       {patient.dateOfBirth
                         ? new Date(patient.dateOfBirth).toLocaleDateString("es-AR")

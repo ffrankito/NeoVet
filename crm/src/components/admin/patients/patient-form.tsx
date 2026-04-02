@@ -194,6 +194,17 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
           )}
         </div>
 
+        <div className="flex items-center gap-2">
+          <input
+            id="neutered-create"
+            type="checkbox"
+            name="neutered"
+            value="true"
+            className="size-4 rounded border-gray-300"
+          />
+          <Label htmlFor="neutered-create">Castrado/a</Label>
+        </div>
+
         <div className="flex gap-3">
           <Button type="submit" disabled={isPending}>
             {isPending ? "Creando..." : "Registrar mascota"}
@@ -300,6 +311,19 @@ export function PatientForm({ patient, clientId }: PatientFormProps) {
         {fileError && (
           <p className="text-sm text-destructive mt-1">{fileError}</p>
         )}
+      </div>
+
+      {/* Neutered toggle */}
+      <div className="flex items-center gap-2">
+        <input
+          id="neutered"
+          type="checkbox"
+          name="neutered"
+          value="true"
+          defaultChecked={patient.neutered ?? false}
+          className="size-4 rounded border-gray-300"
+        />
+        <Label htmlFor="neutered">Castrado/a</Label>
       </div>
 
       {/* Deceased toggle */}

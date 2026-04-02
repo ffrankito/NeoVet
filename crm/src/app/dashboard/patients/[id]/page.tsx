@@ -172,6 +172,10 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
               </p>
             </div>
             <div>
+              <p className="text-sm font-medium text-muted-foreground">Castrado/a</p>
+              <p className="mt-1">{patient.neutered ? "Sí" : patient.neutered === false ? "No" : "—"}</p>
+            </div>
+            <div>
               <p className="text-sm font-medium text-muted-foreground">Turnos</p>
               <p className="mt-1">{patient.appointments.length}</p>
             </div>

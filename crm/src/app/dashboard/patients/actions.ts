@@ -123,6 +123,7 @@ export async function createPatient(formData: FormData) {
       species: parsed.data.species,
       breed: parsed.data.breed || null,
       dateOfBirth: parsed.data.dateOfBirth || null,
+      neutered: formData.get("neutered") === "true",
     });
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
@@ -153,6 +154,7 @@ export async function updatePatient(
   };
 
   const deceased = formData.get("deceased") === "true";
+  const neutered = formData.get("neutered") === "true";
 
   const parsed = patientSchema.safeParse(raw);
   if (!parsed.success) {
@@ -176,6 +178,7 @@ export async function updatePatient(
         breed: parsed.data.breed || null,
         dateOfBirth: parsed.data.dateOfBirth || null,
         deceased,
+        neutered,
         ...(avatarUrl !== undefined ? { avatarUrl } : {}),
         updatedAt: new Date(),
       })

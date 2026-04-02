@@ -80,20 +80,6 @@
       "breakpoints": true
     },
     {
-      "idx": 11,
-      "version": "7",
-      "when": 1774817126206,
-      "tag": "0010_milky_komodo",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "7",
-      "when": 1774834210999,
-      "tag": "0011_wealthy_steel_serpent",
-      "breakpoints": true
-    },
-    {
       "idx": 13,
       "version": "7",
       "when": 1774835324182,
@@ -112,6 +98,27 @@
       "version": "7",
       "when": 1774923383159,
       "tag": "0015_wakeful_thing",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1775005186666,
+      "tag": "0016_flimsy_venus",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1775065730803,
+      "tag": "0017_giant_scream",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1775072893647,
+      "tag": "0018_tough_the_fallen",
       "breakpoints": true
     }
   ]
