@@ -1,6 +1,5 @@
 "use client";
 
-// DESPUÉS
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, CalendarDays, BanIcon } from "lucide-react";
@@ -11,6 +10,7 @@ import { BlockCalendarModal } from "./BlockCalendarModal";
 import { StaffFilter } from "./StaffFilter";
 import { CalendarAppointment } from "./AppointmentCard";
 import { ScheduleBlock } from "@/db/schema";
+import type { Feriado } from "@/lib/feriados";
 import {
   getWeekStart,
   getWeekDays,
@@ -22,9 +22,10 @@ type StaffOption = { id: string; name: string };
 
 type Props = {
   staffList: StaffOption[];
+  feriados: Feriado[];
 };
 
-export function CalendarClient({ staffList }: Props) {
+export function CalendarClient({ staffList, feriados }: Props) {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
@@ -44,14 +45,14 @@ export function CalendarClient({ staffList }: Props) {
   const weekStart = getWeekStart(currentDate);
   const weekDays = getWeekDays(weekStart);
 
-const fromDate = useMemo(
-  () => isMobile ? formatDateKey(currentDate) : formatDateKey(weekStart),
-  [isMobile, currentDate, weekStart]
-);
-const toDate = useMemo(
-  () => isMobile ? formatDateKey(currentDate) : formatDateKey(weekDays[6]),
-  [isMobile, currentDate, weekDays]
-);
+  const fromDate = useMemo(
+    () => isMobile ? formatDateKey(currentDate) : formatDateKey(weekStart),
+    [isMobile, currentDate, weekStart]
+  );
+  const toDate = useMemo(
+    () => isMobile ? formatDateKey(currentDate) : formatDateKey(weekDays[6]),
+    [isMobile, currentDate, weekDays]
+  );
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -170,6 +171,10 @@ const toDate = useMemo(
           <span className="w-3 h-3 rounded-full bg-gray-300" />
           Bloqueado
         </span>
+        <span className="flex items-center gap-1 text-xs text-gray-600">
+          <span className="w-3 h-3 rounded-full bg-amber-200" />
+          Feriado
+        </span>
       </div>
 
       {/* Calendario */}
@@ -184,6 +189,7 @@ const toDate = useMemo(
             date={currentDate}
             appointments={appointments}
             blocks={blocks}
+            feriados={feriados}
             onAppointmentClick={setSelectedAppointment}
             onDeleteBlock={handleDeleteBlock}
           />
@@ -192,6 +198,7 @@ const toDate = useMemo(
             weekStart={weekStart}
             appointments={appointments}
             blocks={blocks}
+            feriados={feriados}
             onAppointmentClick={setSelectedAppointment}
             onDeleteBlock={handleDeleteBlock}
           />

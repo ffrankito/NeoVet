@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { appointments, scheduleBlocks, settings, services } from "@/db/schema";
 import { and, eq, gte, lte, ne } from "drizzle-orm";
 import { verifyBotApiKey } from "@/lib/bot-auth";
+import { getFeriados, isFeriado } from "@/lib/feriados";
 
 // Horarios por defecto si no están en settings
 const DEFAULT_HOURS = {
@@ -26,12 +27,10 @@ function generateSlots(startTime: string, endTime: string, durationMinutes: numb
   const slots: string[] = [];
   let current = timeToMinutes(startTime);
   const end = timeToMinutes(endTime);
-
   while (current + durationMinutes <= end) {
     slots.push(minutesToTime(current));
     current += durationMinutes;
   }
-
   return slots;
 }
 
@@ -40,7 +39,7 @@ export async function GET(req: NextRequest) {
   if (authError) return authError;
 
   const { searchParams } = new URL(req.url);
-  const date = searchParams.get("date"); // YYYY-MM-DD
+  const date = searchParams.get("date");
   const serviceId = searchParams.get("serviceId");
   const days = parseInt(searchParams.get("days") ?? "7");
 
@@ -48,14 +47,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Parámetro date requerido" }, { status: 400 });
   }
 
-  // Obtener duración del servicio
+  // Duración del servicio
   let durationMinutes = 30;
   if (serviceId) {
     const [service] = await db.select().from(services).where(eq(services.id, serviceId)).limit(1);
     if (service) durationMinutes = service.defaultDurationMinutes;
   }
 
-  // Obtener settings de horarios
+  // Settings de horarios
   const allSettings = await db.select().from(settings);
   const getSetting = (key: string) => allSettings.find((s) => s.key === key)?.value;
 
@@ -66,20 +65,28 @@ export async function GET(req: NextRequest) {
   const holidayStart = getSetting("clinic_hours_holiday_start") ?? DEFAULT_HOURS.holiday.start;
   const holidayEnd = getSetting("clinic_hours_holiday_end") ?? DEFAULT_HOURS.holiday.end;
 
+  // Obtener feriados del año
+  const year = new Date(date).getFullYear();
+  const feriados = await getFeriados(year);
+
   const availability: Record<string, string[]> = {};
 
   for (let i = 0; i < days; i++) {
     const d = new Date(date + "T00:00:00.000Z");
     d.setDate(d.getDate() + i);
     const dateStr = d.toISOString().split("T")[0];
-    const dayOfWeek = d.getUTCDay(); // 0 = domingo
+    const dayOfWeek = d.getUTCDay();
 
     // Domingos no hay turnos
     if (dayOfWeek === 0) continue;
 
-    // Generar slots según día
+    // Generar slots según día y si es feriado
     let slots: string[] = [];
-    if (dayOfWeek === 6) {
+
+    if (isFeriado(dateStr, feriados)) {
+      // Feriado — horario reducido solo mañana
+      slots = generateSlots(holidayStart, holidayEnd, durationMinutes);
+    } else if (dayOfWeek === 6) {
       // Sábado — solo mañana
       slots = generateSlots(weekdayStart, weekdayMorningEnd, durationMinutes);
     } else {
@@ -90,7 +97,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // Obtener turnos confirmados del día
+    // Turnos confirmados del día
     const fromDate = new Date(`${dateStr}T00:00:00.000Z`);
     const toDate = new Date(`${dateStr}T23:59:59.999Z`);
 
@@ -105,7 +112,7 @@ export async function GET(req: NextRequest) {
         )
       );
 
-    // Obtener bloqueos del día
+    // Bloqueos del día
     const dayBlocks = await db
       .select()
       .from(scheduleBlocks)
@@ -116,16 +123,15 @@ export async function GET(req: NextRequest) {
         )
       );
 
-    // Si hay bloqueo de día completo, saltear el día
+    // Bloqueo de día completo
     const fullDayBlock = dayBlocks.some((b) => !b.startTime || !b.endTime);
     if (fullDayBlock) continue;
 
-    // Filtrar slots ocupados por turnos
+    // Filtrar slots ocupados
     const availableSlots = slots.filter((slot) => {
       const slotMinutes = timeToMinutes(slot);
       const slotEnd = slotMinutes + durationMinutes;
 
-      // Verificar conflicto con turnos existentes
       const hasConflict = bookedAppointments.some((appt) => {
         const apptDate = new Date(appt.scheduledAt);
         const apptMinutes = apptDate.getUTCHours() * 60 + apptDate.getUTCMinutes();
@@ -135,7 +141,6 @@ export async function GET(req: NextRequest) {
 
       if (hasConflict) return false;
 
-      // Verificar conflicto con bloqueos parciales
       const hasBlockConflict = dayBlocks.some((block) => {
         if (!block.startTime || !block.endTime) return false;
         const blockStart = timeToMinutes(block.startTime);

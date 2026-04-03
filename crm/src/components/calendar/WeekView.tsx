@@ -3,6 +3,8 @@
 import { CalendarAppointment, AppointmentCard } from "./AppointmentCard";
 import { ScheduleBlockCard } from "./ScheduleBlock";
 import { ScheduleBlock } from "@/db/schema";
+import type { Feriado } from "@/lib/feriados";
+import { isFeriado } from "@/lib/feriados";
 import {
   generateDaySlots,
   getWeekDays,
@@ -18,11 +20,12 @@ type Props = {
   weekStart: Date;
   appointments: CalendarAppointment[];
   blocks: ScheduleBlock[];
+  feriados: Feriado[];
   onAppointmentClick: (appointment: CalendarAppointment) => void;
   onDeleteBlock: (id: string) => void;
 };
 
-export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, onDeleteBlock }: Props) {
+export function WeekView({ weekStart, appointments, blocks, feriados, onAppointmentClick, onDeleteBlock }: Props) {
   const days = getWeekDays(weekStart);
   const slots = generateDaySlots();
   const today = formatDateKey(new Date());
@@ -58,6 +61,11 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
       {days.map((day) => {
         const dayKey = formatDateKey(day);
         const isToday = dayKey === today;
+        const esFeriado = isFeriado(dayKey, feriados);
+        const feriadoInfo = feriados.find((f) => {
+          const d = new Date(dayKey + "T00:00:00");
+          return f.dia === d.getDate() && f.mes === d.getMonth() + 1;
+        });
         const dayAppts = appointmentsByDay[dayKey] ?? [];
 
         const dayBlocks = blocks.filter(
@@ -67,11 +75,20 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
         return (
           <div key={dayKey} className="flex-1 min-w-[100px] border-r border-gray-200 last:border-r-0">
             <div
-              className={`h-10 flex items-center justify-center border-b border-gray-200 text-xs font-medium sticky top-0 z-10 ${
-                isToday ? "bg-blue-50 text-blue-700" : "bg-white text-gray-600"
+              className={`h-10 flex flex-col items-center justify-center border-b border-gray-200 sticky top-0 z-10 ${
+                isToday
+                  ? "bg-blue-50 text-blue-700"
+                  : esFeriado
+                  ? "bg-amber-50 text-amber-700"
+                  : "bg-white text-gray-600"
               }`}
             >
-              {formatDayHeader(day)}
+              <span className="text-xs font-medium">{formatDayHeader(day)}</span>
+              {esFeriado && (
+                <span className="text-[10px] truncate max-w-[90px] px-1 text-amber-600">
+                  {feriadoInfo?.motivo ?? "Feriado"}
+                </span>
+              )}
             </div>
 
             <div className="relative">
@@ -118,7 +135,7 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
                     <div
                       key={slot.label}
                       style={{ height: SLOT_HEIGHT }}
-                      className="border-b border-gray-100"
+                      className={`border-b border-gray-100 ${esFeriado ? "bg-amber-50/30" : ""}`}
                     />
                   );
                 }
@@ -127,7 +144,7 @@ export function WeekView({ weekStart, appointments, blocks, onAppointmentClick, 
                   <div
                     key={slot.label}
                     style={{ height: SLOT_HEIGHT }}
-                    className="relative border-b border-gray-100"
+                    className={`relative border-b border-gray-100 ${esFeriado ? "bg-amber-50/30" : ""}`}
                   >
                     {apptAtSlot && (
                       <AppointmentCard
