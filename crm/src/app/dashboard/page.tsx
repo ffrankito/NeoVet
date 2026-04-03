@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/db";
-import { clients, patients, appointments } from "@/db/schema";
+import { clients, patients, appointments, staff } from "@/db/schema";
 import { eq, sql, asc, and, gte, lt, ne } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { DashboardActions } from "@/components/admin/dashboard-actions";
@@ -28,6 +28,13 @@ async function DashboardContent() {
   const todayEnd = new Date();
   todayEnd.setHours(23, 59, 59, 999);
 
+  const todayLabel = new Date().toLocaleDateString("es-AR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   const [clientCountResult, patientCountResult, todayCountResult, todayAppointments] =
     await Promise.all([
       db.select({ count: sql<number>`count(*)` }).from(clients),
@@ -52,10 +59,12 @@ async function DashboardContent() {
           patientName: patients.name,
           clientName: clients.name,
           clientId: clients.id,
+          assignedStaffName: staff.name,
         })
         .from(appointments)
         .innerJoin(patients, eq(appointments.patientId, patients.id))
         .innerJoin(clients, eq(patients.clientId, clients.id))
+        .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
         .where(
           and(
             gte(appointments.scheduledAt, todayStart),
@@ -74,9 +83,7 @@ async function DashboardContent() {
       {/* Page title */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Panel de control</h1>
-        <p className="text-muted-foreground">
-          Bienvenido al sistema de gestión de NeoVet.
-        </p>
+        <p className="text-muted-foreground capitalize">{todayLabel}</p>
       </div>
 
       {/* Summary cards */}
@@ -113,7 +120,7 @@ async function DashboardContent() {
                   })}
                 </span>
 
-                {/* Patient + owner */}
+                {/* Patient + owner + staff */}
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/dashboard/appointments/${apt.id}`}
@@ -129,6 +136,9 @@ async function DashboardContent() {
                       {apt.clientName}
                     </Link>
                     {apt.reason ? ` — ${apt.reason}` : ""}
+                    {apt.assignedStaffName ? (
+                      <span className="ml-2 text-xs text-primary-600">· {apt.assignedStaffName}</span>
+                    ) : null}
                   </p>
                 </div>
 
