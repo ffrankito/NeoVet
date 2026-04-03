@@ -2,6 +2,7 @@
 
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 
 export function ChatWidget() {
   const { messages, input, setInput, append, status } = useChat({
@@ -61,7 +62,25 @@ export function ChatWidget() {
                   : "bg-zinc-100 text-zinc-800 rounded-bl-sm"
               }`}
             >
-              {message.content}
+              {message.role === "user" ? (
+                message.content
+              ) : (
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                    strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                    ul: ({ children }) => <ul className="list-disc pl-4 space-y-0.5">{children}</ul>,
+                    li: ({ children }) => <li>{children}</li>,
+                    a: ({ href, children }) => (
+                      <a href={href} target="_blank" rel="noopener noreferrer" className="underline">
+                        {children}
+                      </a>
+                    ),
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
+              )}
             </div>
           </div>
         ))}
