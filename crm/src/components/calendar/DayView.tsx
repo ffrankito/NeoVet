@@ -27,10 +27,7 @@ export function DayView({ date, appointments, blocks, feriados, onAppointmentCli
   const slots = generateDaySlots();
   const dayKey = formatDateKey(date);
   const esFeriado = isFeriado(dayKey, feriados);
-  const feriadoInfo = feriados.find((f) => {
-    const d = new Date(dayKey + "T00:00:00");
-    return f.dia === d.getDate() && f.mes === d.getMonth() + 1;
-  });
+  const feriadoInfo = feriados.find((f) => f.fecha === dayKey);
 
   const dayBlocks = blocks.filter(
     (b) => b.startDate <= dayKey && b.endDate >= dayKey
@@ -40,7 +37,7 @@ export function DayView({ date, appointments, blocks, feriados, onAppointmentCli
     <div className="flex flex-col">
       {esFeriado && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-sm text-amber-700 font-medium">
-          🗓 Feriado: {feriadoInfo?.motivo ?? "Feriado nacional"} — Horario reducido 10:00 a 13:00 hs
+          🗓 Feriado: {feriadoInfo?.nombre ?? "Feriado nacional"} — Horario reducido 10:00 a 13:00 hs
         </div>
       )}
       <div className="flex">

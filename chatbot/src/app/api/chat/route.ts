@@ -13,12 +13,12 @@ async function getFeriadoHoy(): Promise<string | null> {
     const year = new Date().getFullYear();
     const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${year}`);
     if (!res.ok) return null;
-    const feriados: { dia: number; mes: number; motivo: string }[] = await res.json();
-    const hoy = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
-    const feriado = feriados.find(
-      (f) => f.dia === hoy.getDate() && f.mes === hoy.getMonth() + 1
-    );
-    return feriado?.motivo ?? null;
+    const feriados: { fecha: string; nombre: string }[] = await res.json();
+    const hoy = new Date().toLocaleDateString("en-CA", {
+      timeZone: "America/Argentina/Buenos_Aires",
+    });
+    const feriado = feriados.find((f) => f.fecha === hoy);
+    return feriado?.nombre ?? null;
   } catch {
     return null;
   }

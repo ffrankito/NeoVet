@@ -39,7 +39,6 @@ export function WeekView({ weekStart, appointments, blocks, feriados, onAppointm
 
   return (
     <div className="flex overflow-x-auto">
-      {/* Columna de horas */}
       <div className="flex-shrink-0 w-16 border-r border-gray-200">
         <div className="h-10 border-b border-gray-200" />
         {slots.map((slot) => (
@@ -57,15 +56,11 @@ export function WeekView({ weekStart, appointments, blocks, feriados, onAppointm
         ))}
       </div>
 
-      {/* Columnas por día */}
       {days.map((day) => {
         const dayKey = formatDateKey(day);
         const isToday = dayKey === today;
         const esFeriado = isFeriado(dayKey, feriados);
-        const feriadoInfo = feriados.find((f) => {
-          const d = new Date(dayKey + "T00:00:00");
-          return f.dia === d.getDate() && f.mes === d.getMonth() + 1;
-        });
+        const feriadoInfo = feriados.find((f) => f.fecha === dayKey);
         const dayAppts = appointmentsByDay[dayKey] ?? [];
 
         const dayBlocks = blocks.filter(
@@ -86,7 +81,7 @@ export function WeekView({ weekStart, appointments, blocks, feriados, onAppointm
               <span className="text-xs font-medium">{formatDayHeader(day)}</span>
               {esFeriado && (
                 <span className="text-[10px] truncate max-w-[90px] px-1 text-amber-600">
-                  {feriadoInfo?.motivo ?? "Feriado"}
+                  {feriadoInfo?.nombre ?? "Feriado"}
                 </span>
               )}
             </div>
