@@ -8,6 +8,22 @@ const anthropic = createAnthropic({
 
 export const maxDuration = 30;
 
+async function getFeriadoHoy(): Promise<string | null> {
+  try {
+    const year = new Date().getFullYear();
+    const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${year}`);
+    if (!res.ok) return null;
+    const feriados: { dia: number; mes: number; motivo: string }[] = await res.json();
+    const hoy = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+    const feriado = feriados.find(
+      (f) => f.dia === hoy.getDate() && f.mes === hoy.getMonth() + 1
+    );
+    return feriado?.motivo ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
@@ -19,7 +35,13 @@ export async function POST(req: Request) {
     timeZone: "America/Argentina/Buenos_Aires",
   });
 
-  const systemWithDate = `${SYSTEM_PROMPT}\n\n## Fecha actual\n\nHoy es ${today}.`;
+  const feriadoHoy = await getFeriadoHoy();
+
+  const feriadoNote = feriadoHoy
+    ? `\n\n## Atención — hoy es feriado\n\nHoy es feriado nacional: **${feriadoHoy}**. El horario de atención es de 10:00 a 13:00 hs.`
+    : "";
+
+  const systemWithDate = `${SYSTEM_PROMPT}\n\n## Fecha actual\n\nHoy es ${today}.${feriadoNote}`;
 
   const result = streamText({
     model: anthropic("claude-sonnet-4-6"),
