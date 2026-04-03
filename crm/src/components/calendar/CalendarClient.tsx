@@ -20,7 +20,7 @@ import {
 
 type StaffOption = { id: string; name: string };
 
-// DESPUÉS
+
 type Props = {
   staffList: StaffOption[];
   feriados: Feriado[];

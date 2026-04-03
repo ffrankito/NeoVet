@@ -3,16 +3,12 @@ import { db } from "@/db";
 import { settings } from "@/db/schema";
 
 const INITIAL_SETTINGS = [
-  // Horarios semana
   { key: "clinic_hours_weekday_morning_start", value: "09:30" },
   { key: "clinic_hours_weekday_morning_end", value: "12:30" },
   { key: "clinic_hours_weekday_afternoon_start", value: "16:30" },
   { key: "clinic_hours_weekday_afternoon_end", value: "20:00" },
-
-  // Horarios feriados por tipo
-  { key: "clinic_hours_holiday_inamovible", value: "10:00-13:00" },
-  { key: "clinic_hours_holiday_trasladable", value: "10:00-13:00" },
-  { key: "clinic_hours_holiday_puente", value: "cerrado" },
+  { key: "clinic_hours_holiday_start", value: "10:00" },
+  { key: "clinic_hours_holiday_end", value: "13:00" },
 ];
 
 export async function POST(req: NextRequest) {
