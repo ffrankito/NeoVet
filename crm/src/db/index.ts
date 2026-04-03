@@ -12,10 +12,10 @@ if (connectionString) {
   console.log("DB password length:", parsed.password.length);
 }
 
-const requireSsl = connectionString?.includes("sslmode=require");
-const client = postgres(connectionString, {
-  ...(requireSsl ? { ssl: "require" } : {}),
-  max: 1,
-});
+const globalForDb = globalThis as unknown as { db: ReturnType<typeof drizzle> };
 
-export const db = drizzle(client, { schema });
+const client = postgres(connectionString, { ssl: "require", max: 1 });
+
+export const db = globalForDb.db ?? drizzle(client, { schema });
+
+if (process.env.NODE_ENV !== "production") globalForDb.db = db;
