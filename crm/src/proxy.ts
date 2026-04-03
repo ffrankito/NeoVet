@@ -21,7 +21,8 @@ export async function proxy(request: NextRequest) {
   // Excluir rutas de cron y bot de la autenticación
   if (
     request.nextUrl.pathname.startsWith("/api/cron/") ||
-    request.nextUrl.pathname.startsWith("/api/bot/")
+    request.nextUrl.pathname.startsWith("/api/bot/") ||
+    request.nextUrl.pathname.startsWith("/api/admin/")
   ) {
     return NextResponse.next();
   }
