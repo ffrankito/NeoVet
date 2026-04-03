@@ -19,11 +19,12 @@ type Props = {
   appointments: CalendarAppointment[];
   blocks: ScheduleBlock[];
   feriados: Feriado[];
+  holidayHours: string;
   onAppointmentClick: (appointment: CalendarAppointment) => void;
   onDeleteBlock: (id: string) => void;
 };
 
-export function DayView({ date, appointments, blocks, feriados, onAppointmentClick, onDeleteBlock }: Props) {
+export function DayView({ date, appointments, blocks, feriados, holidayHours, onAppointmentClick, onDeleteBlock }: Props) {
   const slots = generateDaySlots();
   const dayKey = formatDateKey(date);
   const esFeriado = isFeriado(dayKey, feriados);
@@ -37,7 +38,7 @@ export function DayView({ date, appointments, blocks, feriados, onAppointmentCli
     <div className="flex flex-col">
       {esFeriado && (
         <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-sm text-amber-700 font-medium">
-          🗓 Feriado: {feriadoInfo?.nombre ?? "Feriado nacional"} — Horario reducido 10:00 a 13:00 hs
+          🗓 Feriado: {feriadoInfo?.nombre ?? "Feriado nacional"} — Horario reducido {holidayHours}
         </div>
       )}
       <div className="flex">

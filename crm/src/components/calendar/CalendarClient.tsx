@@ -20,12 +20,14 @@ import {
 
 type StaffOption = { id: string; name: string };
 
+// DESPUÉS
 type Props = {
   staffList: StaffOption[];
   feriados: Feriado[];
+  holidayHours: string;
 };
 
-export function CalendarClient({ staffList, feriados }: Props) {
+export function CalendarClient({ staffList, feriados, holidayHours }: Props) {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
@@ -190,9 +192,10 @@ export function CalendarClient({ staffList, feriados }: Props) {
             appointments={appointments}
             blocks={blocks}
             feriados={feriados}
+            holidayHours={holidayHours}
             onAppointmentClick={setSelectedAppointment}
             onDeleteBlock={handleDeleteBlock}
-          />
+            />
         ) : (
           <WeekView
             weekStart={weekStart}
