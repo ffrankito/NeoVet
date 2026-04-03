@@ -1,0 +1,34 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { settings } from "@/db/schema";
+
+const INITIAL_SETTINGS = [
+  // Horarios semana
+  { key: "clinic_hours_weekday_morning_start", value: "09:30" },
+  { key: "clinic_hours_weekday_morning_end", value: "12:30" },
+  { key: "clinic_hours_weekday_afternoon_start", value: "16:30" },
+  { key: "clinic_hours_weekday_afternoon_end", value: "20:00" },
+
+  // Horarios feriados por tipo
+  { key: "clinic_hours_holiday_inamovible", value: "10:00-13:00" },
+  { key: "clinic_hours_holiday_trasladable", value: "10:00-13:00" },
+  { key: "clinic_hours_holiday_puente", value: "cerrado" },
+];
+
+export async function POST(req: NextRequest) {
+  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  let inserted = 0;
+  for (const setting of INITIAL_SETTINGS) {
+    await db
+      .insert(settings)
+      .values({ key: setting.key, value: setting.value })
+      .onConflictDoNothing();
+    inserted++;
+  }
+
+  return NextResponse.json({ ok: true, inserted });
+}
