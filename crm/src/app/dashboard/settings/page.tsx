@@ -2,12 +2,11 @@ import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { GroomingPricesForm } from "@/components/admin/settings/grooming-prices-form";
-
-const PRICE_KEYS = ["grooming_price_min", "grooming_price_mid", "grooming_price_hard"] as const;
+import { ClinicHoursForm } from "@/components/admin/settings/clinic-hours-form";
 
 export default async function SettingsPage() {
   const rows = await db.select().from(settings);
-  const priceMap = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  const s = Object.fromEntries(rows.map((r) => [r.key, r.value]));
 
   return (
     <div className="space-y-10">
@@ -16,7 +15,6 @@ export default async function SettingsPage() {
         <p className="text-muted-foreground">Ajustes generales del sistema.</p>
       </div>
 
-      {/* Staff management link */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -30,33 +28,51 @@ export default async function SettingsPage() {
       </section>
 
       <div className="border-t" />
-  {/* Catálogo de servicios */}
+
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold">Catálogo de servicios</h2>
-            <p className="text-sm text-muted-foreground">
-              Servicios disponibles para agendar turnos.
-            </p>
+            <p className="text-sm text-muted-foreground">Servicios disponibles para agendar turnos.</p>
           </div>
           <a href="/dashboard/settings/services" className={buttonVariants({ variant: "outline" })}>
             Gestionar servicios →
           </a>
         </div>
       </section>
-      
-      {/* Grooming prices */}
+
+      <div className="border-t" />
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Horarios de atención</h2>
+          <p className="text-sm text-muted-foreground">
+            Configurá los horarios de la clínica. Se usan en la agenda y en el bot.
+          </p>
+        </div>
+        <ClinicHoursForm
+          weekdayMorningStart={s["clinic_hours_weekday_morning_start"] ?? "09:30"}
+          weekdayMorningEnd={s["clinic_hours_weekday_morning_end"] ?? "12:30"}
+          weekdayAfternoonStart={s["clinic_hours_weekday_afternoon_start"] ?? "16:30"}
+          weekdayAfternoonEnd={s["clinic_hours_weekday_afternoon_end"] ?? "20:00"}
+          holidayStart={s["clinic_hours_holiday_start"] ?? "10:00"}
+          holidayEnd={s["clinic_hours_holiday_end"] ?? "13:00"}
+        />
+      </section>
+
+      <div className="border-t" />
+
       <section className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold">Precios de peluquería</h2>
           <p className="text-sm text-muted-foreground">
-            Precio base por nivel de dificultad. El peluquero puede ajustar el precio final por sesión.
+            Precio base por nivel de dificultad.
           </p>
         </div>
         <GroomingPricesForm
-          min={priceMap["grooming_price_min"] ?? ""}
-          mid={priceMap["grooming_price_mid"] ?? ""}
-          hard={priceMap["grooming_price_hard"] ?? ""}
+          min={s["grooming_price_min"] ?? ""}
+          mid={s["grooming_price_mid"] ?? ""}
+          hard={s["grooming_price_hard"] ?? ""}
         />
       </section>
     </div>
