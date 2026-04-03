@@ -11,6 +11,7 @@ import { StaffFilter } from "./StaffFilter";
 import { CalendarAppointment } from "./AppointmentCard";
 import { ScheduleBlock } from "@/db/schema";
 import type { Feriado } from "@/lib/feriados";
+import type { ClinicHours } from "@/lib/calendar-utils";
 import {
   getWeekStart,
   getWeekDays,
@@ -20,14 +21,14 @@ import {
 
 type StaffOption = { id: string; name: string };
 
-
 type Props = {
   staffList: StaffOption[];
   feriados: Feriado[];
+  clinicHours: ClinicHours;
   holidayHours: string;
 };
 
-export function CalendarClient({ staffList, feriados, holidayHours }: Props) {
+export function CalendarClient({ staffList, feriados, clinicHours, holidayHours }: Props) {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [isMobile, setIsMobile] = useState(false);
   const [appointments, setAppointments] = useState<CalendarAppointment[]>([]);
@@ -120,7 +121,6 @@ export function CalendarClient({ staffList, feriados, holidayHours }: Props) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Toolbar */}
       <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={goToPrev}>
@@ -153,7 +153,6 @@ export function CalendarClient({ staffList, feriados, holidayHours }: Props) {
         </div>
       </div>
 
-      {/* Leyenda de colores */}
       <div className="flex flex-wrap gap-2 mb-3">
         {[
           { label: "Consulta",     color: "bg-blue-200"   },
@@ -179,7 +178,6 @@ export function CalendarClient({ staffList, feriados, holidayHours }: Props) {
         </span>
       </div>
 
-      {/* Calendario */}
       <div className="flex-1 overflow-auto border border-gray-200 rounded-lg bg-white">
         {loading ? (
           <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">
@@ -192,16 +190,18 @@ export function CalendarClient({ staffList, feriados, holidayHours }: Props) {
             appointments={appointments}
             blocks={blocks}
             feriados={feriados}
+            clinicHours={clinicHours}
             holidayHours={holidayHours}
             onAppointmentClick={setSelectedAppointment}
             onDeleteBlock={handleDeleteBlock}
-            />
+          />
         ) : (
           <WeekView
             weekStart={weekStart}
             appointments={appointments}
             blocks={blocks}
             feriados={feriados}
+            clinicHours={clinicHours}
             onAppointmentClick={setSelectedAppointment}
             onDeleteBlock={handleDeleteBlock}
           />

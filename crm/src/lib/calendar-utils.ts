@@ -1,46 +1,55 @@
-// src/lib/calendar-utils.ts
-
-export const CLINIC_START_HOUR = 9;
-export const CLINIC_START_MINUTE = 30;
-export const CLINIC_END_HOUR = 20;
 export const CLINIC_SLOT_MINUTES = 30;
-
-// Bloques horarios de la clínica
-export const CLINIC_MORNING_END_HOUR = 12;
-export const CLINIC_MORNING_END_MINUTE = 30;
-export const CLINIC_AFTERNOON_START_HOUR = 16;
-export const CLINIC_AFTERNOON_START_MINUTE = 30;
 
 export type TimeSlot = {
   hour: number;
   minute: number;
   label: string;
-  isBreak?: boolean; // true = slot de descanso visual, no disponible
+  isBreak?: boolean;
 };
 
+export type ClinicHours = {
+  morningStart: string;  // "09:30"
+  morningEnd: string;    // "12:30"
+  afternoonStart: string; // "16:30"
+  afternoonEnd: string;   // "20:00"
+};
+
+function parseTime(time: string): { hour: number; minute: number } {
+  const [h, m] = time.split(":").map(Number);
+  return { hour: h, minute: m };
+}
+
 /** Genera todos los slots del día con el corte del mediodía */
-export function generateDaySlots(): TimeSlot[] {
+export function generateDaySlots(hours: ClinicHours): TimeSlot[] {
   const slots: TimeSlot[] = [];
 
-  // Mañana: 9:30 a 12:30
-  let hour = CLINIC_START_HOUR;
-  let minute = CLINIC_START_MINUTE;
+  const morningStart = parseTime(hours.morningStart);
+  const morningEnd = parseTime(hours.morningEnd);
+  const afternoonStart = parseTime(hours.afternoonStart);
+  const afternoonEnd = parseTime(hours.afternoonEnd);
+
+  // Mañana
+  let hour = morningStart.hour;
+  let minute = morningStart.minute;
   while (
-    hour < CLINIC_MORNING_END_HOUR ||
-    (hour === CLINIC_MORNING_END_HOUR && minute < CLINIC_MORNING_END_MINUTE)
+    hour < morningEnd.hour ||
+    (hour === morningEnd.hour && minute < morningEnd.minute)
   ) {
     slots.push({ hour, minute, label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` });
     minute += CLINIC_SLOT_MINUTES;
     if (minute >= 60) { minute -= 60; hour += 1; }
   }
 
-  // Descanso: 12:30 a 16:30
-  slots.push({ hour: 12, minute: 30, label: "12:30", isBreak: true });
+  // Descanso
+  slots.push({ hour: morningEnd.hour, minute: morningEnd.minute, label: hours.morningEnd, isBreak: true });
 
-  // Tarde: 16:30 a 20:00
-  hour = CLINIC_AFTERNOON_START_HOUR;
-  minute = CLINIC_AFTERNOON_START_MINUTE;
-  while (hour < CLINIC_END_HOUR || (hour === CLINIC_END_HOUR && minute === 0)) {
+  // Tarde
+  hour = afternoonStart.hour;
+  minute = afternoonStart.minute;
+  while (
+    hour < afternoonEnd.hour ||
+    (hour === afternoonEnd.hour && minute === 0)
+  ) {
     slots.push({ hour, minute, label: `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}` });
     minute += CLINIC_SLOT_MINUTES;
     if (minute >= 60) { minute -= 60; hour += 1; }
@@ -52,8 +61,8 @@ export function generateDaySlots(): TimeSlot[] {
 /** Retorna el lunes de la semana que contiene la fecha dada */
 export function getWeekStart(date: Date): Date {
   const d = new Date(date);
-  const day = d.getDay(); // 0 = domingo
-  const diff = day === 0 ? -6 : 1 - day; // ajuste para que empiece en lunes
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;
@@ -89,8 +98,6 @@ export function formatDateKey(date: Date): string {
 export function toMinutes(hour: number, minute: number): number {
   return hour * 60 + minute;
 }
-
-// ─── Colores por categoría de servicio ───────────────────────────────────────
 
 export type ServiceCategory =
   | "cirugia"

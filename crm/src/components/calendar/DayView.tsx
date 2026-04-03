@@ -5,6 +5,7 @@ import { ScheduleBlockCard } from "./ScheduleBlock";
 import { ScheduleBlock } from "@/db/schema";
 import type { Feriado } from "@/lib/feriados";
 import { isFeriado } from "@/lib/feriados";
+import type { ClinicHours } from "@/lib/calendar-utils";
 import {
   generateDaySlots,
   toMinutes,
@@ -19,13 +20,14 @@ type Props = {
   appointments: CalendarAppointment[];
   blocks: ScheduleBlock[];
   feriados: Feriado[];
+  clinicHours: ClinicHours;
   holidayHours: string;
   onAppointmentClick: (appointment: CalendarAppointment) => void;
   onDeleteBlock: (id: string) => void;
 };
 
-export function DayView({ date, appointments, blocks, feriados, holidayHours, onAppointmentClick, onDeleteBlock }: Props) {
-  const slots = generateDaySlots();
+export function DayView({ date, appointments, blocks, feriados, clinicHours, holidayHours, onAppointmentClick, onDeleteBlock }: Props) {
+  const slots = generateDaySlots(clinicHours);
   const dayKey = formatDateKey(date);
   const esFeriado = isFeriado(dayKey, feriados);
   const feriadoInfo = feriados.find((f) => f.fecha === dayKey);
