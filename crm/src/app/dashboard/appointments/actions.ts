@@ -7,6 +7,7 @@ import { appointments, patients, clients, consultations, staff } from "@/db/sche
 import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
+import { parseDateTimeAsART, dateToStartART, dateToEndART } from "@/lib/timezone";
 
 const appointmentSchema = z.object({
   patientId: z.string().min(1, "El paciente es obligatorio."),
@@ -67,11 +68,11 @@ export async function getAppointments(opts?: {
   }
 
   if (opts?.from) {
-    conditions.push(gte(appointments.scheduledAt, new Date(opts.from)));
+    conditions.push(gte(appointments.scheduledAt, dateToStartART(opts.from)));
   }
 
   if (opts?.to) {
-    conditions.push(lte(appointments.scheduledAt, new Date(opts.to)));
+    conditions.push(lte(appointments.scheduledAt, dateToEndART(opts.to)));
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -220,7 +221,7 @@ export async function createAppointment(formData: FormData) {
     await db.insert(appointments).values({
       id: createdId,
       patientId: parsed.data.patientId,
-      scheduledAt: new Date(parsed.data.scheduledAt),
+      scheduledAt: parseDateTimeAsART(parsed.data.scheduledAt),
       durationMinutes: parsed.data.durationMinutes,
       reason,
       staffNotes,
@@ -286,7 +287,7 @@ export async function updateAppointment(id: string, formData: FormData) {
     await db
       .update(appointments)
       .set({
-        scheduledAt: new Date(parsed.data.scheduledAt),
+        scheduledAt: parseDateTimeAsART(parsed.data.scheduledAt),
         durationMinutes: parsed.data.durationMinutes,
         appointmentType: parsed.data.appointmentType,
         consultationType: parsed.data.consultationType ?? null,
@@ -368,4 +369,100 @@ export async function getAllClientsForSelect() {
     .select({ id: clients.id, name: clients.name })
     .from(clients)
     .orderBy(clients.name);
+}
+
+// --- Inline client + patient creation (reusable for chatbot v2) ---
+
+const inlineClientSchema = z.object({
+  clientName: z.string().min(1, "El nombre del cliente es obligatorio."),
+  clientPhone: z.string().min(1, "El teléfono es obligatorio."),
+  clientEmail: z.string().email("El email no es válido.").optional().or(z.literal("")),
+  patientName: z.string().min(1, "El nombre de la mascota es obligatorio."),
+  patientSpecies: z.string().min(1, "La especie es obligatoria."),
+  patientBreed: z.string().optional().or(z.literal("")),
+  patientSex: z.enum(["macho", "hembra"], { message: "El sexo es obligatorio." }),
+});
+
+export type InlineClientData = z.infer<typeof inlineClientSchema>;
+
+/**
+ * Creates a client and patient in a single operation.
+ * Designed to be reusable from the chatbot API in v2.
+ *
+ * @returns { clientId, patientId } on success, or { error } / { errors } on failure
+ */
+export async function createClientAndPatient(data: InlineClientData) {
+  const parsed = inlineClientSchema.safeParse(data);
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const { clientId: genClientId, patientId: genPatientId } = await import("@/lib/ids");
+
+  const newClientId = genClientId();
+  const newPatientId = genPatientId();
+
+  try {
+    await db.insert(clients).values({
+      id: newClientId,
+      name: parsed.data.clientName,
+      phone: parsed.data.clientPhone,
+      email: parsed.data.clientEmail || null,
+    });
+
+    await db.insert(patients).values({
+      id: newPatientId,
+      clientId: newClientId,
+      name: parsed.data.patientName,
+      species: parsed.data.patientSpecies,
+      breed: parsed.data.patientBreed || null,
+      sex: parsed.data.patientSex,
+    });
+  } catch {
+    return { error: "Error al crear el cliente y paciente." };
+  }
+
+  revalidatePath("/dashboard/clients");
+  revalidatePath("/dashboard/patients");
+
+  return { clientId: newClientId, patientId: newPatientId };
+}
+
+const inlinePatientSchema = z.object({
+  clientId: z.string().min(1),
+  patientName: z.string().min(1, "El nombre de la mascota es obligatorio."),
+  patientSpecies: z.string().min(1, "La especie es obligatoria."),
+  patientBreed: z.string().optional().or(z.literal("")),
+  patientSex: z.enum(["macho", "hembra"], { message: "El sexo es obligatorio." }),
+});
+
+export type InlinePatientData = z.infer<typeof inlinePatientSchema>;
+
+/**
+ * Creates a patient for an existing client.
+ */
+export async function createPatientInline(data: InlinePatientData) {
+  const parsed = inlinePatientSchema.safeParse(data);
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const { patientId: genPatientId } = await import("@/lib/ids");
+  const newPatientId = genPatientId();
+
+  try {
+    await db.insert(patients).values({
+      id: newPatientId,
+      clientId: parsed.data.clientId,
+      name: parsed.data.patientName,
+      species: parsed.data.patientSpecies,
+      breed: parsed.data.patientBreed || null,
+      sex: parsed.data.patientSex,
+    });
+  } catch {
+    return { error: "Error al crear el paciente." };
+  }
+
+  revalidatePath("/dashboard/patients");
+  return { patientId: newPatientId };
 }

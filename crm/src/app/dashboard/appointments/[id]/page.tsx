@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAppointment, updateAppointmentStatus, getAllStaffForSelect } from "../actions";
 import { getRole } from "@/lib/auth";
+import { formatART } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Separator } from "@/components/ui/separator";
@@ -48,7 +49,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
 
   if (!apt) notFound();
 
-  const isAdmin = role === "admin";
+  const isAdmin = role === "admin" || role === "owner";
   const allStaff = isAdmin ? await getAllStaffForSelect() : [];
 
   const nextStatuses: Record<string, { value: string; label: string }[]> = {
@@ -69,7 +70,7 @@ const actions = nextStatuses[apt.status] ?? [];
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
             Turno —{" "}
-            {new Date(apt.scheduledAt).toLocaleString("es-AR", {
+            {formatART(apt.scheduledAt, {
               dateStyle: "long",
               timeStyle: "short",
             })}
@@ -147,6 +148,7 @@ const actions = nextStatuses[apt.status] ?? [];
               appointmentId={id}
               currentStaffId={apt.assignedStaffId ?? null}
               currentStaffName={apt.assignedStaffName ?? null}
+              appointmentType={apt.appointmentType}
               allStaff={allStaff}
             />
           ) : (

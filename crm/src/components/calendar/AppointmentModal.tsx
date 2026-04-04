@@ -31,11 +31,12 @@ export function AppointmentModal({ appointment, onClose, onCancelled }: Props) {
   const colors = getServiceColors(appointment.serviceCategory);
 
   const scheduledAt = new Date(appointment.scheduledAt);
+  const tz = "America/Argentina/Buenos_Aires";
   const dateStr = scheduledAt.toLocaleDateString("es-AR", {
-    weekday: "long", day: "numeric", month: "long",
+    weekday: "long", day: "numeric", month: "long", timeZone: tz,
   });
   const timeStr = scheduledAt.toLocaleTimeString("es-AR", {
-    hour: "2-digit", minute: "2-digit",
+    hour: "2-digit", minute: "2-digit", timeZone: tz,
   });
 
   async function handleCancel() {

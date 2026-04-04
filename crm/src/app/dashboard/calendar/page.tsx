@@ -14,11 +14,16 @@ export default async function CalendarPage() {
 
   const year = new Date().getFullYear();
 
-  const [staffList, feriados, allSettings] = await Promise.all([
-    db.select({ id: staff.id, name: staff.name }).from(staff).where(eq(staff.isActive, true)),
+  const [allActiveStaff, feriados, allSettings] = await Promise.all([
+    db.select({ id: staff.id, name: staff.name, role: staff.role }).from(staff).where(eq(staff.isActive, true)),
     getFeriados(year),
     db.select().from(settings),
   ]);
+
+  // Only show assignable roles in the staff filter (exclude admin/receptionist)
+  const staffList = allActiveStaff
+    .filter((s) => ["vet", "owner", "groomer"].includes(s.role))
+    .map(({ id, name }) => ({ id, name }));
 
   const getSetting = (key: string, fallback: string) =>
     allSettings.find((s) => s.key === key)?.value ?? fallback;

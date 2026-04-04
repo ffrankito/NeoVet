@@ -19,6 +19,7 @@ export function VaccineReminderEmail({
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: "America/Argentina/Buenos_Aires",
   });
 
   return (

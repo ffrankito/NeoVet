@@ -65,7 +65,7 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
     .limit(1);
 
   const hasGroomingHistory = !!groomingAptCheck;
-  const showGrooming = hasGroomingHistory && (role === "admin" || role === "groomer");
+  const showGrooming = hasGroomingHistory && (role === "admin" || role === "owner" || role === "groomer");
 
   const [patient, consultationHistory, vaccinationHistory, dewormingHistory, documentHistory] =
     await Promise.all([
@@ -219,6 +219,7 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
                             className="text-primary hover:underline"
                           >
                             {new Date(apt.scheduledAt).toLocaleString("es-AR", {
+                              timeZone: "America/Argentina/Buenos_Aires",
                               dateStyle: "short",
                               timeStyle: "short",
                             })}
@@ -315,7 +316,7 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
           patientId={id}
           profile={groomingProfile}
           sessions={groomingSessions}
-          canEdit={role === "admin" || role === "groomer"}
+          canEdit={role === "admin" || role === "owner" || role === "groomer"}
         />
       )}
 

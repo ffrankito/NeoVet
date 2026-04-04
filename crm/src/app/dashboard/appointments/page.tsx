@@ -14,6 +14,7 @@ const subtitleByRole: Record<string, string> = {
   vet: "Turnos veterinarios",
   groomer: "Turnos de peluquería",
   admin: "Gestión de turnos",
+  owner: "Gestión de turnos",
 };
 
 export default async function AppointmentsPage({ searchParams }: Props) {
@@ -34,7 +35,7 @@ export default async function AppointmentsPage({ searchParams }: Props) {
     page,
   });
 
-  const isAdmin = role === "admin";
+  const isAdmin = role === "admin" || role === "owner";
 
   return (
     <div className="space-y-6">

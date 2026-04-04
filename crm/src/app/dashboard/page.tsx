@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/db";
 import { clients, patients, appointments, staff } from "@/db/schema";
 import { eq, sql, asc, and, gte, lt, ne } from "drizzle-orm";
+import { todayStartART, todayEndART, formatDateART, formatTimeART } from "@/lib/timezone";
 import { Badge } from "@/components/ui/badge";
 import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
@@ -23,12 +24,10 @@ const statusVariants: Record<string, "default" | "secondary" | "outline" | "dest
 };
 
 async function DashboardContent() {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date();
-  todayEnd.setHours(23, 59, 59, 999);
+  const todayStart = todayStartART();
+  const todayEnd = todayEndART();
 
-  const todayLabel = new Date().toLocaleDateString("es-AR", {
+  const todayLabel = formatDateART(new Date(), {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -113,7 +112,7 @@ async function DashboardContent() {
               >
                 {/* Time */}
                 <span className="w-14 shrink-0 text-sm font-mono font-medium text-muted-foreground">
-                  {new Date(apt.scheduledAt).toLocaleTimeString("es-AR", {
+                  {formatTimeART(apt.scheduledAt, {
                     hour: "2-digit",
                     minute: "2-digit",
                     hour12: false,

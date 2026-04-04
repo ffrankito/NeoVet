@@ -98,6 +98,7 @@ export function StaffForm({ member }: Props) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="admin" label="Admin">Admin — acceso completo</SelectItem>
+            <SelectItem value="owner" label="Dueña / Veterinaria">Dueña / Veterinaria — todo excepto peluquería</SelectItem>
             <SelectItem value="vet" label="Veterinario/a">Veterinario/a — historia clínica</SelectItem>
             <SelectItem value="groomer" label="Peluquero/a">Peluquero/a — peluquería</SelectItem>
           </SelectContent>

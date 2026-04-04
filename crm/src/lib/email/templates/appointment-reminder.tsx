@@ -17,15 +17,18 @@ export function AppointmentReminderEmail({
   clinicAddress,
   hoursBeforeLabel,
 }: Props) {
+  const tz = "America/Argentina/Buenos_Aires";
   const dateStr = scheduledAt.toLocaleDateString("es-AR", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
+    timeZone: tz,
   });
   const timeStr = scheduledAt.toLocaleTimeString("es-AR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: tz,
   });
 
   return (

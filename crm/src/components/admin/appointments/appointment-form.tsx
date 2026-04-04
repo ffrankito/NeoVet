@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
@@ -14,9 +14,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createAppointment, updateAppointment } from "@/app/dashboard/appointments/actions";
+import { createAppointment, updateAppointment, createClientAndPatient, createPatientInline } from "@/app/dashboard/appointments/actions";
 import type { Service } from "@/db/schema";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+
+const NEW_CLIENT_VALUE = "__new__";
+const NEW_PATIENT_VALUE = "__new__";
 
 type FieldErrors = {
   patientId?: string;
@@ -83,9 +86,20 @@ interface AppointmentFormProps {
 }
 
 function formatDateTimeLocal(date: Date): string {
+  const tz = "America/Argentina/Buenos_Aires";
   const d = new Date(date);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
 }
 
 export function AppointmentForm({
@@ -123,11 +137,47 @@ export function AppointmentForm({
     appointment?.sendReminders ?? true
   );
 
-  const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
+  // Inline creation state
+  const isNewClient = selectedClient === NEW_CLIENT_VALUE;
+  const isNewPatient = selectedPatient === NEW_PATIENT_VALUE;
+  const [newClientName, setNewClientName] = useState("");
+  const [newClientPhone, setNewClientPhone] = useState("");
+  const [newClientEmail, setNewClientEmail] = useState("");
+  const [newPatientName, setNewPatientName] = useState("");
+  const [newPatientSpecies, setNewPatientSpecies] = useState("perro");
+  const [newPatientBreed, setNewPatientBreed] = useState("");
+  const [newPatientSex, setNewPatientSex] = useState("macho");
+  const [inlineErrors, setInlineErrors] = useState<Record<string, string>>({});
+
+  const filteredPatients = isNewClient
+    ? []
+    : patients.filter((p) => p.clientId === selectedClient);
+
+  const clientOptions = [
+    { value: NEW_CLIENT_VALUE, label: "+ Nuevo cliente" },
+    ...clients.map((c) => ({ value: c.id, label: c.name })),
+  ];
 
   function handleClientChange(clientId: string) {
     setSelectedClient(clientId);
     setSelectedPatient("");
+    setInlineErrors({});
+    if (clientId !== NEW_CLIENT_VALUE) {
+      setNewClientName("");
+      setNewClientPhone("");
+      setNewClientEmail("");
+    }
+  }
+
+  function handlePatientChange(patientId: string) {
+    setSelectedPatient(patientId);
+    setInlineErrors({});
+    if (patientId !== NEW_PATIENT_VALUE) {
+      setNewPatientName("");
+      setNewPatientSpecies("perro");
+      setNewPatientBreed("");
+      setNewPatientSex("macho");
+    }
   }
 
   function handleServiceChange(serviceId: string) {
@@ -154,7 +204,56 @@ export function AppointmentForm({
         return updateAppointment(appointment.id, formData);
       }
     : async (_prev: ActionResult, formData: FormData) => {
-        formData.set("patientId", selectedPatient);
+        setInlineErrors({});
+
+        let patientId = selectedPatient;
+
+        // Case 1: New client + new patient
+        if (isNewClient) {
+          const result = await createClientAndPatient({
+            clientName: newClientName,
+            clientPhone: newClientPhone,
+            clientEmail: newClientEmail,
+            patientName: newPatientName,
+            patientSpecies: newPatientSpecies,
+            patientBreed: newPatientBreed,
+            patientSex: newPatientSex as "macho" | "hembra",
+          });
+
+          if ("errors" in result && result.errors) {
+            const flat: Record<string, string> = {};
+            for (const [key, msgs] of Object.entries(result.errors)) {
+              if (Array.isArray(msgs) && msgs[0]) flat[key] = msgs[0];
+            }
+            setInlineErrors(flat);
+            return { error: "Completá los datos del nuevo cliente/paciente." };
+          }
+          if ("error" in result && result.error) return { error: result.error };
+          if ("patientId" in result && result.patientId) patientId = result.patientId;
+        }
+        // Case 2: Existing client + new patient
+        else if (isNewPatient) {
+          const result = await createPatientInline({
+            clientId: selectedClient,
+            patientName: newPatientName,
+            patientSpecies: newPatientSpecies,
+            patientBreed: newPatientBreed,
+            patientSex: newPatientSex as "macho" | "hembra",
+          });
+
+          if ("errors" in result && result.errors) {
+            const flat: Record<string, string> = {};
+            for (const [key, msgs] of Object.entries(result.errors)) {
+              if (Array.isArray(msgs) && msgs[0]) flat[key] = msgs[0];
+            }
+            setInlineErrors(flat);
+            return { error: "Completá los datos de la nueva mascota." };
+          }
+          if ("error" in result && result.error) return { error: result.error };
+          if ("patientId" in result && result.patientId) patientId = result.patientId;
+        }
+
+        formData.set("patientId", patientId);
         formData.set("appointmentType", appointmentType);
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
@@ -167,6 +266,9 @@ export function AppointmentForm({
   const errors = getFieldErrors(result);
   const globalError = getGlobalError(result);
 
+  // Whether to show inline patient creation fields
+  const showNewPatientFields = isNewClient || isNewPatient;
+
   return (
     <form action={dispatch} className="max-w-lg space-y-6">
       {globalError && (
@@ -177,10 +279,11 @@ export function AppointmentForm({
 
       {!isEdit && (
         <>
+          {/* Client selection */}
           <div className="space-y-2">
             <Label>Cliente *</Label>
             <SearchableSelect
-              options={clients.map((c) => ({ value: c.id, label: c.name }))}
+              options={clientOptions}
               value={selectedClient}
               onChange={handleClientChange}
               placeholder="Seleccioná un cliente"
@@ -189,25 +292,78 @@ export function AppointmentForm({
             />
           </div>
 
-          {selectedClient !== "" && (
+          {/* Inline new client fields */}
+          {isNewClient && (
+            <div className="space-y-4 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
+              <p className="text-sm font-medium text-primary">Nuevo cliente</p>
+              <div className="space-y-2">
+                <Label htmlFor="newClientName">Nombre completo *</Label>
+                <Input
+                  id="newClientName"
+                  value={newClientName}
+                  onChange={(e) => setNewClientName(e.target.value)}
+                  placeholder="Nombre del dueño"
+                  aria-invalid={!!inlineErrors.clientName}
+                />
+                {inlineErrors.clientName && <p className="text-sm text-destructive">{inlineErrors.clientName}</p>}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="newClientPhone">Teléfono *</Label>
+                  <Input
+                    id="newClientPhone"
+                    type="tel"
+                    value={newClientPhone}
+                    onChange={(e) => setNewClientPhone(e.target.value)}
+                    placeholder="341 310-1194"
+                    aria-invalid={!!inlineErrors.clientPhone}
+                  />
+                  {inlineErrors.clientPhone && <p className="text-sm text-destructive">{inlineErrors.clientPhone}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newClientEmail">Email <span className="text-xs text-muted-foreground">(opcional)</span></Label>
+                  <Input
+                    id="newClientEmail"
+                    type="email"
+                    value={newClientEmail}
+                    onChange={(e) => setNewClientEmail(e.target.value)}
+                    placeholder="email@ejemplo.com"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Patient selection — only for existing clients */}
+          {selectedClient !== "" && !isNewClient && (
             <div className="space-y-2">
               <Label>Paciente *</Label>
               {filteredPatients.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Este cliente no tiene pacientes.{" "}
-                  <Link href="/dashboard/patients/new" className="underline">
-                    Creá uno primero.
-                  </Link>
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Este cliente no tiene pacientes.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePatientChange(NEW_PATIENT_VALUE)}
+                  >
+                    + Nueva mascota
+                  </Button>
+                </div>
               ) : (
                 <SearchableSelect
-                  options={filteredPatients.map((p) => ({
-                    value: p.id,
-                    label: p.name,
-                    sublabel: p.species,
-                  }))}
+                  options={[
+                    { value: NEW_PATIENT_VALUE, label: "+ Nueva mascota" },
+                    ...filteredPatients.map((p) => ({
+                      value: p.id,
+                      label: p.name,
+                      sublabel: p.species,
+                    })),
+                  ]}
                   value={selectedPatient}
-                  onChange={setSelectedPatient}
+                  onChange={handlePatientChange}
                   placeholder="Seleccioná un paciente"
                   searchPlaceholder="Buscar paciente..."
                   emptyMessage="No se encontró ningún paciente."
@@ -216,6 +372,62 @@ export function AppointmentForm({
               {errors.patientId && (
                 <p className="mt-1 text-sm text-destructive">{errors.patientId}</p>
               )}
+            </div>
+          )}
+
+          {/* Inline new patient fields */}
+          {showNewPatientFields && (
+            <div className="space-y-4 rounded-lg border border-dashed border-primary/30 bg-primary/5 p-4">
+              <p className="text-sm font-medium text-primary">Nueva mascota</p>
+              <div className="space-y-2">
+                <Label htmlFor="newPatientName">Nombre *</Label>
+                <Input
+                  id="newPatientName"
+                  value={newPatientName}
+                  onChange={(e) => setNewPatientName(e.target.value)}
+                  placeholder="Nombre de la mascota"
+                  aria-invalid={!!inlineErrors.patientName}
+                />
+                {inlineErrors.patientName && <p className="text-sm text-destructive">{inlineErrors.patientName}</p>}
+              </div>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Especie *</Label>
+                  <Select value={newPatientSpecies} onValueChange={(v) => v && setNewPatientSpecies(v)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="perro" label="Perro">Perro</SelectItem>
+                      <SelectItem value="gato" label="Gato">Gato</SelectItem>
+                      <SelectItem value="otro" label="Otro">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {inlineErrors.patientSpecies && <p className="text-sm text-destructive">{inlineErrors.patientSpecies}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newPatientBreed">Raza</Label>
+                  <Input
+                    id="newPatientBreed"
+                    value={newPatientBreed}
+                    onChange={(e) => setNewPatientBreed(e.target.value)}
+                    placeholder="Bulldog, etc."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Sexo *</Label>
+                  <Select value={newPatientSex} onValueChange={(v) => v && setNewPatientSex(v)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="macho" label="Macho">Macho</SelectItem>
+                      <SelectItem value="hembra" label="Hembra">Hembra</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {inlineErrors.patientSex && <p className="text-sm text-destructive">{inlineErrors.patientSex}</p>}
+                </div>
+              </div>
             </div>
           )}
         </>

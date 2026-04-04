@@ -27,9 +27,9 @@ export function StaffFilter({ staffList, selectedStaffId, onChange }: Props) {
         <SelectValue placeholder="Todos los profesionales" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">Todos los profesionales</SelectItem>
+        <SelectItem value="all" label="Todos los profesionales">Todos los profesionales</SelectItem>
         {staffList.map((s) => (
-          <SelectItem key={s.id} value={s.id}>
+          <SelectItem key={s.id} value={s.id} label={s.name}>
             {s.name}
           </SelectItem>
         ))}

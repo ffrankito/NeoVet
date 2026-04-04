@@ -187,6 +187,7 @@ const [consultation, items, methods, fuList] = await Promise.all([
             className="mt-1 text-sm text-primary hover:underline"
           >
             {new Date(consultation.appointment.scheduledAt).toLocaleString("es-AR", {
+              timeZone: "America/Argentina/Buenos_Aires",
               dateStyle: "short",
               timeStyle: "short",
             })}

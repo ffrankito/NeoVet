@@ -8,6 +8,7 @@ import type { Staff } from "@/db/schema";
 
 const roleLabels: Record<string, string> = {
   admin: "Admin",
+  owner: "Dueña / Veterinaria",
   vet: "Veterinario/a",
   groomer: "Peluquero/a",
 };

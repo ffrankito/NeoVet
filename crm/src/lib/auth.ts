@@ -24,6 +24,13 @@ export async function hasRole(...roles: StaffRole[]): Promise<boolean> {
 }
 
 /**
+ * Returns true if the current user has admin-level permissions (admin or owner).
+ */
+export async function isAdminLevel(): Promise<boolean> {
+  return hasRole("admin", "owner");
+}
+
+/**
  * Resolves the staff ID for the currently authenticated user.
  * Returns null if the user is not authenticated or has no staff record.
  */

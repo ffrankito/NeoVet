@@ -171,6 +171,7 @@ export function AppointmentTable({
                     {new Date(apt.scheduledAt).toLocaleString("es-AR", {
                       dateStyle: "short",
                       timeStyle: "short",
+                      timeZone: "America/Argentina/Buenos_Aires",
                     })}
                   </TableCell>
                   <TableCell className="font-medium">

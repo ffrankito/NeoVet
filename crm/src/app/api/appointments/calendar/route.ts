@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { appointments, patients, clients, services, staff } from "@/db/schema";
 import { and, gte, lte, eq, ne } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
+import { dateToStartART, dateToEndART } from "@/lib/timezone";
 
 export async function GET(req: NextRequest) {
   const supabase = await createClient();
@@ -19,8 +20,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Parámetros from/to requeridos" }, { status: 400 });
   }
 
-  const fromDate = new Date(`${from}T00:00:00.000Z`);
-  const toDate = new Date(`${to}T23:59:59.999Z`);
+  const fromDate = dateToStartART(from);
+  const toDate = dateToEndART(to);
 
   const conditions = [
     gte(appointments.scheduledAt, fromDate),

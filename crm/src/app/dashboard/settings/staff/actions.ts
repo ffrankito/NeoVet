@@ -11,13 +11,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const createStaffSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
   email: z.string().email("El email no es válido."),
-  role: z.enum(["admin", "vet", "groomer"], { message: "El rol es inválido." }),
+  role: z.enum(["admin", "owner", "vet", "groomer"], { message: "El rol es inválido." }),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres."),
 });
 
 const updateStaffSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
-  role: z.enum(["admin", "vet", "groomer"], { message: "El rol es inválido." }),
+  role: z.enum(["admin", "owner", "vet", "groomer"], { message: "El rol es inválido." }),
 });
 
 export async function getAllStaff() {
