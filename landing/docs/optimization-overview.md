@@ -27,10 +27,20 @@
 - ✅ `lang="es"`, meta description, viewport
 
 ### Diseño (web-artifacts-builder anti-slop check)
-- ✅ **Sin gradientes violetas** — usamos teal/amber (warm palette)
+- ✅ **Sin gradientes violetas** — usamos teal/rose (warm palette)
 - ✅ **Sin esquinas redondeadas uniformes** — variamos entre `rounded-lg`, `rounded-2xl`, `rounded-full`
-- ✅ **Sin layouts excesivamente centrados** — combinamos grids de 2 y 3 columnas, layouts asimétricos en About y Location
+- ✅ **Sin layouts excesivamente centrados** — combinamos grids de 2, 3 y 4 columnas, layouts asimétricos en About y Location
 - ✅ **DM Sans font** — cambiamos de Inter a DM Sans para evitar el patrón "AI slop"
+
+### Redesign v2 (2026-04-04)
+- ✅ **Hero BakerStreet-style** — full-bleed background image con overlay oscuro, navbar transparente minimalista
+- ✅ **USP Cards** — 4 tarjetas de propuesta de valor debajo del hero (Especialistas, Ecografía, Guardia 24hs, Atención personalizada)
+- ✅ **Contact Form** — formulario estático con escape de urgencia a WhatsApp (no conectado a backend aún)
+- ✅ **Scroll animations** — fade-in con IntersectionObserver, respeta prefers-reduced-motion
+- ✅ **Section reorder** — Reseñas antes de Horarios/Ubicación para mejor conversión
+- ✅ **Mobile compactness** — cards compactos, servicios en 2 columnas, reseñas compactas
+- ✅ **Logo optimizado** — PNG transparente 18KB (era 6.2MB con fondo gris opaco), servido desde public/ sin Astro optimizer
+- ✅ **SVG icons en especialidades** — emojis reemplazados por Heroicons en círculos teal
 
 ---
 
@@ -64,10 +74,8 @@ Consultas Reproductivas y Cirugía General ahora son "featured":
 - Badge "Especialidad", borde teal, fondo tintado, icono y título más grandes
 - El resto mantiene estilo neutro estándar
 
-### 7. Imágenes reales
-**Prioridad: Alta (bloqueado por Phase 4)** | **Fuente: web-artifacts-builder**
-
-El skill advierte contra layouts que parecen AI-generated. Fotos reales de la clínica, mascotas y Paula son clave para humanizar el sitio. Priorizar en Phase 4.
+### ~~7. Imágenes reales~~ ✅ PARCIAL
+Fotos reales de Paula y la clínica integradas en el hero (pau_vete_perro.jpeg) y About (paula_and_vet.jpeg). Quedan pendientes fotos adicionales para galería/variedad (Phase 4).
 
 ---
 
@@ -79,10 +87,15 @@ El skill advierte contra layouts que parecen AI-generated. Fotos reales de la cl
 | OG Images (3 plataformas) | ✅ Placeholder | Regenerar con logo real |
 | Twitter Card | ✅ Completo | — |
 | Meta tags | ✅ Completo | — |
-| Anti-slop design | ✅ Pasa | DM Sans, layouts variados |
+| Anti-slop design | ✅ Pasa | DM Sans, layouts variados, real photos |
+| Redesign v2 | ✅ Completo | Hero, USP cards, contact form, animations |
+| Mobile optimization | ✅ Completo | 2-col grids, compact cards, responsive logo |
+| Logo transparency | ✅ Completo | Gray bg removed, served raw from public/ |
 | PWA Manifest | ✅ Completo | manifest.json + theme-color |
 | Asset validation | ✅ Pasa | Regenerar con assets finales |
-| Fotos reales | ❌ Bloqueado | Necesita entrevista con Paula |
+| Fotos reales | ✅ Parcial | Hero + About con fotos reales, faltan más para variedad |
+| Contact form backend | ❌ Pendiente | Form estático, wire up en v2 (Formspree/Resend) |
+| Google Reviews URL | ❌ Placeholder | Reemplazar con URL real de Google Business |
 
 ---
 

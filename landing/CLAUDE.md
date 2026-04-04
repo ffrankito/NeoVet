@@ -6,7 +6,7 @@
 
 ## What This App Is
 
-Single-page marketing site for the NeoVet clinic. Conversion-focused: Hero, Services, About, Hours, Location, Reviews, Footer — all on one page with anchor navigation. WhatsApp is the primary CTA. No backend.
+Single-page marketing site for the NeoVet clinic. Conversion-focused landing with anchor navigation. WhatsApp is the primary CTA. Chat widget (iframe to chatbot) as secondary. Static contact form (not wired to backend yet) as tertiary. No backend.
 
 ---
 
@@ -35,15 +35,17 @@ This app uses `.astro` files. Routing is file-based under `src/pages/`. Componen
 Single page assembled in `src/pages/index.astro`:
 
 ```
-Base.astro (layout)
+Base.astro (layout — chat widget, scroll animations via IntersectionObserver)
   └── index.astro
-        ├── Navbar.astro      (fixed, anchor links, mobile hamburger)
-        ├── Hero.astro        (#inicio)
-        ├── Services.astro    (#servicios — 2 featured, 5 standard)
-        ├── About.astro       (#nosotros)
-        ├── Hours.astro       (#horarios)
-        ├── Location.astro    (#ubicacion)
-        ├── Reviews.astro     (#resenas)
+        ├── Navbar.astro        (fixed transparent, logo + Servicios + Contactanos)
+        ├── Hero.astro          (#inicio — full-bleed bg image, dark overlay, CTAs)
+        ├── UspCards.astro      (4 value proposition cards, no anchor)
+        ├── Services.astro      (#especialidades — 3 featured; #servicios — 8 standard)
+        ├── About.astro         (#nosotros)
+        ├── Reviews.astro       (#resenas — moved before contact for conversion)
+        ├── ContactForm.astro   (#contacto — static form, urgency escape to WhatsApp)
+        ├── Hours.astro         (#horarios)
+        ├── Location.astro      (#ubicacion)
         └── Footer.astro
 ```
 
@@ -51,31 +53,40 @@ Base.astro (layout)
 
 Defined in `src/styles/global.css` using Tailwind 4 `@theme`:
 - **Primary**: warm teal (`--color-primary-*`) — trust, health
-- **Accent**: warm amber (`--color-accent-*`) — approachable, friendly
+- **Accent**: rose (`--color-accent-*`) — warmth, care
 - **Neutral**: warm gray (`--color-neutral-*`)
 - **WhatsApp**: `--color-whatsapp` / `--color-whatsapp-dark`
 
 ### Assets
 
-- **Favicons** (7 sizes) + **OG images** (3) in `public/` — generated via web-asset-generator, currently placeholders (🐾 emoji + teal text)
+- **Logo**: `public/neovet-logo.png` — served raw (bypasses Astro image optimizer to preserve PNG transparency)
+- **Favicons** (7 sizes) + **OG images** (3) in `public/` — generated via web-asset-generator, currently placeholders
 - **PWA manifest** at `public/manifest.json`
-- **Photos/logo** go in `src/assets/images/` and `src/assets/logo/` (see `src/assets/README.md`)
+- **Photos/logo sources** in `src/assets/images/` and `src/assets/logo/` (see `src/assets/README.md`)
+- **Hero background**: `src/assets/images/hero/mobile/pau_vete_perro.jpeg` — Paula with bulldog patient
 
 ---
 
 ## v1 Scope
 
 - Single-page static landing with anchor navigation
-- No forms that POST to a server
-- No database, no auth, no JavaScript-heavy interactions
-- Astro's zero-JS-by-default is intentional — do not add client-side JS unless strictly necessary
+- Contact form is static HTML — does NOT submit anywhere yet (v2 will wire to Formspree or Resend)
+- Chat widget is an iframe to `neo-vet-widget.vercel.app` (the chatbot app)
+- No database, no auth
+- Minimal JS: scroll animations (IntersectionObserver), chat widget toggle, contact form urgency escape
 - WhatsApp CTAs link to `https://api.whatsapp.com/send/?phone=543413101194`
+
+### CTA Hierarchy (do not violate)
+
+1. **WhatsApp** (green) — primary, for immediate contact. Always most prominent.
+2. **Contact form** (teal) — secondary, for async reach-out. Never styled to compete with WhatsApp.
+3. **Chat widget** (teal, bottom-right) — tertiary, passive discovery. No call-to-action pointing to it.
 
 ---
 
 ## Current Status
 
-**Phases 0–3 complete.** All sections built with placeholder content. Optimizations applied (DM Sans, PWA manifest, featured service cards, asset validation).
+**Redesign v2 complete (2026-04-04).** BakerStreet-inspired hero, USP cards, contact form, scroll animations, mobile-optimized layouts. Deployed to production.
 
 **Phase 4 (content swap) is BLOCKED** on the Paula interview. See `docs/paula-interview-checklist.md` for all gaps.
 
@@ -83,7 +94,9 @@ When Phase 4 starts:
 1. Drop assets in `src/assets/` (see `src/assets/README.md`)
 2. Replace placeholder text in components (search for `<!-- PLACEHOLDER:`)
 3. Regenerate favicons/OG images with real logo via web-asset-generator
-4. Validate and deploy
+4. Replace Google Reviews placeholder URL in `Reviews.astro`
+5. Wire contact form to a backend (Formspree, Resend, or WhatsApp deep link)
+6. Validate and deploy
 
 ---
 

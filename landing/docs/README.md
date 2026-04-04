@@ -9,6 +9,8 @@ The landing site is intentionally simple. Documentation is minimal.
 | `paula-interview-checklist.md` | All content gaps to resolve with Paula before Phase 4 (in Spanish) |
 | `optimization-overview.md` | Asset audit + design optimization status (skills applied) |
 | `architecture/` | ADRs — significant technical decisions (add as needed) |
+| `superpowers/specs/` | Design specs (redesign v2, etc.) |
+| `superpowers/plans/` | Implementation plans |
 
 ## Related
 
