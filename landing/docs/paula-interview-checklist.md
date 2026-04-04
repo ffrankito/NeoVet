@@ -24,6 +24,14 @@
 - [ ] **Nombre de la clínica** — ¿Sigue siendo "NeoVet — Centro Reproductivo Canino Veterinario" o cambió?
 - [ ] **Apellido correcto** — "Silveyra" (sitio viejo) vs "Silveira" (docs internos) — ¿cuál es el correcto?
 
+## 📌 Decisiones técnicas (necesitan input de Paula)
+
+- [ ] **Formulario de contacto — destino de los envíos** — El formulario de contacto está armado pero no envía a ningún lado. Opciones para decidir:
+  - **Opción A: Email (Resend)** — Los envíos llegan como email a la casilla de la clínica. Requiere agregar una función serverless en Vercel. Ya usamos Resend en el CRM.
+  - **Opción B: Formspree** — Servicio externo gratuito (50 envíos/mes) que reenvía a email. Cero código backend, se implementa en 5 minutos.
+  - **Opción C: WhatsApp** — El formulario arma un mensaje de WhatsApp con los datos y lo abre. El usuario tiene que enviar manualmente. Sin dependencias externas.
+  - **Pregunta para Paula:** ¿Prefiere recibir las consultas por email, por WhatsApp, o ambos? ¿Cuántas consultas estima por mes?
+
 ## 📌 Importantes (se pueden publicar con placeholders)
 
 - [ ] **Logo** — ¿Tienen un archivo de logo? ¿En qué formato? (SVG es lo ideal)
