@@ -2,11 +2,13 @@
 import Base from "../layouts/Base.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
+import UspCards from "../components/UspCards.astro";
 import Services from "../components/Services.astro";
 import About from "../components/About.astro";
+import Reviews from "../components/Reviews.astro";
+import ContactForm from "../components/ContactForm.astro";
 import Hours from "../components/Hours.astro";
 import Location from "../components/Location.astro";
-import Reviews from "../components/Reviews.astro";
 import Footer from "../components/Footer.astro";
 ---
 
@@ -14,11 +16,13 @@ import Footer from "../components/Footer.astro";
   <Navbar />
   <main>
     <Hero />
+    <UspCards />
     <Services />
     <About />
+    <Reviews />
+    <ContactForm />
     <Hours />
     <Location />
-    <Reviews />
   </main>
   <Footer />
 </Base>

@@ -2,8 +2,8 @@ import { ChatWidget } from "@/components/chat-widget";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 p-4">
-      <div className="w-full max-w-sm bg-white rounded-3xl shadow-lg overflow-hidden flex flex-col h-[600px]">
+    <main className="flex h-screen items-center justify-center bg-zinc-50 p-0 sm:p-4 sm:min-h-screen sm:h-auto">
+      <div className="w-full max-w-sm bg-white rounded-none sm:rounded-3xl shadow-lg overflow-hidden flex flex-col h-full sm:h-[600px]">
         {/* Header */}
         <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-3">
        <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">

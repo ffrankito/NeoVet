@@ -2,7 +2,7 @@
 interface Props {
   href: string;
   cta: string;
-  icon: string;
+  icon?: string;
   title: string;
   description: string;
   badge?: string;
@@ -24,7 +24,12 @@ const { href, cta, icon, title, description, badge, featured = false } = Astro.p
     </span>
   )}
 
-  <div class:list={["text-4xl", badge ? "mt-4" : "mt-0 sm:mb-4"]}>{icon}</div>
+  <!-- Icon: slot or emoji fallback -->
+  <div class:list={[featured ? "mt-4" : "mt-0 sm:mb-4"]}>
+    <slot name="icon">
+      {icon && <span class="text-4xl">{icon}</span>}
+    </slot>
+  </div>
 
   <h3 class:list={[
     "font-semibold text-neutral-900",

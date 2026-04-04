@@ -54,6 +54,26 @@ import "../styles/global.css";
     <meta name="twitter:image:alt" content={description} />
 
     <title>{title}</title>
+
+    <!-- Scroll-triggered fade-in animations (is:inline bypasses Tailwind processing) -->
+    <style is:inline>
+      [data-animate] {
+        opacity: 0;
+        transform: translateY(1.5rem);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+      }
+      [data-animate].is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        [data-animate] {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-neutral-50 text-neutral-800 antialiased">
     <slot />
@@ -87,6 +107,29 @@ import "../styles/global.css";
     </div>
 
     <script>
+      // Scroll animations
+      const animatedEls = document.querySelectorAll("[data-animate]");
+      if (animatedEls.length > 0) {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          // Reduced motion: make everything visible immediately
+          animatedEls.forEach((el) => el.classList.add("is-visible"));
+        } else {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  observer.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.1 }
+          );
+          animatedEls.forEach((el) => observer.observe(el));
+        }
+      }
+
+      // Chat widget toggle
       const toggle = document.getElementById("chat-toggle");
       const box = document.getElementById("chat-box");
       const iconOpen = document.getElementById("icon-open");

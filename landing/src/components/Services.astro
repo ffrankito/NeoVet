@@ -12,26 +12,23 @@ const whatsappUrl =
 
 const specialties = [
   {
-    title: "Diagnóstico de Precisión: Ecografía de Alta Complejidad en consultorio y a domicilio",
-    description: "Llevamos la precisión diagnóstica donde más se necesita. Contamos con equipos portátiles de última generación para realizar estudios abdominales y cardiológicos con nivel de posgrado, garantizando comodidad para tu mascota y resultados inmediatos sin traslados innecesarios.",
+    title: "Ecografía de Alta Complejidad",
+    description: "Equipos portátiles de última generación para estudios en consultorio y a domicilio, con resultados inmediatos.",
     badge: "Máster en Ecografía",
-    icon: "🔬",
     cta: "Solicitar ecografía a domicilio",
     href: whatsappEcografia,
   },
   {
-    title: "Expertos en Cuidados de Razas Braquicefálicas",
-    description: "Entendemos la anatomía y las necesidades únicas de pacientes como el Bulldog o el Pug. Ofrecemos un abordaje clínico y quirúrgico especializado para mejorar su calidad de vida y garantizar su seguridad en cada procedimiento.",
+    title: "Cuidados de Razas Braquicefálicas",
+    description: "Abordaje clínico y quirúrgico especializado para bulldogs, pugs y razas de hocico corto.",
     badge: "Diplomada en Braquicefálicos",
-    icon: "🐾",
-    cta: "Consulta para pacientes braquicefálicos",
+    cta: "Consulta para braquicefálicos",
     href: whatsappBraquicefalicos,
   },
   {
-    title: "Reproducción Veterinaria y Cuidado Neonatal",
-    description: "Acompañamos cada etapa del ciclo reproductivo con profesionalismo. Desde el seguimiento folicular y diagnóstico de gestación hasta la atención del recién nacido, priorizando siempre la salud de la madre y su camada.",
+    title: "Reproducción y Cuidado Neonatal",
+    description: "Seguimiento folicular, diagnóstico de gestación y atención del recién nacido con guardia obstétrica 24hs.",
     badge: "Reproducción y Neonatología",
-    icon: "🏥",
     cta: "Asesoramiento en reproducción",
     href: whatsappReproduccion,
   },
@@ -82,7 +79,7 @@ const services = [
 ---
 
 <!-- Especialidades -->
-<section id="especialidades" class="bg-neutral-50 py-section">
+<section id="especialidades" class="bg-neutral-50 py-section" data-animate>
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="text-center">
       <p class="text-sm font-semibold uppercase tracking-widest text-primary-600">
@@ -97,23 +94,59 @@ const services = [
     </div>
 
     <div class="mt-16 grid gap-6 lg:grid-cols-3">
-      {specialties.map((s) => (
-        <ServiceCard
-          href={s.href}
-          cta={s.cta}
-          icon={s.icon}
-          title={s.title}
-          description={s.description}
-          badge={s.badge}
-          featured={true}
-        />
-      ))}
+      <!-- Ecografía -->
+      <ServiceCard
+        href={specialties[0].href}
+        cta={specialties[0].cta}
+        title={specialties[0].title}
+        description={specialties[0].description}
+        badge={specialties[0].badge}
+        featured={true}
+      >
+        <div slot="icon" class="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+          <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+        </div>
+      </ServiceCard>
+
+      <!-- Braquicefálicos -->
+      <ServiceCard
+        href={specialties[1].href}
+        cta={specialties[1].cta}
+        title={specialties[1].title}
+        description={specialties[1].description}
+        badge={specialties[1].badge}
+        featured={true}
+      >
+        <div slot="icon" class="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+          <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+          </svg>
+        </div>
+      </ServiceCard>
+
+      <!-- Reproducción -->
+      <ServiceCard
+        href={specialties[2].href}
+        cta={specialties[2].cta}
+        title={specialties[2].title}
+        description={specialties[2].description}
+        badge={specialties[2].badge}
+        featured={true}
+      >
+        <div slot="icon" class="flex h-12 w-12 items-center justify-center rounded-full bg-primary-100">
+          <svg class="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+          </svg>
+        </div>
+      </ServiceCard>
     </div>
   </div>
 </section>
 
 <!-- Servicios generales -->
-<section id="servicios" class="bg-white py-section">
+<section id="servicios" class="bg-white py-section" data-animate>
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="text-center">
       <p class="text-sm font-semibold uppercase tracking-widest text-primary-600">
