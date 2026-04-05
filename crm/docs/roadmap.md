@@ -84,6 +84,9 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Inventario: consumo ligado a consultas | Inventario |
 | Inventario: seguimiento de vencimientos | Inventario |
 | Inventario: órdenes de compra | Inventario |
+| Chatbot: persistencia de conversaciones (DB + localStorage) | Chatbot |
+| Chatbot: CORS headers para embedding cross-origin | Chatbot |
+| Chatbot: analytics y logs de conversaciones | Chatbot |
 
 > **Nota:** Los siguientes ítems se movieron a v1 Fase L (day-one readiness): seguimiento de ausencias (no-shows), confirmación de turno por email, cancelación con motivo por email. Gestión de recetas se mantiene en v2 (impresión full con formato legal); v1 Phase L solo agrega un resumen de historial en el turno.
 

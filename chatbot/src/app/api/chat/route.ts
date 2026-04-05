@@ -1,6 +1,8 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
+import { NextRequest, NextResponse } from "next/server";
 import { SYSTEM_PROMPT } from "@/lib/prompts/system";
+import { isRateLimited } from "@/lib/rate-limit";
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -8,24 +10,55 @@ const anthropic = createAnthropic({
 
 export const maxDuration = 30;
 
+// Cache holiday result for the current day (avoids re-fetching on every message)
+let feriadoCache: { date: string; nombre: string | null } | null = null;
+
 async function getFeriadoHoy(): Promise<string | null> {
+  const hoy = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+  });
+
+  // Return cached result if it's still today
+  if (feriadoCache && feriadoCache.date === hoy) {
+    return feriadoCache.nombre;
+  }
+
   try {
     const year = new Date().getFullYear();
     const res = await fetch(`https://api.argentinadatos.com/v1/feriados/${year}`);
     if (!res.ok) return null;
     const feriados: { fecha: string; nombre: string }[] = await res.json();
-    const hoy = new Date().toLocaleDateString("en-CA", {
-      timeZone: "America/Argentina/Buenos_Aires",
-    });
     const feriado = feriados.find((f) => f.fecha === hoy);
-    return feriado?.nombre ?? null;
+    const nombre = feriado?.nombre ?? null;
+    feriadoCache = { date: hoy, nombre };
+    return nombre;
   } catch {
     return null;
   }
 }
 
-export async function POST(req: Request) {
-  const { messages } = await req.json();
+export async function POST(req: NextRequest) {
+  // Rate limiting by IP
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Demasiadas consultas. Esperá un momento antes de escribir de nuevo." },
+      { status: 429 }
+    );
+  }
+
+  // Basic request validation
+  let body: { messages?: unknown };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Solicitud inválida." }, { status: 400 });
+  }
+
+  const { messages } = body;
+  if (!Array.isArray(messages)) {
+    return NextResponse.json({ error: "Formato de mensajes inválido." }, { status: 400 });
+  }
 
   const today = new Date().toLocaleDateString("es-AR", {
     weekday: "long",

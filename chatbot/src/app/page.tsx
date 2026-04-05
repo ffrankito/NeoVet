@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ChatWidget } from "@/components/chat-widget";
 
 export default function Home() {
@@ -7,7 +8,7 @@ export default function Home() {
         {/* Header */}
         <div className="px-5 py-4 border-b border-zinc-100 flex items-center gap-3">
        <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
-        <img src="/neovet-logo-transparent.png" alt="NeoVet" className="w-8 h-8 object-contain" />
+        <Image src="/neovet-logo-transparent.png" alt="NeoVet" width={32} height={32} className="object-contain" priority />
         </div>
           <div>
             <p className="text-sm font-semibold text-zinc-900">NeoVet</p>

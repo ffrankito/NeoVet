@@ -1,12 +1,21 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 export function ChatWidget() {
+  const [error, setError] = useState<string | null>(null);
+
   const { messages, input, setInput, append, status } = useChat({
     api: "/api/chat",
+    onError: (err) => {
+      if (err.message?.includes("429")) {
+        setError("Demasiadas consultas. Esperá un momento antes de escribir de nuevo.");
+      } else {
+        setError("No pudimos conectar con el asistente. Intentá de nuevo en unos segundos.");
+      }
+    },
   });
 
   const isLoading = status === "streaming" || status === "submitted";
@@ -23,6 +32,7 @@ export function ChatWidget() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
+    setError(null);
     const text = input;
     setInput("");
     await append({ role: "user", content: text });
@@ -99,6 +109,12 @@ export function ChatWidget() {
 
         <div ref={bottomRef} />
       </div>
+
+      {error && (
+        <div className="mx-3 mt-2 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="border-t border-zinc-100 p-3">
         <form onSubmit={handleSubmit} className="flex gap-2 items-center">
