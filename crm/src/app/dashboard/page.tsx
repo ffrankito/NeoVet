@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { db } from "@/db";
 import { clients, patients, appointments, staff } from "@/db/schema";
-import { eq, sql, asc, and, gte, lt, ne } from "drizzle-orm";
+import { eq, sql, asc, and, gte, lt, ne, type SQL } from "drizzle-orm";
+import { getRole, getSessionStaffId } from "@/lib/auth";
 import { todayStartART, todayEndART, formatDateART, formatTimeART } from "@/lib/timezone";
 import { Badge } from "@/components/ui/badge";
 import { DashboardActions } from "@/components/admin/dashboard-actions";
@@ -26,6 +27,9 @@ const statusVariants: Record<string, "default" | "secondary" | "outline" | "dest
 };
 
 async function DashboardContent() {
+  const [role, sessionStaffId] = await Promise.all([getRole(), getSessionStaffId()]);
+  const isAdmin = role === "admin" || role === "owner";
+
   const todayStart = todayStartART();
   const todayEnd = todayEndART();
 
@@ -35,6 +39,15 @@ async function DashboardContent() {
     month: "long",
     year: "numeric",
   });
+
+  // Role-based filters: non-admins see only their assigned appointments
+  const roleFilters: SQL[] = [];
+  if (!isAdmin && sessionStaffId) {
+    roleFilters.push(eq(appointments.assignedStaffId, sessionStaffId));
+  }
+  if (role === "groomer") {
+    roleFilters.push(eq(appointments.appointmentType, "grooming"));
+  }
 
   const [clientCountResult, patientCountResult, todayCountResult, todayAppointments] =
     await Promise.all([
@@ -47,7 +60,8 @@ async function DashboardContent() {
           and(
             gte(appointments.scheduledAt, todayStart),
             lt(appointments.scheduledAt, todayEnd),
-            ne(appointments.status, "cancelled")
+            ne(appointments.status, "cancelled"),
+            ...roleFilters
           )
         ),
       db
@@ -61,6 +75,7 @@ async function DashboardContent() {
           clientName: clients.name,
           clientId: clients.id,
           assignedStaffName: staff.name,
+          appointmentType: appointments.appointmentType,
         })
         .from(appointments)
         .innerJoin(patients, eq(appointments.patientId, patients.id))
@@ -69,7 +84,8 @@ async function DashboardContent() {
         .where(
           and(
             gte(appointments.scheduledAt, todayStart),
-            lt(appointments.scheduledAt, todayEnd)
+            lt(appointments.scheduledAt, todayEnd),
+            ...roleFilters
           )
         )
         .orderBy(asc(appointments.scheduledAt)),
@@ -99,7 +115,7 @@ async function DashboardContent() {
 
       {/* Today's appointments */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">Turnos de hoy</h2>
+        <h2 className="text-lg font-semibold">{isAdmin ? "Turnos de hoy" : "Mis turnos de hoy"}</h2>
 
         {todayAppointments.length === 0 ? (
           <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
