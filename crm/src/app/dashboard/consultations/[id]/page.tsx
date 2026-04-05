@@ -178,6 +178,17 @@ const [consultation, items, methods, fuList] = await Promise.all([
         />
       </div>
 
+      {/* Schedule follow-up appointment shortcut */}
+      <Separator />
+      <div>
+        <a
+          href={`/dashboard/appointments/new?patientId=${consultation.patientId}&reason=${encodeURIComponent("Seguimiento — consulta del " + new Date(consultation.createdAt).toLocaleDateString("es-AR"))}`}
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Agendar turno de seguimiento
+        </a>
+      </div>
+
       {/* Linked appointment */}
       {consultation.appointment && (
         <div>

@@ -83,6 +83,7 @@ interface AppointmentFormProps {
   services?: Service[];
   defaultPatientId?: string;
   defaultScheduledAt?: string;
+  defaultReason?: string;
 }
 
 function formatDateTimeLocal(date: Date): string {
@@ -109,6 +110,7 @@ export function AppointmentForm({
   services = [],
   defaultPatientId,
   defaultScheduledAt,
+  defaultReason,
 }: AppointmentFormProps) {
   const isEdit = !!appointment;
 
@@ -566,7 +568,7 @@ export function AppointmentForm({
         <Input
           id="reason"
           name="reason"
-          defaultValue={appointment?.reason ?? ""}
+          defaultValue={appointment?.reason ?? defaultReason ?? ""}
           placeholder="Consulta general, vacunación, etc."
         />
       </div>

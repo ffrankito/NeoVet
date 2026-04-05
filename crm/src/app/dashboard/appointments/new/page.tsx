@@ -3,7 +3,7 @@ import { getActiveServices } from "@/app/dashboard/settings/services/actions";
 import { AppointmentForm } from "@/components/admin/appointments/appointment-form";
 
 interface Props {
-  searchParams: Promise<{ patientId?: string; date?: string; time?: string }>;
+  searchParams: Promise<{ patientId?: string; date?: string; time?: string; reason?: string }>;
 }
 
 export default async function NewAppointmentPage({ searchParams }: Props) {
@@ -32,6 +32,7 @@ export default async function NewAppointmentPage({ searchParams }: Props) {
         services={activeServices}
         defaultPatientId={params.patientId}
         defaultScheduledAt={defaultScheduledAt}
+        defaultReason={params.reason}
       />
     </div>
   );
