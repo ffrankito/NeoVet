@@ -14,7 +14,7 @@ Conversational assistant for NeoVet clinic clients. v1 delivers via a web widget
 
 | Layer | Tool |
 |-------|------|
-| Framework | Next.js 14 App Router + TypeScript |
+| Framework | Next.js 16 App Router + TypeScript |
 | Styling | Tailwind CSS |
 | AI | Vercel AI SDK + Claude claude-sonnet-4-6 |
 | Hosting | Vercel |
@@ -25,12 +25,15 @@ Conversational assistant for NeoVet clinic clients. v1 delivers via a web widget
 
 ---
 
-## v1 Scope
+## v1 Scope — Deployed
 
-- Web chat widget (standalone URL or embedded on the landing page)
+**v1 is complete and deployed** at `neo-vet-widget.vercel.app`. Embedded as iframe on the landing page. Awaiting Paula's FAQ content approval.
+
+- Web chat widget embedded on the landing page (bottom-right toggle)
 - Answers FAQs only: clinic hours, services, location, how to book
 - Makes zero changes to any system — read-only, stateless
 - Tells clients how to book (by phone/WhatsApp with staff) — does not book for them
+- Uses Vercel AI SDK `streamText` + Claude Sonnet for Argentine Spanish responses
 
 **Hard boundaries for v1 — do not implement without explicitly upgrading the version target:**
 

@@ -66,8 +66,8 @@ NeoVet is a monorepo composed of 3 independent apps:
 
 | App | Stack | Description |
 |-----|-------|-------------|
-| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, grooming module, email reminders, billing (ARCA), role-based access. |
-| `chatbot/` | Next.js 14 App Router, TypeScript, Tailwind | Conversational assistant. Web-first v1, WhatsApp via Kapso in v2. |
+| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, grooming module, pet shop + cash register, email reminders (confirmation, cancellation, 48h/24h, vaccines, follow-ups), billing (ARCA — Phase D pending), role-based access (admin/owner/vet/groomer). |
+| `chatbot/` | Next.js 16 App Router, TypeScript, Tailwind | Conversational assistant. Web-first v1 (deployed), WhatsApp via Kapso in v2. |
 | `landing/` | **Astro**, TypeScript, Tailwind | Static marketing site. Services, team, location, contact. No server-side logic. |
 
 **Critical:** `landing/` is Astro, not Next.js. Do not generate Next.js code, `app/` directory structure, or server components for the landing. It uses `.astro` files and Astro's static output mode.
@@ -127,10 +127,10 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 
 ## Data Migration Notes
 
-- Patient and client data can be exported from Geovet as Excel files (one-time migration only).
-- When building or modifying the CRM data model, ensure it can import this data cleanly.
-- Key fields: patient name, species, breed, owner name, owner contact (phone/WhatsApp), appointment history.
-- The `contacts` schema includes an `importedFromGvet` flag for traceability.
+- Data migration from Geovet is **complete**. 1,771 clients, 1,380 patients, ~1,300 consultations imported via Excel exports.
+- Import scripts live in `crm/src/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`.
+- The `clients` table includes an `importedFromGvet` boolean flag for traceability.
+- No further Geovet imports are planned — the migration was one-time.
 
 ---
 
@@ -145,7 +145,7 @@ Each app owns its docs. **Before proposing any architectural or technical decisi
 | `chatbot/docs/charter.md` | Chatbot project scope, deliverables, success criteria |
 | `chatbot/docs/technical-spec.md` | Chatbot technical specification |
 | `crm/docs/roadmap.md` | CRM multi-version roadmap (v1 / v2 / v3) |
-| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan (Phases A–J) |
+| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan (Phases A–L). Phases A–L complete except Phase D (billing). |
 | `crm/docs/v1/charter.md` | CRM v1 project scope, deliverables, success criteria |
 | `crm/docs/v1/technical-spec.md` | CRM v1 technical specification |
 | `crm/docs/v1/handoff.md` | CRM v1 delivery checklist and operations manual |
@@ -196,7 +196,7 @@ To get preview branch credentials: Supabase dashboard → your project → Branc
 | Layer | Tool | Scope |
 |-------|------|-------|
 | CRM framework | Next.js 16 App Router + TypeScript | `crm/` only |
-| Chatbot framework | Next.js 14 App Router + TypeScript | `chatbot/` only |
+| Chatbot framework | Next.js 16 App Router + TypeScript | `chatbot/` only |
 | Landing framework | **Astro 6** + TypeScript + Tailwind CSS 4 | `landing/` only |
 | Styling | Tailwind CSS | All apps |
 | ORM | Drizzle ORM | `crm/` (and chatbot once DB is added) |
