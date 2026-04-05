@@ -224,11 +224,13 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 ---
 
-### Fase L — Preparación Day-One 🔲 Pendiente de build
+### Fase L — Preparación Day-One ✅ Completada
 
 **Objetivo:** Cubrir los gaps funcionales que el equipo de Paula (5 vets, 2 recepcionistas, 1 peluquero) va a sentir desde el primer día de uso. Sin estos cambios, el sistema funciona técnicamente pero genera fricción constante.
 
 **Contexto:** Surge de un gap analysis contra el charter, el development plan y una inspección del codebase. Son cambios acotados en complejidad pero de alto impacto operativo.
+
+**Implementado el 2026-04-05.** 11 commits en `main`. Migración `0019_left_meggan.sql` (ALTER enum + ADD COLUMN).
 
 ---
 
@@ -325,16 +327,22 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 #### Checklist de verificación Fase L
 
-- [ ] Dashboard filtra turnos por rol del usuario logueado
-- [ ] Estado `no_show` disponible y funcional en turnos pasados
-- [ ] Campo motivo de cancelación visible y guardado
-- [ ] Ficha del cliente muestra próximos turnos
-- [ ] Sesión de peluquería genera movimiento de caja automático
-- [ ] Email de confirmación se envía al crear turno
-- [ ] Email de cancelación se envía al cancelar turno
-- [ ] Detalle de turno muestra resumen del paciente
-- [ ] Botón "Agendar seguimiento" funciona desde consulta completada
-- [ ] Dashboard muestra widget de caja para admin
+- [x] Dashboard filtra turnos por rol del usuario logueado
+- [x] Estado `no_show` disponible y funcional en turnos pasados
+- [x] Campo motivo de cancelación visible y guardado
+- [x] Ficha del cliente muestra próximos turnos
+- [x] Sesión de peluquería genera movimiento de caja automático
+- [x] Email de confirmación se envía al crear turno
+- [x] Email de cancelación se envía al cancelar turno
+- [x] Detalle de turno muestra resumen del paciente (+ alerta braquicéfalo + vacunas vencidas)
+- [x] Botón "Agendar seguimiento" funciona desde consulta completada
+- [x] Dashboard muestra widget de caja para admin
+
+**Entregables parciales (diferencias vs. plan):**
+- L.1: El toggle "Ver todos" para admin no se implementó — el admin siempre ve todo. Se puede agregar si genera ruido.
+- L.5: No se implementó advertencia visual cuando no hay caja abierta — la sesión se guarda silenciosamente sin movimiento de caja. Agregar si genera confusión.
+- L.7: La cancelación por suspensión de agenda no envía batch de emails — solo la cancelación manual de un turno individual. El batch requiere modificar el flujo de suspensión de agenda (v2).
+- L.9: El botón pre-llena paciente y motivo, pero no pre-llena profesional ni servicio. El vet elige esos campos.
 
 ---
 

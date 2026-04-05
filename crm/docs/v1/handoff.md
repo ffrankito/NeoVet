@@ -26,16 +26,22 @@
 ### Funcionalidad
 - [ ] Todos los entregables del charter probados en producción (D1–D14)
 - [ ] Paula y el equipo completaron el UAT
-- [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios
-- [ ] Flujo de peluquería completo probado: crear turno de peluquería → asignar peluquero → peluquero registra sesión → fotos subidas → hallazgos registrados
-- [ ] Cada rol probado en aislamiento (ingresar como veterinario, como peluquero — verificar que las rutas bloqueadas redirigen)
+- [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios → agendar seguimiento
+- [ ] Flujo de peluquería completo probado: crear turno de peluquería → asignar peluquero → peluquero registra sesión → fotos subidas → hallazgos registrados → ingreso en caja automático
+- [ ] Cada rol probado en aislamiento (ingresar como veterinario, como peluquero — verificar que dashboard filtra turnos y las rutas bloqueadas redirigen)
 - [ ] Flujo de facturación probado: registrar pago → generar factura → enviar a ARCA → recibir CAE
 - [ ] Catálogo de servicios configurado con los servicios de Paula
 - [ ] Vista semanal de calendario verificada con slots libres y bloqueos de cirugía
 - [ ] Suspensión de agenda: profesional puede bloquear días/franjas y turnos afectados se cancelan
 - [ ] Recordatorios por email probados: turno 48h/24h, vacunas 7 días antes, seguimiento post-consulta
+- [ ] Email de confirmación probado: crear turno → cliente recibe email
+- [ ] Email de cancelación probado: cancelar turno → cliente recibe email con motivo
+- [ ] No-show: marcar turno pasado como "no se presentó" → estado correcto
+- [ ] Detalle de turno muestra resumen del paciente (última consulta, vacunas vencidas, alerta braquicéfalo)
+- [ ] Ficha del cliente muestra próximos turnos inline
+- [ ] Dashboard admin muestra widget de caja abierta/cerrada
 - [ ] Pet shop: crear producto → registrar entrada de stock → stock sube → registrar venta → stock baja → badge de stock bajo visible
-- [ ] Caja: abrir sesión → registrar movimientos → ventas se reflejan en balance → cerrar con conteo de efectivo
+- [ ] Caja: abrir sesión → registrar movimientos → ventas + peluquería se reflejan en balance → cerrar con conteo de efectivo
 - [ ] UI verificada en mobile (celular) para los flujos principales
 
 ### Datos
@@ -66,23 +72,23 @@
 NeoVet CRM es la herramienta interna de la clínica para gestionar toda la operación diaria sin depender de GVet. Desde acá podés:
 
 - **Clientes y pacientes** — buscar cualquier dueño, ver sus mascotas, editar datos de contacto.
-- **Turnos** — crear turnos veterinarios o de peluquería, asignarlos a un profesional, confirmarlos y marcarlos como completados. Vista semanal con slots libres y bloqueos de cirugía. Cada profesional puede suspender su propia agenda por día(s) o franja horaria.
+- **Turnos** — crear turnos veterinarios o de peluquería, asignarlos a un profesional, confirmarlos, marcarlos como completados o registrar ausencia ("no se presentó"). Cancelación con motivo opcional. Vista semanal con slots libres y bloqueos de cirugía. Cada profesional puede suspender su propia agenda por día(s) o franja horaria. Al crear un turno se envía email de confirmación al cliente; al cancelar se envía notificación.
 - **Catálogo de servicios** — lista de servicios con duración predeterminada; las cirugías bloquean el calendario el tiempo que se configure.
 - **Historia clínica** — registrar cada consulta con notas SOAP, signos vitales, plan de tratamiento (con medicamento, dosis, frecuencia y duración), vacunas y desparasitaciones. Se pueden adjuntar documentos clasificados por categoría (laboratorio, radiografía, ecografía, foto) y métodos complementarios (informes de estudios con fotos opcionales).
-- **Peluquería** — cada perro que pasa por peluquería tiene su perfil propio (comportamiento, tipo de pelaje, tiempo estimado). El peluquero registra cada sesión con fotos antes/después, hallazgos y precio final.
+- **Peluquería** — cada perro que pasa por peluquería tiene su perfil propio (comportamiento, tipo de pelaje, tiempo estimado). El peluquero registra cada sesión con fotos antes/después, hallazgos, precio final y método de pago. El ingreso se registra automáticamente en la caja abierta.
 - **Pet shop** — catálogo de productos con 9 categorías, gestión de proveedores, ingresos de stock y ventas con carrito multi-ítem. El stock se actualiza automáticamente al registrar ingresos y ventas. Alerta visual de stock bajo.
 - **Caja** — apertura y cierre de sesiones de caja, movimientos de ingresos y egresos, desglose por método de pago. Las ventas del período se incorporan automáticamente al balance.
 - **Facturación** — registrar pagos y emitir facturas electrónicas (ARCA) de forma opcional. Control de límites por entidad fiscal para evitar recategorización. *(Fase D — pendiente de build.)*
-- **Recordatorios por email** — el sistema envía recordatorios automáticos: turno 48h y 24h antes, vacunas 7 días antes, seguimiento post-consulta.
-- **Staff y accesos** — cada integrante del equipo tiene su propio usuario con el acceso que le corresponde según su rol.
+- **Recordatorios por email** — el sistema envía recordatorios automáticos: turno 48h y 24h antes, vacunas 7 días antes, seguimiento post-consulta. También envía confirmación al crear un turno y notificación al cancelarlo.
+- **Staff y accesos** — cada integrante del equipo tiene su propio usuario con el acceso que le corresponde según su rol. El dashboard de cada rol muestra solo sus turnos asignados.
 
 ### ¿Quién usa qué?
 
 | Rol | Qué puede hacer |
 |---|---|
-| **Admin** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, pet shop, caja, facturación, staff, configuración |
-| **Veterinario/a** | Ver clientes · Ver y editar pacientes · Ver turnos veterinarios · Registrar y editar consultas |
-| **Peluquero/a** | Ver turnos de peluquería · Registrar sesiones de peluquería · Editar perfil de peluquería del paciente |
+| **Admin** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, pet shop, caja, facturación, staff, configuración. Dashboard muestra todos los turnos del día + estado de caja |
+| **Veterinario/a** | Ver clientes · Ver y editar pacientes · Ver turnos veterinarios asignados · Registrar y editar consultas · Agendar seguimiento desde consulta |
+| **Peluquero/a** | Ver turnos de peluquería asignados · Registrar sesiones de peluquería (ingreso auto en caja) · Editar perfil de peluquería del paciente |
 
 ### ¿Qué es automático vs. manual?
 
@@ -94,8 +100,13 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 | Registrar sesión de peluquería | Manual | Peluquero/a |
 | Registrar venta en pet shop | Manual | Admin |
 | Abrir/cerrar caja | Manual | Admin |
+| Marcar ausencia (no-show) | Manual | Recepción / admin |
+| Cancelar turno con motivo | Manual | Recepción / admin |
 | Stock sube al registrar entrada | Automático | Sistema |
 | Stock baja al registrar venta | Automático | Sistema |
+| Ingreso de peluquería → movimiento de caja | Automático | Sistema (si hay caja abierta) |
+| Email de confirmación al crear turno | Automático | Sistema (si `sendReminders` activo) |
+| Email de cancelación al cancelar turno | Automático | Sistema (si `sendReminders` activo) |
 | Emitir factura | Manual (opcional) | Admin |
 | Pago por Mercado Pago → requiere factura | Regla automática | Sistema |
 | Recordatorio de turno 48h/24h por email | Automático (Vercel Cron) | Sistema |
@@ -172,7 +183,9 @@ npm run db:migrate
 | "No autorizado" al entrar al dashboard | Sesión expirada o cookies borradas | Cerrar sesión y volver a ingresar |
 | No aparece el botón "Registrar consulta" en un turno | El turno no está en estado "Completado" | Marcar el turno como completado primero |
 | Un archivo no se puede descargar | URL firmada expirada (60 segundos) | Hacer clic en descargar de nuevo — se genera una nueva URL |
-| El peluquero no ve sus turnos | El turno no está tipificado como "grooming" o no está asignado | Un admin edita el turno y cambia el tipo o la asignación |
+| El peluquero no ve sus turnos | El turno no está tipificado como "grooming" o no está asignado al peluquero | Un admin edita el turno y cambia el tipo o la asignación |
+| El ingreso de peluquería no aparece en caja | No había caja abierta al registrar la sesión | Abrir caja antes de registrar sesiones. Si ya se registró, agregar el movimiento manualmente |
+| No llegó el email de confirmación del turno | `sendReminders` estaba desactivado, o el cliente no tiene email cargado | Verificar el toggle al crear el turno, y que el cliente tenga email |
 | Error al emitir factura en ARCA | Certificado digital vencido o credenciales incorrectas | Verificar las variables `ARCA_*` en Vercel y renovar el certificado si aplica |
 | No puedo subir una foto en la sesión de peluquería | Archivo muy grande o formato no soportado | Usar JPG o PNG, máximo 10 MB |
 
@@ -195,8 +208,11 @@ Durante el período de soporte, contactarnos ante:
 | Comportamiento | Explicación | Alternativa por ahora |
 |---|---|---|
 | Sin integración con el chatbot | CRM y chatbot son independientes en v1 | Gestionar turnos manualmente desde el CRM |
-| Sin recordatorios por WhatsApp | WhatsApp es v2 — en v1 se usan emails | Los recordatorios llegan por email; WhatsApp se agrega en v2 |
+| Sin recordatorios por WhatsApp | WhatsApp es v2 — en v1 se usan emails | Los recordatorios y confirmaciones llegan por email; WhatsApp se agrega en v2 |
 | Los hallazgos del peluquero no alertan al veterinario | Flujo pendiente de entrevista con el peluquero (v2) | El peluquero le avisa al veterinario manualmente |
+| Cancelación masiva por suspensión no envía emails | Al suspender agenda, los turnos se cancelan pero no se notifica a cada cliente | Avisar manualmente a los clientes afectados; batch de emails en v2 |
+| Sin impresión de recetas o prescripciones | Gestión de recetas con formato legal es v2 | El vet puede leer el plan de tratamiento en la consulta y dictar al cliente |
+| Sin log de auditoría | No se registra quién cambió qué (v2) | Los campos `createdBy` y `updatedAt` dan visibilidad parcial |
 | Sin reportes ni analíticas | Son funcionalidades de v3 | Exportar datos desde Supabase si se necesita un análisis puntual |
 | Facturación ARCA pendiente | Fase D no construida aún — pendiente certificado digital y credenciales | Registrar pagos se puede hacer; la emisión de comprobantes electrónicos se agrega cuando se tengan las credenciales |
 
