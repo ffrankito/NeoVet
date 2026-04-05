@@ -8,6 +8,7 @@ export const appointmentStatusEnum = pgEnum("appointment_status", [
   "confirmed",
   "cancelled",
   "completed",
+  "no_show",
 ]);
 
 export const appointmentTypeEnum = pgEnum("appointment_type", [
@@ -41,6 +42,7 @@ export const appointments = pgTable("appointments", {
   status: appointmentStatusEnum("status").default("pending").notNull(),
   consultationType: consultationTypeEnum("consultation_type"),
   staffNotes: text("staff_notes"),
+  cancellationReason: text("cancellation_reason"),
   sendReminders: boolean("send_reminders").default(true).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

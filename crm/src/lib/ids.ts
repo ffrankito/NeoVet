@@ -25,3 +25,4 @@ export const saleId     = () => createId("sal");
 export const saleItemId = () => createId("sli");
 export const cashSessionId  = () => createId("csh");
 export const cashMovementId = () => createId("cmv");
+export const emailLogId = () => createId("log");
