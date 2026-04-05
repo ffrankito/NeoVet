@@ -118,6 +118,22 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, prices
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="paymentMethod">Método de pago</Label>
+        <Select name="paymentMethod" defaultValue="efectivo">
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="efectivo" label="Efectivo">Efectivo</SelectItem>
+            <SelectItem value="transferencia" label="Transferencia">Transferencia</SelectItem>
+            <SelectItem value="tarjeta_debito" label="Tarjeta débito">Tarjeta débito</SelectItem>
+            <SelectItem value="tarjeta_credito" label="Tarjeta crédito">Tarjeta crédito</SelectItem>
+            <SelectItem value="mercadopago" label="MercadoPago">MercadoPago</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="space-y-3">
         <Label>Hallazgos</Label>
         <div className="flex flex-wrap gap-2">

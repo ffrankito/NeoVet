@@ -10,9 +10,11 @@ import {
   clients,
   staff,
   settings,
+  cashSessions,
+  cashMovements,
 } from "@/db/schema";
-import { groomingProfileId, groomingSessionId } from "@/lib/ids";
-import { eq, desc } from "drizzle-orm";
+import { groomingProfileId, groomingSessionId, cashMovementId } from "@/lib/ids";
+import { eq, desc, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
@@ -118,6 +120,7 @@ const sessionSchema = z.object({
   groomedById: z.string().min(1, "El peluquero es obligatorio."),
   priceTier: z.enum(["min", "mid", "hard"], { message: "El nivel de dificultad es inválido." }),
   finalPrice: z.number().nonnegative("El precio debe ser mayor o igual a 0.").nullable().optional(),
+  paymentMethod: z.string().optional(),
   notes: z.string().optional(),
   findings: z.array(z.string()).optional(),
 });
@@ -133,6 +136,7 @@ export async function createGroomingSession(
     groomedById: (formData.get("groomedById") as string)?.trim() ?? "",
     priceTier: (formData.get("priceTier") as string) ?? "",
     finalPrice: formData.get("finalPrice") ? Number(formData.get("finalPrice")) : null,
+    paymentMethod: (formData.get("paymentMethod") as string)?.trim() || undefined,
     notes: (formData.get("notes") as string)?.trim() || undefined,
     findings: findingsRaw.length > 0 ? findingsRaw : undefined,
   };
@@ -198,7 +202,37 @@ export async function createGroomingSession(
     });
   }
 
+  // Auto-post grooming revenue to open cash session
+  const finalPriceNum = parsed.data.finalPrice;
+  if (finalPriceNum && finalPriceNum > 0) {
+    const [openSession] = await db
+      .select({ id: cashSessions.id })
+      .from(cashSessions)
+      .where(isNull(cashSessions.closedAt))
+      .limit(1);
+
+    if (openSession) {
+      // Fetch patient name for a descriptive movement
+      const [pat] = await db
+        .select({ name: patients.name })
+        .from(patients)
+        .where(eq(patients.id, patientId))
+        .limit(1);
+
+      await db.insert(cashMovements).values({
+        id: cashMovementId(),
+        sessionId: openSession.id,
+        type: "ingreso",
+        amount: String(finalPriceNum),
+        paymentMethod: parsed.data.paymentMethod || "efectivo",
+        description: `Peluquería — ${pat?.name ?? patientId}`,
+        createdById: staffRow?.id ?? parsed.data.groomedById,
+      });
+    }
+  }
+
   revalidatePath(`/dashboard/patients/${patientId}`);
+  revalidatePath("/dashboard/cash");
   return { success: true };
 }
 
