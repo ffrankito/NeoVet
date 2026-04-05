@@ -32,8 +32,8 @@
 
 | Área | Estado real en código |
 |---|---|
-| Auth + middleware con roles | ✅ roles `admin`, `vet`, `groomer` |
-| Schema DB (20+ tablas) | ✅ `clients`, `patients`, `appointments`, `consultations`, `treatment_items`, `vaccinations`, `deworming_records`, `documents`, `staff`, `grooming_profiles`, `grooming_sessions`, `settings`, `services`, `schedule_blocks`, `follow_ups`, `email_logs`, `products`, `providers`, `sales`, `stock_entries`, `cash_sessions` |
+| Auth + middleware con roles | ✅ roles `admin`, `owner`, `vet`, `groomer` |
+| Schema DB (27 tablas) | ✅ `clients`, `patients`, `appointments`, `consultations`, `treatment_items`, `vaccinations`, `deworming_records`, `documents`, `complementary_methods`, `staff`, `grooming_profiles`, `grooming_sessions`, `settings`, `services`, `schedule_blocks`, `follow_ups`, `email_logs`, `products`, `providers`, `sales`, `sale_items`, `stock_entries`, `cash_sessions`, `cash_movements`, `bot_contacts`, `bot_conversations`, `bot_messages`, `bot_escalations`, `bot_business_context` |
 | CRUD clientes y pacientes | ✅ Con Zod, server actions, shadcn/ui |
 | Calendario de turnos (semanal + diario) | ✅ Con filtros, bloqueos, asignación de staff |
 | Historial clínico SOAP | ✅ Con vitales, plan de tratamiento, métodos complementarios |
@@ -52,6 +52,7 @@
 | Schemas `bot_*` | ✅ `bot_contacts`, `bot_conversations`, `bot_messages`, `bot_escalations`, `bot_business_context` |
 | Módulo petshop | ✅ Productos, proveedores, ventas, stock |
 | Módulo caja | ✅ Sesiones de caja, movimientos |
+| Fase L — Day-one readiness | ✅ Dashboard filtrado por rol, no-show, cancel con motivo, emails de confirmación/cancelación, peluquería en caja, resumen de paciente en turno, atajo de seguimiento, widget de caja |
 | Facturación / AFIP | 🔲 Pendiente confirmación de Paula (Fase D) |
 | Dashboard bot en CRM | 🔲 Pendiente (Fase K) |
 | Seed `bot_business_context` en producción | 🔲 Pendiente |

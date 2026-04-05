@@ -9,7 +9,7 @@ Software product for a veterinary clinic in Argentina. Monorepo with 3 independe
 | App | Stack | Description | README |
 |-----|-------|-------------|--------|
 | `crm/` | Next.js 16, Drizzle, Supabase, Resend | Internal staff tool — clients, patients, appointments, clinical history, grooming, billing, email reminders | [→ crm/README.md](./crm/README.md) |
-| `chatbot/` | Next.js 14, Vercel AI SDK, Claude | Conversational FAQ assistant (web widget) | [→ chatbot/README.md](./chatbot/README.md) |
+| `chatbot/` | Next.js 16, Vercel AI SDK, Claude | Conversational FAQ assistant (web widget, deployed) | [→ chatbot/README.md](./chatbot/README.md) |
 | `landing/` | Astro 6, Tailwind CSS 4 | Single-page marketing site (anchor nav, WhatsApp CTAs) | [→ landing/README.md](./landing/README.md) |
 
 Each app is independent. Set up and run them separately.
