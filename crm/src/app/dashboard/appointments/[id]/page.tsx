@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAppointment, updateAppointmentStatus, getAllStaffForSelect } from "../actions";
+import { getAppointment, updateAppointmentStatus, getAllStaffForSelect, getPatientMiniSummary } from "../actions";
 import { getRole } from "@/lib/auth";
 import { formatART } from "@/lib/timezone";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,10 @@ export default async function AppointmentDetailPage({ params }: Props) {
   if (!apt) notFound();
 
   const isAdmin = role === "admin" || role === "owner";
-  const allStaff = isAdmin ? await getAllStaffForSelect() : [];
+  const [allStaff, patientSummary] = await Promise.all([
+    isAdmin ? getAllStaffForSelect() : Promise.resolve([]),
+    getPatientMiniSummary(apt.patientId),
+  ]);
 
   const nextStatuses: Record<string, { value: string; label: string }[]> = {
     confirmed: [
@@ -158,6 +161,49 @@ export default async function AppointmentDetailPage({ params }: Props) {
             <p className="mt-1">{apt.assignedStaffName ?? "—"}</p>
           )}
         </div>
+      </div>
+
+      {/* Patient mini-summary */}
+      <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Resumen del paciente</h3>
+          {patientSummary.isBrachycephalic && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+              Braquicéfalo
+            </span>
+          )}
+          {patientSummary.isDeceased && (
+            <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+              Fallecido
+            </span>
+          )}
+        </div>
+
+        {patientSummary.lastConsultation ? (
+          <p className="text-sm text-muted-foreground">
+            <strong>Última consulta:</strong>{" "}
+            {new Date(patientSummary.lastConsultation.createdAt).toLocaleDateString("es-AR")}
+            {patientSummary.lastConsultation.assessment && (
+              <> — {patientSummary.lastConsultation.assessment.slice(0, 120)}{patientSummary.lastConsultation.assessment.length > 120 ? "..." : ""}</>
+            )}
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">Sin consultas previas.</p>
+        )}
+
+        {patientSummary.overdueVaccines.length > 0 && (
+          <p className="text-sm text-red-600">
+            <strong>Vacunas vencidas:</strong>{" "}
+            {patientSummary.overdueVaccines.map((v) => v.name).join(", ")}
+          </p>
+        )}
+
+        <Link
+          href={`/dashboard/patients/${apt.patientId}`}
+          className="text-xs text-primary hover:underline"
+        >
+          Ver historial completo →
+        </Link>
       </div>
 
       {apt.staffNotes && (

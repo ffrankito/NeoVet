@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { appointments, patients, clients, consultations, staff, services } from "@/db/schema";
+import { appointments, patients, clients, consultations, staff, services, vaccinations } from "@/db/schema";
 import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
@@ -563,4 +563,53 @@ export async function createPatientInline(data: InlinePatientData) {
 
   revalidatePath("/dashboard/patients");
   return { patientId: newPatientId };
+}
+
+const BRACHYCEPHALIC_BREEDS = [
+  "bulldog", "bulldog inglés", "bulldog francés", "pug", "boston terrier",
+  "boxer", "shih tzu", "cavalier king charles", "pekinés",
+];
+
+export async function getPatientMiniSummary(patientId: string) {
+  const [lastConsultation] = await db
+    .select({
+      id: consultations.id,
+      assessment: consultations.assessment,
+      createdAt: consultations.createdAt,
+    })
+    .from(consultations)
+    .where(eq(consultations.patientId, patientId))
+    .orderBy(desc(consultations.createdAt))
+    .limit(1);
+
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const overdueVaccines = await db
+    .select({ name: vaccinations.vaccineName, nextDueAt: vaccinations.nextDueAt })
+    .from(vaccinations)
+    .where(
+      and(
+        eq(vaccinations.patientId, patientId),
+        lte(vaccinations.nextDueAt, today)
+      )
+    );
+
+  const [patient] = await db
+    .select({
+      breed: patients.breed,
+      deceased: patients.deceased,
+    })
+    .from(patients)
+    .where(eq(patients.id, patientId))
+    .limit(1);
+
+  const isBrachycephalic = patient?.breed
+    ? BRACHYCEPHALIC_BREEDS.some((b) => patient.breed!.toLowerCase().includes(b))
+    : false;
+
+  return {
+    lastConsultation: lastConsultation ?? null,
+    overdueVaccines,
+    isDeceased: patient?.deceased ?? false,
+    isBrachycephalic,
+  };
 }
