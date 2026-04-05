@@ -136,6 +136,11 @@ export function AppointmentForm({
   const [sendReminders, setSendReminders] = useState(
     appointment?.sendReminders ?? true
   );
+  const [scheduledAt, setScheduledAt] = useState(
+    appointment
+      ? formatDateTimeLocal(appointment.scheduledAt)
+      : (defaultScheduledAt ?? "")
+  );
 
   // Inline creation state
   const isNewClient = selectedClient === NEW_CLIENT_VALUE;
@@ -201,6 +206,7 @@ export function AppointmentForm({
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
         formData.set("sendReminders", sendReminders ? "true" : "false");
+        formData.set("scheduledAt", scheduledAt);
         return updateAppointment(appointment.id, formData);
       }
     : async (_prev: ActionResult, formData: FormData) => {
@@ -258,6 +264,7 @@ export function AppointmentForm({
         formData.set("consultationType", consultationType);
         formData.set("serviceId", selectedServiceId);
         formData.set("sendReminders", sendReminders ? "true" : "false");
+        formData.set("scheduledAt", scheduledAt);
         return createAppointment(formData);
       };
 
@@ -506,11 +513,8 @@ export function AppointmentForm({
           id="scheduledAt"
           name="scheduledAt"
           type="datetime-local"
-          defaultValue={
-            appointment
-              ? formatDateTimeLocal(appointment.scheduledAt)
-              : (defaultScheduledAt ?? "")
-          }
+          value={scheduledAt}
+          onChange={(e) => setScheduledAt(e.target.value)}
           aria-invalid={!!errors.scheduledAt}
         />
         {errors.scheduledAt && (
