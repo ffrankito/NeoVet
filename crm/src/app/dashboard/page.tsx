@@ -14,6 +14,7 @@ const statusLabels: Record<string, string> = {
   confirmed: "Confirmado",
   completed: "Completado",
   cancelled: "Cancelado",
+  no_show: "No se presentó",
 };
 
 const statusVariants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -21,6 +22,7 @@ const statusVariants: Record<string, "default" | "secondary" | "outline" | "dest
   confirmed: "default",
   completed: "outline",
   cancelled: "destructive",
+  no_show: "destructive",
 };
 
 async function DashboardContent() {
@@ -150,7 +152,7 @@ async function DashboardContent() {
                 <AppointmentActions
                   appointmentId={apt.id}
                   patientId={apt.patientId}
-                  status={apt.status as "pending" | "confirmed" | "cancelled" | "completed"}
+                  status={apt.status as "pending" | "confirmed" | "cancelled" | "completed" | "no_show"}
                 />
               </div>
             ))}

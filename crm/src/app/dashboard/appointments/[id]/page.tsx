@@ -18,6 +18,7 @@ const statusLabels: Record<string, string> = {
   confirmed: "Confirmado",
   completed: "Completado",
   cancelled: "Cancelado",
+  no_show: "No se presentó",
 };
 
 const statusColors: Record<string, string> = {
@@ -25,6 +26,7 @@ const statusColors: Record<string, string> = {
   confirmed: "bg-blue-100 text-blue-800",
   completed: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
+  no_show: "bg-orange-100 text-orange-800",
 };
 
 const typeLabels: Record<string, string> = {
@@ -53,15 +55,16 @@ export default async function AppointmentDetailPage({ params }: Props) {
   const allStaff = isAdmin ? await getAllStaffForSelect() : [];
 
   const nextStatuses: Record<string, { value: string; label: string }[]> = {
-  confirmed: [
-    { value: "completed", label: "Completar" },
-    { value: "cancelled", label: "Cancelar" },
-  ],
-  completed: [],
-  cancelled: [],
+    confirmed: [
+      { value: "completed", label: "Completar" },
+    ],
+    completed: [],
+    cancelled: [],
+    no_show: [],
   };
 
-const actions = nextStatuses[apt.status] ?? [];
+  const actions = nextStatuses[apt.status] ?? [];
+  const showNoShow = apt.status === "confirmed" && new Date(apt.scheduledAt) < new Date();
 
 
   return (
@@ -167,32 +170,51 @@ const actions = nextStatuses[apt.status] ?? [];
         </>
       )}
 
-      {actions.length > 0 && (
+      {apt.cancellationReason && (
+        <>
+          <Separator />
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Motivo de cancelación</p>
+            <p className="mt-1 whitespace-pre-wrap">{apt.cancellationReason}</p>
+          </div>
+        </>
+      )}
+
+      {(actions.length > 0 || apt.status === "confirmed") && (
         <>
           <Separator />
           <div className="space-y-3">
             <p className="text-sm font-medium text-muted-foreground">Cambiar estado</p>
             <div className="flex gap-2">
-              {actions.map((action) => {
-                if (action.value === "cancelled") {
-                  return <CancelAppointmentButton key="cancel" appointmentId={id} />;
-                }
-
-                return (
-                  <form
-                    key={action.value}
-                    action={async () => {
-                      "use server";
-                      await updateAppointmentStatus(
-                        id,
-                        action.value as "pending" | "confirmed" | "cancelled" | "completed"
-                      );
-                    }}
-                  >
-                    <Button variant="outline">{action.label}</Button>
-                  </form>
-                );
-              })}
+              {actions.map((action) => (
+                <form
+                  key={action.value}
+                  action={async () => {
+                    "use server";
+                    await updateAppointmentStatus(
+                      id,
+                      action.value as "pending" | "confirmed" | "cancelled" | "completed" | "no_show"
+                    );
+                  }}
+                >
+                  <Button variant="outline">{action.label}</Button>
+                </form>
+              ))}
+              {showNoShow && (
+                <form
+                  action={async () => {
+                    "use server";
+                    await updateAppointmentStatus(id, "no_show");
+                  }}
+                >
+                  <Button variant="outline" className="text-orange-700 border-orange-300 hover:bg-orange-50">
+                    No se presentó
+                  </Button>
+                </form>
+              )}
+              {apt.status === "confirmed" && (
+                <CancelAppointmentButton appointmentId={id} />
+              )}
             </div>
           </div>
         </>

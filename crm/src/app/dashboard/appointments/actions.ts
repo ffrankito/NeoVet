@@ -149,6 +149,7 @@ export async function getAppointment(id: string) {
       createdAt: appointments.createdAt,
       updatedAt: appointments.updatedAt,
       sendReminders: appointments.sendReminders,
+      cancellationReason: appointments.cancellationReason,
       patientName: patients.name,
       patientSpecies: patients.species,
       clientId: clients.id,
@@ -330,11 +331,17 @@ export async function getAllStaffForSelect() {
 
 export async function updateAppointmentStatus(
   id: string,
-  status: "pending" | "confirmed" | "cancelled" | "completed"
+  status: "pending" | "confirmed" | "cancelled" | "completed" | "no_show",
+  cancellationReason?: string
 ) {
+  const updateData: Record<string, unknown> = { status, updatedAt: new Date() };
+  if (status === "cancelled" && cancellationReason) {
+    updateData.cancellationReason = cancellationReason.trim();
+  }
+
   await db
     .update(appointments)
-    .set({ status, updatedAt: new Date() })
+    .set(updateData)
     .where(eq(appointments.id, id));
 
   revalidatePath("/dashboard");

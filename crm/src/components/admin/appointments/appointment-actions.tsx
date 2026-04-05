@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 interface AppointmentActionsProps {
   appointmentId: string;
   patientId: string;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: "pending" | "confirmed" | "cancelled" | "completed" | "no_show";
 }
 
 export function AppointmentActions({ appointmentId, patientId, status }: AppointmentActionsProps) {
@@ -44,7 +44,7 @@ export function AppointmentActions({ appointmentId, patientId, status }: Appoint
     setIsPending(false);
   }
 
-  if (status === "cancelled") return null;
+  if (status === "cancelled" || status === "no_show") return null;
 
   if (status === "completed") {
     return (
