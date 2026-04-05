@@ -3,11 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { appointments, patients, clients, consultations, staff } from "@/db/schema";
+import { appointments, patients, clients, consultations, staff, services } from "@/db/schema";
 import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
 import { parseDateTimeAsART, dateToStartART, dateToEndART } from "@/lib/timezone";
+import { sendAndLogEmail } from "@/lib/email/send-email";
+import { BookingConfirmationEmail } from "@/lib/email/templates/booking-confirmation";
+import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
+import { render } from "@react-email/render";
 
 const appointmentSchema = z.object({
   patientId: z.string().min(1, "El paciente es obligatorio."),
@@ -236,6 +240,49 @@ export async function createAppointment(formData: FormData) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
+  // Send booking confirmation email if reminders enabled
+  if (parsed.data.sendReminders) {
+    try {
+      const [emailData] = await db
+        .select({
+          clientEmail: clients.email,
+          clientName: clients.name,
+          patientName: patients.name,
+        })
+        .from(patients)
+        .innerJoin(clients, eq(patients.clientId, clients.id))
+        .where(eq(patients.id, parsed.data.patientId))
+        .limit(1);
+
+      if (emailData?.clientEmail) {
+        const [serviceRow] = parsed.data.serviceId
+          ? await db.select({ name: services.name }).from(services).where(eq(services.id, parsed.data.serviceId)).limit(1)
+          : [null];
+
+        const html = await render(
+          BookingConfirmationEmail({
+            patientName: emailData.patientName ?? "su mascota",
+            clientName: emailData.clientName ?? "Cliente",
+            scheduledAt: parseDateTimeAsART(parsed.data.scheduledAt),
+            serviceName: serviceRow?.name,
+            staffName: null,
+            clinicAddress: process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario",
+          })
+        );
+
+        await sendAndLogEmail({
+          to: emailData.clientEmail,
+          subject: "Turno confirmado — NeoVet",
+          html,
+          logType: "booking_confirmation",
+          referenceId: createdId,
+        });
+      }
+    } catch {
+      // Email failure should not block appointment creation
+    }
+  }
+
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/appointments");
   revalidatePath(`/dashboard/patients/${parsed.data.patientId}`);
@@ -343,6 +390,50 @@ export async function updateAppointmentStatus(
     .update(appointments)
     .set(updateData)
     .where(eq(appointments.id, id));
+
+  // Send cancellation notification email
+  if (status === "cancelled") {
+    try {
+      const [aptData] = await db
+        .select({
+          scheduledAt: appointments.scheduledAt,
+          patientName: patients.name,
+          clientName: clients.name,
+          clientEmail: clients.email,
+          serviceName: services.name,
+          sendReminders: appointments.sendReminders,
+        })
+        .from(appointments)
+        .innerJoin(patients, eq(appointments.patientId, patients.id))
+        .innerJoin(clients, eq(patients.clientId, clients.id))
+        .leftJoin(services, eq(appointments.serviceId, services.id))
+        .where(eq(appointments.id, id))
+        .limit(1);
+
+      if (aptData?.clientEmail && aptData.sendReminders) {
+        const html = await render(
+          CancellationNotificationEmail({
+            patientName: aptData.patientName ?? "su mascota",
+            clientName: aptData.clientName ?? "Cliente",
+            scheduledAt: new Date(aptData.scheduledAt),
+            serviceName: aptData.serviceName,
+            cancellationReason: cancellationReason || null,
+            clinicAddress: process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario",
+          })
+        );
+
+        await sendAndLogEmail({
+          to: aptData.clientEmail,
+          subject: "Turno cancelado — NeoVet",
+          html,
+          logType: "cancellation",
+          referenceId: id,
+        });
+      }
+    } catch {
+      // Email failure should not block status update
+    }
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/appointments");
