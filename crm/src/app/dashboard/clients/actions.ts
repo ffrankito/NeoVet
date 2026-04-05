@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { clients } from "@/db/schema";
 import { clientId } from "@/lib/ids";
-import { eq, ilike, or, sql, desc } from "drizzle-orm";
-import { patients } from "@/db/schema";
+import { eq, ilike, or, sql, desc, and, gte, ne, asc } from "drizzle-orm";
+import { patients, appointments, services, staff } from "@/db/schema";
 import { z } from "zod";
 
 const clientSchema = z.object({
@@ -159,4 +159,29 @@ export async function deleteClient(id: string) {
   await db.delete(clients).where(eq(clients.id, id));
   revalidatePath("/dashboard/clients");
   redirect("/dashboard/clients");
+}
+
+export async function getUpcomingAppointmentsByClientId(clientId: string) {
+  return db
+    .select({
+      id: appointments.id,
+      scheduledAt: appointments.scheduledAt,
+      status: appointments.status,
+      patientName: patients.name,
+      serviceName: services.name,
+      assignedStaffName: staff.name,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
+    .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
+    .where(
+      and(
+        eq(patients.clientId, clientId),
+        gte(appointments.scheduledAt, new Date()),
+        ne(appointments.status, "cancelled")
+      )
+    )
+    .orderBy(asc(appointments.scheduledAt))
+    .limit(10);
 }

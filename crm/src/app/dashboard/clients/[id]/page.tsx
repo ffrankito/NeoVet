@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getClient } from "../actions";
+import { getClient, getUpcomingAppointmentsByClientId } from "../actions";
+import { formatART } from "@/lib/timezone";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { DeleteClientButton } from "@/components/admin/clients/delete-client-button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,10 @@ interface Props {
 
 export default async function ClientDetailPage({ params }: Props) {
   const { id } = await params;
-  const client = await getClient(id);
+  const [client, upcomingAppointments] = await Promise.all([
+    getClient(id),
+    getUpcomingAppointmentsByClientId(id),
+  ]);
 
   if (!client) notFound();
 
@@ -124,6 +128,44 @@ export default async function ClientDetailPage({ params }: Props) {
                 ))}
               </TableBody>
             </Table>
+          </div>
+        )}
+      </div>
+
+      <Separator />
+
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">Próximos turnos</h2>
+
+        {upcomingAppointments.length === 0 ? (
+          <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground text-sm">
+            No hay turnos próximos para este cliente.
+          </div>
+        ) : (
+          <div className="rounded-lg border divide-y">
+            {upcomingAppointments.map((apt) => (
+              <Link
+                key={apt.id}
+                href={`/dashboard/appointments/${apt.id}`}
+                className="flex items-center gap-4 px-4 py-3 hover:bg-accent transition-colors"
+              >
+                <span className="w-32 shrink-0 text-sm font-mono text-muted-foreground">
+                  {formatART(apt.scheduledAt, { dateStyle: "short", timeStyle: "short" })}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{apt.patientName}</p>
+                  {apt.serviceName && (
+                    <p className="text-xs text-muted-foreground">{apt.serviceName}</p>
+                  )}
+                </div>
+                {apt.assignedStaffName && (
+                  <span className="text-xs text-muted-foreground">{apt.assignedStaffName}</span>
+                )}
+                <Badge variant={apt.status === "confirmed" ? "default" : "secondary"}>
+                  {apt.status === "confirmed" ? "Confirmado" : "Pendiente"}
+                </Badge>
+              </Link>
+            ))}
           </div>
         )}
       </div>
