@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
+import { getOpenSession } from "@/app/dashboard/cash/actions";
 import { Suspense } from "react";
 
 const statusLabels: Record<string, string> = {
@@ -94,6 +95,7 @@ async function DashboardContent() {
   const clientCount = Number(clientCountResult[0].count);
   const patientCount = Number(patientCountResult[0].count);
   const todayCount = Number(todayCountResult[0].count);
+  const openCashSession = isAdmin ? await getOpenSession() : null;
 
   return (
     <div className="space-y-8">
@@ -112,6 +114,24 @@ async function DashboardContent() {
 
       {/* Quick actions */}
       <DashboardActions />
+
+      {/* Cash register status — admin only */}
+      {isAdmin && (
+        <Link
+          href="/dashboard/cash"
+          className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+        >
+          <div className="flex-1">
+            <p className="text-sm font-medium text-muted-foreground">Caja</p>
+            {openCashSession ? (
+              <p className="text-sm font-semibold text-green-700">Abierta</p>
+            ) : (
+              <p className="text-sm font-semibold text-red-600">Cerrada</p>
+            )}
+          </div>
+          <span className="text-xs text-muted-foreground group-hover:text-foreground">Ver →</span>
+        </Link>
+      )}
 
       {/* Today's appointments */}
       <div className="space-y-4">
