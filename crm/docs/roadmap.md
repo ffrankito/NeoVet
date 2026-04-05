@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Project** | NeoVet CRM |
-| **Última actualización** | 2026-04-02 |
+| **Última actualización** | 2026-04-05 |
 
 Este documento describe el plan de largo plazo del CRM en tres versiones. Cada versión tiene su propio plan detallado en `crm/docs/vN/development-plan.md`.
 
@@ -40,6 +40,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Caja | Apertura/cierre de sesiones de caja, movimientos (ingresos/egresos), desglose por método de pago |
 | Diseño mobile | UI responsive para uso desde celular |
 | Migración de datos | Importación one-time desde exportaciones CSV de GVet |
+| **Day-one readiness** | Dashboard filtrado por rol, estado no-show, motivo de cancelación, turnos próximos en ficha del cliente, peluquería en caja, confirmación/cancelación por email, resumen de paciente en turno, atajo de seguimiento, widget de caja en dashboard |
 
 **Fuera de alcance en v1:**
 - API pública (sin integración con chatbot)
@@ -67,7 +68,6 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Recordatorios de vacunas por WhatsApp | Comunicación |
 | Mensajes de seguimiento post-consulta por WhatsApp | Comunicación |
 | Alertas del peluquero al veterinario por hallazgos clínicos | Clínica |
-| Seguimiento de ausencias (no-shows) | Scheduling |
 | Cancelación y reagendamiento con auditoría | Scheduling |
 | Flags de razas braquicéfalas — triage de urgencia elevada | Triage |
 | Seguimiento de gastos | Facturación |
@@ -75,15 +75,17 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Analíticas de turnos | Reportes |
 | Log de auditoría — todos los cambios con usuario + timestamp | Operaciones |
 | Sincronización con calendario (Google / iCal) | Integración |
-| Gestión de recetas | Clínica |
+| Gestión de recetas — impresión y exportación de prescripciones | Clínica |
 | Resultados de laboratorio | Clínica |
 | Registros de anestesia | Clínica |
-| Resúmenes de alta | Clínica |
+| Resúmenes de alta / internación | Clínica |
 | Analíticas del chatbot | Reportes |
 | Pizarrón digital — estado en tiempo real de la clínica | Operaciones |
 | Inventario: consumo ligado a consultas | Inventario |
 | Inventario: seguimiento de vencimientos | Inventario |
 | Inventario: órdenes de compra | Inventario |
+
+> **Nota:** Los siguientes ítems se movieron a v1 Fase L (day-one readiness): seguimiento de ausencias (no-shows), confirmación de turno por email, cancelación con motivo por email. Gestión de recetas se mantiene en v2 (impresión full con formato legal); v1 Phase L solo agrega un resumen de historial en el turno.
 
 ---
 

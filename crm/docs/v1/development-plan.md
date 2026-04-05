@@ -5,7 +5,7 @@
 | **Proyecto** | NeoVet CRM |
 | **Autor** | Tomás Pinolini |
 | **Estado** | Activo |
-| **Última actualización** | 2026-04-02 |
+| **Última actualización** | 2026-04-05 |
 | **Roadmap completo** | `crm/docs/roadmap.md` |
 | **Docs relacionados** | `charter.md`, `technical-spec.md`, `../../docs/paula-meeting.md` |
 
@@ -221,6 +221,136 @@ Sidebar → menú hamburguesa en mobile. Tablas adaptadas. Formularios sin overf
 ### Fase K.B — Caja ✅ Completada
 
 Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (admin only). Abrir caja con monto inicial, registrar movimientos (ingresos/egresos por método de pago), cerrar con efectivo contado + notas. Validación: solo una caja abierta a la vez. Balance = inicial + ventas del período + ingresos extra − egresos. 10 sesiones históricas importadas desde GVet.
+
+---
+
+### Fase L — Preparación Day-One 🔲 Pendiente de build
+
+**Objetivo:** Cubrir los gaps funcionales que el equipo de Paula (5 vets, 2 recepcionistas, 1 peluquero) va a sentir desde el primer día de uso. Sin estos cambios, el sistema funciona técnicamente pero genera fricción constante.
+
+**Contexto:** Surge de un gap analysis contra el charter, el development plan y una inspección del codebase. Son cambios acotados en complejidad pero de alto impacto operativo.
+
+---
+
+#### L.1 — Dashboard filtrado por rol (R1, V5, G2)
+
+| Entregable | Notas |
+|---|---|
+| Dashboard home filtra "Turnos de hoy" por el usuario logueado | Admin ve todo; vet ve solo sus turnos veterinarios; peluquero ve solo sus turnos de peluquería |
+| Toggle "Ver todos" para admin | Admin puede alternar entre vista propia y vista general |
+
+---
+
+#### L.2 — Estado "no-show" en turnos (R4)
+
+| Entregable | Notas |
+|---|---|
+| Agregar `no_show` al enum de estados de turno | Estados: `pending` / `confirmed` / `completed` / `cancelled` / `no_show` |
+| Botón "No se presentó" en detalle del turno | Solo visible para turnos `confirmed` cuya hora ya pasó |
+
+---
+
+#### L.3 — Motivo de cancelación (R5)
+
+| Entregable | Notas |
+|---|---|
+| Campo `cancellationReason` (texto, opcional) en tabla `appointments` | |
+| Textarea visible al cancelar un turno (en modal de cancelación) | |
+
+---
+
+#### L.4 — Turnos próximos en ficha del cliente (R6)
+
+| Entregable | Notas |
+|---|---|
+| Sección "Próximos turnos" en la página de detalle del cliente | Muestra turnos futuros con fecha, hora, servicio y paciente |
+| Link directo al turno en calendario | |
+
+---
+
+#### L.5 — Peluquería en caja (G1) ⚠️ Blocker para precisión de caja
+
+| Entregable | Notas |
+|---|---|
+| Las sesiones de peluquería generan automáticamente un movimiento de ingreso en la caja abierta | Al guardar una sesión con precio > 0, se crea un `cash_movement` de tipo ingreso con método de pago seleccionado |
+| Si no hay caja abierta, advertencia al guardar la sesión | No bloquea el guardado, pero avisa que el ingreso no se registró en caja |
+| Desglose "Ventas del período" incluye peluquería | Balance de caja refleja ventas pet shop + peluquería |
+
+---
+
+#### L.6 — Confirmación de turno al cliente por email (R2)
+
+| Entregable | Notas |
+|---|---|
+| Al crear un turno con `sendReminders = true`, enviar email de confirmación inmediato | Template en español argentino con fecha, hora, servicio, profesional y dirección |
+| Usa la infraestructura existente de Resend + `email_logs` | Idempotente vía tipo `booking_confirmation` en `email_logs` |
+
+---
+
+#### L.7 — Notificación de cancelación al cliente por email (R3)
+
+| Entregable | Notas |
+|---|---|
+| Al cancelar un turno, enviar email al cliente si tiene email | Template con motivo (si fue capturado en L.3) |
+| Al ejecutar suspensión de agenda, enviar emails a todos los clientes con turnos cancelados | Batch de emails via Resend |
+
+---
+
+#### L.8 — Resumen de historial en detalle de turno (V2)
+
+| Entregable | Notas |
+|---|---|
+| En el modal/detalle del turno, mostrar mini-resumen del paciente | Última consulta (fecha + assessment), vacunas pendientes, alertas (braquicéfalo, fallecido) |
+| Link rápido "Ver historial completo" → detalle del paciente | |
+
+---
+
+#### L.9 — Atajo "Agendar seguimiento" desde consulta (V3)
+
+| Entregable | Notas |
+|---|---|
+| Botón "Agendar seguimiento" visible al completar una consulta | Pre-llena: mismo paciente, mismo profesional, servicio "consulta" |
+| Abre modal de creación de turno pre-cargado | Vet solo elige fecha y hora |
+
+---
+
+#### L.10 — Widget de caja en dashboard (SYS3)
+
+| Entregable | Notas |
+|---|---|
+| Card en dashboard home mostrando: caja abierta/cerrada, balance actual | Solo visible para admin |
+| Link directo a página de caja | |
+
+---
+
+#### Checklist de verificación Fase L
+
+- [ ] Dashboard filtra turnos por rol del usuario logueado
+- [ ] Estado `no_show` disponible y funcional en turnos pasados
+- [ ] Campo motivo de cancelación visible y guardado
+- [ ] Ficha del cliente muestra próximos turnos
+- [ ] Sesión de peluquería genera movimiento de caja automático
+- [ ] Email de confirmación se envía al crear turno
+- [ ] Email de cancelación se envía al cancelar turno
+- [ ] Detalle de turno muestra resumen del paciente
+- [ ] Botón "Agendar seguimiento" funciona desde consulta completada
+- [ ] Dashboard muestra widget de caja para admin
+
+---
+
+### Pre-Launch — Configuración y Despliegue 🔲 Pendiente
+
+Estas tareas no requieren cambios de código. Son configuración, deploy y verificación.
+
+| # | Tarea | Responsable | Bloquea |
+|---|---|---|---|
+| PL-1 | Deploy CRM a Vercel producción + DNS | Tomás / Franco | Todo — nadie puede usar el sistema sin esto |
+| PL-2 | Crear 9 cuentas de staff (Paula + 5 vets + 2 recepcionistas + 1 peluquero) | Paula (admin) | Login de todo el equipo |
+| PL-3 | Verificar dominio de email en Resend | Tomás / Franco | Reminders llegan a bandeja (no spam) |
+| PL-4 | Verificar e2e que crons de Vercel disparan emails | Tomás / Franco | Recordatorios automáticos funcionan |
+| PL-5 | Configurar precios de peluquería por tier en Settings | Paula (admin) | Peluquero puede cobrar correctamente |
+| PL-6 | Confirmar duraciones de cirugía en catálogo de servicios | Paula | Calendario no sobrebloquea ni subbloquea |
+| PL-7 | Correr migración de DB en producción (si no se hizo vía branch merge) | Tomás / Franco | Schema actualizado |
 
 ---
 
