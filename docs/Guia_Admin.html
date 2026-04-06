@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de Administrador — NeoVet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..146,300..700;1,9..146,300..700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --role: #0d9488;
+      --role-dark: #0f766e;
+      --role-light: #ccfbf1;
+      --role-text: #134e4a;
+      --accent: #f43f5e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --sidebar-w: 270px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.25rem;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .sidebar-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .sidebar-logo {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--role);
+      letter-spacing: -0.02em;
+    }
+    .role-badge {
+      display: inline-block;
+      background: var(--role-light);
+      color: var(--role-text);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .sidebar nav { display: flex; flex-direction: column; gap: 0.15rem; }
+    .sidebar nav a {
+      display: block;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar nav a:hover { background: var(--role-light); color: var(--role-dark); }
+    .sidebar nav .nav-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.75rem 0.75rem 0.25rem;
+      opacity: 0.6;
+    }
+
+    /* ── MAIN ── */
+    .main { flex: 1; min-width: 0; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, var(--role) 0%, var(--role-dark) 100%);
+      padding: 3rem 3rem 2.5rem;
+      color: white;
+    }
+    .hero-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.75;
+      margin-bottom: 0.5rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .hero p {
+      font-size: 1rem;
+      opacity: 0.85;
+      max-width: 620px;
+    }
+
+    /* Content */
+    .content { padding: 2.5rem 3rem; max-width: 860px; }
+
+    /* Sections */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 1.75rem;
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 1.25rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: #fafafa;
+    }
+    .section-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--role);
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-header h2 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .section-body { padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* Sub-sections */
+    h3 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--role-dark);
+      margin-bottom: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    p { font-size: 0.92rem; color: var(--text); }
+
+    /* Lists */
+    ul, ol { padding-left: 1.35rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    li { font-size: 0.92rem; }
+    li strong { color: var(--text); }
+
+    /* Callouts */
+    .callout {
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.875rem;
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 1rem; line-height: 1.4; flex-shrink: 0; }
+    .callout-body { line-height: 1.55; }
+    .callout-body strong { display: block; margin-bottom: 0.2rem; font-size: 0.83rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .callout.warn {
+      background: #fffbeb;
+      border-left: 3px solid #f59e0b;
+      color: #78350f;
+    }
+    .callout.tip {
+      background: var(--role-light);
+      border-left: 3px solid var(--role);
+      color: var(--role-text);
+    }
+
+    /* Inline code */
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      font-size: 0.83rem;
+      color: var(--role-dark);
+    }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th {
+      background: #f1f5f9;
+      font-weight: 600;
+      text-align: left;
+      padding: 0.65rem 1rem;
+      color: var(--text);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td { padding: 0.65rem 1rem; border-top: 1px solid var(--border); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td code { font-size: 0.8rem; }
+
+    /* Status pills (para turnos) */
+    .pill {
+      display: inline-block;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .pill-gray  { background: #f1f5f9; color: #475569; }
+    .pill-blue  { background: #dbeafe; color: #1e40af; }
+    .pill-green { background: #dcfce7; color: #15803d; }
+    .pill-red   { background: #fee2e2; color: #b91c1c; }
+
+    /* Divider */
+    hr { border: none; border-top: 1px solid var(--border); margin: 0.25rem 0; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 2rem 3rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    /* Mobile */
+    .mobile-nav-btn {
+      display: none;
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      background: var(--role);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100;
+    }
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        min-height: unset;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1.25rem;
+      }
+      .sidebar nav { display: none; }
+      .content { padding: 1.5rem 1.25rem; }
+      .hero { padding: 2rem 1.5rem; }
+      .mobile-nav-btn { display: flex; align-items: center; justify-content: center; }
+    }
+    @media print {
+      .sidebar { display: none; }
+      body { display: block; }
+      .section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">NeoVet</div>
+    <span class="role-badge">Administrador</span>
+  </div>
+  <nav>
+    <div class="nav-section">Índice</div>
+    <a href="#s1">1. Acceso y Primer Ingreso</a>
+    <a href="#s2">2. El Dashboard</a>
+    <a href="#s3">3. Gestión de Clientes</a>
+    <a href="#s4">4. Gestión de Pacientes</a>
+    <a href="#s5">5. Turnos</a>
+    <a href="#s6">6. Calendario</a>
+    <a href="#s7">7. Suspensión de Agenda</a>
+    <a href="#s8">8. Pet Shop</a>
+    <a href="#s9">9. Caja</a>
+    <a href="#s10">10. Gestión de Staff</a>
+    <a href="#s11">11. Configuración</a>
+    <a href="#s12">12. Recordatorios por Email</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="hero">
+    <div class="hero-label">Guía de uso interno · NeoVet</div>
+    <h1>Guía para Administradores</h1>
+    <p>Todo lo que necesitás saber para gestionar el sistema: clientes, turnos, caja, stock y el equipo.</p>
+  </div>
+
+  <div class="content">
+
+    <!-- Intro -->
+    <div class="section">
+      <div class="section-body">
+        <p>Hola. Soy Paula. Esta guía es para vos y para cualquiera que tenga acceso administrativo al sistema. Necesito que entiendas cómo funciona cada sección, porque de ustedes depende que tengamos un registro completo y unificado de todo lo que pasa en la clínica.</p>
+      </div>
+    </div>
+
+    <!-- S1 -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>Acceso y Primer Ingreso</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>URL de acceso</h3>
+          <p>Ingresá a <code>https://neovet.veterinaria.ar</code> desde cualquier navegador (Chrome, Safari, Firefox — funciona en desktop y mobile).</p>
+        </div>
+        <div>
+          <h3>Login</h3>
+          <ul>
+            <li>Ingresá con tu email y contraseña.</li>
+            <li>Si es la primera vez, te llegará un link de confirmación por email — hacé clic en él antes de intentar entrar.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Cambiar contraseña</h3>
+          <ul>
+            <li>Hacé clic en tu nombre o avatar en la esquina superior derecha.</li>
+            <li>Seleccioná <strong>Configuración</strong> → <strong>Cambiar contraseña</strong> y seguí los pasos.</li>
+          </ul>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>El acceso de admin es sensible. Nunca compartas tu contraseña. Si alguien del equipo necesita acceso, creale una cuenta propia desde Gestión de Staff.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2>El Dashboard</h2>
+      </div>
+      <div class="section-body">
+        <p>Cuando ingresás, ves el dashboard. Es el corazón de la operación del día.</p>
+        <div>
+          <h3>Tarjetas de resumen (arriba)</h3>
+          <ul>
+            <li><strong>Turnos de hoy:</strong> Total de citas programadas para hoy.</li>
+            <li><strong>Clientes:</strong> Cantidad total de clientes en el sistema.</li>
+            <li><strong>Pacientes:</strong> Cantidad total de mascotas.</li>
+            <li><strong>Ingresos:</strong> Total de dinero registrado hoy (si la caja ya se abrió).</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Turnos del día (centro)</h3>
+          <p>Todos los turnos de hoy, ordenados por hora. Para cada turno ves: hora, cliente, paciente, profesional asignado, tipo y estado:</p>
+          <p style="margin-top:0.5rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <span class="pill pill-gray">⬜ Por confirmar</span>
+            <span class="pill pill-blue">🔵 Confirmado</span>
+            <span class="pill pill-green">🟢 Completado</span>
+            <span class="pill pill-red">🔴 Cancelado / No asistió</span>
+          </p>
+          <p style="margin-top:0.5rem;">Hacé clic en un turno para ver detalles y confirmar, completar, cancelar o marcar "no se presentó".</p>
+        </div>
+        <div>
+          <h3>Widget de Caja (abajo)</h3>
+          <p>Balance actual de efectivo y total por método de pago. Si la caja no está abierta, aparece el botón <strong>Abrir caja</strong>. No podés registrar movimientos si la caja está cerrada.</p>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>El dashboard es tu panel de control. Miralo cada mañana — te dice qué está pendiente, quién viene y cuánto dinero entra.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>Gestión de Clientes</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Buscar un cliente existente</h3>
+          <p>Desde el menú <strong>Clientes</strong>, usá el buscador arriba — escribí el nombre, teléfono o email. También podés llegar a la ficha del cliente haciendo clic en su nombre desde cualquier turno.</p>
+        </div>
+        <div>
+          <h3>Crear un cliente nuevo</h3>
+          <p>Clic en <strong>Clientes → Nuevo cliente</strong> (o "+"). Completá los campos:</p>
+          <ul>
+            <li><strong>Nombre y apellido</strong></li>
+            <li><strong>Email</strong> — importante para los recordatorios automáticos.</li>
+            <li><strong>Teléfono WhatsApp</strong> — con código de país: <code>+54 9 ...</code></li>
+            <li><strong>Dirección</strong> (calle, número, ciudad)</li>
+            <li><strong>Notas internas</strong> (opcional)</li>
+          </ul>
+        </div>
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Importante</strong>El teléfono de WhatsApp es crítico. Si está mal, no llegan los recordatorios y los clientes se pierden las citas.</div>
+        </div>
+        <div>
+          <h3>Ver la ficha del cliente</h3>
+          <p>Dentro de la ficha ves: datos de contacto, mascotas asociadas, próximos turnos, historial de turnos y notas internas de la clínica.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h2>Gestión de Pacientes</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Crear un paciente nuevo</h3>
+          <p>Desde la ficha del cliente, hacé clic en <strong>Nuevo paciente</strong>. Completá:</p>
+          <ul>
+            <li><strong>Nombre</strong> de la mascota</li>
+            <li><strong>Especie:</strong> Perro / Gato / Otro</li>
+            <li><strong>Raza</strong> — importante para detectar braquicéfalos</li>
+            <li><strong>Fecha de nacimiento</strong>, <strong>sexo</strong>, <strong>microchip</strong> (opcional)</li>
+            <li><strong>Foto/Avatar</strong> — subí una foto para identificarlo rápido</li>
+          </ul>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>La raza es crítica. Si es bulldog u otra raza braquicéfala, el sistema muestra una alerta cada vez que se accede al paciente. Eso puede salvar una vida si hay una crisis respiratoria.</div>
+        </div>
+        <div>
+          <h3>Pestañas del paciente</h3>
+          <ul>
+            <li><strong>Información:</strong> datos, foto, microchip, cliente asociado.</li>
+            <li><strong>Historia Clínica:</strong> todas las consultas registradas por los vets.</li>
+            <li><strong>Vacunas:</strong> historial y próximas dosis. El sistema envía recordatorio 7 días antes.</li>
+            <li><strong>Desparasitaciones:</strong> registro de desparasitantes y fechas.</li>
+            <li><strong>Documentos:</strong> análisis, radiografías, ecografías.</li>
+            <li><strong>Peluquería:</strong> sesiones de grooming, perfil y hallazgos clínicos.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Marcar como fallecido</h3>
+          <p>Desde la ficha del paciente → menú (⋮) → <strong>Marcar como fallecido</strong>. El paciente queda desactivado pero el historial se mantiene.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h2>Turnos</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Crear un turno</h3>
+          <p>Clic en <strong>Nuevo turno</strong>. Seguí los pasos: (1) cliente → (2) paciente → (3) tipo (Veterinario / Peluquería) → (4) profesional → (5) servicio → (6) fecha y hora → (7) activar recordatorios si querés → (8) guardar.</p>
+        </div>
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Importante</strong>Si activás "Enviar recordatorios", el cliente recibirá emails automáticos. Verificá que el email del cliente sea correcto antes de confirmar.</div>
+        </div>
+        <div>
+          <h3>Confirmar un turno</h3>
+          <p>Desde el dashboard o la lista de turnos, hacé clic en el turno → <strong>Confirmar</strong>. El cliente recibe un email de confirmación.</p>
+        </div>
+        <div>
+          <h3>Cancelar un turno</h3>
+          <p>Abrí el turno → <strong>Cancelar</strong> → elegí motivo → nota opcional → guardar. El cliente recibe un email de cancelación y los recordatorios programados se cancelan automáticamente.</p>
+        </div>
+        <div>
+          <h3>Marcar "No se presentó" (No-show)</h3>
+          <p>Abrí el turno pasado → <strong>Marcar como no se presentó</strong>. Queda registrado en el historial del cliente.</p>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>Completar los turnos es cómo registramos el trabajo. Sin eso, no sabemos si atendimos al paciente ni qué se hizo. Es el registro legal de la clínica.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>Calendario</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Vista</h3>
+          <ul>
+            <li><strong>Desktop:</strong> vista semanal con franjas horarias.</li>
+            <li><strong>Mobile:</strong> vista diaria adaptada a pantalla chica.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Filtrar por profesional</h3>
+          <p>Usá los checkboxes arriba para ver solo los turnos de un profesional. Desactivá todos para ver bloqueos de cirugía y suspensiones.</p>
+        </div>
+        <div>
+          <h3>Bloqueos de cirugía</h3>
+          <p>Aparecen en rojo. No se pueden crear turnos sobre un bloqueo — significa que ese profesional está en quirófano.</p>
+        </div>
+        <div>
+          <h3>Crear un turno desde el calendario</h3>
+          <p>Hacé clic en un horario libre → se abre el formulario de nuevo turno.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <h2>Suspensión de Agenda</h2>
+      </div>
+      <div class="section-body">
+        <p>Usá esto cuando un profesional se toma vacaciones, enferma o tiene formación.</p>
+        <div>
+          <h3>Crear una suspensión</h3>
+          <p>Desde <strong>Calendario → Suspensiones → Nueva suspensión</strong>: elegí el profesional, fechas (desde/hasta), y horarios específicos si querés bloquear solo part-time.</p>
+        </div>
+        <div>
+          <h3>Qué pasa con los turnos afectados</h3>
+          <p>Los turnos existentes en esas fechas se cancelan automáticamente y el cliente recibe un email.</p>
+        </div>
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Importante</strong>Planificá las suspensiones con anticipación. Si las cargás tarde, puede haber conflicto con turnos ya confirmados y tendrás que contactar clientes manualmente.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8 -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>Pet Shop</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Proveedores</h3>
+          <p>Desde <strong>Pet shop → Proveedores → Nuevo proveedor</strong>: nombre, email, teléfono, dirección. Podés desactivar proveedores sin borrar su historial.</p>
+        </div>
+        <div>
+          <h3>Productos</h3>
+          <p>Desde <strong>Pet shop → Productos → Nuevo producto</strong>: nombre, categoría, precio por unidad, stock mínimo (cuando baje de ese número aparece un badge rojo de alerta).</p>
+        </div>
+        <div>
+          <h3>Entradas de stock</h3>
+          <p>Cada vez que recibís mercadería: <strong>Pet shop → Stock → Nueva entrada</strong>. Seleccioná productos, cantidades, proveedor y fecha. El stock se actualiza automáticamente.</p>
+        </div>
+        <div>
+          <h3>Registrar una venta</h3>
+          <p>Desde <strong>Pet shop → Ventas → Nueva venta</strong>: agregá productos al carrito, seleccioná cliente (opcional), método de pago y confirmá. El ingreso se registra automáticamente en la caja.</p>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>El stock es dinero. Si no registrás entradas y salidas, no sabés cuánto tenés, cuándo reabastecer, y perdés plata sin saberlo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9 -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <h2>Caja</h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Abrir sesión de caja</h3>
+          <p>Hacé clic en <strong>Abrir caja</strong>, ingresá el monto inicial de efectivo (ej: <code>$5000</code>) y confirmá. La caja queda abierta para todo el día.</p>
+        </div>
+        <div>
+          <h3>Registrar movimientos manuales</h3>
+          <ul>
+            <li><strong>+ Ingreso:</strong> descripción, monto y método de pago.</li>
+            <li><strong>+ Egreso:</strong> descripción (alquiler, suministros, pago de staff), monto y método.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Registros automáticos</h3>
+          <p>Las ventas del pet shop y las sesiones de peluquería se registran solas — no tenés que hacer nada.</p>
+        </div>
+        <div>
+          <h3>Cerrar sesión de caja</h3>
+          <p>Clic en <strong>Cerrar caja</strong>: ingresá el efectivo físico que contaste. Si no coincide con el balance del sistema, te muestra la diferencia. Escribí una nota y confirmá el cierre. Las sesiones cerradas son de solo lectura.</p>
+        </div>
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Importante</strong>Nunca cierres con diferencia sin investigar. Puede ser error de digitación, un producto no registrado, o un problema mayor. Encontrá la causa antes de cerrar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S10 -->
+    <div class="section" id="s10">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <h2>Gestión de Staff <span style="font-size:0.75rem; font-weight:500; color:var(--text-muted); margin-left:0.5rem;">(Solo Admin)</span></h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Crear una cuenta de staff</h3>
+          <p>Desde <strong>Configuración → Staff → Nuevo staff</strong>: email (único), nombre completo, y rol:</p>
+          <ul>
+            <li><strong>Admin:</strong> acceso total — caja, staff, configuración, todo.</li>
+            <li><strong>Vet:</strong> solo gestión de pacientes y consultas clínicas.</li>
+            <li><strong>Groomer:</strong> solo peluquería y sus propios turnos.</li>
+          </ul>
+          <p style="margin-top:0.5rem;">El staff recibe un email con link para activar su cuenta.</p>
+        </div>
+        <div>
+          <h3>Desactivar una cuenta</h3>
+          <p>La cuenta se bloquea pero el historial se mantiene. Podés reactivarla después. No se borra nada.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- S11 -->
+    <div class="section" id="s11">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <h2>Configuración <span style="font-size:0.75rem; font-weight:500; color:var(--text-muted); margin-left:0.5rem;">(Solo Admin)</span></h2>
+      </div>
+      <div class="section-body">
+        <div>
+          <h3>Precios de peluquería por nivel</h3>
+          <p>Desde <strong>Configuración → Precios de grooming</strong>: editá los precios de los tres niveles (Mínimo / Medio / Difícil). El sistema los usa para calcular automáticamente el costo de cada sesión según lo que el peluquero seleccione.</p>
+        </div>
+        <div>
+          <h3>Catálogo de servicios</h3>
+          <p>Desde <strong>Configuración → Servicios</strong>: ves todos los servicios disponibles. Podés crear nuevos (nombre, tipo Veterinario/Peluquería, duración estimada), editar o desactivar los existentes.</p>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>Los servicios definen qué puede agendar cada profesional. Si algo no está en el catálogo, no se puede crear un turno para eso.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S12 -->
+    <div class="section" id="s12">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <h2>Recordatorios por Email — Automáticos</h2>
+      </div>
+      <div class="section-body">
+        <p>El staff no necesita hacer nada. Estos se envían solos:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Recordatorio</th>
+                <th>Cuándo se envía</th>
+                <th>Quién recibe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Confirmación</td><td>Cuando confirmás el turno</td><td>Cliente</td></tr>
+              <tr><td>48 horas antes</td><td>2 días antes del turno (8 AM)</td><td>Cliente</td></tr>
+              <tr><td>24 horas antes</td><td>1 día antes del turno (8 AM)</td><td>Cliente</td></tr>
+              <tr><td>Vacunas</td><td>7 días antes de la próxima dosis</td><td>Cliente</td></tr>
+              <tr><td>Seguimiento post-consulta</td><td>5 días después de una consulta</td><td>Cliente</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Para activarlos: al crear un turno, activá el toggle <strong>"Enviar recordatorios"</strong>. Si lo desactivás, no se envía nada.</p>
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Si un cliente no recibe un recordatorio, verificá:</strong>1. ¿El email está correcto en la ficha del cliente? 2. ¿El turno está confirmado? 3. ¿Activaste "Enviar recordatorios" al crear? Si todo está bien, pedile al cliente que revise su carpeta de spam.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="section" style="border-color: var(--role); background: var(--role-light);">
+      <div class="section-body">
+        <p style="color:var(--role-text); font-weight:600;">Como administrador, tu rol es garantizar que la información esté completa y correcta:</p>
+        <ul style="color:var(--role-text); margin-top:0.5rem;">
+          <li><strong>Clientes y pacientes:</strong> datos correctos, fotos, microchips.</li>
+          <li><strong>Turnos:</strong> confirmados a tiempo, con recordatorios activos.</li>
+          <li><strong>Caja:</strong> abierta cada mañana, cerrada cada noche con arqueo.</li>
+          <li><strong>Pet shop:</strong> stock actualizado, bajo stock vigilado.</li>
+          <li><strong>Staff:</strong> roles claros, activos cuando corresponde.</li>
+        </ul>
+        <p style="color:var(--role-text); margin-top:0.75rem;">Esto es lo que permite que Paula tenga un registro completo, que los clientes no se pierdan turnos, y que todo fluya sin caos. Gracias por mantener el sistema limpio.</p>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <div class="footer">NeoVet · Guía de Uso Interno · Administrador · Abril 2026</div>
+</div><!-- /main -->
+
+</body>
+</html>

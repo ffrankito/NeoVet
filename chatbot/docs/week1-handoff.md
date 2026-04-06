@@ -1,3 +1,5 @@
+> 📦 **Setup completado — documento histórico** — Esta guía de infraestructura de la semana 1 ya fue ejecutada. Todos los servicios están configurados. Solo relevante si se onboardea un dev nuevo desde cero que necesita entender cómo se conectaron los servicios originalmente. El estado actual del chatbot está en [`reverse-engineering.md`](./reverse-engineering.md).
+
 # NeoVet — Week 1 Handoff (Infrastructure Setup)
 
 This document covers everything the dev team needs to do to get the foundation running.

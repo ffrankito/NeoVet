@@ -1,3 +1,5 @@
+> ⚠️ **Superado por el código real** — Este documento es el plan de arquitectura de Fase 1 previo a la implementación. El estado real del chatbot v1 (incluyendo qué se construyó y cómo) está documentado con precisión en [`reverse-engineering.md`](./reverse-engineering.md). El roadmap vigente está en [`roadmap.md`](./roadmap.md).
+
 # NeoVet — Architecture Plan (Phase 1 MVP)
 
 ## Context

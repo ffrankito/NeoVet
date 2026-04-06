@@ -1,3 +1,5 @@
+> ⚠️ **Documento de referencia histórica** — Marzo 2026. El análisis de GVet sigue siendo válido, pero el contexto de "lo que podría ser NeoVet" quedó desactualizado. Para fines comerciales y de pricing, ver [`NeoVet_Pricing_Research_and_Budget_Proposal.md`](./NeoVet_Pricing_Research_and_Budget_Proposal.md).
+
 # NeoVet — Veterinary CRM Research & Benchmarking
 
 *March 2026 · Prepared by Tomás Pinolini*

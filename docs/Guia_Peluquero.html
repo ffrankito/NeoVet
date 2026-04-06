@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guía de Peluquero/a — NeoVet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..146,300..700;1,9..146,300..700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --role: #7c3aed;
+      --role-dark: #6d28d9;
+      --role-light: #ede9fe;
+      --role-text: #4c1d95;
+      --accent: #f43f5e;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --sidebar-w: 270px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.65; display: flex; }
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.25rem;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .sidebar-brand { display: flex; flex-direction: column; gap: 0.5rem; }
+    .sidebar-logo { font-size: 1.15rem; font-weight: 700; color: var(--role); letter-spacing: -0.02em; }
+    .role-badge {
+      display: inline-block;
+      background: var(--role-light);
+      color: var(--role-text);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .sidebar nav { display: flex; flex-direction: column; gap: 0.15rem; }
+    .sidebar nav a {
+      display: block;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar nav a:hover { background: var(--role-light); color: var(--role-dark); }
+    .sidebar nav .nav-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0.75rem 0.75rem 0.25rem;
+      opacity: 0.6;
+    }
+    .main { flex: 1; min-width: 0; }
+    .hero {
+      background: linear-gradient(135deg, var(--role) 0%, var(--role-dark) 100%);
+      padding: 3rem 3rem 2.5rem;
+      color: white;
+    }
+    .hero-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.75; margin-bottom: 0.5rem; }
+    .hero h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.75rem; }
+    .hero p { font-size: 1rem; opacity: 0.85; max-width: 620px; }
+    .content { padding: 2.5rem 3rem; max-width: 860px; }
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1.75rem; overflow: hidden; }
+    .section-header {
+      padding: 1.25rem 1.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: #fafafa;
+    }
+    .section-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--role); color: white;
+      font-size: 0.78rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-header h2 { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+    .section-body { padding: 1.5rem 1.75rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    h3 { font-size: 0.92rem; font-weight: 600; color: var(--role-dark); margin-bottom: 0.4rem; margin-top: 0.5rem; }
+    p { font-size: 0.92rem; color: var(--text); }
+    ul, ol { padding-left: 1.35rem; display: flex; flex-direction: column; gap: 0.3rem; }
+    li { font-size: 0.92rem; }
+    li strong { color: var(--text); }
+    .callout {
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.875rem;
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+    }
+    .callout-icon { font-size: 1rem; line-height: 1.4; flex-shrink: 0; }
+    .callout-body { line-height: 1.55; }
+    .callout-body strong { display: block; margin-bottom: 0.2rem; font-size: 0.83rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .callout.warn { background: #fffbeb; border-left: 3px solid #f59e0b; color: #78350f; }
+    .callout.tip { background: var(--role-light); border-left: 3px solid var(--role); color: var(--role-text); }
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      font-size: 0.83rem;
+      color: var(--role-dark);
+    }
+    /* Steps */
+    .step-list { display: flex; flex-direction: column; gap: 0.75rem; counter-reset: steps; }
+    .step {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--role); color: white;
+      font-size: 0.72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { display: block; font-size: 0.88rem; color: var(--text); margin-bottom: 0.2rem; }
+    .step-body p { font-size: 0.85rem; color: var(--text-muted); }
+    /* Difficulty badges */
+    .diff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    .diff-card {
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .diff-card .diff-level { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.35rem; }
+    .diff-card p { font-size: 0.8rem; color: var(--text-muted); }
+    .diff-min { background: #f0fdf4; border-color: #86efac; }
+    .diff-min .diff-level { color: #15803d; }
+    .diff-med { background: #fffbeb; border-color: #fcd34d; }
+    .diff-med .diff-level { color: #92400e; }
+    .diff-dif { background: #fef2f2; border-color: #fca5a5; }
+    .diff-dif .diff-level { color: #b91c1c; }
+    /* Checklist */
+    .checklist { display: flex; flex-direction: column; gap: 0.5rem; }
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+    }
+    .check-item .check-box {
+      width: 18px; height: 18px;
+      border: 2px solid var(--role);
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+    /* Findings */
+    .findings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .finding-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: #fafbfc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.83rem;
+    }
+    .finding-box { width: 14px; height: 14px; border: 1.5px solid #cbd5e1; border-radius: 3px; flex-shrink: 0; }
+    .footer { text-align: center; padding: 2rem 3rem; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); }
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; min-height: unset; position: static; border-right: none; border-bottom: 1px solid var(--border); padding: 1.25rem; }
+      .sidebar nav { display: none; }
+      .content { padding: 1.5rem 1.25rem; }
+      .hero { padding: 2rem 1.5rem; }
+      .diff-grid { grid-template-columns: 1fr; }
+      .findings-grid { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .sidebar { display: none; }
+      body { display: block; }
+      .section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">NeoVet</div>
+    <span class="role-badge">Peluquero/a</span>
+  </div>
+  <nav>
+    <div class="nav-section">Índice</div>
+    <a href="#s1">1. Acceso</a>
+    <a href="#s2">2. El Dashboard</a>
+    <a href="#s3">3. Ver un Turno</a>
+    <a href="#s4">4. Perfil de Peluquería</a>
+    <a href="#s5">5. Registrar una Sesión</a>
+    <a href="#s6">6. Por Qué Registrar los Hallazgos</a>
+    <a href="#s7">7. Cancelar un Turno</a>
+    <a href="#s8">8. La Caja</a>
+    <a href="#s9">9. Checklist del Día</a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="hero">
+    <div class="hero-label">Guía de uso interno · NeoVet</div>
+    <h1>Guía para Peluqueros/as</h1>
+    <p>Cómo registrar tus sesiones de grooming, los hallazgos que encontrás, y tu rol como los ojos clínicos de la clínica.</p>
+  </div>
+
+  <div class="content">
+
+    <!-- Intro -->
+    <div class="section">
+      <div class="section-body">
+        <p>Hola. Te cuento cómo usar el sistema para registrar tus sesiones de grooming. Es simple — te toma unos 5 minutos después de cada corte. Y ayuda mucho a la clínica. Gracias por ser cuidadoso.</p>
+      </div>
+    </div>
+
+    <!-- S1 -->
+    <div class="section" id="s1">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <h2>Acceso</h2>
+      </div>
+      <div class="section-body">
+        <p>Ingresá a <code>https://neovet.veterinaria.ar</code> con tu email y contraseña. El sistema funciona en desktop y mobile — podés usarlo desde el celular en el espacio de peluquería.</p>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="section" id="s2">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <h2>El Dashboard</h2>
+      </div>
+      <div class="section-body">
+        <p>Cuando ingresás, ves <strong>"Tus turnos de hoy"</strong> — solo los turnos de peluquería asignados a vos, ordenados por hora.</p>
+        <p>Cada turno muestra: paciente (nombre de la mascota), cliente (nombre del dueño), hora y estado. Hacé clic en un turno para ver detalles o registrar la sesión.</p>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="section" id="s3">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <h2>Ver un Turno de Peluquería</h2>
+      </div>
+      <div class="section-body">
+        <p>Cuando abrís un turno, ves:</p>
+        <ul>
+          <li><strong>Paciente:</strong> nombre, raza, edad.</li>
+          <li><strong>Cliente:</strong> nombre y teléfono.</li>
+          <li><strong>Horario:</strong> a qué hora es.</li>
+          <li><strong>Servicio:</strong> tipo de grooming (Peluquería completa, Baño y secado, etc.).</li>
+          <li><strong>Resumen:</strong> última sesión y hallazgos previos — revisalos antes de empezar.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="section" id="s4">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <h2>Perfil de Peluquería del Paciente</h2>
+      </div>
+      <div class="section-body">
+        <p>Cada paciente tiene un perfil específico de grooming. Es importante que lo leas antes de cada sesión. Lo encontrás en la ficha del paciente → pestaña <strong>Peluquería</strong>.</p>
+        <div>
+          <h3>Qué tiene el perfil</h3>
+          <ul>
+            <li><strong>Comportamiento:</strong> puntuación de cómo se porta (tranquilo, nervioso, agresivo).</li>
+            <li><strong>Tipo de pelaje:</strong> largo, corto, rizado, doble, etc.</li>
+            <li><strong>Dificultades:</strong> nudos frecuentes, sensibilidad, zonas problemáticas.</li>
+            <li><strong>Tiempo estimado:</strong> cuántos minutos te lleva normalmente.</li>
+            <li><strong>Notas de comportamiento:</strong> cosas que debés saber (ej: "No le gustan las patas", "Muy nervioso con el secador").</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Actualizar el perfil</h3>
+          <p>Si algo cambió desde la última sesión: ficha del paciente → pestaña Peluquería → <strong>Editar perfil de grooming</strong> → modificá → guardá.</p>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>Este perfil te prepara. Si sabés que tiene nudos frecuentes, preparás champú específico. Si es nervioso, tenés cuidado con el secador. Ahorrás tiempo y evitás situaciones de estrés.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="section" id="s5">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <h2>Registrar una Sesión de Peluquería</h2>
+      </div>
+      <div class="section-body">
+        <p>Después de terminar la sesión, registrala en el sistema. Abrí el turno → botón <strong>Registrar sesión</strong> o <strong>Completar</strong>.</p>
+
+        <div class="step-list">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <strong>Fotos Antes</strong>
+              <p>Subí fotos del estado del pelaje antes de empezar. Documentan el trabajo y detectan problemas (nudos, heridas, sarna).</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <strong>Fotos Después</strong>
+              <p>Subí fotos del resultado final. Muestran el trabajo que hiciste y el cambio logrado.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <strong>Hallazgos clínicos</strong>
+              <p>Marcá todo lo que viste durante la sesión. Esto es lo más importante que hacés además del grooming.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Hallazgos — qué marcar</h3>
+          <div class="findings-grid">
+            <div class="finding-item"><div class="finding-box"></div> Nódulos / Bultos</div>
+            <div class="finding-item"><div class="finding-box"></div> Parasitosis (pulgas, garrapatas, ácaros)</div>
+            <div class="finding-item"><div class="finding-box"></div> Heridas / Lesiones</div>
+            <div class="finding-item"><div class="finding-box"></div> Otitis (inflamación de oído)</div>
+            <div class="finding-item"><div class="finding-box"></div> Problemas de piel (descamación, enrojecimiento)</div>
+            <div class="finding-item"><div class="finding-box"></div> Uñas largas / Sin cortar</div>
+            <div class="finding-item"><div class="finding-box"></div> Otros hallazgos</div>
+          </div>
+          <p style="margin-top:0.65rem;">Si marcás algo, escribí una nota. Ej: <em>"Nódulo pequeño en flanco izquierdo, debería verlo el vet"</em> o <em>"Garrapatas en el lomo — bastantes"</em>.</p>
+        </div>
+
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Importante</strong>Los hallazgos clínicos son información médica. Al registrarlos, Paula y los veterinarios los pueden ver en la ficha del paciente. No los omitas aunque parezcan menores.</div>
+        </div>
+
+        <div>
+          <h3>Nivel de dificultad</h3>
+          <div class="diff-grid">
+            <div class="diff-card diff-min">
+              <div class="diff-level">Mínimo</div>
+              <p>Perro tranquilo, pelaje fácil, sin complicaciones.</p>
+            </div>
+            <div class="diff-card diff-med">
+              <div class="diff-level">Medio</div>
+              <p>Pelaje con nudos, algo nervioso, o tiempo mayor al estimado.</p>
+            </div>
+            <div class="diff-card diff-dif">
+              <div class="diff-level">Difícil</div>
+              <p>Muy agresivo, pelaje muy complicado, mucho tiempo, o requirió sedación.</p>
+            </div>
+          </div>
+          <p style="margin-top:0.65rem;">El sistema usa esta clasificación para calcular el precio automáticamente.</p>
+        </div>
+
+        <div>
+          <h3>Precio final y método de pago</h3>
+          <p>El sistema sugiere un precio según el nivel de dificultad. Si necesitás ajustarlo, podés editarlo. Luego seleccioná el método de pago: Efectivo / Tarjeta / Transferencia.</p>
+        </div>
+
+        <div>
+          <h3>Guardar</h3>
+          <p>Hacé clic en <strong>Guardar sesión</strong>. El turno se marca como completado y el ingreso se registra automáticamente en la caja. No tenés que hacer nada más.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="section" id="s6">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <h2>Por Qué Registrar los Hallazgos</h2>
+      </div>
+      <div class="section-body">
+        <p>Es lo más importante que hacés además del grooming.</p>
+        <div>
+          <h3>Los hallazgos son información médica</h3>
+          <p>Cuando te peinás a Romeo y encontrás un nódulo, descamación de piel, o señales de sarna, eso es clínica. No es solo cosmética.</p>
+        </div>
+        <div>
+          <h3>Paula y los vets necesitan saberlo porque:</h3>
+          <ul>
+            <li>Pueden agendar al cliente con el vet para evaluación.</li>
+            <li>Pueden detectar patrones (ej: "Los últimos 3 bulldogs tuvieron otitis — quizá hay un problema ambiental").</li>
+            <li>Pueden ofrecerle al cliente productos o tratamientos (champú medicado, antiparasitarios).</li>
+            <li>En emergencias, esa información puede salvar una vida.</li>
+          </ul>
+        </div>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>Por qué importa</strong>Vos sos los ojos de la clínica. Pasás más tiempo tocando el cuerpo del paciente que nadie. Si detectás algo, el sistema necesita saberlo — y el vet puede actuar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="section" id="s7">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <h2>Cancelar un Turno</h2>
+      </div>
+      <div class="section-body">
+        <p>Si el cliente no se presenta o cancela: desde el turno → botón <strong>Cancelar</strong> o <strong>Marcar como no se presentó</strong>.</p>
+        <ul>
+          <li>Elegí el motivo (Cliente solicitó / No se presentó / Razón médica / Otro).</li>
+          <li>Escribí una nota si es necesario (ej: "La mascota estaba enferma").</li>
+          <li>Guardá.</li>
+        </ul>
+        <p>El turno se marca en el historial. No afecta tu agenda ni la caja.</p>
+      </div>
+    </div>
+
+    <!-- S8 -->
+    <div class="section" id="s8">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <h2>La Caja</h2>
+      </div>
+      <div class="section-body">
+        <p>No necesitás hacer mucho acá — pero es bueno que entiendas cómo funciona.</p>
+        <p>Cuando guardás una sesión con un método de pago, el ingreso se registra automáticamente en la caja de Paula. Por ejemplo: sesión de peluquería completa a $15.000 pagada en efectivo → aparece automáticamente como $15.000 en efectivo en la caja.</p>
+        <p>Paula cierra la caja al final del día y verifica que los montos cuadren.</p>
+        <div class="callout warn">
+          <div class="callout-icon">⚠️</div>
+          <div class="callout-body"><strong>Tu rol:</strong> asegurate de indicar el método de pago correcto cuando guardás la sesión, y no cambiar precios sin una razón real. Si hay una diferencia en la caja, Paula la investiga — y podría volver a vos.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S9 -->
+    <div class="section" id="s9">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <h2>Checklist del Día</h2>
+      </div>
+      <div class="section-body">
+        <p>Después de cada sesión, verificá que completaste estos pasos:</p>
+        <div class="checklist">
+          <div class="check-item"><div class="check-box"></div>¿Subí fotos antes y después de la sesión?</div>
+          <div class="check-item"><div class="check-box"></div>¿Marqué los hallazgos que encontré (nódulos, parasitosis, heridas, otitis, etc.)?</div>
+          <div class="check-item"><div class="check-box"></div>¿Seleccioné el nivel de dificultad correcto (Mínimo / Medio / Difícil)?</div>
+          <div class="check-item"><div class="check-box"></div>¿Revisé que el precio sea el correcto para este servicio?</div>
+          <div class="check-item"><div class="check-box"></div>¿Indiqué el método de pago del cliente (Efectivo / Tarjeta / Transferencia)?</div>
+          <div class="check-item"><div class="check-box"></div>¿Guardé la sesión?</div>
+        </div>
+        <p style="margin-top:0.5rem; color:var(--text-muted); font-size:0.85rem;">Si todo está tildado → listo. Gracias por mantener el sistema completo.</p>
+      </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="section" style="border-color: var(--role); background: var(--role-light);">
+      <div class="section-body">
+        <p style="color:var(--role-text); font-weight:600;">El panorama general — Por qué importa lo que hacés:</p>
+        <ul style="color:var(--role-text); margin-top:0.5rem;">
+          <li><strong>Negocio:</strong> cada peso que cobra el grooming tiene que quedar registrado. Sin eso, Paula no puede administrar la clínica.</li>
+          <li><strong>Clínica:</strong> vos trabajás con los pacientes cada semana. Ves problemas que el vet no ve porque no estás todos los días. Si no lo registrás, esa información se pierde.</li>
+          <li><strong>Equipo:</strong> si el vet sabe que Romeo tiene otitis (porque vos lo registraste), puede hacer algo al respecto.</li>
+          <li><strong>Unificación:</strong> el grooming no es un servicio separado. Es parte del cuidado del paciente. Todo en un único lugar.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <div class="footer">NeoVet · Guía de Uso Interno · Peluquero/a · Abril 2026</div>
+</div><!-- /main -->
+
+</body>
+</html>

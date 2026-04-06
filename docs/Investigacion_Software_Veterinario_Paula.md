@@ -1,3 +1,5 @@
+> 📦 **Documento archivado** — Marzo 2026. Escrito cuando el sistema aún no existía, en tono de "esto es lo que podríamos construir". El sistema ya fue construido. Para uso actual con Paula, ver [`Folleto_Comercial.html`](./Folleto_Comercial.html) y [`../NeoVet_Propuesta_Partner_Paula.md`](../NeoVet_Propuesta_Partner_Paula.md).
+
 # Investigación de Software para Veterinarias
 ### Documento preparado para Paula Silveira — Marzo 2026
 
