@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Project** | NeoVet CRM |
-| **Version** | 2.0 |
+| **Version** | 2.1 |
 | **Author(s)** | Franco Zancocchia |
 | **Status** | Active |
-| **Last updated** | 2026-04-02 |
+| **Last updated** | 2026-04-06 |
 | **Related charter** | `crm/docs/v1/charter.md` v1.1 |
 
 ---
@@ -46,7 +46,7 @@ graph TD
 
 | Layer | Choice | Rationale |
 |---|---|---|
-| Framework | Next.js 16 App Router + TypeScript | Team's primary stack |
+| Framework | Next.js 16.1.6 App Router + TypeScript | Team's primary stack |
 | UI components | Tailwind CSS + shadcn/ui | Consistent, accessible primitives |
 | ORM | Drizzle ORM | Type-safe, migration-based |
 | Database | Supabase (PostgreSQL) | Free tier, Auth included |
@@ -129,7 +129,8 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appo
 | `appointment_type` | enum | No | `veterinary` / `grooming` |
 | `consultation_type` | enum | Yes | `clinica` / `virtual` / `domicilio` — only for veterinary appointments |
 | `reason` | text | Yes | |
-| `status` | text | No | `pending` / `confirmed` / `cancelled` / `completed` |
+| `status` | text | No | `pending` / `confirmed` / `cancelled` / `completed` / `no_show` |
+| `cancellation_reason` | text | Yes | Optional reason captured when cancelling an appointment |
 | `send_reminders` | boolean | No | Default true — controls whether reminder emails are sent |
 | `staff_notes` | text | Yes | |
 | `created_at` | timestamptz | No | |
@@ -341,7 +342,7 @@ Used for idempotency — prevents duplicate reminder emails.
 | `patient_id` | text | Yes | FK → patients (set null) — optional traceability |
 | `sold_by_id` | text | No | FK → staff — who made the sale |
 | `created_by_id` | text | No | FK → staff (audit) |
-| `payment_method` | text | No | `efectivo` / `transferencia` / `debito` / `credito` / `mercadopago` |
+| `payment_method` | text | No | `efectivo` / `transferencia` / `tarjeta_debito` / `tarjeta_credito` / `mercadopago` |
 | `payment_id` | text | Yes | FK → payments — hook for Phase D (ARCA) |
 | `notes` | text | Yes | |
 | `created_at` | timestamptz | No | |
@@ -403,12 +404,12 @@ Total = opening + sales in period + extra income − expenses. Sales sourced fro
 |---|---|
 | User authentication | Supabase SSR email login |
 | Session management | Supabase SSR cookies |
-| Role model | Three roles: `admin`, `vet`, `groomer` — enforced via middleware |
+| Role model | Four roles: `admin`, `owner`, `vet`, `groomer` — enforced via middleware. `owner` has the same permissions as `admin`. |
 | API route protection | Next.js middleware checks Supabase session + role |
 
 ### Role Access Matrix
 
-| Area | Admin | Vet | Groomer |
+| Area | Admin / Owner | Vet | Groomer |
 |---|---|---|---|
 | Clients (CRUD) | ✅ Full | 👁️ Read only | ❌ |
 | Patients (CRUD) | ✅ Full | ✅ Read + edit | ❌ |
@@ -478,8 +479,8 @@ All cron endpoints are excluded from auth middleware via `proxy.ts`. Authenticat
 |---|---|---|---|
 | 1 | Geovet export format | Tomás / Paula | ✅ Resolved — CSV export analyzed and imported |
 | 2 | Clinical history: structured vs free-text | Tomás / Paula | ✅ Resolved — SOAP implemented; all fields optional; free-text `notes` fallback |
-| 3 | Soft-delete vs hard-delete | Franco | 🔲 Pending — currently hard-delete for most entities, soft-delete for staff/products/providers/services |
+| 3 | Soft-delete vs hard-delete | Franco | ✅ Resolved — hard-delete for most entities, soft-delete (`is_active` flag) for staff, products, providers, and services |
 | 4 | ARCA billing integration details | Paula | 🔲 Pending — Paula to provide certificate, CUIT, endpoint, punto de venta. Blocks Phase D.3 |
-| 5 | Staff roles and access levels | Paula | ✅ Resolved — admin / vet / groomer implemented |
-| 6 | Grooming base prices per tier | Paula | 🔲 Pending — configurable in settings, no default values seeded yet |
-| 7 | Email sender address (Resend domain) | Tomás | 🔲 Pending — domain verification needed |
+| 5 | Staff roles and access levels | Paula | ✅ Resolved — admin / owner / vet / groomer implemented |
+| 6 | Grooming base prices per tier | Paula | 🔲 Pending — configurable in Settings, Paula to set values at launch (PL-5 in development plan) |
+| 7 | Email sender address (Resend domain) | Tomás | 🔲 Pending — domain verification needed before launch (PL-3 in development plan) |

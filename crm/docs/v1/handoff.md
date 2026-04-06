@@ -29,7 +29,7 @@
 - [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios → agendar seguimiento
 - [ ] Flujo de peluquería completo probado: crear turno de peluquería → asignar peluquero → peluquero registra sesión → fotos subidas → hallazgos registrados → ingreso en caja automático
 - [ ] Cada rol probado en aislamiento (ingresar como veterinario, como peluquero — verificar que dashboard filtra turnos y las rutas bloqueadas redirigen)
-- [ ] Flujo de facturación probado: registrar pago → generar factura → enviar a ARCA → recibir CAE
+- N/A ~~Flujo de facturación probado~~ — Fase D pendiente de build
 - [ ] Catálogo de servicios configurado con los servicios de Paula
 - [ ] Vista semanal de calendario verificada con slots libres y bloqueos de cirugía
 - [ ] Suspensión de agenda: profesional puede bloquear días/franjas y turnos afectados se cancelan
@@ -60,7 +60,7 @@
 - [ ] Paula tiene acceso de administrador al proyecto en Vercel
 - [ ] Paula tiene acceso de administrador al proyecto en Supabase
 - [ ] Paula tiene su propia cuenta en el CRM con rol `admin`
-- [ ] Credenciales ARCA configuradas en las variables de entorno de producción
+- N/A ~~Credenciales ARCA configuradas en las variables de entorno de producción~~ — Fase D pendiente de build
 - [ ] El acceso de la agencia fue reducido o eliminado según el acuerdo
 
 ---
@@ -72,7 +72,7 @@
 NeoVet CRM es la herramienta interna de la clínica para gestionar toda la operación diaria sin depender de GVet. Desde acá podés:
 
 - **Clientes y pacientes** — buscar cualquier dueño, ver sus mascotas, editar datos de contacto.
-- **Turnos** — crear turnos veterinarios o de peluquería, asignarlos a un profesional, confirmarlos, marcarlos como completados o registrar ausencia ("no se presentó"). Cancelación con motivo opcional. Vista semanal con slots libres y bloqueos de cirugía. Cada profesional puede suspender su propia agenda por día(s) o franja horaria. Al crear un turno se envía email de confirmación al cliente; al cancelar se envía notificación.
+- **Turnos** — crear turnos veterinarios o de peluquería, asignarlos a un profesional, confirmarlos, marcarlos como completados o registrar ausencia ("no se presentó"). 5 estados: `pendiente`, `confirmado`, `completado`, `cancelado`, `no se presentó`. Cancelación con motivo opcional. Vista semanal con slots libres y bloqueos de cirugía. Cada profesional puede suspender su propia agenda por día(s) o franja horaria. Al crear un turno se envía email de confirmación al cliente; al cancelar se envía notificación.
 - **Catálogo de servicios** — lista de servicios con duración predeterminada; las cirugías bloquean el calendario el tiempo que se configure.
 - **Historia clínica** — registrar cada consulta con notas SOAP, signos vitales, plan de tratamiento (con medicamento, dosis, frecuencia y duración), vacunas y desparasitaciones. Se pueden adjuntar documentos clasificados por categoría (laboratorio, radiografía, ecografía, foto) y métodos complementarios (informes de estudios con fotos opcionales).
 - **Peluquería** — cada perro que pasa por peluquería tiene su perfil propio (comportamiento, tipo de pelaje, tiempo estimado). El peluquero registra cada sesión con fotos antes/después, hallazgos, precio final y método de pago. El ingreso se registra automáticamente en la caja abierta.
@@ -86,7 +86,7 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 
 | Rol | Qué puede hacer |
 |---|---|
-| **Admin** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, pet shop, caja, facturación, staff, configuración. Dashboard muestra todos los turnos del día + estado de caja |
+| **Admin / Owner** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, pet shop, caja, facturación, staff, configuración. Dashboard muestra todos los turnos del día + estado de caja |
 | **Veterinario/a** | Ver clientes · Ver y editar pacientes · Ver turnos veterinarios asignados · Registrar y editar consultas · Agendar seguimiento desde consulta |
 | **Peluquero/a** | Ver turnos de peluquería asignados · Registrar sesiones de peluquería (ingreso auto en caja) · Editar perfil de peluquería del paciente |
 
@@ -186,7 +186,7 @@ npm run db:migrate
 | El peluquero no ve sus turnos | El turno no está tipificado como "grooming" o no está asignado al peluquero | Un admin edita el turno y cambia el tipo o la asignación |
 | El ingreso de peluquería no aparece en caja | No había caja abierta al registrar la sesión | Abrir caja antes de registrar sesiones. Si ya se registró, agregar el movimiento manualmente |
 | No llegó el email de confirmación del turno | `sendReminders` estaba desactivado, o el cliente no tiene email cargado | Verificar el toggle al crear el turno, y que el cliente tenga email |
-| Error al emitir factura en ARCA | Certificado digital vencido o credenciales incorrectas | Verificar las variables `ARCA_*` en Vercel y renovar el certificado si aplica |
+| Error al emitir factura en ARCA | *(Fase D pendiente de build — esta fila aplica cuando se implemente facturación)* | — |
 | No puedo subir una foto en la sesión de peluquería | Archivo muy grande o formato no soportado | Usar JPG o PNG, máximo 10 MB |
 
 ### Cuándo contactar a la agencia

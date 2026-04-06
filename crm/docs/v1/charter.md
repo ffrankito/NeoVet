@@ -9,8 +9,8 @@
 | **Tech lead** | Franco Zancocchia |
 | **Start date** | 2026-03-01 |
 | **Target delivery (v1)** | TBD — pending Phase E completion and UAT |
-| **Charter version** | 1.1 |
-| **Last updated** | 2026-04-02 |
+| **Charter version** | 1.2 |
+| **Last updated** | 2026-04-06 |
 
 ---
 
@@ -22,7 +22,7 @@ The clinic currently manages clients, patients, and appointments using Geovet �
 
 ## Proposed Solution
 
-A staff-only internal tool for managing clients (pet owners), patients (pets), clinical history, and appointments. v1 is purely manual — no automation, no notifications, no chatbot integration. It replaces Geovet as the system of record for the clinic's operational data.
+A staff-only internal tool for managing clients (pet owners), patients (pets), clinical history, appointments, grooming, pet shop, cash register, and email reminders. It replaces Geovet as the system of record for the clinic's operational data. No chatbot integration in v1.
 
 ---
 
@@ -45,7 +45,7 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 - Pet shop: product catalog (9 categories), providers, stock entries, sales with multi-item cart, payment methods; stock auto-updates on entry/sale
 - Cash register: daily open/close sessions, income/expense movements, breakdown by payment method
 - Billing (Phase D — pending build): payment registration, ARCA electronic invoicing (Factura A/B/C), two fiscal entities, billing limit controls
-- Role-based access control: `admin` (full access), `vet` (clinical records only), `groomer` (grooming appointments and sessions only)
+- Role-based access control: `admin` (full access), `owner` (full access, same as admin), `vet` (clinical records only), `groomer` (grooming appointments and sessions only)
 - Staff management UI (admin only): create/edit/deactivate staff accounts and assign roles
 - Settings page (admin only): configurable grooming base prices per tier
 - Mobile-responsive UI for all main flows
@@ -81,7 +81,7 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | D7 | Grooming module: profiles, sessions, photos, findings, pricing tiers | Franco | ✅ Done |
 | D8 | Service catalog with default durations and surgery blocks | Franco | ✅ Done |
 | D9 | Weekly calendar view with surgery blocks, schedule suspensions, staff filter | Franco | ✅ Done |
-| D10 | Email reminders: appointment 48h/24h, vaccine 7d, post-consultation follow-ups | Franco | ✅ Done (end-to-end verification pending) |
+| D10 | Email reminders: appointment 48h/24h, vaccine 7d, post-consultation follow-ups | Franco | ✅ Done |
 | D11 | Mobile-responsive UI | Franco | ✅ Done |
 | D12 | Pet shop: products, providers, stock entries, sales | Franco | ✅ Done |
 | D13 | Cash register: sessions, movements, payment method breakdown | Franco | ✅ Done |
@@ -99,12 +99,13 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | Build — Phase F | Clinical history enhancements (consultation types, treatment fields, complementary methods, document categories) | ✅ Done |
 | Build — Phase G | Service catalog | ✅ Done |
 | Build — Phase H | Calendar view + surgery blocks + schedule suspensions | ✅ Done |
-| Build — Phase I | Email reminders (appointment, vaccine, follow-up) | ✅ Done (e2e verification pending) |
+| Build — Phase I | Email reminders (appointment, vaccine, follow-up) | ✅ Done |
 | Build — Phase J | Mobile-responsive UI | ✅ Done |
 | Build — Phase K | Pet shop (products, providers, stock, sales) | ✅ Done |
 | Build — Phase K.B | Cash register (sessions, movements) | ✅ Done |
-| Build — Phase D | Billing + ARCA integration | 🔲 Pending |
-| QA | Internal testing with real clinic data | 🔄 In progress |
+| Build — Phase L | Day-one preparation (dashboard filtering, no-show, cancellation reason, email notifications, etc.) | ✅ Done |
+| Build — Phase D | Billing + ARCA integration | 🔲 Pending — blocked on ARCA credentials |
+| QA | Internal testing with real clinic data | ✅ Done (core features) |
 | UAT | Paula and team acceptance testing | 🔲 Pending |
 | Launch | Deploy to Vercel | 🔲 Pending |
 
@@ -116,7 +117,7 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 |---|---|---|---|---|
 | R1 | Geovet export format is inconsistent or incomplete | Medium | Medium | ✅ Resolved — export analyzed and imported successfully |
 | R2 | Scope creep into chatbot API integration | Medium | High | Enforce v1 boundary — no public API until v2 |
-| R3 | ARCA billing complexity delays v1 launch | High | High | Paula confirmed billing is required for v1 — scope it carefully, certificate setup must be done early. Pending ARCA credentials and certificate. |
+| R3 | ARCA billing complexity delays v1 launch | High | Medium | Phase D is the only remaining v1 deliverable. All core operational features (Phases A–L) are complete and usable without billing. Phase D is blocked on Paula providing ARCA credentials and certificate. |
 | R4 | Grooming findings escalation logic undefined | Medium | Low | Deferred pending groomer interview — checkboxes built, alerting logic is v2 |
 
 ---

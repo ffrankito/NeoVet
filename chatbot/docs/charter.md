@@ -8,9 +8,9 @@
 | **Internal owner** | Tomás Pinolini |
 | **Tech lead** | Franco Zancocchia |
 | **Start date** | 2026-03-01 |
-| **Target delivery (v1)** | <!-- YYYY-MM-DD --> |
-| **Charter version** | 1.0 |
-| **Last updated** | 2026-03-26 |
+| **Target delivery (v1)** | ✅ Deployed — `neo-vet-widget.vercel.app` |
+| **Charter version** | 1.1 |
+| **Last updated** | 2026-04-06 |
 
 ---
 
@@ -55,9 +55,9 @@ An AI-powered conversational assistant that answers common client questions auto
 
 | # | Deliverable | Owner | Status |
 |---|---|---|---|
-| D1 | Web chat widget live at a public URL | Franco | Pending |
-| D2 | Correct FAQ responses in Argentine Spanish | Franco | Pending |
-| D3 | Seeded system prompt with Paula's real clinic data | Tomás + Paula | Pending |
+| D1 | Web chat widget live at a public URL | Franco | ✅ Done — deployed at `neo-vet-widget.vercel.app`, embedded as iframe on landing page |
+| D2 | Correct FAQ responses in Argentine Spanish | Franco | ✅ Done — responds in Argentine Spanish with "vos" form |
+| D3 | Seeded system prompt with Paula's real clinic data | Tomás + Paula | ✅ Done — system prompt seeded with hours, services, location, contact info. Awaiting Paula's final approval of FAQ content. |
 
 ---
 
@@ -65,10 +65,10 @@ An AI-powered conversational assistant that answers common client questions auto
 
 | Phase | Description | Status |
 |---|---|---|
-| Discovery | Requirements, FAQ content gathering from Paula | In progress |
-| Build | Chatbot implementation | Pending |
-| QA | End-to-end FAQ testing | Pending |
-| Launch | Deploy to Vercel | Pending |
+| Discovery | Requirements, FAQ content gathering from Paula | ✅ Done |
+| Build | Chatbot implementation | ✅ Done |
+| QA | End-to-end FAQ testing | ✅ Done |
+| Launch | Deploy to Vercel | ✅ Done — live at `neo-vet-widget.vercel.app` |
 
 ---
 
@@ -76,13 +76,15 @@ An AI-powered conversational assistant that answers common client questions auto
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| R1 | Paula delays providing FAQ content | Medium | High | Block build phase until content is received |
+| R1 | Paula delays providing FAQ content | Medium | High | ✅ Resolved — FAQ content seeded from Paula's clinic data (hours, services, location, contact info). Final approval pending. |
 | R2 | Scope creep into appointment booking | Medium | Medium | Enforce v1/v2 boundary, require explicit version upgrade to proceed |
 
 ---
 
 ## Success Criteria
 
-- Bot responds correctly to at least 10 common FAQ questions in Argentine Spanish
-- Response time under 3 seconds for 95% of messages
-- Paula reviews and approves the FAQ responses before launch
+| Criterion | Status |
+|---|---|
+| Bot responds correctly to at least 10 common FAQ questions in Argentine Spanish | ✅ Met — covers hours, services, location, booking instructions, emergencies, specialties, prices, contact info |
+| Response time under 3 seconds for 95% of messages | ⏳ Not formally measured — subjectively fast via streaming |
+| Paula reviews and approves the FAQ responses before launch | 🔲 Pending — awaiting Paula's review session |
