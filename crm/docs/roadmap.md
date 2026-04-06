@@ -61,7 +61,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 |---|---|
 | API pública del CRM — endpoints para que el chatbot lea/escriba turnos | Integración |
 | Autogestión de turnos online vía chatbot | Scheduling |
-| WhatsApp bidireccional (Kapso) | Comunicación |
+| WhatsApp bidireccional (provider TBD — evaluar Kapso, Twilio, Meta Cloud API) | Comunicación |
 | Recordatorios de turno por WhatsApp — 24h y 1h antes | Comunicación |
 | Confirmación de turno por WhatsApp | Comunicación |
 | Recordatorios de peluquería por WhatsApp ("hace dos semanas...") | Comunicación |
@@ -84,9 +84,9 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Inventario: consumo ligado a consultas | Inventario |
 | Inventario: seguimiento de vencimientos | Inventario |
 | Inventario: órdenes de compra | Inventario |
-| Chatbot: persistencia de conversaciones (DB + localStorage) | Chatbot |
-| Chatbot: CORS headers para embedding cross-origin | Chatbot |
-| Chatbot: analytics y logs de conversaciones | Chatbot |
+| CRM: módulo `/dashboard/bot` — conversaciones, escalaciones, vinculación de contactos | CRM + Chatbot |
+
+> **Chatbot v2** tiene su propio roadmap detallado en `chatbot/docs/roadmap.md` con fases A–D (fundación, WhatsApp, tools transaccionales, urgency triage).
 
 > **Nota:** Los siguientes ítems se movieron a v1 Fase L (day-one readiness): seguimiento de ausencias (no-shows), confirmación de turno por email, cancelación con motivo por email. Gestión de recetas se mantiene en v2 (impresión full con formato legal); v1 Phase L solo agrega un resumen de historial en el turno.
 
