@@ -63,7 +63,9 @@ Validación Zod server-side en todos los formularios con errores de campo. `load
 
 ---
 
-### Fase D — Facturación Electrónica 🔲 Pendiente de build
+### Fase D — Facturación Electrónica 🔲 Diferida a post-lanzamiento
+
+> **Decisión (2026-04-07):** La Fase D se excluye del alcance de v1 y se incorporará como un update post-lanzamiento cuando Paula disponga de certificado digital y credenciales ARCA. La facturación no es bloqueante para la operación diaria — Paula continúa facturando manualmente mientras se construye esta fase. El resto de v1 se entrega sin depender de esto.
 
 **Objetivo:** Los admins pueden registrar pagos y generar comprobantes electrónicos (ARCA) de forma opcional, con control de límites por entidad fiscal.
 
@@ -347,6 +349,11 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 ---
 
 ### Pre-Launch — Configuración y Despliegue 🔲 Pendiente
+
+> **Timeline de entrega:**
+> - **9 de abril 2026** — Demo + inicio de UAT (semana de testeo con Paula)
+> - **16 de abril 2026** — Reunión de entrega formal (aceptación, firma simbólica, transferencia de accesos, corte seco de Geovet)
+> - **16 de abril – 15 de junio 2026** — Período de garantía (60 días, solo bugs)
 
 Estas tareas no requieren cambios de código. Son configuración, deploy y verificación.
 

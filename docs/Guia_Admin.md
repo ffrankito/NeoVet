@@ -83,7 +83,7 @@ Aca ves TODOS los turnos de hoy, ordenados por hora:
   - **Notas** (opcional): Cualquier detalle que debas recordar
 - Hacé clic en "Guardar"
 
-⚠️ **Importante:** El teléfono de WhatsApp es crítico. Si está mal, no llegan los recordatorios de turnos y los clientes se pierden las citas.
+⚠️ **Importante:** El email es crítico. Si está mal, no llegan los recordatorios de turnos y los clientes se pierden las citas. El teléfono de WhatsApp es importante para el contacto manual, pero los recordatorios automáticos se envían por email.
 
 ### Editar Datos del Cliente
 - Abrí la ficha del cliente (hacé clic en su nombre)
@@ -453,7 +453,7 @@ El staff recibe un email con un link para activar su cuenta.
 | 48 horas antes | 2 días antes del turno (8 AM) | Cliente |
 | 24 horas antes | 1 día antes del turno (8 AM) | Cliente |
 | Vacunas | 7 días antes de la próxima dosis | Cliente |
-| Seguimiento post-consulta | 5 días después de una consulta | Cliente (si hay turno de seguimiento) |
+| Seguimiento post-consulta | En la fecha programada por el veterinario | Cliente (si se agendó seguimiento) |
 
 **Cómo activarlos:**
 - Al crear un turno, hay un toggle "Enviar recordatorios"

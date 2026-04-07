@@ -8,9 +8,9 @@
 | **Internal owner** | Tomás Pinolini |
 | **Tech lead** | Franco Zancocchia |
 | **Start date** | 2026-03-01 |
-| **Target delivery (v1)** | TBD — pending Phase E completion and UAT |
-| **Charter version** | 1.2 |
-| **Last updated** | 2026-04-06 |
+| **Target delivery (v1)** | 2026-04-16 (UAT starts 2026-04-09) |
+| **Charter version** | 1.3 |
+| **Last updated** | 2026-04-07 |
 
 ---
 
@@ -85,7 +85,7 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | D11 | Mobile-responsive UI | Franco | ✅ Done |
 | D12 | Pet shop: products, providers, stock entries, sales | Franco | ✅ Done |
 | D13 | Cash register: sessions, movements, payment method breakdown | Franco | ✅ Done |
-| D14 | Billing: ARCA electronic invoicing (Factura A/B/C), two fiscal entities, limit controls | Franco | 🔲 Pending build |
+| D14 | Billing: ARCA electronic invoicing (Factura A/B/C), two fiscal entities, limit controls | Franco | 🔲 Deferred to post-launch (blocked on ARCA credentials) |
 
 ---
 
@@ -104,10 +104,11 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | Build — Phase K | Pet shop (products, providers, stock, sales) | ✅ Done |
 | Build — Phase K.B | Cash register (sessions, movements) | ✅ Done |
 | Build — Phase L | Day-one preparation (dashboard filtering, no-show, cancellation reason, email notifications, etc.) | ✅ Done |
-| Build — Phase D | Billing + ARCA integration | 🔲 Pending — blocked on ARCA credentials |
+| Build — Phase D | Billing + ARCA integration | 🔲 Deferred to post-launch — blocked on ARCA credentials |
 | QA | Internal testing with real clinic data | ✅ Done (core features) |
-| UAT | Paula and team acceptance testing | 🔲 Pending |
-| Launch | Deploy to Vercel | 🔲 Pending |
+| UAT | Paula and team acceptance testing | 🔲 Starts 2026-04-09 |
+| Delivery | Formal handoff to Paula | 🔲 Scheduled 2026-04-16 |
+| Warranty | 60-day bug-fix guarantee | 🔲 2026-04-16 → 2026-06-15 |
 
 ---
 

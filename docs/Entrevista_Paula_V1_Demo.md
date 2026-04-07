@@ -28,8 +28,8 @@
 | Demo V1 — CRM | 35 min | Recorrido completo del sistema |
 | Demo V1 — Chatbot y Landing | 10 min | Las otras dos herramientas |
 | Momento de feedback | 15 min | Paula habla, vos escuchás |
-| Preview V2 | 15 min | Qué se viene y cuándo |
-| Conversación de partnership | 10 min | Abrir la propuesta |
+| Preview V2 | 10 min | Qué se viene y cuándo |
+| Kickoff UAT + Próximos pasos | 10 min | Entrega de guía de testeo, inicio de la semana de UAT |
 
 ---
 
@@ -246,42 +246,39 @@ Que Paula entienda que lo que vio hoy es el punto de partida, no el techo. Que l
 
 ---
 
-## Bloque 6 — Apertura de la propuesta de partnership (10 min)
+## Bloque 6 — Kickoff UAT + Próximos pasos (10 min)
 
 ### Objetivo
-Abrir la conversación — no cerrarla. No presionar. Dejar que Paula lleve el ritmo.
+Que Paula salga de la reunión con acceso al sistema, una guía de testeo en la mano, y una fecha de cierre clara. Hoy arranca la semana de UAT.
 
-### Cómo introducirlo
+### Cómo presentarlo
 
-> "Hay algo más que quería hablarte. Lo que construimos para tu clínica, queremos ofrecérselo a otras clínicas. Y creemos que vos podés ser una parte importante de eso — no porque te lo estemos pidiendo como favor, sino porque hay algo concreto para vos en esto."
+> "Todo lo que viste hoy ya está funcionando y es tuyo. Ahora necesito que durante esta semana lo pruebes vos sola, con tus datos reales, y me digas si algo no funciona o no tiene sentido."
 
-> "Te mandé un documento que lo explica en detalle, pero te lo cuento en dos minutos."
+### Qué le entregás en este momento
+- **Acceso al CRM en producción** — su cuenta admin ya creada
+- **Guía de testeo** (`docs/Guia_Testeo_UAT.md`) — 15-20 escenarios concretos para que verifique
+- **Guías de usuario** por rol (Admin, Veterinario, Peluquero) — para que entienda cómo funciona cada cosa
 
-Resumir los puntos clave:
-- Su suscripción sin costo mientras sea Partner activa
-- $40 USD/mes por cada clínica que refiera, de por vida
-- Lo que se le pide: contar su experiencia, presentar colegas cuando le parezca bien, dejar que usemos su historia
+### El acuerdo de la semana de UAT
 
-> "No te pido respuesta hoy. Llevate el documento, leelo cuando puedas, y me decís."
-
----
-
-## Cierre (5 min)
+> "Tenés hasta el miércoles 15 para probarlo. Cualquier cosa que encuentres — algo que no funciona, algo que no se entiende, algo que falta — me lo mandás por WhatsApp y lo resolvemos. El jueves 16 nos juntamos de nuevo, y si estás conforme, cerramos la entrega formal y arrancás a operar con NeoVet."
 
 ### Confirmación de próximos pasos
 
 Antes de terminar, dejar acordado:
 
+- [ ] Paula tiene acceso al CRM con cuenta admin
 - [ ] Paula confirma los emails del equipo para crear las cuentas → fecha: ________
 - [ ] Paula envía el logo de la clínica → fecha: ________
 - [ ] Paula confirma la URL de Google Business → fecha: ________
 - [ ] Paula revisa el texto de la sección About de la landing → fecha: ________
-- [ ] Confirmar la fecha de go-live (cuándo empieza a usar el sistema en producción)
-- [ ] Paula se lleva la propuesta de partnership y da respuesta antes de: ________
+- [ ] Fecha de reunión de entrega formal: **jueves 16 de abril**
+- [ ] Fecha objetivo de corte seco de Geovet: **16 de abril** (tras la entrega formal)
 
 ### Frase de cierre
 
-> "Gracias por el tiempo. Todo lo que me digas hoy lo tomamos como feedback directo para mejorar el sistema antes de que lo empiece a usar el equipo. El objetivo es que el lunes que arrancás, no tengas que abrir GVet."
+> "Gracias por el tiempo. Todo lo que me digas esta semana lo resolvemos antes del jueves. El objetivo es que el 16, cuando firmemos la entrega, ya estés operando 100% en NeoVet sin necesidad de abrir GVet."
 
 ---
 

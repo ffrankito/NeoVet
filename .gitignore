@@ -33,6 +33,20 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# IDE & editor
+.vscode/
+.erd-bypass
+
+# Claude Code
+.claude/settings.local.json
+.superpowers/
+
+# Word temp files
+~$*
+
+# Import data (sensitive client data from Geovet)
+crm/scripts/data/
+
 # vercel
 .vercel
 
