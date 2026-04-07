@@ -5,9 +5,10 @@
 | **Proyecto** | NeoVet CRM |
 | **Cliente** | Paula Silveira — NeoVet |
 | **Agencia** | Tomás Pinolini / Franco Zancocchia |
-| **URL de producción** | <!-- TODO: agregar URL de Vercel al momento del deploy --> |
-| **Fecha de entrega** | <!-- AAAA-MM-DD --> |
-| **Fin del período de soporte** | <!-- AAAA-MM-DD --> |
+| **URL de producción** | https://neo-vet-eta.vercel.app/dashboard |
+| **Inicio de UAT** | 2026-04-09 |
+| **Fecha de entrega formal** | 2026-04-16 |
+| **Fin del período de garantía** | 2026-06-15 (60 días desde la entrega) |
 | **Especificación técnica** | `crm/docs/v1/technical-spec.md` |
 | **Charter del proyecto** | `crm/docs/v1/charter.md` |
 
@@ -29,7 +30,7 @@
 - [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios → agendar seguimiento
 - [ ] Flujo de peluquería completo probado: crear turno de peluquería → asignar peluquero → peluquero registra sesión → fotos subidas → hallazgos registrados → ingreso en caja automático
 - [ ] Cada rol probado en aislamiento (ingresar como veterinario, como peluquero — verificar que dashboard filtra turnos y las rutas bloqueadas redirigen)
-- N/A ~~Flujo de facturación probado~~ — Fase D pendiente de build
+- N/A ~~Flujo de facturación probado~~ — Fase D diferida a post-lanzamiento
 - [ ] Catálogo de servicios configurado con los servicios de Paula
 - [ ] Vista semanal de calendario verificada con slots libres y bloqueos de cirugía
 - [ ] Suspensión de agenda: profesional puede bloquear días/franjas y turnos afectados se cancelan
@@ -60,7 +61,7 @@
 - [ ] Paula tiene acceso de administrador al proyecto en Vercel
 - [ ] Paula tiene acceso de administrador al proyecto en Supabase
 - [ ] Paula tiene su propia cuenta en el CRM con rol `admin`
-- N/A ~~Credenciales ARCA configuradas en las variables de entorno de producción~~ — Fase D pendiente de build
+- N/A ~~Credenciales ARCA configuradas en las variables de entorno de producción~~ — Fase D diferida a post-lanzamiento
 - [ ] El acceso de la agencia fue reducido o eliminado según el acuerdo
 
 ---
@@ -131,6 +132,18 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 
 Todas las variables están en Vercel → Configuración → Variables de entorno. La lista completa está en `.env.example` en el repositorio.
 
+| Variable | Propósito |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | URL del proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Clave anónima (auth client-side) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave de servicio (crear staff, admin API) |
+| `DATABASE_URL` | Conexión PostgreSQL, transaction mode (puerto 6543) |
+| `NEXT_PUBLIC_APP_URL` | URL pública del CRM (para links en emails) |
+| `RESEND_API_KEY` | API key de Resend para envío de emails |
+| `EMAIL_FROM` | Remitente de emails (ej: `NeoVet <turnos@neovet.com.ar>`) |
+| `CRON_SECRET` | Protege las rutas de cron y admin |
+| `BOT_API_KEY` | Protege los endpoints `/api/bot/*` |
+
 **Nunca** agregar o cambiar variables directamente en la base de datos — siempre usar el panel de Vercel para que queden encriptadas y versionadas.
 
 ---
@@ -189,17 +202,31 @@ npm run db:migrate
 | Error al emitir factura en ARCA | *(Fase D pendiente de build — esta fila aplica cuando se implemente facturación)* | — |
 | No puedo subir una foto en la sesión de peluquería | Archivo muy grande o formato no soportado | Usar JPG o PNG, máximo 10 MB |
 
+### Términos de garantía (60 días)
+
+**Período:** Desde la fecha de entrega formal (2026-04-16) hasta 2026-06-15.
+
+**Qué cubre la garantía:**
+- Bugs — funcionalidad que debería funcionar según el charter y no funciona
+- Errores de datos — problemas con la migración desde Geovet detectados post-entrega
+- Caídas del sistema no causadas por el usuario
+
+**Qué NO cubre la garantía:**
+- Features nuevos o cambios de criterio ("quiero que funcione distinto")
+- Problemas causados por el usuario (borrado de datos, cambios de configuración)
+- La Fase D (facturación ARCA) — se agrega como update independiente cuando lleguen las credenciales
+
 ### Cuándo contactar a la agencia
 
-Durante el período de soporte, contactarnos ante:
+Durante el período de garantía, contactarnos ante:
 - Vulnerabilidades de seguridad o pérdida de datos (contacto inmediato)
 - El sistema está completamente caído y el redeploy no lo resolvió
 - Un bug presente al lanzamiento que no fue detectado durante el UAT
 
-**Contacto durante el período de soporte:**
-- Tomás Pinolini: <!-- email -->
-- Franco Zancocchia: <!-- email -->
-- Tiempo de respuesta: <!-- ej: días hábiles, dentro de 4hs para P0 -->
+**Contacto durante el período de garantía:**
+- Tomás Pinolini: tomaspinolini2003@gmail.com
+- Franco Zancocchia: zfi1811@gmail.com
+- Tiempo de respuesta: días hábiles, dentro de 4 horas si el sistema está caído (P0), 24 horas para bugs normales
 
 ---
 
@@ -214,7 +241,7 @@ Durante el período de soporte, contactarnos ante:
 | Sin impresión de recetas o prescripciones | Gestión de recetas con formato legal es v2 | El vet puede leer el plan de tratamiento en la consulta y dictar al cliente |
 | Sin log de auditoría | No se registra quién cambió qué (v2) | Los campos `createdBy` y `updatedAt` dan visibilidad parcial |
 | Sin reportes ni analíticas | Son funcionalidades de v3 | Exportar datos desde Supabase si se necesita un análisis puntual |
-| Facturación ARCA pendiente | Fase D no construida aún — pendiente certificado digital y credenciales | Registrar pagos se puede hacer; la emisión de comprobantes electrónicos se agrega cuando se tengan las credenciales |
+| Facturación ARCA pendiente | Fase D diferida a post-lanzamiento — pendiente certificado digital y credenciales ARCA | Paula sigue facturando manualmente como hasta ahora; la emisión de comprobantes electrónicos se agrega cuando se tengan las credenciales |
 
 ---
 
