@@ -107,10 +107,14 @@ src/
 drizzle/
 └── migrations/               # 20 SQL migration files (0000–0019)
 scripts/
-├── import-gvet.ts            # One-time client/patient import from GVet Excel
-├── import-visitas.ts         # One-time consultation import
-├── dedupe-patients.ts        # Deduplication cleanup
-└── backfill-appointments-from-consultations.ts
+├── import-gvet.ts            # Client/patient import from GVet CSV
+├── import-visitas.ts         # Consultation import from GVet CSV
+├── import-products.ts        # Product catalog import from GVet price list CSV
+├── import-turnos-futuros.ts  # Future appointments import from GVet TXT
+├── dedupe-patients.ts        # Patient deduplication cleanup
+├── cleanup-imported-visits.ts # Nuclear cleanup of all consultations + backfilled appointments
+├── backfill-appointments-from-consultations.ts  # Create appointments from imported consultations
+└── seed-user.ts              # Create staff user (Supabase Auth + DB row)
 ```
 
 ---
@@ -133,3 +137,73 @@ scripts/
 - **Mobile responsive** — hamburger nav, adapted tables, 44px touch targets
 
 No public API (except bot endpoints for v2). No chatbot integration. No WhatsApp (v2). See `docs/v1/charter.md` for full scope.
+
+---
+
+## Data Migration (Nuke & Reseed)
+
+To do a clean re-import from Geovet (e.g., before handoff):
+
+### 1. Export fresh data from Geovet
+
+Place CSVs in `scripts/data/`:
+- `Lista de clientes.csv`
+- `Lista de pacientes.csv`
+- `Visitas-MM-YYYY.csv` (one per month)
+- `lista_precios YYYY-MM-DD-HH-mm-ss.csv`
+- `turnos_futuros.txt`
+
+### 2. Nuke the database
+
+Run this SQL in Supabase SQL Editor (preserves `staff` and `services`):
+
+```sql
+-- Leaves first, roots last
+DELETE FROM treatment_items;
+DELETE FROM complementary_methods;
+DELETE FROM vaccinations;
+DELETE FROM deworming_records;
+DELETE FROM documents;
+DELETE FROM follow_ups;
+DELETE FROM email_logs;
+DELETE FROM bot_messages;
+DELETE FROM bot_escalations;
+DELETE FROM sale_items;
+DELETE FROM consultations;
+DELETE FROM grooming_sessions;
+DELETE FROM sales;
+DELETE FROM cash_movements;
+DELETE FROM bot_conversations;
+DELETE FROM appointments;
+DELETE FROM stock_entries;
+DELETE FROM grooming_profiles;
+DELETE FROM schedule_blocks;
+DELETE FROM patients;
+DELETE FROM bot_contacts;
+DELETE FROM cash_sessions;
+DELETE FROM bot_business_context;
+DELETE FROM clients;
+DELETE FROM providers;
+DELETE FROM products;
+DELETE FROM settings;
+```
+
+### 3. Re-import in order
+
+```bash
+npx tsx scripts/import-gvet.ts --clients scripts/data/"Lista de clientes.csv" --patients scripts/data/"Lista de pacientes.csv"
+npx tsx scripts/dedupe-patients.ts
+npx tsx scripts/import-products.ts scripts/data/"lista_precios YYYY-MM-DD-HH-mm-ss.csv"
+npx tsx scripts/import-visitas.ts --file scripts/data/Visitas-03-2026.csv
+npx tsx scripts/import-visitas.ts --file scripts/data/Visitas-04-2026.csv
+npx tsx scripts/backfill-appointments-from-consultations.ts
+npx tsx scripts/import-turnos-futuros.ts
+```
+
+### 4. Create users (if needed)
+
+```bash
+npx tsx scripts/seed-user.ts --email admin@example.com --password "..." --name "Name" --role admin
+```
+
+> All import scripts support `--dry-run`. Use it first to verify before writing to the database.

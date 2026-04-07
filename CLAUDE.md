@@ -127,10 +127,10 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 
 ## Data Migration Notes
 
-- Data migration from Geovet is **complete**. 1,771 clients, 1,380 patients, ~1,300 consultations imported via Excel exports.
-- Import scripts live in `crm/src/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`.
+- Data is imported from Geovet via manual CSV exports (Geovet has no API).
+- Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`.
 - The `clients` table includes an `importedFromGvet` boolean flag for traceability.
-- No further Geovet imports are planned — the migration was one-time.
+- Re-imports are supported: nuke the DB (SQL in `crm/README.md`), then run the scripts in order. See `crm/README.md` → "Data Migration (Nuke & Reseed)" for the full procedure.
 
 ---
 
@@ -175,7 +175,7 @@ The project uses two long-lived git branches tied to two Supabase database envir
 There are two credential files. `.env.local` is what Next.js reads — it is never committed and acts as the active environment. You switch by copying the right file over it:
 
 ```bash
-cp crm/.env.development crm/.env.local   # → point to preview DB (dev branch work)
+cp crm/.env.dev crm/.env.local            # → point to preview DB (dev branch work)
 cp crm/.env.production  crm/.env.local   # → point to production DB (careful)
 ```
 
@@ -183,7 +183,7 @@ cp crm/.env.production  crm/.env.local   # → point to production DB (careful)
 |------|-----------|---------|
 | `.env.local` | No | Active environment — always a copy of one of the below |
 | `.env.production` | No | Production Supabase credentials |
-| `.env.development` | No | Preview branch (dev) Supabase credentials |
+| `.env.dev` | No | Preview branch (dev) Supabase credentials |
 
 To get preview branch credentials: Supabase dashboard → your project → Branches → select the `dev` branch → API settings.
 

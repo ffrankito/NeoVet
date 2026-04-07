@@ -118,7 +118,7 @@ This app uses **Supabase branching** — see root `CLAUDE.md` for the full strat
 
 **Switching environments locally** — `.env.local` is the active env, swap it by copying:
 ```bash
-cp .env.development .env.local   # → preview DB (dev branch)
+cp .env.dev .env.local           # → preview DB (dev branch)
 cp .env.production  .env.local   # → production DB (careful)
 ```
 
