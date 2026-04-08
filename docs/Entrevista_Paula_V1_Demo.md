@@ -4,7 +4,7 @@
 **Conducida por:** Tomás Pinolini
 **Duración estimada:** 90 minutos
 **Formato:** Presencial o videollamada con pantalla compartida
-**Objetivo:** Mostrar el estado real de lo construido en v1, recoger feedback, presentar el roadmap de v2, y abrir la conversación de partnership.
+**Objetivo:** Mostrar el estado real de lo construido en v1, recoger feedback, presentar el roadmap de v2, y arrancar la semana de UAT.
 
 ---
 
@@ -15,7 +15,7 @@
 - [ ] El chatbot está live en `neo-vet-widget.vercel.app`
 - [ ] La landing está deployada
 - [ ] Imprimiste o enviaste el Folleto Comercial (`docs/Folleto_Comercial.html`) para que Paula lo tenga
-- [ ] Revisaste los pendientes de la última reunión (`docs/paula-meeting.md`)
+- [ ] Revisaste el checklist pre-lanzamiento (`docs/Checklist_PreLanzamiento.md`)
 - [ ] Preparaste un paciente de demo con historial realista (no usar datos reales de clientes en pantalla compartida si no es necesario)
 
 ---
@@ -40,9 +40,7 @@ Ubicar a Paula en el punto de partida y en el destino. Que entienda que no es un
 
 ### Script sugerido
 
-> "Paula, hace X semanas arrancamos a construir esto. Hoy te lo quiero mostrar funcionando — no en un PowerPoint, sino en vivo. Todo lo que veas en esta reunión ya existe y está corriendo. Al final de la reunión quiero que me digas qué funciona, qué falta, y quiero contarte lo que se viene."
-
-> "También hay algo más que te quiero proponer hoy, pero lo dejamos para el final."
+> "Paula, hace unas semanas arrancamos a construir esto. Hoy te lo quiero mostrar funcionando — no en un PowerPoint, sino en vivo. Todo lo que veas en esta reunión ya existe y está corriendo. Al final quiero que me digas qué funciona, qué falta, y te cuento lo que se viene. Y antes de irnos, te explico cómo vamos a hacer la transición para que dejes GVet."
 
 ---
 
@@ -221,7 +219,7 @@ Clasificar cada punto como:
 
 ---
 
-## Bloque 5 — Preview V2 (15 min)
+## Bloque 5 — Preview V2 (10 min)
 
 ### Objetivo
 Que Paula entienda que lo que vio hoy es el punto de partida, no el techo. Que la haga sentir que el sistema va a crecer con su clínica.
@@ -294,6 +292,4 @@ Antes de terminar, dejar acordado:
 
 **Contenido pendiente:**
 
-**Decisión de partnership:**
-
-**Próxima reunión:**
+**Próxima reunión:** jueves 16 de abril (entrega formal)

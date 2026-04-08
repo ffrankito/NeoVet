@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVet &mdash; Versi&oacute;n 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1a1a2e;
+            background-color: #ffffff;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a2e;
+            padding: 3.5rem 2rem;
+            text-align: center;
+        }
+        .header-container { max-width: 800px; margin: 0 auto; }
+        .header-label {
+            display: inline-block;
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: #7c8aaa; margin-bottom: 1.2rem;
+        }
+        .header h1 {
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 700; color: #ffffff;
+            line-height: 1.3; letter-spacing: -0.02em;
+            margin-bottom: 0.8rem;
+        }
+        .header p {
+            font-size: 1rem; color: #9ca3bf;
+            font-weight: 400; max-width: 620px; margin: 0 auto;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: #7c8aaa; margin-bottom: 2rem; text-align: center;
+        }
+
+        /* Before / After */
+        .comparison {
+            max-width: 1100px; margin: 0 auto; padding: 4rem 2rem;
+        }
+        .comparison-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem;
+        }
+        .column { border-radius: 8px; padding: 2.5rem; }
+        .column-before {
+            background: #f7f7f9; border: 1px solid #e8e8ee;
+        }
+        .column-after {
+            background: #1a1a2e; color: #ffffff;
+        }
+        .column h2 {
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+        .column-before h2 { color: #999; }
+        .column-after h2 { color: #7c8aaa; }
+        .comparison-item {
+            display: flex; gap: 0.9rem;
+            margin-bottom: 1.3rem; font-size: 0.9rem;
+            line-height: 1.5; align-items: flex-start;
+        }
+        .column-before .comparison-item { color: #555; }
+        .column-after .comparison-item { color: #d0d5e3; }
+        .icon-before {
+            color: #c4c4c4; font-size: 0.8rem;
+            flex-shrink: 0; margin-top: 0.2rem;
+        }
+        .icon-after {
+            color: #4ade80; font-size: 0.85rem;
+            flex-shrink: 0; margin-top: 0.15rem;
+        }
+        .column-before .comparison-item .subtle {
+            color: #999; font-size: 0.8rem;
+        }
+
+        /* Divider */
+        .divider {
+            max-width: 1100px; margin: 0 auto;
+            height: 1px; background: #e8e8ee;
+        }
+
+        /* Features */
+        .features {
+            max-width: 1100px; margin: 0 auto; padding: 4rem 2rem;
+        }
+        .features-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;
+        }
+        .feature-card {
+            padding: 2rem; border: 1px solid #e8e8ee;
+            border-radius: 8px; background: #ffffff;
+            transition: box-shadow 0.2s ease;
+        }
+        .feature-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        .feature-card h3 {
+            font-size: 1rem; font-weight: 600;
+            color: #1a1a2e; margin-bottom: 0.6rem;
+        }
+        .feature-card p {
+            font-size: 0.85rem; color: #666; line-height: 1.6;
+        }
+        .feature-tag {
+            display: inline-block; font-size: 0.65rem;
+            font-weight: 600; letter-spacing: 0.1em;
+            text-transform: uppercase; padding: 0.25rem 0.6rem;
+            border-radius: 3px; margin-bottom: 0.8rem;
+        }
+        .tag-whatsapp { background: #dcfce7; color: #15803d; }
+        .tag-crm { background: #eef2ff; color: #4f46e5; }
+        .tag-chatbot { background: #f0fdf4; color: #16a34a; }
+        .tag-triage { background: #fef2f2; color: #dc2626; }
+        .tag-landing { background: #fef3c7; color: #b45309; }
+
+        /* Urgency callout */
+        .urgency {
+            max-width: 1100px; margin: 0 auto;
+            padding: 0 2rem 4rem 2rem;
+        }
+        .urgency-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b3d 100%);
+            border-radius: 8px; padding: 3rem;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;
+            align-items: center;
+        }
+        .urgency-text h3 {
+            font-size: 1.3rem; font-weight: 700;
+            color: #ffffff; margin-bottom: 0.8rem;
+            line-height: 1.3;
+        }
+        .urgency-text p {
+            font-size: 0.9rem; color: #9ca3bf; line-height: 1.6;
+        }
+        .urgency-levels {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+        }
+        .level {
+            padding: 1.2rem; border-radius: 6px;
+            border: 1px solid #333;
+        }
+        .level-tag {
+            font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+        .level p {
+            font-size: 0.8rem; color: #9ca3bf; line-height: 1.4;
+        }
+        .l1 .level-tag { color: #4ade80; }
+        .l1 { border-color: #22543d; }
+        .l2 .level-tag { color: #60a5fa; }
+        .l2 { border-color: #1e3a5f; }
+        .l3 .level-tag { color: #fbbf24; }
+        .l3 { border-color: #713f12; }
+        .l4 .level-tag { color: #f87171; }
+        .l4 { border-color: #7f1d1d; background: rgba(127, 29, 29, 0.15); }
+
+        /* Timeline */
+        .timeline {
+            background: #f7f7f9; padding: 4rem 2rem;
+            border-top: 1px solid #e8e8ee;
+            border-bottom: 1px solid #e8e8ee;
+        }
+        .timeline-container { max-width: 800px; margin: 0 auto; }
+        .timeline-steps {
+            display: flex; justify-content: space-between;
+            position: relative; margin-top: 2rem;
+        }
+        .timeline-steps::before {
+            content: ''; position: absolute;
+            top: 24px; left: 60px; right: 60px;
+            height: 2px; background: #d0d5e3;
+        }
+        .timeline-step {
+            text-align: center; position: relative;
+            flex: 1;
+        }
+        .step-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            margin: 18px auto 1rem; position: relative; z-index: 1;
+        }
+        .step-done .step-dot { background: #4ade80; }
+        .step-current .step-dot {
+            background: #ffffff; border: 3px solid #4f46e5;
+            width: 16px; height: 16px; margin-top: 16px;
+        }
+        .step-future .step-dot { background: #d0d5e3; }
+        .step-label {
+            font-size: 0.75rem; font-weight: 600;
+            color: #1a1a2e; margin-bottom: 0.2rem;
+        }
+        .step-desc {
+            font-size: 0.7rem; color: #7c8aaa; max-width: 140px; margin: 0 auto;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a1a2e; color: #9ca3bf;
+            padding: 3rem 2rem; text-align: center;
+        }
+        .footer-container { max-width: 800px; margin: 0 auto; }
+        .footer-brand {
+            font-size: 1.1rem; font-weight: 600;
+            color: #ffffff; margin-bottom: 0.5rem;
+        }
+        .footer p { font-size: 0.85rem; color: #7c8aaa; }
+        .footer-date {
+            margin-top: 1.5rem; padding-top: 1.5rem;
+            border-top: 1px solid #2a2a40;
+            font-size: 0.75rem; color: #555;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .comparison-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .features-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .urgency-card { grid-template-columns: 1fr; gap: 2rem; }
+            .urgency-levels { grid-template-columns: 1fr; }
+            .header { padding: 2.5rem 1.5rem; }
+            .column { padding: 2rem; }
+            .timeline-steps { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+            .timeline-steps::before { display: none; }
+            .timeline-step { text-align: left; display: flex; gap: 1rem; align-items: center; }
+            .step-dot { margin: 0; }
+            .step-desc { max-width: none; }
+        }
+
+        @media print {
+            .header { padding: 2rem; }
+            .comparison, .features, .urgency { padding: 2rem; }
+            body { font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <span class="header-label">NeoVet &mdash; Versi&oacute;n 2 &middot; Preview</span>
+            <h1>Tus clientes te escriben por WhatsApp.<br>Ahora el sistema responde por vos.</h1>
+            <p>La versi&oacute;n 2 conecta el CRM con WhatsApp, permite que los clientes saquen turnos solos, y detecta emergencias antes que cualquier humano.</p>
+        </div>
+    </header>
+
+    <!-- Before / After -->
+    <section class="comparison">
+        <p class="section-title">Lo que cambia de v1 a v2</p>
+        <div class="comparison-grid">
+
+            <div class="column column-before">
+                <h2>Con NeoVet v1</h2>
+                <div class="comparison-item">
+                    <span class="icon-before">&bull;</span>
+                    <span>Los recordatorios llegan por email <span class="subtle">&mdash; funciona, pero muchos clientes no revisan el email</span></span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&bull;</span>
+                    <span>Los turnos se crean manualmente desde el CRM <span class="subtle">&mdash; la recepcionista interviene siempre</span></span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&bull;</span>
+                    <span>El chatbot responde preguntas frecuentes en la web <span class="subtle">&mdash; &uacute;til, pero no llega a WhatsApp</span></span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&bull;</span>
+                    <span>No hay detecci&oacute;n de emergencias <span class="subtle">&mdash; si alguien escribe &ldquo;no respira&rdquo; a las 3am, nadie lo ve</span></span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&bull;</span>
+                    <span>El peluquero registra hallazgos, pero el vet no se entera autom&aacute;ticamente</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&bull;</span>
+                    <span>La landing tiene informaci&oacute;n est&aacute;tica <span class="subtle">&mdash; no conecta con disponibilidad real</span></span>
+                </div>
+            </div>
+
+            <div class="column column-after">
+                <h2>Con NeoVet v2</h2>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Recordatorios por WhatsApp: turno, vacunas, peluquer&iacute;a, seguimiento post-consulta</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Los clientes sacan y cancelan turnos desde WhatsApp &mdash; sin llamar ni esperar</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>El chatbot opera en WhatsApp y en la web, conectado al CRM en tiempo real</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Triage de urgencias: &ldquo;no respira&rdquo; se detecta en milisegundos y muestra el tel&eacute;fono de emergencia</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Hallazgos del peluquero alertan autom&aacute;ticamente al veterinario</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Landing con disponibilidad real, p&aacute;ginas por servicio y bot&oacute;n &ldquo;Sac&aacute; turno&rdquo;</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Features -->
+    <section class="features">
+        <p class="section-title">Qu&eacute; se agrega en la versi&oacute;n 2</p>
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <span class="feature-tag tag-whatsapp">WhatsApp</span>
+                <h3>Canal bidireccional</h3>
+                <p>El chatbot atiende por WhatsApp con el mismo cerebro que en la web. Los clientes escriben como siempre y el bot responde al instante.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-whatsapp">WhatsApp</span>
+                <h3>Turnos desde el chat</h3>
+                <p>El cliente escribe &ldquo;quiero turno el jueves&rdquo;, el bot muestra disponibilidad real del CRM y crea el turno. Sin intervenci&oacute;n humana.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-whatsapp">WhatsApp</span>
+                <h3>Recordatorios inteligentes</h3>
+                <p>Turno 24h y 1h antes, vacunas pr&oacute;ximas, peluquer&iacute;a peri&oacute;dica, seguimiento post-consulta. Todo llega por WhatsApp.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-triage">Urgencias</span>
+                <h3>Triage L1&ndash;L4</h3>
+                <p>12 palabras clave de emergencia detectadas antes que la inteligencia artificial. En sub-milisegundos, el bot muestra el tel&eacute;fono de urgencias.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Alertas peluquero &rarr; vet</h3>
+                <p>Cuando el peluquero registra un hallazgo cl&iacute;nico (n&oacute;dulo, parasitosis, otitis), el sistema alerta al veterinario autom&aacute;ticamente.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-chatbot">Chatbot</span>
+                <h3>Conversaciones persistentes</h3>
+                <p>Cada conversaci&oacute;n se guarda en la base de datos. El bot recuerda el contexto. El admin ve los threads desde el CRM.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Panel de conversaciones</h3>
+                <p>Nuevo m&oacute;dulo en el CRM: lista de conversaciones del bot, nivel de urgencia, escalaciones pendientes, vinculaci&oacute;n de contactos.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Auditor&iacute;a y reportes</h3>
+                <p>Log de cambios con usuario y timestamp. Reportes financieros y anal&iacute;ticas de turnos. Visibilidad total de la operaci&oacute;n.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-landing">Landing</span>
+                <h3>P&aacute;ginas por servicio</h3>
+                <p>P&aacute;ginas dedicadas para ecograf&iacute;a, braquic&eacute;falos, peluquer&iacute;a. Mejor posicionamiento en Google y m&aacute;s visitas org&aacute;nicas.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Urgency system -->
+    <section class="urgency">
+        <div class="urgency-card">
+            <div class="urgency-text">
+                <h3>Triage de urgencias para razas braquic&eacute;falas</h3>
+                <p>Tu cl&iacute;nica se especializa en bulldogs y razas con riesgo respiratorio. El sistema clasifica cada mensaje en 4 niveles de urgencia. El nivel m&aacute;s alto se detecta por palabras clave antes de que intervenga cualquier inteligencia artificial &mdash; en milisegundos.</p>
+                <p style="margin-top: 0.8rem; font-size: 0.8rem; color: #7c8aaa;">La urgencia solo sube autom&aacute;ticamente. Solo un miembro del staff puede bajarla.</p>
+            </div>
+            <div class="urgency-levels">
+                <div class="level l1">
+                    <div class="level-tag">L1 &mdash; Informaci&oacute;n</div>
+                    <p>Horarios, precios, ubicaci&oacute;n. El bot responde solo.</p>
+                </div>
+                <div class="level l2">
+                    <div class="level-tag">L2 &mdash; Turno</div>
+                    <p>El cliente quiere agendar. El bot ejecuta el flujo de booking.</p>
+                </div>
+                <div class="level l3">
+                    <div class="level-tag">L3 &mdash; S&iacute;ntomas</div>
+                    <p>Describe s&iacute;ntomas o env&iacute;a foto. La IA eval&uacute;a y escala.</p>
+                </div>
+                <div class="level l4">
+                    <div class="level-tag">L4 &mdash; Emergencia</div>
+                    <p>&ldquo;No respira&rdquo;, &ldquo;convulsi&oacute;n&rdquo;, &ldquo;envenenado&rdquo;. Tel&eacute;fono de urgencia inmediato.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="timeline">
+        <div class="timeline-container">
+            <p class="section-title">Roadmap</p>
+            <div class="timeline-steps">
+                <div class="timeline-step step-done">
+                    <div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div>
+                        <div class="step-label">v1</div>
+                        <div class="step-desc">CRM + Chatbot web + Landing. En producci&oacute;n.</div>
+                    </div>
+                </div>
+                <div class="timeline-step step-current">
+                    <div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div>
+                        <div class="step-label">v2</div>
+                        <div class="step-desc">WhatsApp + Turnos online + Triage + Reportes.</div>
+                    </div>
+                </div>
+                <div class="timeline-step step-future">
+                    <div>
+                        <div class="step-dot"></div>
+                    </div>
+                    <div>
+                        <div class="step-label">v3</div>
+                        <div class="step-desc">Inteligencia artificial, portal del cliente, pagos online.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-brand">NeoVet</p>
+            <p>Construido a medida para NeoVet Centro Veterinario.</p>
+            <p class="footer-date">Versi&oacute;n 2 &mdash; Preview &middot; Abril 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>
