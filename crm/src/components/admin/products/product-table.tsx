@@ -88,7 +88,7 @@ export function ProductTable({ data, total, page, totalPages }: ProductTableProp
             placeholder="Buscar por nombre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-80"
+            className="w-full max-w-80"
           />
           <Button variant="outline" type="submit" disabled={isPending}>
             Buscar
@@ -99,7 +99,7 @@ export function ProductTable({ data, total, page, totalPages }: ProductTableProp
         </span>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

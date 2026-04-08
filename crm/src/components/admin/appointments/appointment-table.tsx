@@ -57,6 +57,7 @@ export function AppointmentTable({
     confirmed: "Confirmado",
     completed: "Completado",
     cancelled: "Cancelado",
+    no_show: "No se presentó",
   };
 
   const statusColors: Record<string, string> = {
@@ -64,6 +65,7 @@ export function AppointmentTable({
     confirmed: "bg-blue-100 text-blue-800",
     completed: "bg-green-100 text-green-800",
     cancelled: "bg-red-100 text-red-800",
+    no_show: "bg-orange-100 text-orange-800",
   };
 
   function applyFilters() {
@@ -109,6 +111,9 @@ export function AppointmentTable({
               <SelectItem value="cancelled" label="Cancelado">
                 Cancelado
               </SelectItem>
+              <SelectItem value="no_show" label="No se presentó">
+                No se presentó
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -142,7 +147,7 @@ export function AppointmentTable({
         </span>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { scheduleBlocks, staff, appointments } from "@/db/schema";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { scheduleBlocks, staff, appointments, patients, clients, services } from "@/db/schema";
+import { eq, and, gte, lte, ne } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import { scheduleBlockId } from "@/lib/ids";
+import { dateToStartART, dateToEndART } from "@/lib/timezone";
+import { sendAndLogEmail } from "@/lib/email/send-email";
+import { render } from "@react-email/render";
+import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
 
 // GET — listar bloqueos del staff logueado en un rango de fechas
 export async function GET(req: NextRequest) {
@@ -77,17 +81,78 @@ export async function POST(req: NextRequest) {
     })
     .returning();
 
-  // Cancelar turnos existentes en el rango bloqueado
-  await db
-    .update(appointments)
-    .set({ status: "cancelled" })
+  // Cancelar turnos existentes en el rango bloqueado (ART timezone)
+  const blockStart = dateToStartART(startDate);
+  const blockEnd = dateToEndART(endDate);
+
+  // Fetch affected appointments before cancelling (for email notifications)
+  const affectedAppointments = await db
+    .select({
+      id: appointments.id,
+      scheduledAt: appointments.scheduledAt,
+      sendReminders: appointments.sendReminders,
+      patientName: patients.name,
+      clientName: clients.name,
+      clientEmail: clients.email,
+      serviceName: services.name,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .innerJoin(clients, eq(patients.clientId, clients.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
     .where(
       and(
         eq(appointments.assignedStaffId, staffMember[0].id),
-        gte(appointments.scheduledAt, new Date(`${startDate}T00:00:00.000Z`)),
-        lte(appointments.scheduledAt, new Date(`${endDate}T23:59:59.999Z`))
+        gte(appointments.scheduledAt, blockStart),
+        lte(appointments.scheduledAt, blockEnd),
+        ne(appointments.status, "cancelled"),
+        ne(appointments.status, "completed")
       )
     );
+
+  if (affectedAppointments.length > 0) {
+    await db
+      .update(appointments)
+      .set({ status: "cancelled", cancellationReason: reason || "Suspensión de agenda" })
+      .where(
+        and(
+          eq(appointments.assignedStaffId, staffMember[0].id),
+          gte(appointments.scheduledAt, blockStart),
+          lte(appointments.scheduledAt, blockEnd),
+          ne(appointments.status, "cancelled"),
+          ne(appointments.status, "completed")
+        )
+      );
+
+    // Send cancellation emails to affected clients
+    const cancellationReason = reason || "Suspensión de agenda del profesional";
+    for (const apt of affectedAppointments) {
+      if (apt.clientEmail && apt.sendReminders) {
+        try {
+          const html = await render(
+            CancellationNotificationEmail({
+              patientName: apt.patientName ?? "su mascota",
+              clientName: apt.clientName ?? "Cliente",
+              scheduledAt: new Date(apt.scheduledAt),
+              serviceName: apt.serviceName,
+              cancellationReason,
+              clinicAddress: process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario",
+            })
+          );
+
+          await sendAndLogEmail({
+            to: apt.clientEmail,
+            subject: "Turno cancelado — NeoVet",
+            html,
+            logType: "cancellation",
+            referenceId: apt.id,
+          });
+        } catch {
+          // Email failure should not block the schedule block creation
+        }
+      }
+    }
+  }
 
   return NextResponse.json(block[0]);
 }

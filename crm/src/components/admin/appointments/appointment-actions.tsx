@@ -25,6 +25,7 @@ interface AppointmentActionsProps {
 
 export function AppointmentActions({ appointmentId, patientId, status }: AppointmentActionsProps) {
   const [isPending, setIsPending] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
 
   async function handleConfirm() {
     setIsPending(true);
@@ -40,7 +41,7 @@ export function AppointmentActions({ appointmentId, patientId, status }: Appoint
 
   async function handleCancel() {
     setIsPending(true);
-    await updateAppointmentStatus(appointmentId, "cancelled");
+    await updateAppointmentStatus(appointmentId, "cancelled", cancelReason || undefined);
     setIsPending(false);
   }
 
@@ -99,6 +100,13 @@ export function AppointmentActions({ appointmentId, patientId, status }: Appoint
             <AlertDialogDescription>
               El turno quedará marcado como cancelado.
             </AlertDialogDescription>
+            <textarea
+              className="mt-2 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground"
+              placeholder="Motivo de cancelación (opcional)"
+              rows={2}
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+            />
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Volver</AlertDialogCancel>

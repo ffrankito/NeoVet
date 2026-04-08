@@ -67,7 +67,7 @@ export function StockEntryTable({ data, total, page, totalPages }: StockEntryTab
         </span>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

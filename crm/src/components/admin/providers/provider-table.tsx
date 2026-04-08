@@ -67,7 +67,7 @@ export function ProviderTable({ data, total, page, totalPages }: ProviderTablePr
             placeholder="Buscar por nombre, teléfono, email o CUIT..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-80"
+            className="w-full max-w-80"
           />
           <Button variant="outline" type="submit" disabled={isPending}>
             Buscar
@@ -78,7 +78,7 @@ export function ProviderTable({ data, total, page, totalPages }: ProviderTablePr
         </span>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

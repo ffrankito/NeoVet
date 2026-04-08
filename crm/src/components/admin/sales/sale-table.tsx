@@ -67,7 +67,7 @@ export function SaleTable({ data, total, page, totalPages }: SaleTableProps) {
         </span>
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

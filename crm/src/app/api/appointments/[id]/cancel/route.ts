@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { appointments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminLevel, hasRole } from "@/lib/auth";
 
 export async function PATCH(
   _req: NextRequest,
@@ -11,6 +12,11 @@ export async function PATCH(
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  // Only admin/owner and vets can cancel appointments
+  if (!(await isAdminLevel()) && !(await hasRole("vet"))) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
 
   const { id } = await params;
 
