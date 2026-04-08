@@ -7,6 +7,7 @@ import { providers } from "@/db/schema";
 import { providerId } from "@/lib/ids";
 import { eq, ilike, or, sql, desc } from "drizzle-orm";
 import { z } from "zod";
+import { isAdminLevel } from "@/lib/auth";
 
 const providerSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
@@ -71,6 +72,8 @@ export async function getProvider(id: string) {
 }
 
 export async function createProvider(formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     phone: (formData.get("phone") as string)?.trim() ?? "",
@@ -112,6 +115,8 @@ export async function createProvider(formData: FormData) {
 }
 
 export async function updateProvider(id: string, formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     phone: (formData.get("phone") as string)?.trim() ?? "",
@@ -154,6 +159,8 @@ export async function updateProvider(id: string, formData: FormData) {
 }
 
 export async function deactivateProvider(id: string) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   await db
     .update(providers)
     .set({ isActive: false, updatedAt: new Date() })

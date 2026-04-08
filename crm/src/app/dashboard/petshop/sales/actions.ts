@@ -7,7 +7,7 @@ import { sales, saleItems, products } from "@/db/schema";
 import { saleId, saleItemId } from "@/lib/ids";
 import { eq, sql, desc } from "drizzle-orm";
 import { z } from "zod";
-import { getSessionStaffId } from "@/lib/auth";
+import { getSessionStaffId, isAdminLevel } from "@/lib/auth";
 
 const saleItemSchema = z.object({
   productId: z.string().min(1),
@@ -110,6 +110,8 @@ export async function createSale(data: {
   notes?: string;
   items: { productId: string; quantity: number; unitPrice: number; taxRate: number }[];
 }) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const parsed = saleSchema.safeParse(data);
   if (!parsed.success) {
     const fe = parsed.error.flatten();

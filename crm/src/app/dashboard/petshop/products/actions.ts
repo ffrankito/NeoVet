@@ -7,6 +7,7 @@ import { products } from "@/db/schema";
 import { productId } from "@/lib/ids";
 import { eq, ilike, or, sql, desc } from "drizzle-orm";
 import { z } from "zod";
+import { isAdminLevel } from "@/lib/auth";
 
 const productSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
@@ -68,6 +69,8 @@ export async function getProduct(id: string) {
 }
 
 export async function createProduct(formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     category: (formData.get("category") as string) ?? "otro",
@@ -110,6 +113,8 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(id: string, formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     category: (formData.get("category") as string) ?? "otro",
@@ -153,6 +158,8 @@ export async function updateProduct(id: string, formData: FormData) {
 }
 
 export async function deactivateProduct(id: string) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   await db
     .update(products)
     .set({ isActive: false, updatedAt: new Date() })

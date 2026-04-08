@@ -18,14 +18,14 @@ type NavItem = {
 };
 
 const ALL_NAV_ITEMS: NavItem[] = [
-  { href: "/dashboard",                   label: "Inicio",        icon: "🏠", roles: ["admin", "vet", "groomer"] },
-  { href: "/dashboard/clients",           label: "Clientes",      icon: "👤", roles: ["admin", "vet"] },
-  { href: "/dashboard/appointments",      label: "Turnos",        icon: "📅", roles: ["admin", "vet", "groomer"] },
-  { href: "/dashboard/calendar",          label: "Agenda",        icon: <CalendarDays className="h-4 w-4" />, roles: ["admin", "vet", "groomer"] },
-  { href: "/dashboard/petshop",            label: "Pet Shop",      icon: "🛒", roles: ["admin"] },
-  { href: "/dashboard/cash",               label: "Caja",          icon: "💰", roles: ["admin"] },
-  { href: "/dashboard/settings/services", label: "Servicios",     icon: "🩺", roles: ["admin"] },
-  { href: "/dashboard/settings",          label: "Configuración", icon: "⚙️", roles: ["admin"] },
+  { href: "/dashboard",                   label: "Inicio",        icon: "🏠", roles: ["admin", "owner", "vet", "groomer"] },
+  { href: "/dashboard/clients",           label: "Clientes",      icon: "👤", roles: ["admin", "owner", "vet"] },
+  { href: "/dashboard/appointments",      label: "Turnos",        icon: "📅", roles: ["admin", "owner", "vet", "groomer"] },
+  { href: "/dashboard/calendar",          label: "Agenda",        icon: <CalendarDays className="h-4 w-4" />, roles: ["admin", "owner", "vet", "groomer"] },
+  { href: "/dashboard/petshop",            label: "Pet Shop",      icon: "🛒", roles: ["admin", "owner"] },
+  { href: "/dashboard/cash",               label: "Caja",          icon: "💰", roles: ["admin", "owner"] },
+  { href: "/dashboard/settings/services", label: "Servicios",     icon: "🩺", roles: ["admin", "owner"] },
+  { href: "/dashboard/settings",          label: "Configuración", icon: "⚙️", roles: ["admin", "owner"] },
 ];
 
 export function AppSidebar({ user, role }: { user: User; role: StaffRole | null }) {

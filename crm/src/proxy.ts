@@ -7,6 +7,8 @@ const ROLE_BLOCKS: Record<string, string[]> = {
     "/dashboard/settings",
     "/dashboard/billing",
     "/dashboard/grooming",
+    "/dashboard/petshop",
+    "/dashboard/cash",
   ],
   groomer: [
     "/dashboard/settings",
@@ -14,6 +16,8 @@ const ROLE_BLOCKS: Record<string, string[]> = {
     "/dashboard/clients",
     "/dashboard/patients",
     "/dashboard/consultations",
+    "/dashboard/petshop",
+    "/dashboard/cash",
   ],
 };
 

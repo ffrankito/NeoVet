@@ -7,7 +7,7 @@ import { cashSessions, cashMovements, sales, saleItems, staff } from "@/db/schem
 import { cashSessionId, cashMovementId } from "@/lib/ids";
 import { eq, sql, desc, and, gte, lte, isNull } from "drizzle-orm";
 import { z } from "zod";
-import { getSessionStaffId } from "@/lib/auth";
+import { getSessionStaffId, isAdminLevel } from "@/lib/auth";
 
 // ---------------------------------------------------------------------------
 // Queries
@@ -110,6 +110,8 @@ const openSchema = z.object({
 });
 
 export async function openCashSession(formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     initialAmount: formData.get("initialAmount") as string,
     name: (formData.get("name") as string)?.trim() ?? "",
@@ -151,6 +153,8 @@ const closeSchema = z.object({
 });
 
 export async function closeCashSession(id: string, formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     closingAmount: formData.get("closingAmount") as string,
     notes: (formData.get("notes") as string)?.trim() ?? "",
@@ -187,6 +191,8 @@ const movementSchema = z.object({
 });
 
 export async function addCashMovement(sessionId: string, formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     type: formData.get("type") as string,
     amount: formData.get("amount") as string,

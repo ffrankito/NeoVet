@@ -7,6 +7,7 @@ import { staffId as generateStaffId } from "@/lib/ids";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isAdminLevel } from "@/lib/auth";
 
 const createStaffSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
@@ -25,6 +26,8 @@ export async function getAllStaff() {
 }
 
 export async function createStaffMember(formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     email: (formData.get("email") as string)?.trim() ?? "",
@@ -69,6 +72,8 @@ export async function createStaffMember(formData: FormData) {
 }
 
 export async function updateStaffMember(id: string, formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     name: (formData.get("name") as string)?.trim() ?? "",
     role: (formData.get("role") as string) ?? "",
@@ -97,6 +102,8 @@ export async function updateStaffMember(id: string, formData: FormData) {
 }
 
 export async function deactivateStaffMember(id: string) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const [existing] = await db.select({ userId: staff.userId }).from(staff).where(eq(staff.id, id)).limit(1);
   if (!existing) return { error: "Miembro no encontrado." };
 
@@ -111,6 +118,8 @@ export async function deactivateStaffMember(id: string) {
 }
 
 export async function reactivateStaffMember(id: string) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const [existing] = await db.select({ userId: staff.userId }).from(staff).where(eq(staff.id, id)).limit(1);
   if (!existing) return { error: "Miembro no encontrado." };
 

@@ -7,7 +7,7 @@ import { stockEntries, products, providers } from "@/db/schema";
 import { stockEntryId } from "@/lib/ids";
 import { eq, sql, desc } from "drizzle-orm";
 import { z } from "zod";
-import { getSessionStaffId } from "@/lib/auth";
+import { getSessionStaffId, isAdminLevel } from "@/lib/auth";
 
 const stockEntrySchema = z.object({
   productId: z.string().min(1, "Seleccioná un producto."),
@@ -82,6 +82,8 @@ export async function getActiveProviders() {
 }
 
 export async function createStockEntry(formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
   const raw = {
     productId: (formData.get("productId") as string) ?? "",
     providerId: (formData.get("providerId") as string) ?? "",
