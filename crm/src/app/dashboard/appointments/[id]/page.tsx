@@ -31,7 +31,7 @@ const statusColors: Record<string, string> = {
 
 const typeLabels: Record<string, string> = {
   veterinary: "Veterinario",
-  grooming: "Peluquería",
+  grooming: "Estética",
 };
 
 const typeColors: Record<string, string> = {
@@ -356,7 +356,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
           <Separator />
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Sesión de peluquería</h2>
+              <h2 className="text-lg font-semibold">Sesión de estética</h2>
               <Link
                 href={`/dashboard/patients/${apt.patientId}/grooming/new?appointmentId=${id}`}
                 className={buttonVariants({ size: "sm" })}

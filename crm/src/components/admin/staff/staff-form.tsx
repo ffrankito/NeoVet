@@ -98,9 +98,9 @@ export function StaffForm({ member }: Props) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="admin" label="Admin">Admin — acceso completo</SelectItem>
-            <SelectItem value="owner" label="Dueña / Veterinaria">Dueña / Veterinaria — todo excepto peluquería</SelectItem>
+            <SelectItem value="owner" label="Dueña / Veterinaria">Dueña / Veterinaria — todo excepto estética</SelectItem>
             <SelectItem value="vet" label="Veterinario/a">Veterinario/a — historia clínica</SelectItem>
-            <SelectItem value="groomer" label="Peluquero/a">Peluquero/a — peluquería</SelectItem>
+            <SelectItem value="groomer" label="Esteticista">Esteticista — estética</SelectItem>
           </SelectContent>
         </Select>
         {fieldErrors.role?.[0] && <p className="text-sm text-destructive">{fieldErrors.role[0]}</p>}

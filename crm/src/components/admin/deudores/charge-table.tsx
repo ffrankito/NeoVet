@@ -41,7 +41,7 @@ interface ChargeTableProps {
 
 const sourceTypeLabels: Record<string, string> = {
   consultation: "Consulta",
-  grooming: "Peluquería",
+  grooming: "Estética",
   procedure: "Procedimiento",
   sale: "Venta",
   hospitalization: "Internación",

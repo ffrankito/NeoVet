@@ -192,7 +192,7 @@ export function AppointmentForm({
     const service = services.find((s) => s.id === serviceId);
     if (service) {
       setDurationMinutes(service.defaultDurationMinutes);
-      if (service.category === "peluqueria") {
+      if (service.category === "estetica") {
         setAppointmentType("grooming");
         setConsultationType("clinica");
       } else {
@@ -484,7 +484,7 @@ export function AppointmentForm({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="veterinary" label="Veterinario">Veterinario</SelectItem>
-              <SelectItem value="grooming" label="Peluquería">Peluquería</SelectItem>
+              <SelectItem value="grooming" label="Estética">Estética</SelectItem>
             </SelectContent>
           </Select>
         </div>

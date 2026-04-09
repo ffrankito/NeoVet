@@ -87,7 +87,7 @@ export function ChargeForm({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="consultation">Consulta</SelectItem>
-            <SelectItem value="grooming">Peluquería</SelectItem>
+            <SelectItem value="grooming">Estética</SelectItem>
             <SelectItem value="procedure">Procedimiento</SelectItem>
             <SelectItem value="sale">Venta</SelectItem>
             <SelectItem value="hospitalization">Internación</SelectItem>

@@ -21,7 +21,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   consulta: "Consulta",
   reproduccion: "Reproducción",
   cardiologia: "Cardiología",
-  peluqueria: "Peluquería",
+  estetica: "Estética",
   vacunacion: "Vacunación",
   petshop: "Pet Shop",
   otro: "Otro",

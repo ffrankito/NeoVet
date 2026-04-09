@@ -12,7 +12,7 @@ interface Props {
 
 const subtitleByRole: Record<string, string> = {
   vet: "Turnos veterinarios",
-  groomer: "Turnos de peluquería",
+  groomer: "Turnos de estética",
   admin: "Gestión de turnos",
   owner: "Gestión de turnos",
 };

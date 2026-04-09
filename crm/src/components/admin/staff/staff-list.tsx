@@ -10,7 +10,7 @@ const roleLabels: Record<string, string> = {
   admin: "Admin",
   owner: "Dueña / Veterinaria",
   vet: "Veterinario/a",
-  groomer: "Peluquero/a",
+  groomer: "Esteticista",
 };
 
 function ToggleActiveButton({ member }: { member: Staff }) {
