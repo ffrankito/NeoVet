@@ -48,7 +48,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Follow-up shortcut** — "Agendar turno de seguimiento" button on consultation detail, pre-fills patient + reason.
 - **Mobile responsive** — sidebar collapses to hamburger, tables adapt to 375px, 44px touch targets.
 - **Hospitalizations** — patient admissions with daily observation logs (vitals: weight, temp, HR, RR + clinical: feeding, hydration, medication, urine/feces output). One active per patient. Linked optionally to consultation. Discharge tracking.
-- **Procedures** — surgical/medical procedures with surgeon + anesthesiologist. Supply consumption from products (decrements stock). Follow-up reminders via `follow_ups` table (added `procedureId` FK). Linked optionally to hospitalization.
+- **Procedures** — surgical/medical procedures with multiple surgeons + anesthesiologists (join table `procedure_staff`). Supply consumption from products (decrements stock). Follow-up reminders via `follow_ups` table (added `procedureId` FK). Linked optionally to hospitalization.
 - **Consent documents** — template-based PDF generation via `@react-pdf/renderer`. 3 templates: surgery authorization, euthanasia consent, reproductive agreement (GenetiCan 1). Auto-fills patient/client data. Stored in Supabase Storage (`consent-documents` bucket). Signed URL downloads (60s expiry).
 - **Charges & deudores** — every billable event creates a charge. Auto-charge hooks on: consultations (service basePrice), grooming sessions (finalPrice), pet shop sales (item totals). Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
 - **Bot API endpoints** — `/api/bot/*` (6 routes, API key auth) ready for v2 chatbot integration.
@@ -119,7 +119,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
 
-**Current state:** 22 migrations (0000–0021), 34 tables.
+**Current state:** 23 migrations (0000–0022), 35 tables.
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`

@@ -147,7 +147,7 @@ scripts/
 - **Mobile responsive** — hamburger nav, adapted tables, 44px touch targets
 
 - **Hospitalizations** — patient admissions with daily observation logs (vitals + feeding/hydration/medication/output), discharge tracking. One active per patient.
-- **Procedures** — surgical/medical procedures with surgeon, anesthesiologist, supply consumption (auto-decrements stock from products). Follow-up reminders integration.
+- **Procedures** — surgical/medical procedures with multiple surgeons + anesthesiologists (join table), supply consumption (auto-decrements stock from products). Follow-up reminders integration.
 - **Consent documents** — PDF generation system with 3 templates (surgery authorization, euthanasia consent, reproductive agreement). Auto-fills patient/client data. Stored in Supabase Storage.
 - **Charges & deudores** — billable charges with partial payment support. Auto-charge hooks on grooming sessions, pet shop sales, and consultations. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
 - **Patient detail** — 8 tabs: Información, Historia clínica, Internaciones, Procedimientos, Vacunas, Desparasitaciones, Documentos, Peluquería.
