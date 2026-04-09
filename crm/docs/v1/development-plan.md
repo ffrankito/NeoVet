@@ -434,6 +434,10 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 - [x] Sidebar muestra nuevos módulos (admin/owner/vet)
 - [x] Peluquero no puede acceder a internaciones, procedimientos, consentimientos ni deudores
 - [x] Vet no puede acceder a deudores
+- [x] Pestañas "Internaciones" y "Procedimientos" visibles en el detalle del paciente
+- [x] Auto-cargo al crear sesión de peluquería (si finalPrice > 0)
+- [x] Auto-cargo al crear venta en pet shop (si venta vinculada a paciente)
+- [x] Auto-cargo al crear consulta (si turno tiene servicio con basePrice)
 
 ---
 

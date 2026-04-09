@@ -131,7 +131,7 @@ scripts/
 
 ## v1 Scope
 
-**Phases A–L complete.** Phase D (ARCA billing) is the only v1 deliverable remaining — blocked on Paula's credentials.
+**Phases A–M complete.** Phase D (ARCA billing) is the only v1 deliverable remaining — blocked on Paula's credentials.
 
 - **Clients & patients** — CRUD, avatars, deceased flag. 1,771 clients + 1,380 patients imported from Geovet.
 - **Clinical history** — SOAP consultations + vitals + treatment plans (medication/dose/frequency/duration) + vaccines + deworming + documents (5 categories) + complementary methods (study reports + photos)
@@ -149,7 +149,8 @@ scripts/
 - **Hospitalizations** — patient admissions with daily observation logs (vitals + feeding/hydration/medication/output), discharge tracking. One active per patient.
 - **Procedures** — surgical/medical procedures with surgeon, anesthesiologist, supply consumption (auto-decrements stock from products). Follow-up reminders integration.
 - **Consent documents** — PDF generation system with 3 templates (surgery authorization, euthanasia consent, reproductive agreement). Auto-fills patient/client data. Stored in Supabase Storage.
-- **Charges & deudores** — billable charges with partial payment support. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
+- **Charges & deudores** — billable charges with partial payment support. Auto-charge hooks on grooming sessions, pet shop sales, and consultations. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
+- **Patient detail** — 8 tabs: Información, Historia clínica, Internaciones, Procedimientos, Vacunas, Desparasitaciones, Documentos, Peluquería.
 
 No public API (except bot endpoints for v2). No chatbot integration. No WhatsApp (v2). See `docs/v1/charter.md` for full scope.
 

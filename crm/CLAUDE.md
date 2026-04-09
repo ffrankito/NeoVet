@@ -36,12 +36,13 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Appointments** — create/confirm/complete/cancel/no-show. 5 statuses: `pending`, `confirmed`, `completed`, `cancelled`, `no_show`. Cancellation captures optional reason. Types: `veterinary` / `grooming`. Consultation types: `clinica` / `virtual` / `domicilio`.
 - **Calendar** — weekly view (desktop) / daily (mobile), color-coded services, surgery blocks, free-slot visualization, staff filter, schedule suspension with auto-cancel.
 - **Service catalog** — 9 categories, default duration + surgery block duration.
-- **Grooming** — per-patient profiles (behavior/coat/time estimate) + session records with before/after photos, findings checkboxes, 3-tier pricing, payment method. Sessions auto-post revenue to the open cash register.
-- **Pet shop** — products (9 categories), providers (soft-delete), stock entries (auto-increment), sales with multi-item cart + 5 payment methods.
+- **Grooming** — per-patient profiles (behavior/coat/time estimate) + session records with before/after photos, findings checkboxes, 3-tier pricing, payment method. Sessions auto-post revenue to the open cash register. Auto-creates charge for the client.
+- **Pet shop** — products (9 categories), providers (soft-delete), stock entries (auto-increment), sales with multi-item cart + 5 payment methods. Sales linked to a patient auto-create a charge for the client.
 - **Cash register** — open/close sessions, income/expense movements, breakdown by payment method. Balance = initial + pet shop sales + grooming revenue + extra income - expenses.
 - **Email notifications** — booking confirmation (on create), cancellation notification (on cancel), reminders 48h/24h, vaccine due in 7 days, post-consultation follow-ups. All via Resend + Vercel Cron (`0 12 * * *`). Idempotent via `email_logs` table.
 - **Dashboard** — role-filtered "today's appointments" (admin sees all, vet sees own vet appointments, groomer sees own grooming appointments). Summary cards (clients, patients, today's count). Cash register open/closed widget (admin only).
 - **Staff & access** — 4 roles: `admin` (full), `owner` (full), `vet` (clinical), `groomer` (grooming only). Middleware sets `x-user-role` header. Staff CRUD (admin only).
+- **Patient detail tabs** — 8 tabs: Información, Historia clínica, Internaciones, Procedimientos, Vacunas, Desparasitaciones, Documentos, Peluquería. Internaciones/Procedimientos tabs show history with links to detail pages and quick-create buttons.
 - **Patient summary on appointments** — mini card with last consultation, overdue vaccines, brachycephalic breed alert, deceased flag.
 - **Client detail** — shows upcoming appointments inline.
 - **Follow-up shortcut** — "Agendar turno de seguimiento" button on consultation detail, pre-fills patient + reason.
@@ -49,7 +50,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Hospitalizations** — patient admissions with daily observation logs (vitals: weight, temp, HR, RR + clinical: feeding, hydration, medication, urine/feces output). One active per patient. Linked optionally to consultation. Discharge tracking.
 - **Procedures** — surgical/medical procedures with surgeon + anesthesiologist. Supply consumption from products (decrements stock). Follow-up reminders via `follow_ups` table (added `procedureId` FK). Linked optionally to hospitalization.
 - **Consent documents** — template-based PDF generation via `@react-pdf/renderer`. 3 templates: surgery authorization, euthanasia consent, reproductive agreement (GenetiCan 1). Auto-fills patient/client data. Stored in Supabase Storage (`consent-documents` bucket). Signed URL downloads (60s expiry).
-- **Charges & deudores** — every billable event creates a charge. Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
+- **Charges & deudores** — every billable event creates a charge. Auto-charge hooks on: consultations (service basePrice), grooming sessions (finalPrice), pet shop sales (item totals). Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
 - **Bot API endpoints** — `/api/bot/*` (6 routes, API key auth) ready for v2 chatbot integration.
 
 ### What's NOT built (v1 remaining)
