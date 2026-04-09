@@ -13,7 +13,7 @@ export const serviceCategoryEnum = pgEnum("service_category", [
   "consulta",
   "reproduccion",
   "cardiologia",
-  "peluqueria",
+  "estetica",
   "vacunacion",
   "petshop",
   "otro",
