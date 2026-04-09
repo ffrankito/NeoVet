@@ -17,6 +17,7 @@ import { groomingProfileId, groomingSessionId, cashMovementId } from "@/lib/ids"
 import { eq, desc, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createChargeForSource } from "@/app/dashboard/deudores/actions";
 import { randomUUID } from "crypto";
 
 // ── Grooming Profile ─────────────────────────────────────────────────────────
@@ -176,8 +177,9 @@ export async function createGroomingSession(
     if (!error) afterPhotoPath = path;
   }
 
+  const newSessionId = groomingSessionId();
   await db.insert(groomingSessions).values({
-    id: groomingSessionId(),
+    id: newSessionId,
     patientId,
     appointmentId: appointmentId || null,
     groomedById: parsed.data.groomedById,
@@ -228,8 +230,33 @@ export async function createGroomingSession(
     }
   }
 
+  // Auto-create charge for the client
+  if (finalPriceNum && finalPriceNum > 0) {
+    try {
+      const [pat] = await db
+        .select({ clientId: patients.clientId, name: patients.name })
+        .from(patients)
+        .where(eq(patients.id, patientId))
+        .limit(1);
+
+      if (pat?.clientId) {
+        await createChargeForSource(
+          "grooming",
+          newSessionId,
+          pat.clientId,
+          `Peluquería — ${pat.name}`,
+          finalPriceNum,
+          staffRow?.id ?? parsed.data.groomedById
+        );
+      }
+    } catch {
+      // Charge creation failure should not block the session save
+    }
+  }
+
   revalidatePath(`/dashboard/patients/${patientId}`);
   revalidatePath("/dashboard/cash");
+  revalidatePath("/dashboard/deudores");
   return { success: true };
 }
 

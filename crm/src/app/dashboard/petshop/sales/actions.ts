@@ -8,6 +8,8 @@ import { saleId, saleItemId } from "@/lib/ids";
 import { eq, sql, desc } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, isAdminLevel } from "@/lib/auth";
+import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { patients } from "@/db/schema";
 
 const saleItemSchema = z.object({
   productId: z.string().min(1),
@@ -159,7 +161,37 @@ export async function createSale(data: {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
+  // Auto-create charge if sale is linked to a patient (has a client)
+  try {
+    const saleTotal = parsed.data.items.reduce(
+      (sum, item) => sum + item.unitPrice * item.quantity * (1 + item.taxRate / 100),
+      0
+    );
+
+    if (saleTotal > 0 && parsed.data.patientId) {
+      const [pat] = await db
+        .select({ clientId: patients.clientId, name: patients.name })
+        .from(patients)
+        .where(eq(patients.id, parsed.data.patientId))
+        .limit(1);
+
+      if (pat?.clientId) {
+        await createChargeForSource(
+          "sale",
+          id,
+          pat.clientId,
+          `Venta pet shop — ${pat.name}`,
+          Math.round(saleTotal * 100) / 100,
+          staffId
+        );
+      }
+    }
+  } catch {
+    // Charge creation failure should not block the sale
+  }
+
   revalidatePath("/dashboard/petshop/sales");
   revalidatePath("/dashboard/petshop/products");
+  revalidatePath("/dashboard/deudores");
   redirect(`/dashboard/petshop/sales/${id}`);
 }

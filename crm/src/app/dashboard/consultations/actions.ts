@@ -3,11 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { consultations, patients, appointments } from "@/db/schema";
+import { consultations, patients, appointments, services } from "@/db/schema";
 import { consultationId } from "@/lib/ids";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 import { saveTreatmentItems } from "./treatment-actions";
+import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { getSessionStaffId } from "@/lib/auth";
 
 const consultationSchema = z.object({
   patientId: z.string().min(1, "El paciente es obligatorio."),
@@ -121,7 +123,50 @@ export async function createConsultation(formData: FormData) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
+  // Auto-create charge from service basePrice if appointment has a linked service
+  try {
+    if (d.appointmentId) {
+      const [apt] = await db
+        .select({ serviceId: appointments.serviceId })
+        .from(appointments)
+        .where(eq(appointments.id, d.appointmentId))
+        .limit(1);
+
+      if (apt?.serviceId) {
+        const [svc] = await db
+          .select({ basePrice: services.basePrice, name: services.name })
+          .from(services)
+          .where(eq(services.id, apt.serviceId))
+          .limit(1);
+
+        const price = svc?.basePrice ? Number(svc.basePrice) : 0;
+        if (price > 0) {
+          const [pat] = await db
+            .select({ clientId: patients.clientId, name: patients.name })
+            .from(patients)
+            .where(eq(patients.id, d.patientId))
+            .limit(1);
+
+          if (pat?.clientId) {
+            const staffId = await getSessionStaffId();
+            await createChargeForSource(
+              "consultation",
+              id,
+              pat.clientId,
+              `Consulta — ${svc.name ?? "Veterinaria"} — ${pat.name}`,
+              price,
+              staffId ?? ""
+            );
+          }
+        }
+      }
+    }
+  } catch {
+    // Charge creation failure should not block the consultation save
+  }
+
   revalidatePath(`/dashboard/patients/${d.patientId}`);
+  revalidatePath("/dashboard/deudores");
   if (d.appointmentId) revalidatePath(`/dashboard/appointments/${d.appointmentId}`);
   redirect(`/dashboard/consultations/${id}`);
 }
