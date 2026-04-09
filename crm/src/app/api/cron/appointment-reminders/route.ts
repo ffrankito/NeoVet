@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { appointments, patients, clients, services, emailLogs } from "@/db/schema";
+import { appointments, patients, clients, services } from "@/db/schema";
 import { and, eq, gte, lte } from "drizzle-orm";
-import { resend, EMAIL_FROM } from "@/lib/email/resend";
 import { AppointmentReminderEmail } from "@/lib/email/templates/appointment-reminder";
 import { render } from "@react-email/render";
+import { sendAndLogEmail } from "@/lib/email/send-email";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
 
@@ -18,25 +18,6 @@ function getWindowEnd(hoursFromNow: number): Date {
   const d = new Date();
   d.setHours(d.getHours() + hoursFromNow + 1);
   return d;
-}
-
-async function alreadySent(referenceId: string, type: string): Promise<boolean> {
-  const logs = await db
-    .select()
-    .from(emailLogs)
-    .where(and(eq(emailLogs.referenceId, referenceId), eq(emailLogs.type, type)))
-    .limit(1);
-  return logs.length > 0;
-}
-
-async function logEmail(referenceId: string, type: string, sentTo: string) {
-  const { randomUUID } = await import("crypto");
-  await db.insert(emailLogs).values({
-    id: `log_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-    type,
-    referenceId,
-    sentTo,
-  });
 }
 
 export async function GET(req: NextRequest) {
@@ -76,7 +57,6 @@ export async function GET(req: NextRequest) {
 
     for (const appt of upcoming) {
       if (!appt.clientEmail) { results.skipped++; continue; }
-      if (await alreadySent(appt.id, type)) { results.skipped++; continue; }
 
       try {
         const html = await render(
@@ -90,15 +70,19 @@ export async function GET(req: NextRequest) {
           })
         );
 
-        await resend.emails.send({
-          from: EMAIL_FROM,
+        const sent = await sendAndLogEmail({
           to: appt.clientEmail,
           subject: `Recordatorio de turno en ${label} — NeoVet`,
           html,
+          logType: type,
+          referenceId: appt.id,
         });
 
-        await logEmail(appt.id, type, appt.clientEmail);
-        hours === 48 ? results.sent48h++ : results.sent24h++;
+        if (sent) {
+          hours === 48 ? results.sent48h++ : results.sent24h++;
+        } else {
+          results.skipped++;
+        }
       } catch {
         results.errors++;
       }

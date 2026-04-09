@@ -582,7 +582,8 @@ export async function getPatientMiniSummary(patientId: string) {
     .orderBy(desc(consultations.createdAt))
     .limit(1);
 
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  // Get today's date in Argentina timezone (YYYY-MM-DD)
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
   const overdueVaccines = await db
     .select({ name: vaccinations.vaccineName, nextDueAt: vaccinations.nextDueAt })
     .from(vaccinations)

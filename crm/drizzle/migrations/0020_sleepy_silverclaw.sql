@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "email_logs_type_reference_id_idx" ON "email_logs" USING btree ("type","reference_id");

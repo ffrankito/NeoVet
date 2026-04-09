@@ -5,8 +5,7 @@ import { db } from "@/db";
 import { followUps } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-
-const followUpId = () => `fu_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+import { followUpId } from "@/lib/ids";
 
 const followUpSchema = z.object({
   scheduledDate: z.string().min(1, "La fecha es obligatoria."),

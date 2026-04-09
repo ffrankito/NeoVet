@@ -52,19 +52,23 @@ export async function upsertGroomingProfile(patientId: string, formData: FormDat
     return { errors: parsed.error.flatten().fieldErrors };
   }
 
-  const existing = await getGroomingProfile(patientId);
+  try {
+    const existing = await getGroomingProfile(patientId);
 
-  if (existing) {
-    await db
-      .update(groomingProfiles)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(groomingProfiles.patientId, patientId));
-  } else {
-    await db.insert(groomingProfiles).values({
-      id: groomingProfileId(),
-      patientId,
-      ...parsed.data,
-    });
+    if (existing) {
+      await db
+        .update(groomingProfiles)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(groomingProfiles.patientId, patientId));
+    } else {
+      await db.insert(groomingProfiles).values({
+        id: groomingProfileId(),
+        patientId,
+        ...parsed.data,
+      });
+    }
+  } catch {
+    return { error: "Ocurrió un error al guardar el perfil de peluquería." };
   }
 
   revalidatePath(`/dashboard/patients/${patientId}`);
@@ -100,13 +104,6 @@ export async function getGroomingSessions(patientId: string) {
 }
 
 export async function getGroomingPrices() {
-  const rows = await db
-    .select()
-    .from(settings)
-    .where(
-      eq(settings.key, "grooming_price_min")
-    );
-  // Fetch all three
   const all = await db.select().from(settings);
   const map = Object.fromEntries(all.map((r) => [r.key, r.value]));
   return {

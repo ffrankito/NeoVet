@@ -1,32 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { vaccinations, patients, clients, emailLogs } from "@/db/schema";
+import { vaccinations, patients, clients } from "@/db/schema";
 import { and, eq, isNotNull } from "drizzle-orm";
-import { sql } from "drizzle-orm";
-import { resend, EMAIL_FROM } from "@/lib/email/resend";
 import { VaccineReminderEmail } from "@/lib/email/templates/vaccine-reminder";
 import { render } from "@react-email/render";
+import { sendAndLogEmail } from "@/lib/email/send-email";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
-
-async function alreadySent(referenceId: string, type: string): Promise<boolean> {
-  const logs = await db
-    .select()
-    .from(emailLogs)
-    .where(and(eq(emailLogs.referenceId, referenceId), eq(emailLogs.type, type)))
-    .limit(1);
-  return logs.length > 0;
-}
-
-async function logEmail(referenceId: string, type: string, sentTo: string) {
-  const { randomUUID } = await import("crypto");
-  await db.insert(emailLogs).values({
-    id: `log_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
-    type,
-    referenceId,
-    sentTo,
-  });
-}
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -62,7 +42,6 @@ export async function GET(req: NextRequest) {
 
   for (const vac of upcoming) {
     if (!vac.clientEmail || !vac.nextDueAt) { results.skipped++; continue; }
-    if (await alreadySent(vac.id, "vaccine_reminder")) { results.skipped++; continue; }
 
     try {
       const html = await render(
@@ -75,15 +54,15 @@ export async function GET(req: NextRequest) {
         })
       );
 
-      await resend.emails.send({
-        from: EMAIL_FROM,
+      const sent = await sendAndLogEmail({
         to: vac.clientEmail,
         subject: `Vacuna próxima a vencer — ${vac.vaccineName} — NeoVet`,
         html,
+        logType: "vaccine_reminder",
+        referenceId: vac.id,
       });
 
-      await logEmail(vac.id, "vaccine_reminder", vac.clientEmail);
-      results.sent++;
+      sent ? results.sent++ : results.skipped++;
     } catch {
       results.errors++;
     }
