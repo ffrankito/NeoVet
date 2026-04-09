@@ -1,6 +1,7 @@
 import { pgTable, text, timestamp, date } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
 import { consultations } from "./consultations";
+import { procedures } from "./procedures";
 
 export const followUps = pgTable("follow_ups", {
   id: text("id").primaryKey(),
@@ -9,6 +10,8 @@ export const followUps = pgTable("follow_ups", {
     .references(() => patients.id, { onDelete: "cascade" }),
   consultationId: text("consultation_id")
     .references(() => consultations.id, { onDelete: "set null" }),
+  procedureId: text("procedure_id")
+    .references(() => procedures.id, { onDelete: "set null" }),
   scheduledDate: date("scheduled_date").notNull(),
   reason: text("reason").notNull(),
   sentAt: timestamp("sent_at", { withTimezone: true }),
