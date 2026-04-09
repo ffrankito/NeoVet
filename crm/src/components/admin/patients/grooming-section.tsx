@@ -21,7 +21,9 @@ type SessionWithStaff = {
   id: string;
   patientId: string;
   appointmentId: string | null;
-  priceTier: "min" | "mid" | "hard";
+  serviceId: string | null;
+  serviceName: string | null;
+  priceTier: "min" | "mid" | "hard" | null;
   finalPrice: string | null;
   beforePhotoPath: string | null;
   afterPhotoPath: string | null;
@@ -38,6 +40,12 @@ interface Props {
   canEdit: boolean;
 }
 
+function serviceLabel(session: SessionWithStaff): string {
+  if (session.serviceName) return session.serviceName;
+  if (session.priceTier) return tierLabels[session.priceTier] ?? session.priceTier;
+  return "—";
+}
+
 export function GroomingSection({ patientId, profile, sessions, canEdit }: Props) {
   const lastSession = sessions[0] ?? null;
 
@@ -46,7 +54,7 @@ export function GroomingSection({ patientId, profile, sessions, canEdit }: Props
       {/* Profile */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Perfil de peluquería</h2>
+          <h2 className="text-lg font-semibold">Perfil de estética</h2>
           {canEdit && (
             <a
               href={`/dashboard/patients/${patientId}/grooming/new`}
@@ -82,7 +90,7 @@ export function GroomingSection({ patientId, profile, sessions, canEdit }: Props
               )}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Sin perfil de peluquería aún.</p>
+            <p className="text-sm text-muted-foreground">Sin perfil de estética aún.</p>
           )
         )}
       </div>
@@ -102,12 +110,12 @@ export function GroomingSection({ patientId, profile, sessions, canEdit }: Props
                 </p>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Peluquero/a</p>
+                <p className="text-xs font-medium text-muted-foreground">Esteticista</p>
                 <p className="mt-0.5 text-sm">{lastSession.groomedByName ?? "—"}</p>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground">Nivel</p>
-                <p className="mt-0.5 text-sm">{tierLabels[lastSession.priceTier] ?? lastSession.priceTier}</p>
+                <p className="text-xs font-medium text-muted-foreground">Servicio</p>
+                <p className="mt-0.5 text-sm">{serviceLabel(lastSession)}</p>
               </div>
               {lastSession.finalPrice && (
                 <div>
@@ -153,8 +161,8 @@ export function GroomingSection({ patientId, profile, sessions, canEdit }: Props
                 <thead className="bg-muted/50 text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium">Fecha</th>
-                    <th className="px-4 py-3 text-left font-medium">Peluquero/a</th>
-                    <th className="px-4 py-3 text-left font-medium">Nivel</th>
+                    <th className="px-4 py-3 text-left font-medium">Esteticista</th>
+                    <th className="px-4 py-3 text-left font-medium">Servicio</th>
                     <th className="px-4 py-3 text-left font-medium">Precio</th>
                     <th className="px-4 py-3 text-left font-medium">Hallazgos</th>
                   </tr>
@@ -166,7 +174,7 @@ export function GroomingSection({ patientId, profile, sessions, canEdit }: Props
                         {new Date(s.createdAt).toLocaleDateString("es-AR")}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{s.groomedByName ?? "—"}</td>
-                      <td className="px-4 py-3">{tierLabels[s.priceTier] ?? s.priceTier}</td>
+                      <td className="px-4 py-3">{serviceLabel(s)}</td>
                       <td className="px-4 py-3">{s.finalPrice ? `$${s.finalPrice}` : "—"}</td>
                       <td className="px-4 py-3">
                         {s.findings && s.findings.length > 0
