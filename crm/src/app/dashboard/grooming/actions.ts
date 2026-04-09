@@ -10,6 +10,7 @@ import {
   clients,
   staff,
   settings,
+  services,
   cashSessions,
   cashMovements,
 } from "@/db/schema";
@@ -69,7 +70,7 @@ export async function upsertGroomingProfile(patientId: string, formData: FormDat
       });
     }
   } catch {
-    return { error: "Ocurrió un error al guardar el perfil de peluquería." };
+    return { error: "Ocurrió un error al guardar el perfil de estética." };
   }
 
   revalidatePath(`/dashboard/patients/${patientId}`);
@@ -89,6 +90,8 @@ export async function getGroomingSessions(patientId: string) {
       id: groomingSessions.id,
       patientId: groomingSessions.patientId,
       appointmentId: groomingSessions.appointmentId,
+      serviceId: groomingSessions.serviceId,
+      serviceName: services.name,
       priceTier: groomingSessions.priceTier,
       finalPrice: groomingSessions.finalPrice,
       beforePhotoPath: groomingSessions.beforePhotoPath,
@@ -100,23 +103,26 @@ export async function getGroomingSessions(patientId: string) {
     })
     .from(groomingSessions)
     .leftJoin(groomedBy, eq(groomingSessions.groomedById, groomedBy.id))
+    .leftJoin(services, eq(groomingSessions.serviceId, services.id))
     .where(eq(groomingSessions.patientId, patientId))
     .orderBy(desc(groomingSessions.createdAt));
 }
 
-export async function getGroomingPrices() {
-  const all = await db.select().from(settings);
-  const map = Object.fromEntries(all.map((r) => [r.key, r.value]));
-  return {
-    min: map["grooming_price_min"] ?? "",
-    mid: map["grooming_price_mid"] ?? "",
-    hard: map["grooming_price_hard"] ?? "",
-  };
+export async function getEsteticaServicesForSelect() {
+  return db
+    .select({
+      id: services.id,
+      name: services.name,
+      basePrice: services.basePrice,
+    })
+    .from(services)
+    .where(eq(services.category, "estetica"))
+    .orderBy(services.name);
 }
 
 const sessionSchema = z.object({
-  groomedById: z.string().min(1, "El peluquero es obligatorio."),
-  priceTier: z.enum(["min", "mid", "hard"], { message: "El nivel de dificultad es inválido." }),
+  groomedById: z.string().min(1, "El/la esteticista es obligatorio/a."),
+  serviceId: z.string().min(1, "El tipo de servicio es obligatorio."),
   finalPrice: z.number().nonnegative("El precio debe ser mayor o igual a 0.").nullable().optional(),
   paymentMethod: z.string().optional(),
   notes: z.string().optional(),
@@ -132,7 +138,7 @@ export async function createGroomingSession(
 
   const raw = {
     groomedById: (formData.get("groomedById") as string)?.trim() ?? "",
-    priceTier: (formData.get("priceTier") as string) ?? "",
+    serviceId: (formData.get("serviceId") as string)?.trim() ?? "",
     finalPrice: formData.get("finalPrice") ? Number(formData.get("finalPrice")) : null,
     paymentMethod: (formData.get("paymentMethod") as string)?.trim() || undefined,
     notes: (formData.get("notes") as string)?.trim() || undefined,
@@ -183,7 +189,8 @@ export async function createGroomingSession(
     patientId,
     appointmentId: appointmentId || null,
     groomedById: parsed.data.groomedById,
-    priceTier: parsed.data.priceTier,
+    serviceId: parsed.data.serviceId,
+    priceTier: null,
     finalPrice: parsed.data.finalPrice ? String(parsed.data.finalPrice) : null,
     beforePhotoPath,
     afterPhotoPath,
@@ -224,7 +231,7 @@ export async function createGroomingSession(
         type: "ingreso",
         amount: String(finalPriceNum),
         paymentMethod: parsed.data.paymentMethod || "efectivo",
-        description: `Peluquería — ${pat?.name ?? patientId}`,
+        description: `Estética — ${pat?.name ?? patientId}`,
         createdById: staffRow?.id ?? parsed.data.groomedById,
       });
     }
@@ -244,7 +251,7 @@ export async function createGroomingSession(
           "grooming",
           newSessionId,
           pat.clientId,
-          `Peluquería — ${pat.name}`,
+          `Estética — ${pat.name}`,
           finalPriceNum,
           staffRow?.id ?? parsed.data.groomedById
         );
