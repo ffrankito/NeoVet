@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { staff } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { ConsentForm } from "@/components/admin/consent-documents/consent-form";
+import { getAllClientsForSelect, getAllPatientsForSelect } from "@/app/dashboard/appointments/actions";
 
 interface Props {
   searchParams: Promise<{
@@ -21,12 +22,13 @@ export default async function NewConsentDocumentPage({ searchParams }: Props) {
   const procedureId = params.procedureId ?? "";
   const hospitalizationId = params.hospitalizationId ?? "";
 
-  const [templates, staffMemberId] = await Promise.all([
+  const [templates, staffMemberId, clients, patients] = await Promise.all([
     getConsentTemplates(),
     getSessionStaffId(),
+    getAllClientsForSelect(),
+    getAllPatientsForSelect(),
   ]);
 
-  // If a patient was specified, look up the name
   let patientName: string | null = null;
   if (patientId) {
     const patient = await getPatient(patientId);
@@ -35,7 +37,6 @@ export default async function NewConsentDocumentPage({ searchParams }: Props) {
     }
   }
 
-  // Fetch current staff member's name and license for auto-fill
   let staffName: string | undefined;
   let staffLicenseNumber: string | undefined;
   if (staffMemberId) {
@@ -76,6 +77,8 @@ export default async function NewConsentDocumentPage({ searchParams }: Props) {
 
       <ConsentForm
         templates={templates}
+        clients={clients}
+        patients={patients}
         patientId={patientId || undefined}
         patientName={patientName || undefined}
         procedureId={procedureId || undefined}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getPatient } from "@/app/dashboard/patients/actions";
 import { getStaffForProcedure } from "../actions";
 import { ProcedureForm } from "@/components/admin/procedures/procedure-form";
+import { getAllClientsForSelect, getAllPatientsForSelect } from "@/app/dashboard/appointments/actions";
 
 interface Props {
   searchParams: Promise<{
@@ -15,9 +16,12 @@ export default async function NewProcedurePage({ searchParams }: Props) {
   const patientId = params.patientId ?? "";
   const hospitalizationId = params.hospitalizationId ?? "";
 
-  const staffList = await getStaffForProcedure();
+  const [staffList, clients, patients] = await Promise.all([
+    getStaffForProcedure(),
+    getAllClientsForSelect(),
+    getAllPatientsForSelect(),
+  ]);
 
-  // If a patient was specified, look up the name to display
   let patientLabel: string | null = null;
   if (patientId) {
     const patient = await getPatient(patientId);
@@ -52,6 +56,8 @@ export default async function NewProcedurePage({ searchParams }: Props) {
 
       <ProcedureForm
         staffList={staffList}
+        clients={clients}
+        patients={patients}
         defaultPatientId={patientId || undefined}
         defaultPatientName={patientLabel || undefined}
         defaultHospitalizationId={hospitalizationId || undefined}

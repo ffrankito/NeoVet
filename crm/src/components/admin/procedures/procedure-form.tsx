@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createProcedure } from "@/app/dashboard/procedures/actions";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 type ActionResult =
   | {
@@ -15,8 +16,23 @@ type ActionResult =
     }
   | undefined;
 
+interface PatientOption {
+  id: string;
+  name: string;
+  species: string;
+  clientId: string;
+  clientName: string;
+}
+
+interface ClientOption {
+  id: string;
+  name: string;
+}
+
 interface ProcedureFormProps {
   staffList: Array<{ id: string; name: string }>;
+  clients?: ClientOption[];
+  patients?: PatientOption[];
   defaultPatientId?: string;
   defaultPatientName?: string;
   defaultHospitalizationId?: string;
@@ -24,12 +40,22 @@ interface ProcedureFormProps {
 
 export function ProcedureForm({
   staffList,
+  clients = [],
+  patients = [],
   defaultPatientId,
   defaultPatientName,
   defaultHospitalizationId,
 }: ProcedureFormProps) {
-  const action = async (_prev: ActionResult, formData: FormData) =>
-    createProcedure(formData);
+  const [selectedClient, setSelectedClient] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState(defaultPatientId ?? "");
+
+  const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
+
+  const action = async (_prev: ActionResult, formData: FormData) => {
+    formData.set("patientId", selectedPatient || defaultPatientId || "");
+    return createProcedure(formData);
+  };
+
   const [result, dispatch, isPending] = useActionState(action, undefined);
 
   const error = result && "error" in result ? result.error : null;
@@ -46,32 +72,48 @@ export function ProcedureForm({
         </div>
       )}
 
-      {/* Patient ID — hidden if pre-filled */}
       {defaultPatientId ? (
         <input type="hidden" name="patientId" value={defaultPatientId} />
       ) : (
-        <div className="space-y-2">
-          <Label htmlFor="patientId">ID del paciente *</Label>
-          <Input
-            id="patientId"
-            name="patientId"
-            required
-            placeholder="pat_..."
-            aria-invalid={!!errors?.patientId}
-          />
-          {errors?.patientId && (
-            <p className="text-xs text-destructive">{errors.patientId}</p>
+        <>
+          <div className="space-y-2">
+            <Label>Cliente *</Label>
+            <SearchableSelect
+              options={clients.map((c) => ({ value: c.id, label: c.name }))}
+              value={selectedClient}
+              onChange={(v) => { setSelectedClient(v); setSelectedPatient(""); }}
+              placeholder="Seleccioná un cliente"
+              searchPlaceholder="Buscar cliente..."
+              emptyMessage="No se encontró ningún cliente."
+            />
+          </div>
+
+          {selectedClient && (
+            <div className="space-y-2">
+              <Label>Paciente *</Label>
+              {filteredPatients.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Este cliente no tiene pacientes.</p>
+              ) : (
+                <SearchableSelect
+                  options={filteredPatients.map((p) => ({
+                    value: p.id,
+                    label: p.name,
+                    sublabel: p.species,
+                  }))}
+                  value={selectedPatient}
+                  onChange={setSelectedPatient}
+                  placeholder="Seleccioná un paciente"
+                  searchPlaceholder="Buscar paciente..."
+                  emptyMessage="No se encontró ningún paciente."
+                />
+              )}
+            </div>
           )}
-        </div>
+        </>
       )}
 
-      {/* Hospitalization ID — hidden if pre-filled */}
       {defaultHospitalizationId && (
-        <input
-          type="hidden"
-          name="hospitalizationId"
-          value={defaultHospitalizationId}
-        />
+        <input type="hidden" name="hospitalizationId" value={defaultHospitalizationId} />
       )}
 
       <div className="space-y-2">
@@ -149,7 +191,7 @@ export function ProcedureForm({
       </div>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending || (!defaultPatientId && !selectedPatient)}>
           {isPending ? "Guardando..." : "Registrar procedimiento"}
         </Button>
         <Link

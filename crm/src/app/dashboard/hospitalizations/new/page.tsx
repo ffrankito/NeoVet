@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getPatient } from "@/app/dashboard/patients/actions";
 import { AdmissionForm } from "@/components/admin/hospitalizations/admission-form";
+import { getAllClientsForSelect, getAllPatientsForSelect } from "@/app/dashboard/appointments/actions";
 
 interface Props {
   searchParams: Promise<{
@@ -15,16 +15,17 @@ export default async function NewHospitalizationPage({ searchParams }: Props) {
   const patientId = params.patientId ?? "";
   const consultationId = params.consultationId ?? "";
 
-  // If no patient was specified, we can't proceed — redirect to the list
-  if (!patientId) {
-    redirect("/dashboard/hospitalizations");
-  }
+  const [clients, patients] = await Promise.all([
+    getAllClientsForSelect(),
+    getAllPatientsForSelect(),
+  ]);
 
-  // Look up the patient to display the name
   let patientLabel: string | null = null;
-  const patient = await getPatient(patientId);
-  if (patient) {
-    patientLabel = `${patient.name} (${patient.species ?? "—"})`;
+  if (patientId) {
+    const patient = await getPatient(patientId);
+    if (patient) {
+      patientLabel = `${patient.name} (${patient.species ?? "—"})`;
+    }
   }
 
   return (
@@ -51,7 +52,12 @@ export default async function NewHospitalizationPage({ searchParams }: Props) {
         </div>
       )}
 
-      <AdmissionForm patientId={patientId} consultationId={consultationId} />
+      <AdmissionForm
+        patientId={patientId}
+        consultationId={consultationId}
+        clients={clients}
+        patients={patients}
+      />
     </div>
   );
 }
