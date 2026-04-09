@@ -20,20 +20,26 @@ const FINDINGS = [
 
 type ActionResult = { success?: boolean; errors?: Record<string, string[]>; error?: string } | undefined;
 
+type EsteticaService = {
+  id: string;
+  name: string;
+  basePrice: string | null;
+};
+
 interface Props {
   patientId: string;
   appointmentId: string | null;
   groomers: { id: string; name: string }[];
-  prices: { min: string; mid: string; hard: string };
+  esteticaServices: EsteticaService[];
 }
 
-export function GroomingSessionForm({ patientId, appointmentId, groomers, prices }: Props) {
+export function GroomingSessionForm({ patientId, appointmentId, groomers, esteticaServices }: Props) {
   const router = useRouter();
-  const [priceTier, setPriceTier] = useState("mid");
+  const [serviceId, setServiceId] = useState("");
   const [groomedById, setGroomedById] = useState("");
   const [selectedFindings, setSelectedFindings] = useState<string[]>([]);
 
-  const tierPrices: Record<string, string> = { min: prices.min, mid: prices.mid, hard: prices.hard };
+  const selectedService = esteticaServices.find((s) => s.id === serviceId);
 
   function toggleFinding(value: string) {
     setSelectedFindings((prev) =>
@@ -43,11 +49,11 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, prices
 
   const action = async (_prev: ActionResult, formData: FormData) => {
     formData.set("groomedById", groomedById);
-    formData.set("priceTier", priceTier);
+    formData.set("serviceId", serviceId);
     selectedFindings.forEach((f) => formData.append("findings", f));
     const result = await createGroomingSession(patientId, appointmentId, formData);
     if (result?.success) {
-      router.push(`/dashboard/patients/${patientId}?tab=peluqueria`);
+      router.push(`/dashboard/patients/${patientId}?tab=estetica`);
     }
     return result;
   };
@@ -65,10 +71,10 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, prices
       )}
 
       <div className="space-y-2">
-        <Label>Peluquero/a *</Label>
+        <Label>Esteticista *</Label>
         <Select value={groomedById} onValueChange={(v) => v && setGroomedById(v)}>
           <SelectTrigger className="w-full" aria-invalid={!!fieldErrors.groomedById}>
-            <SelectValue placeholder="Seleccioná un peluquero/a" />
+            <SelectValue placeholder="Seleccioná un/a esteticista" />
           </SelectTrigger>
           <SelectContent>
             {groomers.map((g) => (
@@ -82,23 +88,22 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, prices
       </div>
 
       <div className="space-y-2">
-        <Label>Nivel de dificultad *</Label>
-        <Select value={priceTier} onValueChange={(v) => v && setPriceTier(v)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
+        <Label>Tipo de servicio *</Label>
+        <Select value={serviceId} onValueChange={(v) => v && setServiceId(v)}>
+          <SelectTrigger className="w-full" aria-invalid={!!fieldErrors.serviceId}>
+            <SelectValue placeholder="Seleccioná un servicio" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="min" label="Tranquilo">
-              Tranquilo{tierPrices.min ? ` — $${tierPrices.min}` : ""}
-            </SelectItem>
-            <SelectItem value="mid" label="Normal">
-              Normal{tierPrices.mid ? ` — $${tierPrices.mid}` : ""}
-            </SelectItem>
-            <SelectItem value="hard" label="Difícil">
-              Difícil{tierPrices.hard ? ` — $${tierPrices.hard}` : ""}
-            </SelectItem>
+            {esteticaServices.map((s) => (
+              <SelectItem key={s.id} value={s.id} label={s.name}>
+                {s.name}{s.basePrice ? ` — $${s.basePrice}` : ""}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
+        {fieldErrors.serviceId?.[0] && (
+          <p className="text-sm text-destructive">{fieldErrors.serviceId[0]}</p>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -111,7 +116,8 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, prices
             type="number"
             min={0}
             step="0.01"
-            defaultValue={tierPrices[priceTier] ?? ""}
+            defaultValue={selectedService?.basePrice ?? ""}
+            key={serviceId}
             className="pl-7"
             placeholder="0.00"
           />
@@ -182,7 +188,7 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, prices
           {isPending ? "Guardando..." : "Registrar sesión"}
         </Button>
         <a
-          href={`/dashboard/patients/${patientId}?tab=peluqueria`}
+          href={`/dashboard/patients/${patientId}?tab=estetica`}
           className={buttonVariants({ variant: "outline" })}
         >
           Cancelar
