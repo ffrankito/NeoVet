@@ -341,7 +341,7 @@
       <div class="section-body">
         <div>
           <h3>URL de acceso</h3>
-          <p>Ingresá a <code>https://neovet.veterinaria.ar</code> desde cualquier navegador (Chrome, Safari, Firefox — funciona en desktop y mobile).</p>
+          <p>Ingresá a <code>https://neo-vet-eta.vercel.app</code> desde cualquier navegador (Chrome, Safari, Firefox — funciona en desktop y mobile).</p>
         </div>
         <div>
           <h3>Login</h3>
@@ -705,6 +705,99 @@
       </div>
     </div>
 
+    <!-- Internaciones -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <h2>Internaciones</h2>
+      </div>
+      <div class="section-body">
+        <h3>Admitir un paciente</h3>
+        <ol>
+          <li>Andá a <strong>Internaciones</strong> en el menú.</li>
+          <li>Hacé clic en <strong>+ Admitir paciente</strong>.</li>
+          <li>Buscá el <strong>cliente</strong> por nombre, luego seleccioná el <strong>paciente</strong>.</li>
+          <li>Completá el motivo de internación y notas iniciales.</li>
+          <li>Guardá — el paciente queda en estado "Internado".</li>
+        </ol>
+        <h3>Registrar observaciones diarias</h3>
+        <p>Desde la ficha de internación podés agregar observaciones con signos vitales (peso, temperatura, frecuencia cardíaca) y notas clínicas. Estas quedan registradas con fecha y hora.</p>
+        <h3>Dar de alta</h3>
+        <p>Abrí la internación → botón <strong>Dar de alta</strong>. El sistema registra la fecha y hora de egreso.</p>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">También podés acceder a las internaciones de un paciente desde su ficha → pestaña <strong>Internaciones</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Procedimientos -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">14</div>
+        <h2>Procedimientos</h2>
+      </div>
+      <div class="section-body">
+        <h3>Registrar un procedimiento</h3>
+        <ol>
+          <li>Andá a <strong>Procedimientos</strong> en el menú.</li>
+          <li>Hacé clic en <strong>+ Nuevo procedimiento</strong>.</li>
+          <li>Buscá el <strong>cliente</strong>, seleccioná el <strong>paciente</strong>.</li>
+          <li>Completá fecha, descripción, tipo, cirujano(s) y anestesiólogo(s).</li>
+          <li>Guardá.</li>
+        </ol>
+        <p>Los procedimientos también se ven en la ficha del paciente → pestaña <strong>Procedimientos</strong>.</p>
+      </div>
+    </div>
+
+    <!-- Consentimientos -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">15</div>
+        <h2>Documentos de Consentimiento</h2>
+      </div>
+      <div class="section-body">
+        <h3>Generar un consentimiento</h3>
+        <ol>
+          <li>Andá a <strong>Consentimientos</strong> en el menú.</li>
+          <li>Hacé clic en <strong>+ Generar consentimiento</strong>.</li>
+          <li>Buscá el <strong>cliente</strong> por nombre, seleccioná el <strong>paciente</strong>.</li>
+          <li>Elegí la <strong>plantilla</strong>: Cirugía, Eutanasia o Acuerdo reproductivo.</li>
+          <li>Completá los campos adicionales si los hay (diagnóstico, descripción del procedimiento).</li>
+          <li>Hacé clic en <strong>Generar documento</strong> — se crea el PDF automáticamente.</li>
+        </ol>
+        <h3>Descargar el PDF</h3>
+        <p>Desde la lista de consentimientos, hacé clic en el documento y descargalo. El PDF incluye los datos del cliente, el paciente y la veterinaria. Imprimilo y pedile la firma al dueño.</p>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body">Los consentimientos también se pueden generar desde la ficha del paciente o desde la internación/procedimiento vinculado.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horarios y feriados -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-num">16</div>
+        <h2>Horarios de Atención y Feriados</h2>
+      </div>
+      <div class="section-body">
+        <h3>Cambiar los horarios de la clínica</h3>
+        <ol>
+          <li>Andá a <strong>Configuración</strong>.</li>
+          <li>En la sección <strong>Horarios de atención</strong>, editá los horarios de mañana, tarde y feriados.</li>
+          <li>Hacé clic en <strong>Guardar horarios</strong>.</li>
+        </ol>
+        <p>Los cambios se reflejan inmediatamente en el <strong>calendario</strong> y en el <strong>bot de disponibilidad</strong>. No hace falta pedirle nada a nadie.</p>
+        <h3>Feriados</h3>
+        <p>El sistema detecta los feriados nacionales automáticamente desde la API oficial. Los feriados aparecen resaltados en <strong>ámbar</strong> en el calendario con el nombre (ej: "Viernes Santo"). El chatbot también sabe cuándo es feriado y comunica el horario reducido a los clientes.</p>
+        <div class="callout tip">
+          <div class="callout-icon">💡</div>
+          <div class="callout-body"><strong>No necesitás cargar los feriados manualmente.</strong> El sistema los descarga automáticamente todos los años.</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Resumen -->
     <div class="section" style="border-color: var(--role); background: var(--role-light);">
       <div class="section-body">
@@ -715,6 +808,7 @@
           <li><strong>Caja:</strong> abierta cada mañana, cerrada cada noche con arqueo.</li>
           <li><strong>Pet shop:</strong> stock actualizado, bajo stock vigilado.</li>
           <li><strong>Staff:</strong> roles claros, activos cuando corresponde.</li>
+          <li><strong>Horarios:</strong> actualizados en Configuración cuando cambien.</li>
         </ul>
         <p style="color:var(--role-text); margin-top:0.75rem;">Esto es lo que permite que Paula tenga un registro completo, que los clientes no se pierdan turnos, y que todo fluya sin caos. Gracias por mantener el sistema limpio.</p>
       </div>
