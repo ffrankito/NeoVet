@@ -17,6 +17,7 @@ const ROLE_BLOCKS: Record<string, string[]> = {
     "/dashboard/patients",
     "/dashboard/consultations",
     "/dashboard/hospitalizations",
+    "/dashboard/procedures",
     "/dashboard/petshop",
     "/dashboard/cash",
   ],
