@@ -2,6 +2,7 @@ import { numeric, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
 import { appointments } from "./appointments";
 import { staff } from "./staff";
+import { services } from "./services";
 
 export const priceTierEnum = pgEnum("price_tier", ["min", "mid", "hard"]);
 
@@ -13,10 +14,13 @@ export const groomingSessions = pgTable("grooming_sessions", {
   appointmentId: text("appointment_id").references(() => appointments.id, {
     onDelete: "set null",
   }),
+  serviceId: text("service_id").references(() => services.id, {
+    onDelete: "set null",
+  }),
   groomedById: text("groomed_by_id")
     .notNull()
     .references(() => staff.id),
-  priceTier: priceTierEnum("price_tier").notNull(),
+  priceTier: priceTierEnum("price_tier"),
   finalPrice: numeric("final_price", { precision: 10, scale: 2 }),
   beforePhotoPath: text("before_photo_path"),
   afterPhotoPath: text("after_photo_path"),
