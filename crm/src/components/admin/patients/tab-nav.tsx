@@ -15,7 +15,7 @@ const BASE_TABS: Tab[] = [
   { label: "Documentos", value: "documentos" },
 ];
 
-const GROOMING_TAB: Tab = { label: "Peluquería", value: "peluqueria" };
+const GROOMING_TAB: Tab = { label: "Estética", value: "estetica" };
 
 interface TabNavProps {
   activeTab: string;

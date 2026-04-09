@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type TabValue = "informacion" | "historia" | "internaciones" | "procedimientos" | "vacunas" | "desparasitaciones" | "documentos" | "peluqueria";
+type TabValue = "informacion" | "historia" | "internaciones" | "procedimientos" | "vacunas" | "desparasitaciones" | "documentos" | "estetica";
 
 const VALID_TABS: TabValue[] = [
   "informacion",
@@ -39,7 +39,7 @@ const VALID_TABS: TabValue[] = [
   "vacunas",
   "desparasitaciones",
   "documentos",
-  "peluqueria",
+  "estetica",
 ];
 
 function resolveTab(raw: string | undefined): TabValue {
@@ -86,7 +86,7 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
 
   // Fetch grooming data only if the tab is active and visible
   const [groomingProfile, groomingSessions] =
-    activeTab === "peluqueria" && showGrooming
+    activeTab === "estetica" && showGrooming
       ? await Promise.all([getGroomingProfile(id), getGroomingSessions(id)])
       : [null, []];
 
@@ -436,8 +436,8 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
         <DocumentSection patientId={id} documents={documentHistory} />
       )}
 
-      {/* Tab: Peluquería */}
-      {activeTab === "peluqueria" && showGrooming && (
+      {/* Tab: Estética */}
+      {activeTab === "estetica" && showGrooming && (
         <GroomingSection
           patientId={id}
           profile={groomingProfile}
