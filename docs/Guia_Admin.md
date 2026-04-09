@@ -36,8 +36,8 @@ Cuando ingresas, ves el dashboard. Acá está el corazón de la operación del d
 Aca ves TODOS los turnos de hoy, ordenados por hora:
 - Hora del turno
 - Cliente (nombre) y paciente (nombre de la mascota)
-- Profesional asignado (vos, el veterinario, el peluquero)
-- Tipo: Veterinario / Peluquería
+- Profesional asignado (vos, el veterinario, el esteticista)
+- Tipo: Veterinario / Estética
 - Estado: Por confirmar / Confirmado / Completado / No se presentó / Cancelado
 
 **Cómo leer un turno:**
@@ -157,10 +157,10 @@ Dentro de la ficha del cliente ves:
 - Análisis de laboratorio, radiografías, ecografías — cualquier estudio
 - Hacé clic para descargar
 
-**Pestaña Peluquería:**
-- Historial de sesiones de peluquería
-- Perfil de grooming: comportamiento, tipo de pelaje, dificultades
-- Hallazgos registrados por el peluquero (nódulos, parasitosis, etc.)
+**Pestaña Estética:**
+- Historial de sesiones de estética
+- Perfil de estética: comportamiento, tipo de pelaje, dificultades
+- Hallazgos registrados por el esteticista (nódulos, parasitosis, etc.)
 
 **Pestaña Internaciones:**
 - Pacientes que estuvieron o están internados
@@ -181,9 +181,9 @@ Dentro de la ficha del cliente ves:
 - Hacé clic en "Nuevo turno" (o "+")
 - Paso 1: Seleccioná el cliente (buscá por nombre o teléfono)
 - Paso 2: Seleccioná el paciente (la mascota)
-- Paso 3: Tipo de turno: Veterinario / Peluquería
-- Paso 4: Profesional asignado (tu nombre, el veterinario, el peluquero)
-- Paso 5: Servicio (ej: "Revisación general", "Peluquería completa", etc.)
+- Paso 3: Tipo de turno: Veterinario / Estética
+- Paso 4: Profesional asignado (tu nombre, el veterinario, el esteticista)
+- Paso 5: Servicio (ej: "Revisación general", "Estética completa", etc.)
 - Paso 6: Fecha y hora (hacé clic en el calendario)
 - Paso 7: ¿Enviar recordatorios? Activá si querés que se envíen emails de confirmación 48h y 24h antes
 - Paso 8: Guardá
@@ -218,8 +218,8 @@ Dentro de la ficha del cliente ves:
 ### Completar un Turno
 - Abrí el turno
 - Hacé clic en "Completar"
-- Se abre el formulario para registrar qué pasó (consulta clínica, sesión de grooming, etc.)
-- El veterinario o peluquero completa los detalles
+- Se abre el formulario para registrar qué pasó (consulta clínica, sesión de estética, etc.)
+- El veterinario o esteticista completa los detalles
 - Se marca como hecho
 
 💡 **Por qué importa:** Completar los turnos es cómo registramos el trabajo. Sin eso, no sabemos si atendimos al paciente o qué se hizo. Es el registro legal de la clínica.
@@ -372,7 +372,7 @@ La caja queda abierta para todo el día. Todos los ingresos y egresos se registr
 ### Registros Automáticos
 **Estos se registran solos, sin que hagas nada:**
 - Ventas del pet shop → ingresan automáticamente (Efectivo o Tarjeta, según lo que pusiste)
-- Sesiones de peluquería → ingresan automáticamente
+- Sesiones de estética → ingresan automáticamente
 
 ### Cerrar Sesión de Caja
 - Botón "Cerrar caja"
@@ -487,7 +487,7 @@ Solo necesitás completar los campos específicos de cada documento (ej: diagnó
 ### Cargos Automáticos
 El sistema genera cargos automáticamente cuando se registran:
 - **Consultas** — si el turno tiene un servicio con precio base
-- **Sesiones de peluquería** — si el precio final es mayor a $0
+- **Sesiones de estética** — si el precio final es mayor a $0
 - **Ventas del pet shop** — si la venta está vinculada a un paciente
 - **Procedimientos** — por los insumos consumidos
 
@@ -498,7 +498,7 @@ No necesitás hacer nada para que se generen — aparecen solos.
 - Seleccioná el cliente
 - Descripción (ej: "Deuda pendiente de consulta anterior")
 - Monto
-- Categoría: consulta / peluquería / procedimiento / venta / internación / otro
+- Categoría: consulta / estética / procedimiento / venta / internación / otro
 - Guardá
 
 ### Registrar un Pago
@@ -531,7 +531,7 @@ No necesitás hacer nada para que se generen — aparecen solos.
 - Rol:
   - **Admin:** Acceso total (caja, staff, configuración, todo)
   - **Vet:** Solo gestión de pacientes y consultas clínicas
-  - **Groomer:** Solo peluquería y sus propios turnos
+  - **Groomer:** Solo estética y sus propios turnos
 - Hacé clic en "Guardar"
 
 El staff recibe un email con un link para activar su cuenta.
@@ -552,25 +552,25 @@ El staff recibe un email con un link para activar su cuenta.
 
 **Acceso:** "Configuración" (solo admin)
 
-### Precios de Peluquería por Nivel
-- "Configuración" → "Precios de grooming"
+### Precios de Estética por Nivel
+- "Configuración" → "Precios de estética"
 - Ves tres niveles: Mínimo / Medio / Difícil
 - Edita los precios — el sistema los usa para calcular automáticamente el costo de cada sesión
 - Guardá
 
 **Cómo funciona:**
-- Cuando el peluquero registra una sesión, elige el nivel de dificultad
-- El sistema multiplica el precio base por la duración estimada
-- El peluquero puede ajustar manualmente si es necesario
+- Cuando el esteticista registra una sesión, elige el tipo de servicio y el nivel de dificultad
+- El sistema calcula el precio base según el servicio y la dificultad
+- El esteticista puede ajustar manualmente si es necesario
 
 ### Catálogo de Servicios
 - "Configuración" → "Servicios"
-- Ves todos los servicios disponibles (ej: "Revisación general", "Peluquería completa", "Ecografía", etc.)
+- Ves todos los servicios disponibles (ej: "Revisación general", "Estética completa", "Ecografía", etc.)
 
 **Crear un servicio nuevo:**
 - Botón "Nuevo servicio"
 - Nombre (ej: "Consulta dermatológica")
-- Tipo: Veterinario / Peluquería
+- Tipo: Veterinario / Estética
 - Duración estimada en minutos (para calcular citas)
 - Hacé clic en "Guardar"
 

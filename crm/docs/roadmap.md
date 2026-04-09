@@ -28,19 +28,19 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Área | Qué se construye |
 |---|---|
 | Clientes y pacientes | CRUD completo, avatar, flag de fallecido |
-| Turnos | Creación, confirmación, cancelación, asignación de profesional; tipos veterinario / peluquería; modalidad (clínica / virtual / domicilio) |
+| Turnos | Creación, confirmación, cancelación, asignación de profesional; tipos veterinario / estética; modalidad (clínica / virtual / domicilio) |
 | Historia clínica | Consultas SOAP + signos vitales + plan de tratamiento (con dosis, frecuencia, duración) + vacunas + desparasitaciones + documentos (con categorías) + métodos complementarios |
-| Peluquería | Perfil de peluquería por paciente, registro de sesiones con fotos y hallazgos, precios por nivel de dificultad |
+| Estética | Perfil de estética por paciente, registro de sesiones con fotos y hallazgos, tipos de servicio configurables con precio base por servicio y override manual |
 | Facturación | Registro de pagos, facturación electrónica ARCA (Factura A/B/C), dos entidades fiscales, control de límites por entidad |
 | Catálogo de servicios | Tabla de servicios con duración predeterminada y bloqueo por cirugía |
 | Calendario semanal | Vista semanal con slots libres, bloqueos de cirugía y suspensión de agenda por profesional |
 | Recordatorios por email | Turno 48h/24h antes, vacunas 7 días antes, seguimiento post-consulta — vía Resend + Vercel Cron |
-| Staff y accesos | Roles admin / veterinario / peluquero, gestión de staff por admin, `createdBy` en registros clave |
+| Staff y accesos | Roles admin / veterinario / esteticista, gestión de staff por admin, `createdBy` en registros clave |
 | Pet shop | Catálogo de productos (9 categorías), proveedores, entradas de stock, ventas con carrito multi-ítem y métodos de pago |
 | Caja | Apertura/cierre de sesiones de caja, movimientos (ingresos/egresos), desglose por método de pago |
 | Diseño mobile | UI responsive para uso desde celular |
 | Migración de datos | Importación one-time desde exportaciones CSV de GVet |
-| **Day-one readiness** | Dashboard filtrado por rol, estado no-show, motivo de cancelación, turnos próximos en ficha del cliente, peluquería en caja, confirmación/cancelación por email, resumen de paciente en turno, atajo de seguimiento, widget de caja en dashboard |
+| **Day-one readiness** | Dashboard filtrado por rol, estado no-show, motivo de cancelación, turnos próximos en ficha del cliente, estética en caja, confirmación/cancelación por email, resumen de paciente en turno, atajo de seguimiento, widget de caja en dashboard |
 
 **Fuera de alcance en v1:**
 - API pública (sin integración con chatbot)
@@ -64,10 +64,10 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | WhatsApp bidireccional (provider TBD — evaluar Kapso, Twilio, Meta Cloud API) | Comunicación |
 | Recordatorios de turno por WhatsApp — 24h y 1h antes | Comunicación |
 | Confirmación de turno por WhatsApp | Comunicación |
-| Recordatorios de peluquería por WhatsApp ("hace dos semanas...") | Comunicación |
+| Recordatorios de estética por WhatsApp ("hace dos semanas...") | Comunicación |
 | Recordatorios de vacunas por WhatsApp | Comunicación |
 | Mensajes de seguimiento post-consulta por WhatsApp | Comunicación |
-| Alertas del peluquero al veterinario por hallazgos clínicos | Clínica |
+| Alertas del esteticista al veterinario por hallazgos clínicos | Clínica |
 | Cancelación y reagendamiento con auditoría | Scheduling |
 | Flags de razas braquicéfalas — triage de urgencia elevada | Triage |
 | Seguimiento de gastos | Facturación |
@@ -104,7 +104,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Dictado por voz para historia clínica (SOAP) | IA Clínica |
 | Resúmenes automáticos de ficha para veterinarios derivantes | IA Clínica |
 | Sugerencias automáticas de diagnóstico / tratamiento | IA Clínica |
-| Tiempo estimado de peluquería calculado automáticamente por historial | IA Operaciones |
+| Tiempo estimado de estética calculado automáticamente por historial | IA Operaciones |
 | Dashboards de ingresos — por período, veterinario, servicio | BI |
 | Métricas de retención de pacientes | BI |
 | Constructor de reportes personalizados | BI |
@@ -116,7 +116,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Mensajes de cumpleaños | Comunicación |
 | Campañas de email | Comunicación |
 | Reservas de internación | Scheduling |
-| Turnos de peluquería online (autogestión del cliente) | Scheduling |
+| Turnos de estética online (autogestión del cliente) | Scheduling |
 | Gestión de turnos del staff / guardias | Operaciones |
 | Soporte multi-sede | Operaciones |
 | Registro de sustancias controladas | Inventario |

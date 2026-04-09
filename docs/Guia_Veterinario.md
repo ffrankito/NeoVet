@@ -104,12 +104,12 @@ Acá está el corazón. Es la lista de todas las consultas registradas.
 - Cirugías y procedimientos realizados
 - Cada uno muestra: fecha, cirujano, anestesiólogo, insumos consumidos, seguimiento agendado
 
-### Tab "Peluquería"
-- Historial de sesiones de grooming
-- Hallazgos clínicos registrados por el peluquero (nódulos, parasitosis, heridas, etc.)
-- Perfil de grooming: nivel de comportamiento, tipo de pelaje, dificultades
+### Tab "Estética"
+- Historial de sesiones de estética
+- Hallazgos clínicos registrados por el esteticista (nódulos, parasitosis, heridas, etc.)
+- Perfil de estética: nivel de comportamiento, tipo de pelaje, dificultades
 
-💡 **Por qué importa:** El peluquero es los ojos de la clínica. Si encontró un nódulo, sangrado, o sospecha de otitis, eso está aquí. Revisalo.
+💡 **Por qué importa:** El esteticista es los ojos de la clínica. Si encontró un nódulo, sangrado, o sospecha de otitis, eso está aquí. Revisalo.
 
 ---
 
@@ -343,7 +343,7 @@ Soy Paula. Necesito que registres cada consulta por varias razones:
 
 **Responsabilidad legal:** Si pasa algo y el cliente cuestiona qué se hizo en la consulta anterior, yo tengo el registro. Si no está escrito, no pasó.
 
-**Información para el equipo:** Si el peluquero encuentra un nódulo, el vet de turno lo ve. Si el vet diagnostica otitis, yo puedo decirle al peluquero "revisá los oídos en la próxima sesión." Todo esto requiere que esté registrado.
+**Información para el equipo:** Si el esteticista encuentra un nódulo, el vet de turno lo ve. Si el vet diagnostica otitis, yo puedo decirle al esteticista "revisá los oídos en la próxima sesión." Todo esto requiere que esté registrado.
 
 **Automatización futura:** Los recordatorios de vacunas, los seguimientos — todo depende de que vosotros registréis completo. Si falta información, el sistema no puede ayudar.
 

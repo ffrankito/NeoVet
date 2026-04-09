@@ -74,7 +74,7 @@ Validación Zod server-side en todos los formularios con errores de campo. `load
 - Paula factura manualmente, dos días a fin de mes. La facturación en el CRM es **opcional** — no obligatoria en cada transacción.
 - Existen **dos entidades fiscales separadas** que se deben gestionar de forma independiente:
   - **Paula Silveira** — servicios veterinarios (monotributo)
-  - **Miguel** — peluquería canina y pet shop (monotributo separado)
+  - **Miguel** — estética canina y pet shop (monotributo separado)
 - Control crítico: no superar el límite de facturación anual para no ser recategorizado como responsable inscripto.
 - **MercadoPago** → siempre debe generar comprobante (transacción digital rastreable).
 - **Efectivo** → no es obligatorio facturar.
@@ -83,7 +83,7 @@ Validación Zod server-side en todos los formularios con errores de campo. `load
 
 | Entregable | Notas |
 |---|---|
-| Registrar un pago contra una consulta o sesión de peluquería | |
+| Registrar un pago contra una consulta o sesión de estética | |
 | Métodos de pago: efectivo, transferencia, débito, crédito, Mercado Pago | |
 | Regla automática: pago por Mercado Pago → fuerza generación de comprobante | |
 | Campo opcional para asociar el pago a una entidad fiscal (Paula / Miguel) | |
@@ -138,15 +138,15 @@ Validación Zod server-side en todos los formularios con errores de campo. `load
 
 ### Fase E — Staff y Control de Acceso ✅ Completada
 
-**E.1** — Roles: `admin` (todo) · `vet` (clientes read, pacientes read+edit, turnos veterinarios, consultas CRUD) · `groomer` (turnos grooming, sesiones, perfil peluquería). Middleware de redirección por rol. Columnas `appointmentType` y `assignedStaffId` en `appointments`.
+**E.1** — Roles: `admin` (todo) · `vet` (clientes read, pacientes read+edit, turnos veterinarios, consultas CRUD) · `groomer` (turnos grooming, sesiones, perfil estética). Middleware de redirección por rol. Columnas `appointmentType` y `assignedStaffId` en `appointments`.
 
 **E.2** — Gestión de staff (admin only): `/dashboard/settings/staff` — crear, editar, desactivar miembros.
 
-**E.3** — Tabla `grooming_profiles` (una por paciente, auto-creada). Pestaña "Peluquería" en detalle del paciente. Campos: `behaviorScore`, `coatType`, `coatDifficulties`, `behaviorNotes`, `estimatedMinutes`.
+**E.3** — Tabla `grooming_profiles` (una por paciente, auto-creada). Pestaña "Estética" en detalle del paciente. Campos: `behaviorScore`, `coatType`, `coatDifficulties`, `behaviorNotes`, `estimatedMinutes`.
 
-**E.4** — Tabla `grooming_sessions`. Bucket `grooming-photos` (privado). Formulario de sesión con fotos antes/después, hallazgos (checkboxes), `priceTier` (`min`/`mid`/`hard`), precio final, `createdById`.
+**E.4** — Tabla `grooming_sessions`. Bucket `grooming-photos` (privado). Formulario de sesión con fotos antes/después, hallazgos (checkboxes), tipo de servicio configurable (Baño, Corte, etc.), precio base por servicio con override manual, precio final, `createdById`.
 
-**E.5** — Tabla `settings` (clave/valor). Página `/dashboard/settings` con precios de peluquería por tier (admin only).
+**E.5** — Tabla `settings` (clave/valor). Página `/dashboard/settings` con tipos de servicio de estética configurables (admin only).
 
 ---
 
@@ -228,7 +228,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 ### Fase L — Preparación Day-One ✅ Completada
 
-**Objetivo:** Cubrir los gaps funcionales que el equipo de Paula (5 vets, 2 recepcionistas, 1 peluquero) va a sentir desde el primer día de uso. Sin estos cambios, el sistema funciona técnicamente pero genera fricción constante.
+**Objetivo:** Cubrir los gaps funcionales que el equipo de Paula (5 vets, 2 recepcionistas, 1 esteticista) va a sentir desde el primer día de uso. Sin estos cambios, el sistema funciona técnicamente pero genera fricción constante.
 
 **Contexto:** Surge de un gap analysis contra el charter, el development plan y una inspección del codebase. Son cambios acotados en complejidad pero de alto impacto operativo.
 
@@ -240,7 +240,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 | Entregable | Notas |
 |---|---|
-| Dashboard home filtra "Turnos de hoy" por el usuario logueado | Admin ve todo; vet ve solo sus turnos veterinarios; peluquero ve solo sus turnos de peluquería |
+| Dashboard home filtra "Turnos de hoy" por el usuario logueado | Admin ve todo; vet ve solo sus turnos veterinarios; esteticista ve solo sus turnos de estética |
 | Toggle "Ver todos" para admin | Admin puede alternar entre vista propia y vista general |
 
 ---
@@ -272,13 +272,13 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 ---
 
-#### L.5 — Peluquería en caja (G1) ⚠️ Blocker para precisión de caja
+#### L.5 — Estética en caja (G1) ⚠️ Blocker para precisión de caja
 
 | Entregable | Notas |
 |---|---|
-| Las sesiones de peluquería generan automáticamente un movimiento de ingreso en la caja abierta | Al guardar una sesión con precio > 0, se crea un `cash_movement` de tipo ingreso con método de pago seleccionado |
+| Las sesiones de estética generan automáticamente un movimiento de ingreso en la caja abierta | Al guardar una sesión con precio > 0, se crea un `cash_movement` de tipo ingreso con método de pago seleccionado |
 | Si no hay caja abierta, advertencia al guardar la sesión | No bloquea el guardado, pero avisa que el ingreso no se registró en caja |
-| Desglose "Ventas del período" incluye peluquería | Balance de caja refleja ventas pet shop + peluquería |
+| Desglose "Ventas del período" incluye estética | Balance de caja refleja ventas pet shop + estética |
 
 ---
 
@@ -333,7 +333,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 - [x] Estado `no_show` disponible y funcional en turnos pasados
 - [x] Campo motivo de cancelación visible y guardado
 - [x] Ficha del cliente muestra próximos turnos
-- [x] Sesión de peluquería genera movimiento de caja automático
+- [x] Sesión de estética genera movimiento de caja automático
 - [x] Email de confirmación se envía al crear turno
 - [x] Email de cancelación se envía al cancelar turno
 - [x] Detalle de turno muestra resumen del paciente (+ alerta braquicéfalo + vacunas vencidas)
@@ -342,7 +342,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 **Entregables parciales (diferencias vs. plan):**
 - L.1: El toggle "Ver todos" para admin no se implementó — el admin siempre ve todo. Se puede agregar si genera ruido.
-- L.5: No se implementó advertencia visual cuando no hay caja abierta — la sesión se guarda silenciosamente sin movimiento de caja. Agregar si genera confusión.
+- L.5: No se implementó advertencia visual cuando no hay caja abierta — la sesión de estética se guarda silenciosamente sin movimiento de caja. Agregar si genera confusión.
 - L.7: La cancelación por suspensión de agenda no envía batch de emails — solo la cancelación manual de un turno individual. El batch requiere modificar el flujo de suspensión de agenda (v2).
 - L.9: El botón pre-llena paciente y motivo, pero no pre-llena profesional ni servicio. El vet elige esos campos.
 
@@ -366,7 +366,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 | Observaciones diarias: signos vitales (peso, temp, FC, FR) + clínicas (alimentación, hidratación, medicación, orina, heces) | Múltiples observaciones por internación |
 | Alta del paciente con notas opcionales | Solo un paciente internado activo a la vez |
 | Vista lista con filtro: Internados / Dados de alta / Todos | Paginada |
-| Acceso: admin/owner/vet | Peluquero bloqueado |
+| Acceso: admin/owner/vet | Esteticista bloqueado |
 
 ---
 
@@ -378,7 +378,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 | Consumo de insumos del inventario (decrementa stock) | Mismo patrón que ventas del pet shop |
 | Restauración de stock al eliminar insumo | |
 | Seguimiento post-procedimiento vía tabla `follow_ups` (FK `procedureId` agregada) | |
-| Acceso: admin/owner/vet | Peluquero bloqueado |
+| Acceso: admin/owner/vet | Esteticista bloqueado |
 
 ---
 
@@ -399,7 +399,7 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 | Entregable | Notas |
 |---|---|
-| Tabla `charges` — cargos con tipo de origen polimórfico | consulta/peluquería/procedimiento/venta/internación/otro |
+| Tabla `charges` — cargos con tipo de origen polimórfico | consulta/estética/procedimiento/venta/internación/otro |
 | Pagos parciales y totales | Estado: pendiente → parcial → pagado |
 | Página "Deudores" — clientes con saldo pendiente | Ordenados por deuda desc, buscable por nombre |
 | Detalle de deuda por cliente — resumen por categoría + tabla de cargos | Pago inline desde la tabla |
@@ -432,10 +432,10 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 - [x] Registrar pago parcial — estado cambia a "Parcial"
 - [x] Registrar pago restante — estado cambia a "Pagado"
 - [x] Sidebar muestra nuevos módulos (admin/owner/vet)
-- [x] Peluquero no puede acceder a internaciones, procedimientos, consentimientos ni deudores
+- [x] Esteticista no puede acceder a internaciones, procedimientos, consentimientos ni deudores
 - [x] Vet no puede acceder a deudores
 - [x] Pestañas "Internaciones" y "Procedimientos" visibles en el detalle del paciente
-- [x] Auto-cargo al crear sesión de peluquería (si finalPrice > 0)
+- [x] Auto-cargo al crear sesión de estética (si finalPrice > 0)
 - [x] Auto-cargo al crear venta en pet shop (si venta vinculada a paciente)
 - [x] Auto-cargo al crear consulta (si turno tiene servicio con basePrice)
 
@@ -454,10 +454,10 @@ Estas tareas no requieren cambios de código. Son configuración, deploy y verif
 | # | Tarea | Responsable | Bloquea |
 |---|---|---|---|
 | PL-1 | Deploy CRM a Vercel producción + DNS | Tomás / Franco | Todo — nadie puede usar el sistema sin esto |
-| PL-2 | Crear 9 cuentas de staff (Paula + 5 vets + 2 recepcionistas + 1 peluquero) | Paula (admin) | Login de todo el equipo |
+| PL-2 | Crear 9 cuentas de staff (Paula + 5 vets + 2 recepcionistas + 1 esteticista) | Paula (admin) | Login de todo el equipo |
 | PL-3 | Verificar dominio de email en Resend | Tomás / Franco | Reminders llegan a bandeja (no spam) |
 | PL-4 | Verificar e2e que crons de Vercel disparan emails | Tomás / Franco | Recordatorios automáticos funcionan |
-| PL-5 | Configurar precios de peluquería por tier en Settings | Paula (admin) | Peluquero puede cobrar correctamente |
+| PL-5 | Configurar tipos de servicio de estética en Settings | Paula (admin) | Esteticista puede registrar sesiones correctamente |
 | PL-6 | Confirmar duraciones de cirugía en catálogo de servicios | Paula | Calendario no sobrebloquea ni subbloquea |
 | PL-7 | Correr migración de DB en producción (si no se hizo vía branch merge) | Tomás / Franco | Schema actualizado |
 | PL-8 | Crear bucket `consent-documents` en Supabase Storage (privado) | Tomás / Franco | Generación de PDFs de consentimiento |
@@ -472,8 +472,8 @@ Estas tareas no requieren cambios de código. Son configuración, deploy y verif
 | OQ-D1 | ¿Cómo integra ARCA el certificado digital? Paula envía los datos durante la semana | Fase D.3 |
 | OQ-D2 | ¿Cuál es el límite anual de facturación de Paula y de Miguel? | D.4 — alerta de límite |
 | OQ-D3 | ¿El punto de venta de Paula y Miguel es el mismo o diferente? | D.2 — configuración ARCA |
-| OQ-E1 | ¿Cuáles son los precios base de peluquería por tier (min/mid/hard)? | E.5 seed |
-| OQ-E2 | Hallazgos del peluquero → ¿cómo debe notificarse al veterinario? (pendiente entrevista con peluquero) | Futura feature en v2 |
+| OQ-E1 | ¿Cuáles son los tipos de servicio de estética y sus precios base? | E.5 seed |
+| OQ-E2 | Hallazgos del esteticista → ¿cómo debe notificarse al veterinario? (pendiente entrevista con esteticista) | Futura feature en v2 |
 | OQ-G1 | ¿Cuál es la duración por defecto y el bloqueo extra para cirugías? | G.1 seed de servicios |
 | OQ-I1 | ¿Desde qué dirección de email deben salir los recordatorios? (dominio verificado en Resend) | I.4 |
 
@@ -490,4 +490,4 @@ Estas tareas no requieren cambios de código. Son configuración, deploy y verif
 - Encuestas de satisfacción — v3.
 - Portal del tutor / app para clientes — v3.
 - Reportes y analíticas — v3.
-- Alertas automáticas de hallazgos del peluquero al veterinario — v2.
+- Alertas automáticas de hallazgos del esteticista al veterinario — v2.

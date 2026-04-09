@@ -46,6 +46,6 @@
 |------|-------|
 | Staff (equipo) | Son 3 personas, se crean manualmente |
 | Servicios | Ya cargados en el seed (9 servicios) |
-| Perfiles de peluquería | Se crean con el uso, no hay data histórica estructurada en GVet |
+| Perfiles de estética | Se crean con el uso, no hay data histórica estructurada en GVet |
 | Tratamientos | En GVet es texto libre dentro de las visitas, no está estructurado por ítem |
 | Seguimientos post-consulta | Feature nueva del CRM, no existe en GVet |

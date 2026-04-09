@@ -60,8 +60,8 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 
 ### Preguntarle a Paula (miércoles 9 en la reunión)
 
-- [ ] **Emails del equipo** para crear las 9 cuentas de staff (5 vets, 2 recepcionistas, 1 peluquero)
-- [ ] **Precios de peluquería por tier** (mín / medio / difícil) → configurar en Settings → Precios de grooming
+- [ ] **Emails del equipo** para crear las 9 cuentas de staff (5 vets, 2 recepcionistas, 1 esteticista)
+- [ ] **Precios de estética por tier** (mín / medio / difícil) → configurar en Settings → Precios de estética
 - [ ] **Duraciones de cirugía** → confirmar en el catálogo de servicios
 - [ ] **¿Cargó datos nuevos en Geovet esta semana?** → si sí, hacer una migración final antes del 20
 
@@ -76,7 +76,7 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 - [ ] **Email de recordatorio de turno probado**: crear turno a 48h, verificar que llegue el email al día siguiente
 - [ ] **Email de confirmación de turno probado**: crear turno → ¿llega email al cliente?
 - [ ] **Email de cancelación probado**: cancelar turno → ¿llega email con motivo?
-- [ ] **Cada rol probado**: loguearse como vet (solo ve sus turnos), como peluquero (solo peluquería), como admin (ve todo)
+- [ ] **Cada rol probado**: loguearse como vet (solo ve sus turnos), como esteticista (solo estética), como admin (ve todo)
 
 ### Seguridad
 
@@ -100,7 +100,7 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 
 ### Entrega
 
-- [ ] **Imprimir o enviar las guías de usuario** (Admin, Vet, Peluquero)
+- [ ] **Imprimir o enviar las guías de usuario** (Admin, Vet, Esteticista)
 - [ ] **Llevar la guía de testeo resuelta** con los resultados del UAT
 - [ ] **Firmar simbólicamente el handoff** — ambas partes
 

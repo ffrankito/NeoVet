@@ -1,8 +1,8 @@
 # NeoVet CRM
 
-Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owners), patients (pets), clinical history, appointments, hospitalizations, surgical/medical procedures, grooming sessions, pet shop inventory, cash register, consent documents, billing (charges & debtors), and email notifications.
+Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owners), patients (pets), clinical history, appointments, hospitalizations, surgical/medical procedures, estética sessions, pet shop inventory, cash register, consent documents, billing (charges & debtors), and email notifications.
 
-**Used by:** Paula Silveira and the clinic team (5 vets, 2 receptionists, 1 groomer).
+**Used by:** Paula Silveira and the clinic team (5 vets, 2 receptionists, 1 esteticista).
 **Not public-facing.**
 
 ---
@@ -82,12 +82,12 @@ src/
 │   │   ├── consent-documents/ # Consent PDF generation (surgery, euthanasia, reproductive)
 │   │   ├── consultations/    # SOAP consultations + vitals + treatments + follow-up shortcut
 │   │   ├── deudores/         # Charges, payments, debtor tracking
-│   │   ├── grooming/         # Grooming profiles + sessions (auto-posts to cash)
+│   │   ├── grooming/         # Estética profiles + sessions (auto-posts to cash)
 │   │   ├── hospitalizations/ # Patient admissions, daily observations, discharge
 │   │   ├── patients/         # Patient CRUD + vaccinations + deworming + documents
 │   │   ├── petshop/          # Products, providers, stock entries, sales
 │   │   ├── procedures/       # Surgical/medical procedures + supply consumption
-│   │   └── settings/         # Grooming prices, service catalog, staff management, clinic hours
+│   │   └── settings/         # Estética prices, service catalog, staff management, clinic hours
 │   ├── api/
 │   │   ├── bot/              # 6 REST endpoints for v2 chatbot integration
 │   │   ├── cron/             # Scheduled jobs: appointment reminders, vaccine reminders, follow-ups
@@ -136,9 +136,9 @@ scripts/
 - **Clients & patients** — CRUD, avatars, deceased flag. 1,771 clients + 1,380 patients imported from Geovet.
 - **Clinical history** — SOAP consultations + vitals + treatment plans (medication/dose/frequency/duration) + vaccines + deworming + documents (5 categories) + complementary methods (study reports + photos)
 - **Appointments** — create, confirm, complete, cancel (with reason), no-show. Weekly calendar + surgery blocks + schedule suspension. Booking confirmation + cancellation emails.
-- **Grooming** — per-patient profiles + session records with before/after photos, findings, 3-tier pricing. Auto-posts revenue to cash register.
+- **Estética** — per-patient profiles + session records with before/after photos, findings, 3-tier pricing. Auto-posts revenue to cash register.
 - **Pet shop** — products (9 categories), providers, stock entries, sales with multi-item cart + 5 payment methods
-- **Cash register** — daily sessions, income/expense movements, breakdown by payment method. Includes pet shop sales + grooming revenue.
+- **Cash register** — daily sessions, income/expense movements, breakdown by payment method. Includes pet shop sales + estética revenue.
 - **Email notifications** — booking confirmation, cancellation, 48h/24h reminders, vaccine due in 7 days, post-consultation follow-ups. All via Resend + Vercel Cron.
 - **Dashboard** — role-filtered today's appointments (admin sees all, vet sees own, groomer sees own). Cash register status widget (admin).
 - **Roles** — `admin` / `owner` (full access), `vet` (clinical), `groomer` (grooming only)
@@ -149,8 +149,8 @@ scripts/
 - **Hospitalizations** — patient admissions with daily observation logs (vitals + feeding/hydration/medication/output), discharge tracking. One active per patient.
 - **Procedures** — surgical/medical procedures with multiple surgeons + anesthesiologists (join table), supply consumption (auto-decrements stock from products). Follow-up reminders integration.
 - **Consent documents** — PDF generation system with 3 templates (surgery authorization, euthanasia consent, reproductive agreement). Auto-fills patient/client data. Stored in Supabase Storage.
-- **Charges & deudores** — billable charges with partial payment support. Auto-charge hooks on grooming sessions, pet shop sales, and consultations. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
-- **Patient detail** — 8 tabs: Información, Historia clínica, Internaciones, Procedimientos, Vacunas, Desparasitaciones, Documentos, Peluquería.
+- **Charges & deudores** — billable charges with partial payment support. Auto-charge hooks on estética sessions, pet shop sales, and consultations. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
+- **Patient detail** — 8 tabs: Información, Historia clínica, Internaciones, Procedimientos, Vacunas, Desparasitaciones, Documentos, Estética.
 
 No public API (except bot endpoints for v2). No chatbot integration. No WhatsApp (v2). See `docs/v1/charter.md` for full scope.
 

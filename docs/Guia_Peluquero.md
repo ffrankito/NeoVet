@@ -1,6 +1,6 @@
-# Guía para Peluqueros — NeoVet
+# Guía para Esteticistas — NeoVet
 
-Hola. Te cuento cómo usar el sistema para registrar tus sesiones de grooming. Es simple, te toma 5 minutos después de cada corte, y ayuda mucho a la clínica. Gracias por ser cuidadoso.
+Hola. Te cuento cómo usar el sistema para registrar tus sesiones de estética. Es simple, te toma 5 minutos después de cada sesión, y ayuda mucho a la clínica. Gracias por ser cuidadoso.
 
 ---
 
@@ -10,13 +10,13 @@ Hola. Te cuento cómo usar el sistema para registrar tus sesiones de grooming. E
 
 **Login:**
 - Ingresá con tu email y contraseña
-- Funciona en desktop y mobile — podés usar el celular en el espacio de peluquería
+- Funciona en desktop y mobile — podés usar el celular en el espacio de estética
 
 ---
 
 ## 2. El Dashboard
 
-Cuando ingresás, ves **"Tus turnos de hoy"** — solo los turnos de peluquería asignados a vos, ordenados por hora.
+Cuando ingresás, ves **"Tus turnos de hoy"** — solo los turnos de estética asignados a vos, ordenados por hora.
 
 **Cada turno muestra:**
 - Paciente (nombre de la mascota)
@@ -28,25 +28,25 @@ Hacé clic en un turno para ver detalles o registrar la sesión.
 
 ---
 
-## 3. Ver un Turno de Peluquería
+## 3. Ver un Turno de Estética
 
 Cuando abrís un turno, ves:
 - **Paciente:** Nombre, raza, edad
 - **Cliente:** Nombre y teléfono
 - **Horario:** A qué hora fue/es
-- **Servicio:** Qué tipo de grooming (ej: "Peluquería completa", "Baño y secado")
+- **Servicio:** Qué tipo de servicio (ej: "Estética completa", "Baño y secado")
 - **Resumen del paciente:** Última sesión, hallazgos previos
 
 ---
 
-## 4. El Perfil de Peluquería del Paciente
+## 4. El Perfil de Estética del Paciente
 
-Cada paciente tiene información específica para grooming. Es importante que la revises.
+Cada paciente tiene información específica para la estética. Es importante que la revises.
 
 ### Dónde encontrarlo
 - Abrí el turno
 - Hacé clic en el nombre del paciente para ver su ficha completa
-- Buscá la pestaña "Peluquería"
+- Buscá la pestaña "Estética"
 
 ### Qué tiene ese perfil
 - **Comportamiento:** Puntuación de cómo se porta (tranquilo, nervioso, agresivo, etc.)
@@ -57,8 +57,8 @@ Cada paciente tiene información específica para grooming. Es importante que la
 
 ### Actualizar el Perfil
 Si algo cambió desde la última sesión, actualizalo:
-- Abrí la ficha del paciente → pestaña Peluquería
-- Hacé clic en "Editar perfil de grooming"
+- Abrí la ficha del paciente → pestaña Estética
+- Hacé clic en "Editar perfil de estética"
 - Modificá lo necesario
 - Guardá
 
@@ -66,7 +66,7 @@ Si algo cambió desde la última sesión, actualizalo:
 
 ---
 
-## 5. Registrar una Sesión de Peluquería
+## 5. Registrar una Sesión de Estética
 
 Después de terminar la sesión, registrala en el sistema. Es lo que completa el turno.
 
@@ -82,11 +82,11 @@ Después de terminar la sesión, registrala en el sistema. Es lo que completa el
 
 ### Paso 2: Fotos Después
 - Botón "+ Agregar fotos"
-- Subí fotos del resultado final después del grooming
+- Subí fotos del resultado final después de la sesión
 - Muestra el trabajo que hiciste
 
 ### Paso 3: Hallazgos (muy importante)
-Son observaciones clínicas que encontraste durante el grooming. Marcá lo que viste:
+Son observaciones clínicas que encontraste durante la sesión. Marcá lo que viste:
 
 - ☐ Nódulos / Bultos
 - ☐ Parasitosis (pulgas, garrapatas, ácaros)
@@ -103,7 +103,8 @@ Son observaciones clínicas que encontraste durante el grooming. Marcá lo que v
 
 ⚠️ **Importante:** Los hallazgos clínicos son información médica importante. Al registrarlos, Paula y los veterinarios los pueden ver en la ficha del paciente. En el futuro, el sistema podría alertar automáticamente al vet si encontrás algo.
 
-### Paso 4: Nivel de Dificultad
+### Paso 4: Tipo de Servicio y Nivel de Dificultad
+- Seleccioná el tipo de servicio (ej: "Estética completa", "Baño y secado", etc.)
 - **Mín:** Perro tranquilo, pelaje fácil de manejar, sin complicaciones
 - **Medio:** Pelaje con nudos, perro un poco nervioso, o tiempo mayor
 - **Difícil:** Muy agresivo, pelaje muy complicado, mucho tiempo, requiere sedación del vet
@@ -111,7 +112,7 @@ Son observaciones clínicas que encontraste durante el grooming. Marcá lo que v
 El sistema usa esta clasificación para calcular el precio de la sesión automáticamente.
 
 ### Paso 5: Precio Final
-- El sistema sugiere un precio basado en el nivel de dificultad y la duración
+- El sistema sugiere un precio basado en el servicio y el nivel de dificultad
 - Si necesitás ajustarlo (cobro de más/menos por algo específico), podés editarlo
 - Es el monto que el cliente va a pagar
 
@@ -130,7 +131,7 @@ El sistema usa esta clasificación para calcular el precio de la sesión automá
 
 ## 6. Por Qué Registrar los Hallazgos
 
-Es lo más importante que hacés además de grooming.
+Es lo más importante que hacés además de la estética.
 
 **Los hallazgos son información médica.** Cuando te peinás a Romeo y encontrás un nódulo, desprendimiento de piel, o señales de sarna, eso es clínica. No es solo cosmética.
 
@@ -167,9 +168,9 @@ Si el cliente no se presenta o cancela.
 
 No necesitás hacer mucho acá, pero es bueno que entiendas.
 
-**Cuando guardás una sesión de peluquería con un método de pago, el ingreso se registra automáticamente en la caja.** Por ej:
+**Cuando guardás una sesión de estética con un método de pago, el ingreso se registra automáticamente en la caja.** Por ej:
 
-- Sesión de peluquería completa: $150
+- Sesión de estética completa: $150
 - Cliente pagó con efectivo
 - Automáticamente, aparece $150 en el widget de caja de Paula, bajo "Efectivo"
 
@@ -195,13 +196,13 @@ Al final del día:
 
 Soy Paula. Necesito que registres tus sesiones porque:
 
-**Negocio:** Cada peso que cobra el grooming tiene que quedar registrado. Si no lo hacés, no sé cuánto dinero tengo, no puedo pagar bills, no sé quién trabaja más. Es difícil sin registros.
+**Negocio:** Cada peso que cobra la estética tiene que quedar registrado. Si no lo hacés, no sé cuánto dinero tengo, no puedo pagar bills, no sé quién trabaja más. Es difícil sin registros.
 
 **Clínica:** Vos trabajás con los pacientes cada semana o cada mes. Ves problemas de piel, heridas, parsitos — cosas que el vet no ve porque no estás todos los días. Si no lo registras, esa información se pierde. Y puede ser importante.
 
 **Equipo:** Si el vet sabe que Romeo tiene otitis (porque vos lo registraste), puede hacer algo al respecto. Si no le aviso, pasamos la oportunidad de ayudar.
 
-**Unificación:** El grooming no es un servicio separado. Es parte del cuidado del paciente. Todo debe estar en un único lugar — NeoVet — para que todos veamos lo mismo.
+**Unificación:** La estética no es un servicio separado. Es parte del cuidado del paciente. Todo debe estar en un único lugar — NeoVet — para que todos veamos lo mismo.
 
 ---
 

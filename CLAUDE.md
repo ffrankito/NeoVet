@@ -66,7 +66,7 @@ NeoVet is a monorepo composed of 3 independent apps:
 
 | App | Stack | Description |
 |-----|-------|-------------|
-| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, hospitalizations (daily observation logs), procedures (supply consumption), grooming module, pet shop + cash register, consent document PDFs, charges & debtors, email reminders, billing (ARCA — Phase D pending), role-based access (admin/owner/vet/groomer). |
+| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, hospitalizations (daily observation logs), procedures (supply consumption), estética module, pet shop + cash register, consent document PDFs, charges & debtors, email reminders, billing (ARCA — Phase D pending), role-based access (admin/owner/vet/groomer). |
 | `chatbot/` | Next.js 16 App Router, TypeScript, Tailwind | Conversational assistant. Web-first v1 (deployed), WhatsApp via Kapso in v2. |
 | `landing/` | **Astro**, TypeScript, Tailwind | Static marketing site. Services, team, location, contact. No server-side logic. |
 
@@ -128,7 +128,7 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 ## Data Migration Notes
 
 - Data is imported from Geovet via manual CSV exports (Geovet has no API).
-- Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`.
+- Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `import-estetica.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`.
 - The `clients` table includes an `importedFromGvet` boolean flag for traceability.
 - Re-imports are supported: nuke the DB (SQL in `crm/README.md`), then run the scripts in order. See `crm/README.md` → "Data Migration (Nuke & Reseed)" for the full procedure.
 

@@ -106,11 +106,11 @@ Si algo no sabés cómo hacerlo, consultá la **Guía de Administrador** que te 
 
 ---
 
-## 11. Peluquería — perfil y sesión
+## 11. Estética — perfil y sesión
 
-- [ ] Buscá un paciente que vaya a peluquería y abrí su pestaña "Peluquería"
-- [ ] **¿Tiene perfil de grooming?** Si no, creá uno (comportamiento, tipo de pelaje)
-- [ ] Desde un turno de peluquería, registrá una sesión de prueba: subí una foto, marcá un hallazgo, elegí nivel de dificultad, poné un precio y un método de pago
+- [ ] Buscá un paciente que vaya a estética y abrí su pestaña "Estética"
+- [ ] **¿Tiene perfil de estética?** Si no, creá uno (comportamiento, tipo de pelaje)
+- [ ] Desde un turno de estética, registrá una sesión de prueba: subí una foto, marcá un hallazgo, elegí tipo de servicio y nivel de dificultad, poné un precio y un método de pago
 - [ ] Guardá. **¿La sesión aparece en el historial del paciente?**
 
 ---
@@ -127,7 +127,7 @@ Si algo no sabés cómo hacerlo, consultá la **Guía de Administrador** que te 
 ## 13. Caja — abrir, verificar, cerrar
 
 - [ ] Si la caja no está abierta, abrila con un monto inicial (ej: $5000)
-- [ ] Verificá que las ventas y sesiones de peluquería aparezcan como movimientos
+- [ ] Verificá que las ventas y sesiones de estética aparezcan como movimientos
 - [ ] Registrá un egreso manual (ej: "Suministros de limpieza", $500)
 - [ ] Cerrá la caja: ingresá el monto de efectivo que "contaste"
 - [ ] **¿El sistema te muestra la diferencia si no coincide?**
@@ -137,7 +137,7 @@ Si algo no sabés cómo hacerlo, consultá la **Guía de Administrador** que te 
 ## 14. Roles — verificar que cada rol ve lo que debe
 
 - [ ] Pedile a un veterinario que entre con su cuenta. **¿Solo ve sus turnos?** **¿No ve caja ni pet shop?**
-- [ ] Pedile al peluquero que entre con su cuenta. **¿Solo ve turnos de peluquería?**
+- [ ] Pedile al esteticista que entre con su cuenta. **¿Solo ve turnos de estética?**
 - [ ] Si todavía no creaste las cuentas, creá al menos una de prueba desde Configuración → Staff
 
 ---

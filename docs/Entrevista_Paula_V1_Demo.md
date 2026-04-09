@@ -58,7 +58,7 @@ Hacé el recorrido en este orden. No saltes entre secciones — el flujo importa
 - El filtro por rol — "Paula como admin ve todo; un vet solo ve sus turnos"
 
 **Punto de conversación:**
-> "Este es lo primero que ve cada persona cuando entra. El admin ve todo; el veterinario solo sus turnos; el peluquero solo los suyos."
+> "Este es lo primero que ve cada persona cuando entra. El admin ve todo; el veterinario solo sus turnos; el esteticista solo los suyos."
 
 ---
 
@@ -112,18 +112,18 @@ Hacé el recorrido en este orden. No saltes entre secciones — el flujo importa
 
 ---
 
-### 2.5 — Módulo de peluquería (5 min)
+### 2.5 — Módulo de estética (5 min)
 
 **Mostrá:**
-- Pestaña "Peluquería" en la ficha de un paciente — perfil (comportamiento, pelaje)
-- Crear una sesión de peluquería: fotos antes/después, hallazgos, nivel de dificultad, precio, método de pago
+- Pestaña "Estética" en la ficha de un paciente — perfil (comportamiento, pelaje)
+- Crear una sesión de estética: fotos antes/después, hallazgos, tipo de servicio, nivel de dificultad, precio, método de pago
 - Mostrar que al guardar la sesión, aparece automáticamente en la caja
 
 **Punto de conversación:**
-> "Los hallazgos que registre el peluquero — nódulos, parasitosis, otitis — van a poder ser vistos por los vets. En la próxima versión, el sistema va a alertar automáticamente al vet cuando encuentren algo."
+> "Los hallazgos que registre el esteticista — nódulos, parasitosis, otitis — van a poder ser vistos por los vets. En la próxima versión, el sistema va a alertar automáticamente al vet cuando encuentren algo."
 
 **Pregunta para Paula:**
-> "¿Los tres niveles de dificultad (mín, medio, difícil) reflejan cómo lo manejan hoy? ¿Los precios base están bien configurados?"
+> "¿Los tipos de servicio y los tres niveles de dificultad (mín, medio, difícil) reflejan cómo lo manejan hoy? ¿Los precios base están bien configurados?"
 
 ---
 
@@ -136,7 +136,7 @@ Hacé el recorrido en este orden. No saltes entre secciones — el flujo importa
 - Cerrar la caja
 
 **Punto de conversación:**
-> "Todo lo que entra por ventas del pet shop y por sesiones de peluquería queda registrado automáticamente en la caja. Al cerrar el día, el balance ya está calculado."
+> "Todo lo que entra por ventas del pet shop y por sesiones de estética queda registrado automáticamente en la caja. Al cerrar el día, el balance ya está calculado."
 
 ---
 
@@ -144,7 +144,7 @@ Hacé el recorrido en este orden. No saltes entre secciones — el flujo importa
 
 **Mostrá:**
 - La página de gestión de staff (admin only)
-- Los tres roles: admin, veterinario, peluquero
+- Los tres roles: admin, veterinario, esteticista
 
 **Punto de conversación:**
 > "Vos como admin podés crear las cuentas del equipo. Cada persona solo ve lo que necesita para su rol."
@@ -240,7 +240,7 @@ Que Paula entienda que lo que vio hoy es el punto de partida, no el techo. Que l
 > "Para tu clínica esto es especialmente importante. Cuando alguien escriba 'mi bulldog no respira' o 'está convulsionando', el bot va a detectarlo antes de que intervenga cualquier inteligencia artificial — en milisegundos — y va a enviar el número de urgencias de forma inmediata. No como una sugerencia. Como la primera respuesta."
 
 **Para la landing:**
-> "La página también va a crecer. Vamos a agregar páginas específicas por servicio — ecografía, braquicéfalos, peluquería — que van a ayudar a que tu clínica aparezca mejor en Google cuando alguien busca esos servicios en Rosario. Y cuando tengamos el WhatsApp activo, la página va a tener un botón de 'sacá tu turno' que va directamente al bot."
+> "La página también va a crecer. Vamos a agregar páginas específicas por servicio — ecografía, braquicéfalos, estética — que van a ayudar a que tu clínica aparezca mejor en Google cuando alguien busca esos servicios en Rosario. Y cuando tengamos el WhatsApp activo, la página va a tener un botón de 'sacá tu turno' que va directamente al bot."
 
 ---
 
@@ -256,7 +256,7 @@ Que Paula salga de la reunión con acceso al sistema, una guía de testeo en la 
 ### Qué le entregás en este momento
 - **Acceso al CRM en producción** — su cuenta admin ya creada
 - **Guía de testeo** (`docs/Guia_Testeo_UAT.md`) — 15-20 escenarios concretos para que verifique
-- **Guías de usuario** por rol (Admin, Veterinario, Peluquero) — para que entienda cómo funciona cada cosa
+- **Guías de usuario** por rol (Admin, Veterinario, Esteticista) — para que entienda cómo funciona cada cosa
 
 ### El acuerdo de la semana de UAT
 

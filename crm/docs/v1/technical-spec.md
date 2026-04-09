@@ -15,7 +15,7 @@
 
 ### Description
 
-Staff-only internal tool for managing clients (pet owners), patients (pets), clinical history, appointments, grooming, pet shop, cash register, and billing. Accessed via browser (desktop and mobile) by Paula and the clinic team. No public-facing endpoints in v1.
+Staff-only internal tool for managing clients (pet owners), patients (pets), clinical history, appointments, estética, pet shop, cash register, and billing. Accessed via browser (desktop and mobile) by Paula and the clinic team. No public-facing endpoints in v1.
 
 ### Architecture Diagram
 
@@ -36,7 +36,7 @@ graph TD
 | Staff dashboard | Next.js App Router | UI for all CRM operations | Vercel |
 | Database | Supabase PostgreSQL | Persistent data store | Supabase |
 | Auth | Supabase SSR | Email login for staff | Supabase |
-| File storage | Supabase Storage | Patient avatars (public), clinical documents (private), grooming photos (private) | Supabase |
+| File storage | Supabase Storage | Patient avatars (public), clinical documents (private), estética photos (private) | Supabase |
 | Email delivery | Resend | Appointment, vaccine, and follow-up reminders | Resend |
 | Cron scheduler | Vercel Cron Jobs | Triggers reminder emails on schedule | Vercel |
 
@@ -60,7 +60,7 @@ graph TD
 
 ### Entity Relationship Summary
 
-A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appointments**, **Consultations**, **Vaccinations**, **DewormingRecords**, **Documents**, and **GroomingSessions**. A **Consultation** optionally links to one **Appointment** and has many **TreatmentItems** and **ComplementaryMethods**. A **Consultation** can have **FollowUps** scheduled. **Appointments** reference a **Service** and can be assigned to a **Staff** member. **Staff** have roles (admin / vet / groomer). **Products** belong to the pet shop and are linked to **Providers** via **StockEntries** and sold via **Sales** → **SaleItems**. **CashSessions** track daily cash register operations with **CashMovements**.
+A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appointments**, **Consultations**, **Vaccinations**, **DewormingRecords**, **Documents**, and **EstéticaSessions** (stored in `grooming_sessions` table). A **Consultation** optionally links to one **Appointment** and has many **TreatmentItems** and **ComplementaryMethods**. A **Consultation** can have **FollowUps** scheduled. **Appointments** reference a **Service** and can be assigned to a **Staff** member. **Staff** have roles (admin / vet / groomer). **Products** belong to the pet shop and are linked to **Providers** via **StockEntries** and sold via **Sales** → **SaleItems**. **CashSessions** track daily cash register operations with **CashMovements**.
 
 ### Core Tables
 
@@ -110,7 +110,7 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appo
 |---|---|---|---|
 | `id` | text | No | Prefixed ID (`svc_`) |
 | `name` | text | No | Service name |
-| `category` | enum | No | `cirugia` / `consulta` / `reproduccion` / `cardiologia` / `peluqueria` / `vacunacion` / `domicilio` / `petshop` / `otro` |
+| `category` | enum | No | `cirugia` / `consulta` / `reproduccion` / `cardiologia` / `estetica` / `vacunacion` / `domicilio` / `petshop` / `otro` |
 | `default_duration_minutes` | integer | No | Default duration when scheduling |
 | `block_duration_minutes` | integer | Yes | Extra blocked time (e.g. surgeries) |
 | `base_price` | numeric | Yes | Reference base price |
@@ -221,6 +221,8 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appo
 
 #### `grooming_profiles`
 
+Stores the per-patient estética profile (internal table name kept for code compatibility).
+
 | Column | Type | Nullable | Description |
 |---|---|---|---|
 | `id` | text | No | Prefixed ID |
@@ -233,20 +235,24 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appo
 
 #### `grooming_sessions`
 
+Stores estética session records (internal table name kept for code compatibility).
+
 | Column | Type | Nullable | Description |
 |---|---|---|---|
 | `id` | text | No | Prefixed ID |
 | `patient_id` | text | No | FK → patients (cascade delete) |
 | `appointment_id` | text | Yes | FK → appointments (set null on delete) |
 | `groomed_by_id` | text | No | FK → staff |
-| `price_tier` | enum | No | `min` / `mid` / `hard` |
-| `final_price` | numeric | No | May differ from tier base price |
+| `service_id` | text | Yes | FK → services — configurable estética service type (Baño, Corte, etc.) |
+| `final_price` | numeric | No | May differ from service base price (manual override) |
 | `before_photo_path` | text | Yes | Supabase Storage path |
 | `after_photo_path` | text | Yes | Supabase Storage path |
 | `findings` | text[] | Yes | Checkboxes: pulgas, garrapatas, tumores, otitis, dermatitis |
 | `notes` | text | Yes | |
 | `created_by_id` | text | No | FK → staff (audit) |
 | `created_at` | timestamptz | No | |
+
+Pricing model: per-service base pricing with manual override. Each service type (Baño, Corte, Corte sanitario, etc.) has a `basePrice` in the `services` table. The esteticista can override the final price at session time. Paula can add new service types from the services settings page.
 
 #### `settings`
 
@@ -255,7 +261,7 @@ A **Client** (owner) has many **Patients** (pets). A **Patient** has many **Appo
 | `key` | text | No | PK — setting name |
 | `value` | text | No | Setting value |
 
-Keys: `grooming_price_min`, `grooming_price_mid`, `grooming_price_hard`.
+Estética service types are configured via the `services` table (category = `estetica`), not via `settings` keys.
 
 #### `schedule_blocks`
 
@@ -394,7 +400,7 @@ Total = opening + sales in period + extra income − expenses. Sales sourced fro
 |---|---|---|---|
 | `patient-avatars` | Public read / auth write | 2 MB | Patient profile photos |
 | `clinical-documents` | Auth only (signed URLs, 60s expiry) | 10 MB | Radiographs, lab results, etc. |
-| `grooming-photos` | Auth only (signed URLs) | 10 MB | Before/after grooming session photos |
+| `grooming-photos` | Auth only (signed URLs) | 10 MB | Before/after estética session photos |
 
 ---
 
@@ -404,7 +410,7 @@ Total = opening + sales in period + extra income − expenses. Sales sourced fro
 |---|---|
 | User authentication | Supabase SSR email login |
 | Session management | Supabase SSR cookies |
-| Role model | Four roles: `admin`, `owner`, `vet`, `groomer` — enforced via middleware. `owner` has the same permissions as `admin`. |
+| Role model | Four roles: `admin`, `owner`, `vet`, `groomer` (esteticista) — enforced via middleware. `owner` has the same permissions as `admin`. |
 | API route protection | Next.js middleware checks Supabase session + role |
 
 ### Role Access Matrix
@@ -415,8 +421,8 @@ Total = opening + sales in period + extra income − expenses. Sales sourced fro
 | Patients (CRUD) | ✅ Full | ✅ Read + edit | ❌ |
 | Appointments | ✅ Full | 👁️ Veterinary only | 👁️ Grooming only |
 | Consultations (CRUD) | ✅ Full | ✅ Full | ❌ |
-| Grooming sessions | ✅ Full | ❌ | ✅ Full |
-| Grooming profiles | ✅ Edit | ❌ | ✅ Edit |
+| Estética sessions | ✅ Full | ❌ | ✅ Full |
+| Estética profiles | ✅ Edit | ❌ | ✅ Edit |
 | Pet shop (all) | ✅ Full | ❌ | ❌ |
 | Cash register | ✅ Full | ❌ | ❌ |
 | Billing | ✅ Full | ❌ | ❌ |
@@ -482,5 +488,5 @@ All cron endpoints are excluded from auth middleware via `proxy.ts`. Authenticat
 | 3 | Soft-delete vs hard-delete | Franco | ✅ Resolved — hard-delete for most entities, soft-delete (`is_active` flag) for staff, products, providers, and services |
 | 4 | ARCA billing integration details | Paula | 🔲 Pending — Paula to provide certificate, CUIT, endpoint, punto de venta. Blocks Phase D.3 |
 | 5 | Staff roles and access levels | Paula | ✅ Resolved — admin / owner / vet / groomer implemented |
-| 6 | Grooming base prices per tier | Paula | 🔲 Pending — configurable in Settings, Paula to set values at launch (PL-5 in development plan) |
+| 6 | Estética service types and base prices | Paula | 🔲 Pending — configurable in Settings (services catalog), Paula to configure at launch (PL-5 in development plan) |
 | 7 | Email sender address (Resend domain) | Tomás | 🔲 Pending — domain verification needed before launch (PL-3 in development plan) |
