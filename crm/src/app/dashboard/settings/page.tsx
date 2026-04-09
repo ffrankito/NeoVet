@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { GroomingPricesForm } from "@/components/admin/settings/grooming-prices-form";
 import { ClinicHoursForm } from "@/components/admin/settings/clinic-hours-form";
 
 export default async function SettingsPage() {
@@ -60,21 +59,6 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <div className="border-t" />
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">Precios de peluquería</h2>
-          <p className="text-sm text-muted-foreground">
-            Precio base por nivel de dificultad.
-          </p>
-        </div>
-        <GroomingPricesForm
-          min={s["grooming_price_min"] ?? ""}
-          mid={s["grooming_price_mid"] ?? ""}
-          hard={s["grooming_price_hard"] ?? ""}
-        />
-      </section>
     </div>
   );
 }
