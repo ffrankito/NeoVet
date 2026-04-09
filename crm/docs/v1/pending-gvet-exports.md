@@ -34,6 +34,11 @@
 | Visitas (abril) | `Visitas-04-2026.csv` | ✅ Importado |
 | Productos | `lista_precios 2026-04-01-18-49-51.csv` | ✅ Script listo |
 | Proveedores | `proveedores.txt` | 🔲 Script por crear |
+| Internaciones | Scrapeado de HTML (2 páginas) → `internaciones.json` (11 registros) | ⏳ Script listo, pendiente ejecución en producción |
+| Procedimientos | Scrapeado de HTML (8 páginas) → `procedimientos.json` (74 registros) | ⏳ Script listo, pendiente ejecución en producción |
+| Deudores | Scrapeado de HTML (5 páginas) → `deudores.json` (42 registros) | ⏳ Script listo, pendiente ejecución en producción |
+
+> **Nota sobre datos scrapeados:** Internaciones, procedimientos y deudores no están disponibles vía exportación CSV de GVet. Se extrajeron guardando las páginas HTML desde Firefox y parseándolas con `scripts/parse-gvet-html.ts`. El script de importación es `scripts/import-gvet-scraped.ts`. Ver `docs/v1/import-scraped-data.md` para instrucciones de ejecución.
 
 ## No requiere importación
 
