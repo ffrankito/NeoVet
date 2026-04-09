@@ -454,9 +454,9 @@ export function AppointmentForm({
             </SelectTrigger>
             <SelectContent>
               {services.map((s) => (
-                <SelectItem key={s.id} value={s.id} label={s.name}>
-                  {s.name} — {s.defaultDurationMinutes} min
-                </SelectItem>
+              <SelectItem key={s.id} value={s.id}>
+              {s.name} — {s.defaultDurationMinutes} min
+              </SelectItem>
               ))}
             </SelectContent>
           </Select>

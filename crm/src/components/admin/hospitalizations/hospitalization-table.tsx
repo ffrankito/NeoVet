@@ -79,22 +79,16 @@ export function HospitalizationTable({
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Estado</label>
           <Select value={statusFilter} onValueChange={(v) => v && applyFilter(v)}>
-            <SelectTrigger className="w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" label="Todos">
-                Todos
-              </SelectItem>
-              <SelectItem value="active" label="Internados">
-                Internados
-              </SelectItem>
-              <SelectItem value="discharged" label="Dados de alta">
-                Dados de alta
-              </SelectItem>
-            </SelectContent>
+          <SelectTrigger className="w-44">
+           <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+          <SelectItem value="all">Todos</SelectItem>
+         <SelectItem value="active">Internados</SelectItem>
+          <SelectItem value="discharged">Dados de alta</SelectItem>
+          </SelectContent>
           </Select>
-        </div>
+          </div>
 
         <span className="ml-auto text-sm text-muted-foreground">
           {total} internación{total !== 1 ? "es" : ""}
