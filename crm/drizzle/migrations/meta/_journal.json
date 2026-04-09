@@ -134,6 +134,13 @@
       "when": 1775694910713,
       "tag": "0020_sleepy_silverclaw",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1775699094754,
+      "tag": "0021_harsh_warlock",
+      "breakpoints": true
     }
   ]
 }

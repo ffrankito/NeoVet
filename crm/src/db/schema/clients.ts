@@ -6,6 +6,7 @@ export const clients = pgTable("clients", {
   phone: text("phone").notNull(),
   email: text("email"),
   address: text("address"),
+  dni: text("dni"),
   gvetId: text("gvet_id"),
   importedFromGvet: boolean("imported_from_gvet").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
