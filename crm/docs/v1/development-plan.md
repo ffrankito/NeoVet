@@ -348,6 +348,95 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 ---
 
+### Fase M — Hospitalizaciones, Procedimientos, Consentimientos y Deudores ✅ Completada
+
+**Objetivo:** Cubrir los módulos clínicos y administrativos que Paula usa diariamente en GVet y que no estaban en el alcance original de v1.
+
+**Contexto:** Surge de una sesión de descubrimiento (grill-me) el 2026-04-08. Paula usa diariamente las secciones de Hospitalizaciones, Procedimientos y Deudores en GVet. También necesita generar documentos de consentimiento (autorización de cirugía, acta de eutanasia, acuerdo reproductivo).
+
+**Implementado el 2026-04-08.** 4 PRs en `main`. Migración `0021_harsh_warlock.sql`.
+
+---
+
+#### M.1 — Internaciones (Hospitalizaciones)
+
+| Entregable | Notas |
+|---|---|
+| Admisión de paciente con motivo y notas | Vinculación opcional a consulta |
+| Observaciones diarias: signos vitales (peso, temp, FC, FR) + clínicas (alimentación, hidratación, medicación, orina, heces) | Múltiples observaciones por internación |
+| Alta del paciente con notas opcionales | Solo un paciente internado activo a la vez |
+| Vista lista con filtro: Internados / Dados de alta / Todos | Paginada |
+| Acceso: admin/owner/vet | Peluquero bloqueado |
+
+---
+
+#### M.2 — Procedimientos
+
+| Entregable | Notas |
+|---|---|
+| Registro de procedimientos con cirujano y anestesiólogo | Vinculación opcional a internación |
+| Consumo de insumos del inventario (decrementa stock) | Mismo patrón que ventas del pet shop |
+| Restauración de stock al eliminar insumo | |
+| Seguimiento post-procedimiento vía tabla `follow_ups` (FK `procedureId` agregada) | |
+| Acceso: admin/owner/vet | Peluquero bloqueado |
+
+---
+
+#### M.3 — Documentos de consentimiento (PDF)
+
+| Entregable | Notas |
+|---|---|
+| Sistema de templates con N tipos | 3 templates semilla |
+| Autorización de cirugía y hospitalización | Auto-llena datos paciente/cliente |
+| Acta de eutanasia | Incluye nombre y matrícula del veterinario, diagnóstico |
+| Acuerdo de asesoría reproductiva (GenetiCan 1) | Documento de 2 páginas con texto legal completo |
+| Generación PDF vía `@react-pdf/renderer` | Server-side, almacenado en Supabase Storage |
+| Descarga vía signed URLs (60s) | Mismo patrón que documentos clínicos |
+
+---
+
+#### M.4 — Cargos y Deudores
+
+| Entregable | Notas |
+|---|---|
+| Tabla `charges` — cargos con tipo de origen polimórfico | consulta/peluquería/procedimiento/venta/internación/otro |
+| Pagos parciales y totales | Estado: pendiente → parcial → pagado |
+| Página "Deudores" — clientes con saldo pendiente | Ordenados por deuda desc, buscable por nombre |
+| Detalle de deuda por cliente — resumen por categoría + tabla de cargos | Pago inline desde la tabla |
+| Creación manual de cargos | Admin/owner only |
+| Función utilitaria `createChargeForSource()` para creación programática | Para integrar desde otros módulos |
+
+---
+
+#### M.5 — Modificaciones a tablas existentes
+
+| Tabla | Campo agregado | Motivo |
+|---|---|---|
+| `patients` | `coatColor` (text) | Para documentos de consentimiento |
+| `clients` | `dni` (text) | DNI argentino para consentimientos |
+| `staff` | `licenseNumber` (text) | Matrícula veterinaria para consentimientos |
+| `follow_ups` | `procedureId` (FK → procedures) | Seguimientos de procedimientos |
+
+---
+
+#### Checklist de verificación Fase M
+
+- [x] Admitir paciente, registrar observaciones, dar de alta
+- [x] Crear procedimiento con cirujano y anestesiólogo
+- [x] Agregar insumos a procedimiento — stock decrementa
+- [x] Eliminar insumo — stock se restaura
+- [x] Generar PDF de autorización de cirugía con datos auto-llenados
+- [x] Generar PDF de acta de eutanasia con matrícula del vet
+- [x] Generar PDF de acuerdo reproductivo (2 páginas)
+- [x] Crear cargo manual para un cliente
+- [x] Registrar pago parcial — estado cambia a "Parcial"
+- [x] Registrar pago restante — estado cambia a "Pagado"
+- [x] Sidebar muestra nuevos módulos (admin/owner/vet)
+- [x] Peluquero no puede acceder a internaciones, procedimientos, consentimientos ni deudores
+- [x] Vet no puede acceder a deudores
+
+---
+
 ### Pre-Launch — Configuración y Despliegue 🔲 Pendiente
 
 > **Timeline de entrega:**
@@ -366,6 +455,8 @@ Estas tareas no requieren cambios de código. Son configuración, deploy y verif
 | PL-5 | Configurar precios de peluquería por tier en Settings | Paula (admin) | Peluquero puede cobrar correctamente |
 | PL-6 | Confirmar duraciones de cirugía en catálogo de servicios | Paula | Calendario no sobrebloquea ni subbloquea |
 | PL-7 | Correr migración de DB en producción (si no se hizo vía branch merge) | Tomás / Franco | Schema actualizado |
+| PL-8 | Crear bucket `consent-documents` en Supabase Storage (privado) | Tomás / Franco | Generación de PDFs de consentimiento |
+| PL-9 | Correr `npx tsx scripts/seed-consent-templates.ts` en producción | Tomás / Franco | Templates de consentimiento disponibles |
 
 ---
 

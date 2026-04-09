@@ -6,7 +6,7 @@
 
 ## What This App Is
 
-Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patients (pets), clinical history (SOAP), appointments, grooming sessions, pet shop inventory/sales, cash register, and email notifications. Role-based access control for admin, owner, vet, and groomer. Used by Paula and her clinic team (9 people) — not exposed to the public.
+Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patients (pets), clinical history (SOAP), appointments, hospitalizations (with daily observation logs), surgical/medical procedures (with supply consumption), grooming sessions, pet shop inventory/sales, cash register, consent document generation (PDF), charges & debtors, and email notifications. Role-based access control for admin, owner, vet, and groomer. Used by Paula and her clinic team (9 people) — not exposed to the public.
 
 ---
 
@@ -46,6 +46,10 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Client detail** — shows upcoming appointments inline.
 - **Follow-up shortcut** — "Agendar turno de seguimiento" button on consultation detail, pre-fills patient + reason.
 - **Mobile responsive** — sidebar collapses to hamburger, tables adapt to 375px, 44px touch targets.
+- **Hospitalizations** — patient admissions with daily observation logs (vitals: weight, temp, HR, RR + clinical: feeding, hydration, medication, urine/feces output). One active per patient. Linked optionally to consultation. Discharge tracking.
+- **Procedures** — surgical/medical procedures with surgeon + anesthesiologist. Supply consumption from products (decrements stock). Follow-up reminders via `follow_ups` table (added `procedureId` FK). Linked optionally to hospitalization.
+- **Consent documents** — template-based PDF generation via `@react-pdf/renderer`. 3 templates: surgery authorization, euthanasia consent, reproductive agreement (GenetiCan 1). Auto-fills patient/client data. Stored in Supabase Storage (`consent-documents` bucket). Signed URL downloads (60s expiry).
+- **Charges & deudores** — every billable event creates a charge. Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
 - **Bot API endpoints** — `/api/bot/*` (6 routes, API key auth) ready for v2 chatbot integration.
 
 ### What's NOT built (v1 remaining)
@@ -65,8 +69,8 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 ## Key File Paths
 
 ### Schema
-- `src/db/schema/` — 27 tables. Index at `src/db/schema/index.ts`.
-- Key schemas: `appointments.ts`, `consultations.ts`, `staff.ts`, `cash_sessions.ts`, `grooming_sessions.ts`, `email_logs.ts`
+- `src/db/schema/` — 34 tables. Index at `src/db/schema/index.ts`.
+- Key schemas: `appointments.ts`, `consultations.ts`, `staff.ts`, `cash_sessions.ts`, `grooming_sessions.ts`, `email_logs.ts`, `hospitalizations.ts`, `hospitalization_observations.ts`, `procedures.ts`, `procedure_supplies.ts`, `consent_templates.ts`, `consent_documents.ts`, `charges.ts`
 
 ### Auth
 - `src/lib/supabase/middleware.ts` — auth middleware, reads role from JWT `app_metadata`, sets `x-user-role` header
@@ -78,11 +82,17 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - `src/lib/email/templates/` — 5 JSX templates (appointment-reminder, booking-confirmation, cancellation-notification, follow-up, vaccine-reminder)
 
 ### Utilities
-- `src/lib/ids.ts` — prefixed ID generators (`apt_`, `cli_`, `pat_`, `con_`, `gss_`, `csh_`, `cmv_`, `log_`, etc.)
+- `src/lib/ids.ts` — prefixed ID generators (`apt_`, `cli_`, `pat_`, `con_`, `gss_`, `csh_`, `cmv_`, `log_`, `hos_`, `hob_`, `prc_`, `psu_`, `ctm_`, `cdc_`, `chg_`, etc.)
 - `src/lib/timezone.ts` — Argentina timezone helpers (`todayStartART`, `todayEndART`, `formatART`, `parseDateTimeAsART`, etc.)
 
+### PDF Generation
+- `src/lib/pdf/render-consent.ts` — entry point: `renderConsentPdf(templateType, data)` → Buffer
+- `src/lib/pdf/styles.ts` — shared A4 styles for consent PDFs
+- `src/lib/pdf/clinic-header.tsx` — shared clinic header component (NeoVet branding)
+- `src/lib/pdf/templates/` — 3 templates: `surgery-consent.tsx`, `euthanasia-consent.tsx`, `reproductive-agreement.tsx`
+
 ### Dashboard modules
-- `src/app/dashboard/` — 9 modules: appointments, calendar, cash, clients, consultations, grooming, patients, petshop, settings
+- `src/app/dashboard/` — 13 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, procedures, settings
 
 ### API routes
 - `src/app/api/cron/` — 3 cron jobs (appointment-reminders, follow-ups, vaccine-reminders)
@@ -108,7 +118,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
 
-**Current state:** 20 migrations (0000–0019), 27 tables.
+**Current state:** 22 migrations (0000–0021), 34 tables.
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`

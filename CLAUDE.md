@@ -66,7 +66,7 @@ NeoVet is a monorepo composed of 3 independent apps:
 
 | App | Stack | Description |
 |-----|-------|-------------|
-| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, grooming module, pet shop + cash register, email reminders (confirmation, cancellation, 48h/24h, vaccines, follow-ups), billing (ARCA — Phase D pending), role-based access (admin/owner/vet/groomer). |
+| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, hospitalizations (daily observation logs), procedures (supply consumption), grooming module, pet shop + cash register, consent document PDFs, charges & debtors, email reminders, billing (ARCA — Phase D pending), role-based access (admin/owner/vet/groomer). |
 | `chatbot/` | Next.js 16 App Router, TypeScript, Tailwind | Conversational assistant. Web-first v1 (deployed), WhatsApp via Kapso in v2. |
 | `landing/` | **Astro**, TypeScript, Tailwind | Static marketing site. Services, team, location, contact. No server-side logic. |
 
@@ -145,7 +145,7 @@ Each app owns its docs. **Before proposing any architectural or technical decisi
 | `chatbot/docs/charter.md` | Chatbot project scope, deliverables, success criteria |
 | `chatbot/docs/technical-spec.md` | Chatbot technical specification |
 | `crm/docs/roadmap.md` | CRM multi-version roadmap (v1 / v2 / v3) |
-| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan (Phases A–L). Phases A–L complete except Phase D (billing). |
+| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan (Phases A–M). Phases A–M complete except Phase D (billing). |
 | `crm/docs/v1/charter.md` | CRM v1 project scope, deliverables, success criteria |
 | `crm/docs/v1/technical-spec.md` | CRM v1 technical specification |
 | `crm/docs/v1/handoff.md` | CRM v1 delivery checklist and operations manual |
