@@ -26,6 +26,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/procedures",         label: "Procedimientos", icon: "🔬", roles: ["admin", "owner", "vet"] },
   { href: "/dashboard/consent-documents",  label: "Consentimientos", icon: "📄", roles: ["admin", "owner", "vet"] },
   { href: "/dashboard/petshop",            label: "Pet Shop",      icon: "🛒", roles: ["admin", "owner"] },
+  { href: "/dashboard/deudores",            label: "Deudores",      icon: "💳", roles: ["admin", "owner"] },
   { href: "/dashboard/cash",               label: "Caja",          icon: "💰", roles: ["admin", "owner"] },
   { href: "/dashboard/settings/services", label: "Servicios",     icon: "🩺", roles: ["admin", "owner"] },
   { href: "/dashboard/settings",          label: "Configuración", icon: "⚙️", roles: ["admin", "owner"] },
