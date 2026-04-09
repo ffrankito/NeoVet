@@ -1,6 +1,6 @@
 # NeoVet CRM
 
-Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owners), patients (pets), clinical history, appointments, grooming sessions, pet shop inventory, cash register, and email notifications.
+Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owners), patients (pets), clinical history, appointments, hospitalizations, surgical/medical procedures, grooming sessions, pet shop inventory, cash register, consent documents, billing (charges & debtors), and email notifications.
 
 **Used by:** Paula Silveira and the clinic team (5 vets, 2 receptionists, 1 groomer).
 **Not public-facing.**
@@ -79,10 +79,14 @@ src/
 │   │   ├── calendar/         # Weekly/daily calendar view with surgery blocks
 │   │   ├── cash/             # Cash register — open/close sessions, movements
 │   │   ├── clients/          # Client CRUD + upcoming appointments
+│   │   ├── consent-documents/ # Consent PDF generation (surgery, euthanasia, reproductive)
 │   │   ├── consultations/    # SOAP consultations + vitals + treatments + follow-up shortcut
+│   │   ├── deudores/         # Charges, payments, debtor tracking
 │   │   ├── grooming/         # Grooming profiles + sessions (auto-posts to cash)
+│   │   ├── hospitalizations/ # Patient admissions, daily observations, discharge
 │   │   ├── patients/         # Patient CRUD + vaccinations + deworming + documents
 │   │   ├── petshop/          # Products, providers, stock entries, sales
+│   │   ├── procedures/       # Surgical/medical procedures + supply consumption
 │   │   └── settings/         # Grooming prices, service catalog, staff management, clinic hours
 │   ├── api/
 │   │   ├── bot/              # 6 REST endpoints for v2 chatbot integration
@@ -91,10 +95,10 @@ src/
 │   └── login/                # Auth page
 ├── components/
 │   ├── ui/                   # shadcn/ui primitives
-│   └── admin/                # Feature-specific components (appointments, clients, consultations, grooming, patients)
+│   └── admin/                # Feature-specific components (appointments, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, procedures)
 ├── db/
 │   ├── index.ts              # Drizzle client singleton
-│   └── schema/               # 27 table definitions (one file per domain)
+│   └── schema/               # 34 table definitions (one file per domain)
 ├── lib/
 │   ├── auth.ts               # getRole(), hasRole(), getSessionStaffId()
 │   ├── ids.ts                # Prefixed ID generators (apt_, cli_, pat_, etc.)
@@ -104,8 +108,13 @@ src/
 │   │   ├── send-email.ts     # Shared send + dedup helper
 │   │   └── templates/        # 5 email templates (confirmation, cancellation, reminders, follow-up, vaccine)
 │   └── supabase/             # Supabase client helpers + auth middleware
+├── lib/pdf/
+│   ├── styles.ts             # Shared PDF styles for consent documents
+│   ├── clinic-header.tsx     # Shared clinic header component
+│   ├── render-consent.ts     # PDF rendering entry point
+│   └── templates/            # 3 consent PDF templates (surgery, euthanasia, reproductive)
 drizzle/
-└── migrations/               # 20 SQL migration files (0000–0019)
+└── migrations/               # 22 SQL migration files (0000–0021)
 scripts/
 ├── import-gvet.ts            # Client/patient import from GVet CSV
 ├── import-visitas.ts         # Consultation import from GVet CSV
@@ -114,7 +123,8 @@ scripts/
 ├── dedupe-patients.ts        # Patient deduplication cleanup
 ├── cleanup-imported-visits.ts # Nuclear cleanup of all consultations + backfilled appointments
 ├── backfill-appointments-from-consultations.ts  # Create appointments from imported consultations
-└── seed-user.ts              # Create staff user (Supabase Auth + DB row)
+├── seed-user.ts              # Create staff user (Supabase Auth + DB row)
+└── seed-consent-templates.ts # Seed 3 consent document templates
 ```
 
 ---
@@ -135,6 +145,11 @@ scripts/
 - **Patient summary on appointments** — last consultation, overdue vaccines, brachycephalic breed alert
 - **Follow-up shortcut** — "Agendar turno de seguimiento" from consultation detail
 - **Mobile responsive** — hamburger nav, adapted tables, 44px touch targets
+
+- **Hospitalizations** — patient admissions with daily observation logs (vitals + feeding/hydration/medication/output), discharge tracking. One active per patient.
+- **Procedures** — surgical/medical procedures with surgeon, anesthesiologist, supply consumption (auto-decrements stock from products). Follow-up reminders integration.
+- **Consent documents** — PDF generation system with 3 templates (surgery authorization, euthanasia consent, reproductive agreement). Auto-fills patient/client data. Stored in Supabase Storage.
+- **Charges & deudores** — billable charges with partial payment support. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
 
 No public API (except bot endpoints for v2). No chatbot integration. No WhatsApp (v2). See `docs/v1/charter.md` for full scope.
 
@@ -169,6 +184,12 @@ DELETE FROM email_logs;
 DELETE FROM bot_messages;
 DELETE FROM bot_escalations;
 DELETE FROM sale_items;
+DELETE FROM procedure_supplies;
+DELETE FROM consent_documents;
+DELETE FROM charges;
+DELETE FROM hospitalization_observations;
+DELETE FROM procedures;
+DELETE FROM hospitalizations;
 DELETE FROM consultations;
 DELETE FROM grooming_sessions;
 DELETE FROM sales;
@@ -185,6 +206,7 @@ DELETE FROM bot_business_context;
 DELETE FROM clients;
 DELETE FROM providers;
 DELETE FROM products;
+DELETE FROM consent_templates;
 DELETE FROM settings;
 ```
 
