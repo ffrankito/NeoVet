@@ -6,7 +6,7 @@ NeoVet is a software product being built for a veterinary clinic in Argentina. T
 
 ### The Clinic
 
-- A veterinary clinic run by **Paula Silveira**, the business owner and primary stakeholder.
+- A veterinary clinic run by **Paula Silveyra** (Mat. 2046), the business owner and primary stakeholder.
 - Specializes in **bulldogs and brachycephalic breeds** — breeds prone to respiratory emergencies. This is medically significant and affects urgency triage design.
 - The clinic currently uses **Geovet** (also referred to as G-Vet) as their CRM.
 - Appointments (turnos) are managed manually and duplicated across Geovet and an external calendar, creating operational overhead.
@@ -17,7 +17,7 @@ NeoVet is a software product being built for a veterinary clinic in Argentina. T
 Geovet is functional and well-organized, but it has **no API, no webhooks, and no programmatic access of any kind**. This means:
 
 - No real-time sync with Geovet is possible — ever, until the new CRM is live and replaces it.
-- The only way to migrate data out of Geovet is via **manual Excel exports**.
+- The only way to migrate data out of Geovet is via **manual Excel exports** or **HTML scraping**.
 - All automation must be built on top of the new NeoVet system, not layered onto Geovet.
 
 This constraint is load-bearing. Do not propose or implement any solution that assumes Geovet integration.
@@ -40,7 +40,7 @@ This constraint is load-bearing. Do not propose or implement any solution that a
 
 - **Tomás Pinolini** — Product/development lead. Owns scope, roadmap, and client relationship.
 - **Franco Zancocchia** — Developer. Leads technical implementation, bot architecture, and integrations.
-- **Paula Silveira** — Clinic owner/manager. Primary end-user of the CRM and source of business requirements.
+- **Paula Silveyra** — Clinic owner/manager. Primary end-user of the CRM and source of business requirements.
 
 ---
 
@@ -66,9 +66,9 @@ NeoVet is a monorepo composed of 3 independent apps:
 
 | App | Stack | Description |
 |-----|-------|-------------|
-| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, hospitalizations (daily observation logs), procedures (supply consumption), estética module, pet shop + cash register, consent document PDFs, charges & debtors, email reminders, billing (ARCA — Phase D pending), role-based access (admin/owner/vet/groomer). |
-| `chatbot/` | Next.js 16 App Router, TypeScript, Tailwind | Conversational assistant. Web-first v1 (deployed), WhatsApp via Kapso in v2. |
-| `landing/` | **Astro**, TypeScript, Tailwind | Static marketing site. Services, team, location, contact. No server-side logic. |
+| `crm/` | Next.js 16 App Router, TypeScript, Tailwind, Drizzle ORM, Resend, @react-pdf/renderer | Internal staff tool. Clients/patients, clinical history (SOAP), appointment calendar, hospitalizations, procedures, grooming module, pet shop + cash register, consent document PDFs, charges & debtors, email reminders, role-based access (admin/owner/vet/groomer). |
+| `chatbot/` | Next.js 16 App Router, TypeScript, Tailwind, AI SDK, Claude Sonnet | Conversational assistant. Web-first v1 (deployed), WhatsApp via Kapso in v2. Consulta API de feriados ArgentinaDatos en tiempo real. |
+| `landing/` | **Astro**, TypeScript, Tailwind | Static marketing site. Services, team, location, contact. Chatbot integrado como iframe flotante. |
 
 **Critical:** `landing/` is Astro, not Next.js. Do not generate Next.js code, `app/` directory structure, or server components for the landing. It uses `.astro` files and Astro's static output mode.
 
@@ -83,7 +83,7 @@ Every feature must pass 3 questions before entering v1 scope:
 3. **Is it validated?** Do we *know* users need it, or are we assuming? If assuming → defer.
 
 **Version targets:**
-- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget.
+- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS: UAT en curso desde 2026-04-09.**
 - **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live. Automated reminders via WhatsApp.
 - **v3** — AI, reporting, advanced automation.
 
@@ -98,7 +98,7 @@ These are **hard prohibitions** for current work. Do not implement, wire up, or 
 - **No chatbot ↔ CRM integration in v1.** The chatbot and CRM are independent in v1. No API calls between them.
 - **No WhatsApp in v1.** The chatbot delivers via web widget only. WhatsApp (Kapso) is v2. CRM reminders use email (Resend) in v1 — WhatsApp reminders are v2.
 - **No AI image analysis in v1.** Image triage (L3) is deferred. Do not implement `analyze-image` tool or L3 logic.
-- **No Geovet integration, ever.** No sync, no scraping, no API calls to Geovet. Data migration is Excel-only, one-time.
+- **No Geovet integration, ever.** No sync, no scraping, no API calls to Geovet. Data migration is Excel/HTML-only, one-time.
 - **No automated urgency downgrade.** Urgency level can only go up automatically. Only a human staff member can downgrade it via the dashboard.
 
 ---
@@ -121,73 +121,56 @@ The chatbot uses a four-level urgency system. **This is a patient safety feature
 3. **L4 bypasses AI.** L4 detection runs on a hardcoded keyword list *before* the AI agent is called. This guarantees sub-millisecond escalation regardless of AI latency or availability.
 4. **L4 keywords are in Argentine Spanish:** convulsión, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción, emergencia, urgente, se está muriendo.
 
-The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threatening failure. The conservative design (one-directional, keyword fast-path) is intentional. See `docs/architecture/ADR-005-urgency-system-l1-l4.md`.
+The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threatening failure. The conservative design (one-directional, keyword fast-path) is intentional.
 
 ---
 
 ## Data Migration Notes
 
-- Data is imported from Geovet via manual CSV exports (Geovet has no API).
-- Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `import-estetica.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`.
-- The `clients` table includes an `importedFromGvet` boolean flag for traceability.
-- Re-imports are supported: nuke the DB (SQL in `crm/README.md`), then run the scripts in order. See `crm/README.md` → "Data Migration (Nuke & Reseed)" for the full procedure.
+- Data is imported from Geovet via manual CSV exports and HTML scraping (Geovet has no API).
+- Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`, `import-gvet-scraped.ts`, `parse-gvet-html.ts`, `import-estetica.ts`.
+- HTML scraping workflow: save GVet pages as `.htm` files → run `parse-gvet-html.ts` → run `import-gvet-scraped.ts`.
+- The `clients` table includes an `importedFromGvet` boolean flag and `gvetId` for traceability.
 
 ---
 
-## Documentation — Read Before Proposing Decisions
+## Key Implementation Details (v1)
 
-Each app owns its docs. **Before proposing any architectural or technical decision, check whether it has already been decided in the relevant app's docs folder.**
+### Timezone
+- All dates stored in UTC. Argentina is always UTC-3 (no DST).
+- Use helpers in `crm/src/lib/timezone.ts`: `parseDateTimeAsART()`, `todayStartART()`, `todayEndART()`, `formatART()`, `formatDateART()`, `formatTimeART()`.
+- Never use `new Date()` directly for day boundaries — always use the ART helpers.
 
-| Location | Contents |
-|----------|----------|
-| `chatbot/docs/architecture/` | ADRs for the chatbot — AI provider, WhatsApp, webhook, DB, urgency system, auth |
-| `chatbot/docs/architecture-phase1.md` | Full chatbot Phase 1 blueprint: stack, schema, message flow, build order |
-| `chatbot/docs/charter.md` | Chatbot project scope, deliverables, success criteria |
-| `chatbot/docs/technical-spec.md` | Chatbot technical specification |
-| `crm/docs/roadmap.md` | CRM multi-version roadmap (v1 / v2 / v3) |
-| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan (Phases A–M). Phases A–M complete except Phase D (billing). |
-| `crm/docs/v1/charter.md` | CRM v1 project scope, deliverables, success criteria |
-| `crm/docs/v1/technical-spec.md` | CRM v1 technical specification |
-| `crm/docs/v1/handoff.md` | CRM v1 delivery checklist and operations manual |
-| `docs/standards/` | Agency documentation templates (charter, technical spec, ADR, handoff) |
-| `landing/docs/` | Paula interview checklist, optimization overview, ADRs |
+### Settings (Dynamic Configuration)
+- Clinic hours stored in `settings` table (key/value).
+- Keys: `clinic_hours_weekday_morning_start`, `clinic_hours_weekday_morning_end`, `clinic_hours_weekday_afternoon_start`, `clinic_hours_weekday_afternoon_end`, `clinic_hours_holiday_start`, `clinic_hours_holiday_end`.
+- Editable from `/dashboard/settings` — changes reflected immediately in calendar and bot availability.
 
-If you are about to suggest something that touches the stack, database schema, WhatsApp integration, AI provider, auth system, or urgency model — read the relevant ADR in `chatbot/docs/architecture/` first.
+### Feriados (Public Holidays)
+- API: `https://api.argentinadatos.com/v1/feriados/{año}` — format `{ fecha: "YYYY-MM-DD", tipo, nombre }`.
+- Helper: `crm/src/lib/feriados.ts` — `getFeriados(year)` and `isFeriado(date, feriados)`.
+- Used in: calendar (visual highlight), bot availability endpoint, chatbot web (system prompt injection).
+- Chatbot checks feriado at request time and injects into system prompt dynamically.
 
----
+### SelectItem Components
+- Do NOT use `label="..."` prop on `SelectItem` from shadcn/ui — it is not supported and causes the component to display the `value` instead of the text when selected.
+- Always use only the children: `<SelectItem value="foo">Foo</SelectItem>`.
 
-## Git & Database Branching Strategy
+### Bot API
+- Endpoints under `/api/bot/*` protected by `BOT_API_KEY` header.
+- Middleware excludes `/api/cron/`, `/api/bot/`, `/api/admin/` from auth.
+- `bot_business_context` table seeded with clinic info for v2 WhatsApp bot.
 
-The project uses two long-lived git branches tied to two Supabase database environments:
+### PDF Generation
+- Consent documents generated with `@react-pdf/renderer`.
+- Upload to Supabase Storage bucket `consent-documents` (private).
+- Requires `SUPABASE_SERVICE_ROLE_KEY` env var and `createAdminClient()`.
+- Templates seeded via `scripts/seed-consent-templates.ts`.
 
-| Branch | Supabase DB | Purpose |
-|--------|-------------|---------|
-| `main` | Production DB | Stable, production-ready code. Migrations here go to the real clinic DB. |
-| `dev` | Preview DB (Supabase Branch) | Active development and testing. Safe to break. |
-
-**How it works:**
-- Pushing to `dev` triggers Supabase to run pending migrations on the **preview database** automatically.
-- Merging `dev` → `main` triggers Supabase to run those same migrations on the **production database**.
-- Never run migrations manually on production — let the Supabase branching integration handle it.
-
-**Local env setup — `.env.local` is a switch:**
-
-There are two credential files. `.env.local` is what Next.js reads — it is never committed and acts as the active environment. You switch by copying the right file over it:
-
-```bash
-cp crm/.env.dev crm/.env.local            # → point to preview DB (dev branch work)
-cp crm/.env.production  crm/.env.local   # → point to production DB (careful)
-```
-
-| File | Committed | Purpose |
-|------|-----------|---------|
-| `.env.local` | No | Active environment — always a copy of one of the below |
-| `.env.production` | No | Production Supabase credentials |
-| `.env.dev` | No | Preview branch (dev) Supabase credentials |
-
-To get preview branch credentials: Supabase dashboard → your project → Branches → select the `dev` branch → API settings.
-
-**Supabase CLI** is set up in `crm/supabase/`. The project is linked to ref `ajpzsmcqlbbuzimjjwyi`.
+### Role-Based Access
+- Roles: `admin`, `owner`, `vet`, `groomer`.
+- Dashboard filters appointments by role: groomers see only grooming, vets see only their assigned appointments.
+- Sidebar items filtered by role via `roles` array in `ALL_NAV_ITEMS`.
 
 ---
 
@@ -196,15 +179,50 @@ To get preview branch credentials: Supabase dashboard → your project → Branc
 | Layer | Tool | Scope |
 |-------|------|-------|
 | CRM framework | Next.js 16 App Router + TypeScript | `crm/` only |
-| Chatbot framework | Next.js 16 App Router + TypeScript | `chatbot/` only |
+| Chatbot framework | Next.js 16 App Router + TypeScript + AI SDK | `chatbot/` only |
 | Landing framework | **Astro 6** + TypeScript + Tailwind CSS 4 | `landing/` only |
-| Styling | Tailwind CSS | All apps |
-| ORM | Drizzle ORM | `crm/` (and chatbot once DB is added) |
-| Database | Supabase (PostgreSQL) | `crm/` |
-| Auth | Supabase SSR | `crm/` |
-| Email | Resend + Vercel Cron | `crm/` — v1 |
-| WhatsApp | Kapso SDK | `chatbot/` — v2 only |
-| AI | Vercel AI SDK + Claude claude-sonnet-4-6 | `chatbot/` |
-| UI components | shadcn/ui | `crm/` |
-| Hosting | Vercel | All apps |
-| Monorepo | Plain folders | No Turborepo |
+| Database | Supabase (PostgreSQL) + Drizzle ORM | `crm/` |
+| Auth | Supabase Auth + SSR | `crm/` |
+| Email | Resend | `crm/` |
+| PDF | @react-pdf/renderer | `crm/` |
+| Storage | Supabase Storage | `crm/` (grooming photos, consent PDFs) |
+| AI | Anthropic Claude Sonnet 4.6 via AI SDK | `chatbot/` |
+| Deployment | Vercel | All apps |
+
+---
+
+## Git & Database Branching Strategy
+
+| Branch | Supabase DB | Purpose |
+|--------|-------------|---------| 
+| `main` | Production DB | Stable, production-ready code. |
+| `dev` | Preview DB (Supabase Branch) | Active development and testing. |
+
+**Local env setup:**
+```bash
+cp crm/.env.prod crm/.env.local    # → point to production DB
+cp crm/.env.dev crm/.env.local     # → point to dev DB
+```
+
+Database URL format for migrations (session mode, port 5432):
+```
+postgresql://postgres.PROJECT_ID:PASSWORD@aws-X-us-east-1.pooler.supabase.com:5432/postgres
+```
+
+Note: Local networks may not support IPv6 (Supabase default). Use Session pooler (port 5432) for local dev if Transaction pooler (port 6543) times out.
+
+---
+
+## Documentation
+
+| Location | Contents |
+|----------|----------|
+| `crm/docs/v1/handoff.md` | Delivery checklist and operations manual |
+| `crm/docs/v1/development-plan.md` | CRM v1 phase-by-phase build plan |
+| `crm/docs/v1/charter.md` | CRM v1 project scope |
+| `crm/docs/v1/technical-spec.md` | CRM v1 technical specification |
+| `docs/Guia_Admin.md` | Admin user guide (Paula) |
+| `docs/Guia_Veterinario.md` | Vet user guide |
+| `docs/Guia_Peluquero.md` | Groomer user guide |
+| `docs/Guia_Testeo_UAT.md` | UAT test scenarios |
+| `docs/Entrevista_Paula_V1_Demo.md` | Demo script for Paula meeting |
