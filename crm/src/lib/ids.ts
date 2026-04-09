@@ -30,6 +30,7 @@ export const emailLogId = () => createId("log");
 export const hospitalizationId = () => createId("hos");
 export const hospitalizationObservationId = () => createId("hob");
 export const procedureId = () => createId("prc");
+export const procedureStaffId = () => createId("pst");
 export const procedureSupplyId = () => createId("psu");
 export const consentTemplateId = () => createId("ctm");
 export const consentDocumentId = () => createId("cdc");

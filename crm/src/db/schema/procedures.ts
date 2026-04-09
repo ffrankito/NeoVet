@@ -10,10 +10,6 @@ export const procedures = pgTable("procedures", {
     .references(() => patients.id, { onDelete: "cascade" }),
   hospitalizationId: text("hospitalization_id")
     .references(() => hospitalizations.id, { onDelete: "set null" }),
-  surgeonId: text("surgeon_id")
-    .references(() => staff.id, { onDelete: "set null" }),
-  anesthesiologistId: text("anesthesiologist_id")
-    .references(() => staff.id, { onDelete: "set null" }),
   procedureDate: timestamp("procedure_date", { withTimezone: true }).notNull(),
   description: text("description").notNull(),
   type: text("type"), // surgery, dental, endoscopy, etc.
@@ -24,5 +20,20 @@ export const procedures = pgTable("procedures", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+/** Join table: multiple staff members per procedure with roles */
+export const procedureStaff = pgTable("procedure_staff", {
+  id: text("id").primaryKey(),
+  procedureId: text("procedure_id")
+    .notNull()
+    .references(() => procedures.id, { onDelete: "cascade" }),
+  staffId: text("staff_id")
+    .notNull()
+    .references(() => staff.id, { onDelete: "cascade" }),
+  role: text("role").notNull(), // 'surgeon' | 'anesthesiologist'
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type Procedure = typeof procedures.$inferSelect;
 export type NewProcedure = typeof procedures.$inferInsert;
+export type ProcedureStaffRow = typeof procedureStaff.$inferSelect;
+export type NewProcedureStaffRow = typeof procedureStaff.$inferInsert;

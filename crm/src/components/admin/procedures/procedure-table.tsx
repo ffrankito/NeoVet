@@ -20,7 +20,7 @@ interface ProcedureRow {
   procedureDate: Date;
   description: string;
   type: string | null;
-  surgeonName: string | null;
+  surgeonNames: string;
 }
 
 interface ProcedureTableProps {
@@ -111,7 +111,7 @@ export function ProcedureTable({
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {p.surgeonName ?? "—"}
+                    {p.surgeonNames || "—"}
                   </TableCell>
                 </TableRow>
               ))

@@ -127,10 +127,10 @@ export default async function ProcedureDetailPage({ params }: Props) {
           </p>
         </div>
 
-        <InfoCard label="Cirujano" value={procedure.surgeonName} />
+        <InfoCard label="Cirujano(s)" value={procedure.surgeons.map((s) => s.staffName).join(", ") || null} />
         <InfoCard
-          label="Anestesiólogo"
-          value={procedure.anesthesiologistName}
+          label="Anestesiólogo(s)"
+          value={procedure.anesthesiologists.map((s) => s.staffName).join(", ") || null}
         />
       </div>
 

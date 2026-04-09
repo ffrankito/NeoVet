@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
   procedures,
+  procedureStaff,
   procedureSupplies,
   patients,
   clients,
@@ -14,6 +15,7 @@ import {
 } from "@/db/schema";
 import {
   procedureId as genProcedureId,
+  procedureStaffId,
   procedureSupplyId,
 } from "@/lib/ids";
 import { eq, desc, and, sql, inArray } from "drizzle-orm";
@@ -26,10 +28,8 @@ import { parseDateTimeAsART } from "@/lib/timezone";
 const procedureSchema = z.object({
   patientId: z.string().min(1, "El paciente es obligatorio."),
   hospitalizationId: z.string().optional(),
-  surgeonId: z.string().optional(),
-  anesthesiologistId: z.string().optional(),
   procedureDate: z.string().min(1, "La fecha es obligatoria."),
-  description: z.string().min(1, "La descripci\u00f3n es obligatoria."),
+  description: z.string().min(1, "La descripción es obligatoria."),
   type: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -57,16 +57,8 @@ export async function getProcedures(opts?: {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const surgeonStaff = db.$with("surgeon_staff").as(
-    db.select({ id: staff.id, name: staff.name }).from(staff)
-  );
-  const anesthStaff = db.$with("anesth_staff").as(
-    db.select({ id: staff.id, name: staff.name }).from(staff)
-  );
-
   const [data, countResult] = await Promise.all([
     db
-      .with(surgeonStaff, anesthStaff)
       .select({
         id: procedures.id,
         patientName: patients.name,
@@ -74,14 +66,10 @@ export async function getProcedures(opts?: {
         procedureDate: procedures.procedureDate,
         description: procedures.description,
         type: procedures.type,
-        surgeonName: surgeonStaff.name,
-        anesthesiologistName: anesthStaff.name,
       })
       .from(procedures)
       .innerJoin(patients, eq(procedures.patientId, patients.id))
       .innerJoin(clients, eq(patients.clientId, clients.id))
-      .leftJoin(surgeonStaff, eq(procedures.surgeonId, surgeonStaff.id))
-      .leftJoin(anesthStaff, eq(procedures.anesthesiologistId, anesthStaff.id))
       .where(whereClause)
       .orderBy(desc(procedures.procedureDate))
       .limit(limit)
@@ -92,8 +80,31 @@ export async function getProcedures(opts?: {
       .where(whereClause),
   ]);
 
+  // Fetch staff for each procedure
+  const procedureIds = data.map((d) => d.id);
+  const staffRows = procedureIds.length > 0
+    ? await db
+        .select({
+          procedureId: procedureStaff.procedureId,
+          staffName: staff.name,
+          role: procedureStaff.role,
+        })
+        .from(procedureStaff)
+        .innerJoin(staff, eq(procedureStaff.staffId, staff.id))
+        .where(inArray(procedureStaff.procedureId, procedureIds))
+    : [];
+
+  const enriched = data.map((d) => {
+    const myStaff = staffRows.filter((s) => s.procedureId === d.id);
+    return {
+      ...d,
+      surgeonNames: myStaff.filter((s) => s.role === "surgeon").map((s) => s.staffName).join(", "),
+      anesthesiologistNames: myStaff.filter((s) => s.role === "anesthesiologist").map((s) => s.staffName).join(", "),
+    };
+  });
+
   return {
-    data,
+    data: enriched,
     total: Number(countResult[0].count),
     page,
     limit,
@@ -102,24 +113,16 @@ export async function getProcedures(opts?: {
 }
 
 export async function getProcedure(id: string) {
-  const surgeonStaff = db.$with("surgeon_staff").as(
-    db.select({ id: staff.id, name: staff.name }).from(staff)
-  );
-  const anesthStaff = db.$with("anesth_staff").as(
-    db.select({ id: staff.id, name: staff.name }).from(staff)
-  );
   const createdByStaff = db.$with("created_by_staff").as(
     db.select({ id: staff.id, name: staff.name }).from(staff)
   );
 
   const [row] = await db
-    .with(surgeonStaff, anesthStaff, createdByStaff)
+    .with(createdByStaff)
     .select({
       id: procedures.id,
       patientId: procedures.patientId,
       hospitalizationId: procedures.hospitalizationId,
-      surgeonId: procedures.surgeonId,
-      anesthesiologistId: procedures.anesthesiologistId,
       procedureDate: procedures.procedureDate,
       description: procedures.description,
       type: procedures.type,
@@ -133,20 +136,31 @@ export async function getProcedure(id: string) {
       clientId: clients.id,
       clientName: clients.name,
       clientPhone: clients.phone,
-      surgeonName: surgeonStaff.name,
-      anesthesiologistName: anesthStaff.name,
       createdByName: createdByStaff.name,
     })
     .from(procedures)
     .innerJoin(patients, eq(procedures.patientId, patients.id))
     .innerJoin(clients, eq(patients.clientId, clients.id))
-    .leftJoin(surgeonStaff, eq(procedures.surgeonId, surgeonStaff.id))
-    .leftJoin(anesthStaff, eq(procedures.anesthesiologistId, anesthStaff.id))
     .leftJoin(createdByStaff, eq(procedures.createdById, createdByStaff.id))
     .where(eq(procedures.id, id))
     .limit(1);
 
   if (!row) return null;
+
+  // Fetch staff assignments (surgeons + anesthesiologists)
+  const staffAssignments = await db
+    .select({
+      id: procedureStaff.id,
+      staffId: procedureStaff.staffId,
+      staffName: staff.name,
+      role: procedureStaff.role,
+    })
+    .from(procedureStaff)
+    .innerJoin(staff, eq(procedureStaff.staffId, staff.id))
+    .where(eq(procedureStaff.procedureId, id));
+
+  const surgeons = staffAssignments.filter((s) => s.role === "surgeon");
+  const anesthesiologists = staffAssignments.filter((s) => s.role === "anesthesiologist");
 
   // Fetch supplies with product names
   const supplies = await db
@@ -177,29 +191,44 @@ export async function getProcedure(id: string) {
     .where(eq(followUps.procedureId, id))
     .orderBy(desc(followUps.scheduledDate));
 
-  return { ...row, supplies, followUps: linkedFollowUps };
+  return { ...row, surgeons, anesthesiologists, supplies, followUps: linkedFollowUps };
 }
 
 export async function getProceduresByPatient(patientId: string) {
-  const surgeonStaff = db.$with("surgeon_staff").as(
-    db.select({ id: staff.id, name: staff.name }).from(staff)
-  );
-
-  return db
-    .with(surgeonStaff)
+  const data = await db
     .select({
       id: procedures.id,
       procedureDate: procedures.procedureDate,
       description: procedures.description,
       type: procedures.type,
-      surgeonName: surgeonStaff.name,
       notes: procedures.notes,
       createdAt: procedures.createdAt,
     })
     .from(procedures)
-    .leftJoin(surgeonStaff, eq(procedures.surgeonId, surgeonStaff.id))
     .where(eq(procedures.patientId, patientId))
     .orderBy(desc(procedures.procedureDate));
+
+  // Fetch surgeon names for each procedure
+  const procIds = data.map((d) => d.id);
+  const staffRows = procIds.length > 0
+    ? await db
+        .select({
+          procedureId: procedureStaff.procedureId,
+          staffName: staff.name,
+          role: procedureStaff.role,
+        })
+        .from(procedureStaff)
+        .innerJoin(staff, eq(procedureStaff.staffId, staff.id))
+        .where(and(inArray(procedureStaff.procedureId, procIds), eq(procedureStaff.role, "surgeon")))
+    : [];
+
+  return data.map((d) => ({
+    ...d,
+    surgeonName: staffRows
+      .filter((s) => s.procedureId === d.id)
+      .map((s) => s.staffName)
+      .join(", ") || null,
+  }));
 }
 
 export async function getStaffForProcedure() {
@@ -244,15 +273,15 @@ export async function createProcedure(formData: FormData) {
     patientId: (formData.get("patientId") as string)?.trim() ?? "",
     hospitalizationId:
       (formData.get("hospitalizationId") as string)?.trim() || undefined,
-    surgeonId:
-      (formData.get("surgeonId") as string)?.trim() || undefined,
-    anesthesiologistId:
-      (formData.get("anesthesiologistId") as string)?.trim() || undefined,
     procedureDate: (formData.get("procedureDate") as string)?.trim() ?? "",
     description: (formData.get("description") as string)?.trim() ?? "",
     type: (formData.get("type") as string)?.trim() || undefined,
     notes: (formData.get("notes") as string)?.trim() || undefined,
   };
+
+  // Parse staff IDs from form (comma-separated or multiple form entries)
+  const surgeonIds = (formData.getAll("surgeonIds") as string[]).filter(Boolean);
+  const anesthesiologistIds = (formData.getAll("anesthesiologistIds") as string[]).filter(Boolean);
 
   const parsed = procedureSchema.safeParse(raw);
   if (!parsed.success) {
@@ -268,16 +297,32 @@ export async function createProcedure(formData: FormData) {
       id,
       patientId: d.patientId,
       hospitalizationId: d.hospitalizationId || null,
-      surgeonId: d.surgeonId || null,
-      anesthesiologistId: d.anesthesiologistId || null,
       procedureDate: parseDateTimeAsART(d.procedureDate),
       description: d.description,
       type: d.type || null,
       notes: d.notes || null,
       createdById: staffMemberId,
     });
+
+    // Insert staff assignments
+    for (const sId of surgeonIds) {
+      await db.insert(procedureStaff).values({
+        id: procedureStaffId(),
+        procedureId: id,
+        staffId: sId,
+        role: "surgeon",
+      });
+    }
+    for (const aId of anesthesiologistIds) {
+      await db.insert(procedureStaff).values({
+        id: procedureStaffId(),
+        procedureId: id,
+        staffId: aId,
+        role: "anesthesiologist",
+      });
+    }
   } catch {
-    return { error: "Ocurri\u00f3 un error inesperado. Intenta de nuevo." };
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
   revalidatePath("/dashboard/procedures");
@@ -293,15 +338,14 @@ export async function updateProcedure(id: string, formData: FormData) {
     patientId: (formData.get("patientId") as string)?.trim() ?? "",
     hospitalizationId:
       (formData.get("hospitalizationId") as string)?.trim() || undefined,
-    surgeonId:
-      (formData.get("surgeonId") as string)?.trim() || undefined,
-    anesthesiologistId:
-      (formData.get("anesthesiologistId") as string)?.trim() || undefined,
     procedureDate: (formData.get("procedureDate") as string)?.trim() ?? "",
     description: (formData.get("description") as string)?.trim() ?? "",
     type: (formData.get("type") as string)?.trim() || undefined,
     notes: (formData.get("notes") as string)?.trim() || undefined,
   };
+
+  const surgeonIds = (formData.getAll("surgeonIds") as string[]).filter(Boolean);
+  const anesthesiologistIds = (formData.getAll("anesthesiologistIds") as string[]).filter(Boolean);
 
   const parsed = procedureSchema.safeParse(raw);
   if (!parsed.success) {
@@ -326,8 +370,6 @@ export async function updateProcedure(id: string, formData: FormData) {
       .set({
         patientId: d.patientId,
         hospitalizationId: d.hospitalizationId || null,
-        surgeonId: d.surgeonId || null,
-        anesthesiologistId: d.anesthesiologistId || null,
         procedureDate: parseDateTimeAsART(d.procedureDate),
         description: d.description,
         type: d.type || null,
@@ -336,15 +378,33 @@ export async function updateProcedure(id: string, formData: FormData) {
       })
       .where(eq(procedures.id, id));
 
+    // Replace staff assignments: delete all, re-insert
+    await db.delete(procedureStaff).where(eq(procedureStaff.procedureId, id));
+    for (const sId of surgeonIds) {
+      await db.insert(procedureStaff).values({
+        id: procedureStaffId(),
+        procedureId: id,
+        staffId: sId,
+        role: "surgeon",
+      });
+    }
+    for (const aId of anesthesiologistIds) {
+      await db.insert(procedureStaff).values({
+        id: procedureStaffId(),
+        procedureId: id,
+        staffId: aId,
+        role: "anesthesiologist",
+      });
+    }
+
     revalidatePath("/dashboard/procedures");
     revalidatePath(`/dashboard/procedures/${id}`);
     revalidatePath(`/dashboard/patients/${d.patientId}`);
-    // If patient changed, also revalidate the old patient page
     if (existing.patientId !== d.patientId) {
       revalidatePath(`/dashboard/patients/${existing.patientId}`);
     }
   } catch {
-    return { error: "Ocurri\u00f3 un error inesperado. Intenta de nuevo." };
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
   return { success: true };

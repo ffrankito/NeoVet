@@ -6,13 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { createProcedure } from "@/app/dashboard/procedures/actions";
 
 type ActionResult =
@@ -120,37 +113,29 @@ export function ProcedureForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="surgeonId">Cirujano</Label>
-          <Select name="surgeonId">
-            <SelectTrigger id="surgeonId">
-              <SelectValue placeholder="Seleccionar..." />
-            </SelectTrigger>
-            <SelectContent>
-              {staffList.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">Cirujano(s)</legend>
+          <div className="space-y-1 rounded-md border p-3">
+            {staffList.map((s) => (
+              <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                <input type="checkbox" name="surgeonIds" value={s.id} className="rounded" />
+                {s.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-        <div className="space-y-2">
-          <Label htmlFor="anesthesiologistId">Anestesiólogo</Label>
-          <Select name="anesthesiologistId">
-            <SelectTrigger id="anesthesiologistId">
-              <SelectValue placeholder="Seleccionar..." />
-            </SelectTrigger>
-            <SelectContent>
-              {staffList.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">Anestesiólogo(s)</legend>
+          <div className="space-y-1 rounded-md border p-3">
+            {staffList.map((s) => (
+              <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                <input type="checkbox" name="anesthesiologistIds" value={s.id} className="rounded" />
+                {s.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </div>
 
       <div className="space-y-2">
