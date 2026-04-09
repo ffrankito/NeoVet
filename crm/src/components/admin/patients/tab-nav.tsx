@@ -8,6 +8,8 @@ interface Tab {
 const BASE_TABS: Tab[] = [
   { label: "Información", value: "informacion" },
   { label: "Historia clínica", value: "historia" },
+  { label: "Internaciones", value: "internaciones" },
+  { label: "Procedimientos", value: "procedimientos" },
   { label: "Vacunas", value: "vacunas" },
   { label: "Desparasitaciones", value: "desparasitaciones" },
   { label: "Documentos", value: "documentos" },

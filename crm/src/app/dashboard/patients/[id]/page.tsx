@@ -5,6 +5,8 @@ import { getVaccinationsByPatient } from "@/app/dashboard/patients/vaccination-a
 import { getDewormingByPatient } from "@/app/dashboard/patients/deworming-actions";
 import { getDocumentsByPatient } from "@/app/dashboard/patients/document-actions";
 import { getGroomingProfile, getGroomingSessions } from "@/app/dashboard/grooming/actions";
+import { getHospitalizationsByPatient } from "@/app/dashboard/hospitalizations/actions";
+import { getProceduresByPatient } from "@/app/dashboard/procedures/actions";
 import { db } from "@/db";
 import { appointments } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -27,11 +29,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type TabValue = "informacion" | "historia" | "vacunas" | "desparasitaciones" | "documentos" | "peluqueria";
+type TabValue = "informacion" | "historia" | "internaciones" | "procedimientos" | "vacunas" | "desparasitaciones" | "documentos" | "peluqueria";
 
 const VALID_TABS: TabValue[] = [
   "informacion",
   "historia",
+  "internaciones",
+  "procedimientos",
   "vacunas",
   "desparasitaciones",
   "documentos",
@@ -67,13 +71,15 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
   const hasGroomingHistory = !!groomingAptCheck;
   const showGrooming = hasGroomingHistory && (role === "admin" || role === "owner" || role === "groomer");
 
-  const [patient, consultationHistory, vaccinationHistory, dewormingHistory, documentHistory] =
+  const [patient, consultationHistory, vaccinationHistory, dewormingHistory, documentHistory, hospitalizationHistory, procedureHistory] =
     await Promise.all([
       getPatient(id),
       getConsultationsByPatient(id),
       getVaccinationsByPatient(id),
       getDewormingByPatient(id),
       getDocumentsByPatient(id),
+      getHospitalizationsByPatient(id),
+      getProceduresByPatient(id),
     ]);
 
   if (!patient) notFound();
@@ -303,6 +309,126 @@ export default async function PatientDetailPage({ params, searchParams }: Props)
       {/* Tab: Desparasitaciones */}
       {activeTab === "desparasitaciones" && (
         <DewormingSection patientId={id} records={dewormingHistory} />
+      )}
+
+      {/* Tab: Internaciones */}
+      {activeTab === "internaciones" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Internaciones</h2>
+            <a
+              href={`/dashboard/hospitalizations/new?patientId=${id}`}
+              className={buttonVariants({ size: "sm" })}
+            >
+              + Admitir paciente
+            </a>
+          </div>
+
+          {hospitalizationHistory.length === 0 ? (
+            <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
+              No hay internaciones registradas para este paciente.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {hospitalizationHistory.map((h) => (
+                <a
+                  key={h.id}
+                  href={`/dashboard/hospitalizations/${h.id}`}
+                  className="block rounded-lg border p-4 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium">
+                          {h.reason ?? "Sin motivo registrado"}
+                        </p>
+                        {!h.dischargedAt ? (
+                          <span className="inline-flex rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                            Internado
+                          </span>
+                        ) : (
+                          <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                            Alta
+                          </span>
+                        )}
+                      </div>
+                      {h.notes && (
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {h.notes}
+                        </p>
+                      )}
+                    </div>
+                    <p className="shrink-0 text-xs text-muted-foreground">
+                      {new Date(h.admittedAt).toLocaleDateString("es-AR", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        timeZone: "America/Argentina/Buenos_Aires",
+                      })}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Procedimientos */}
+      {activeTab === "procedimientos" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Procedimientos</h2>
+            <a
+              href={`/dashboard/procedures/new?patientId=${id}`}
+              className={buttonVariants({ size: "sm" })}
+            >
+              + Nuevo procedimiento
+            </a>
+          </div>
+
+          {procedureHistory.length === 0 ? (
+            <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
+              No hay procedimientos registrados para este paciente.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {procedureHistory.map((p) => (
+                <a
+                  key={p.id}
+                  href={`/dashboard/procedures/${p.id}`}
+                  className="block rounded-lg border p-4 hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium">{p.description}</p>
+                        {p.type && (
+                          <span className="inline-flex rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                            {p.type}
+                          </span>
+                        )}
+                      </div>
+                      {p.surgeonName && (
+                        <p className="text-sm text-muted-foreground">
+                          Cirujano: {p.surgeonName}
+                        </p>
+                      )}
+                    </div>
+                    <p className="shrink-0 text-xs text-muted-foreground">
+                      {new Date(p.procedureDate).toLocaleDateString("es-AR", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        timeZone: "America/Argentina/Buenos_Aires",
+                      })}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {/* Tab: Documentos */}
