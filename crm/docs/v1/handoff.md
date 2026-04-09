@@ -6,9 +6,9 @@
 | **Cliente** | Paula Silveira — NeoVet |
 | **Agencia** | Tomás Pinolini / Franco Zancocchia |
 | **URL de producción** | https://neo-vet-eta.vercel.app/dashboard |
-| **Inicio de UAT** | 2026-04-09 |
-| **Fecha de entrega formal** | 2026-04-16 |
-| **Fin del período de garantía** | 2026-06-15 (60 días desde la entrega) |
+| **Inicio de UAT** | 2026-04-13 |
+| **Fecha de entrega formal** | 2026-04-20 |
+| **Fin del período de garantía** | 2026-06-19 (60 días desde la entrega) |
 | **Especificación técnica** | `crm/docs/v1/technical-spec.md` |
 | **Charter del proyecto** | `crm/docs/v1/charter.md` |
 
@@ -25,7 +25,7 @@
 - [ ] `npm audit` ejecutado — sin vulnerabilidades altas o críticas
 
 ### Funcionalidad
-- [ ] Todos los entregables del charter probados en producción (D1–D14)
+- [ ] Todos los entregables del charter probados en producción (D1–D19, excepto D14)
 - [ ] Paula y el equipo completaron el UAT
 - [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios → agendar seguimiento
 - [ ] Flujo de peluquería completo probado: crear turno de peluquería → asignar peluquero → peluquero registra sesión → fotos subidas → hallazgos registrados → ingreso en caja automático
@@ -43,6 +43,10 @@
 - [ ] Dashboard admin muestra widget de caja abierta/cerrada
 - [ ] Pet shop: crear producto → registrar entrada de stock → stock sube → registrar venta → stock baja → badge de stock bajo visible
 - [ ] Caja: abrir sesión → registrar movimientos → ventas + peluquería se reflejan en balance → cerrar con conteo de efectivo
+- [ ] Internaciones: admitir paciente → registrar observaciones diarias → dar de alta → aparece en historial
+- [ ] Procedimientos: registrar procedimiento → agregar insumos (stock baja) → eliminar insumo (stock sube) → agendar seguimiento
+- [ ] Consentimientos: generar PDF de autorización de cirugía, acta de eutanasia y acuerdo reproductivo → datos auto-llenados → descargar PDF
+- [ ] Cargos y deudores: auto-cargo al registrar consulta/peluquería/venta → página deudores muestra saldo → registrar pago parcial/total → estado se actualiza
 - [ ] UI verificada en mobile (celular) para los flujos principales
 
 ### Datos
@@ -79,7 +83,11 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 - **Peluquería** — cada perro que pasa por peluquería tiene su perfil propio (comportamiento, tipo de pelaje, tiempo estimado). El peluquero registra cada sesión con fotos antes/después, hallazgos, precio final y método de pago. El ingreso se registra automáticamente en la caja abierta.
 - **Pet shop** — catálogo de productos con 9 categorías, gestión de proveedores, ingresos de stock y ventas con carrito multi-ítem. El stock se actualiza automáticamente al registrar ingresos y ventas. Alerta visual de stock bajo.
 - **Caja** — apertura y cierre de sesiones de caja, movimientos de ingresos y egresos, desglose por método de pago. Las ventas del período se incorporan automáticamente al balance.
-- **Facturación** — registrar pagos y emitir facturas electrónicas (ARCA) de forma opcional. Control de límites por entidad fiscal para evitar recategorización. *(Fase D — pendiente de build.)*
+- **Internaciones** — admisión de pacientes con motivo y notas, observaciones diarias con signos vitales (peso, temperatura, FC, FR) y clínicas (alimentación, hidratación, medicación, orina, heces), alta con notas opcionales. Solo un paciente internado activo a la vez.
+- **Procedimientos** — registro de cirugías y procedimientos con cirujano y anestesiólogo, consumo de insumos del inventario (decrementa stock automáticamente), seguimiento post-procedimiento.
+- **Documentos de consentimiento** — generación de PDFs con datos auto-llenados del paciente y el cliente. Tres templates: autorización de cirugía y hospitalización, acta de eutanasia, acuerdo de asesoría reproductiva (GenetiCan). Almacenados en Supabase Storage con descarga vía URL firmada.
+- **Cargos y deudores** — cargos por consulta, peluquería, procedimiento, venta, internación u otro. Pagos parciales y totales. Página "Deudores" con clientes con saldo pendiente. Auto-cargo al registrar consultas, sesiones de peluquería y ventas.
+- **Facturación** — registrar pagos y emitir facturas electrónicas (ARCA) de forma opcional. Control de límites por entidad fiscal para evitar recategorización. *(Fase D — diferida a post-lanzamiento.)*
 - **Recordatorios por email** — el sistema envía recordatorios automáticos: turno 48h y 24h antes, vacunas 7 días antes, seguimiento post-consulta. También envía confirmación al crear un turno y notificación al cancelarlo.
 - **Staff y accesos** — cada integrante del equipo tiene su propio usuario con el acceso que le corresponde según su rol. El dashboard de cada rol muestra solo sus turnos asignados.
 
@@ -87,8 +95,8 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 
 | Rol | Qué puede hacer |
 |---|---|
-| **Admin / Owner** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, peluquería, pet shop, caja, facturación, staff, configuración. Dashboard muestra todos los turnos del día + estado de caja |
-| **Veterinario/a** | Ver clientes · Ver y editar pacientes · Ver turnos veterinarios asignados · Registrar y editar consultas · Agendar seguimiento desde consulta |
+| **Admin / Owner** (Paula, recepción) | Todo — clientes, pacientes, turnos, historia clínica, internaciones, procedimientos, consentimientos, peluquería, pet shop, caja, cargos y deudores, staff, configuración. Dashboard muestra todos los turnos del día + estado de caja |
+| **Veterinario/a** | Ver clientes · Ver y editar pacientes · Ver turnos veterinarios asignados · Registrar y editar consultas · Agendar seguimiento · Internaciones · Procedimientos · Consentimientos |
 | **Peluquero/a** | Ver turnos de peluquería asignados · Registrar sesiones de peluquería (ingreso auto en caja) · Editar perfil de peluquería del paciente |
 
 ### ¿Qué es automático vs. manual?
@@ -108,8 +116,14 @@ NeoVet CRM es la herramienta interna de la clínica para gestionar toda la opera
 | Ingreso de peluquería → movimiento de caja | Automático | Sistema (si hay caja abierta) |
 | Email de confirmación al crear turno | Automático | Sistema (si `sendReminders` activo) |
 | Email de cancelación al cancelar turno | Automático | Sistema (si `sendReminders` activo) |
-| Emitir factura | Manual (opcional) | Admin |
-| Pago por Mercado Pago → requiere factura | Regla automática | Sistema |
+| Admitir paciente / registrar observación / dar de alta | Manual | Veterinario/a o admin |
+| Registrar procedimiento con insumos | Manual | Veterinario/a o admin |
+| Stock baja al agregar insumo a procedimiento | Automático | Sistema |
+| Generar PDF de consentimiento | Manual (un clic) | Admin o veterinario/a |
+| Auto-cargo al registrar consulta, peluquería o venta | Automático | Sistema |
+| Registrar pago de cargo | Manual | Admin |
+| Emitir factura | Manual (opcional) | Admin — *(Fase D diferida a post-lanzamiento)* |
+| Pago por Mercado Pago → requiere factura | Regla automática | Sistema — *(Fase D diferida a post-lanzamiento)* |
 | Recordatorio de turno 48h/24h por email | Automático (Vercel Cron) | Sistema |
 | Recordatorio de vacuna 7 días antes por email | Automático (Vercel Cron) | Sistema |
 | Seguimiento post-consulta por email | Automático (fecha programada) | Sistema |
@@ -204,7 +218,7 @@ npm run db:migrate
 
 ### Términos de garantía (60 días)
 
-**Período:** Desde la fecha de entrega formal (2026-04-16) hasta 2026-06-15.
+**Período:** Desde la fecha de entrega formal (2026-04-20) hasta 2026-06-19.
 
 **Qué cubre la garantía:**
 - Bugs — funcionalidad que debería funcionar según el charter y no funciona

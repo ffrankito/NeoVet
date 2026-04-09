@@ -260,7 +260,7 @@ Que Paula salga de la reunión con acceso al sistema, una guía de testeo en la 
 
 ### El acuerdo de la semana de UAT
 
-> "Tenés hasta el miércoles 15 para probarlo. Cualquier cosa que encuentres — algo que no funciona, algo que no se entiende, algo que falta — me lo mandás por WhatsApp y lo resolvemos. El jueves 16 nos juntamos de nuevo, y si estás conforme, cerramos la entrega formal y arrancás a operar con NeoVet."
+> "Tenés toda la semana que viene — del lunes 13 al viernes 17 — para probarlo. Cualquier cosa que encuentres — algo que no funciona, algo que no se entiende, algo que falta — me lo mandás por WhatsApp y lo resolvemos. El lunes 20 nos juntamos de nuevo, y si estás conforme, cerramos la entrega formal y arrancás a operar con NeoVet."
 
 ### Confirmación de próximos pasos
 
@@ -271,12 +271,12 @@ Antes de terminar, dejar acordado:
 - [ ] Paula envía el logo de la clínica → fecha: ________
 - [ ] Paula confirma la URL de Google Business → fecha: ________
 - [ ] Paula revisa el texto de la sección About de la landing → fecha: ________
-- [ ] Fecha de reunión de entrega formal: **jueves 16 de abril**
-- [ ] Fecha objetivo de corte seco de Geovet: **16 de abril** (tras la entrega formal)
+- [ ] Fecha de reunión de entrega formal: **lunes 20 de abril**
+- [ ] Fecha objetivo de corte seco de Geovet: **20 de abril** (tras la entrega formal)
 
 ### Frase de cierre
 
-> "Gracias por el tiempo. Todo lo que me digas esta semana lo resolvemos antes del jueves. El objetivo es que el 16, cuando firmemos la entrega, ya estés operando 100% en NeoVet sin necesidad de abrir GVet."
+> "Gracias por el tiempo. Todo lo que me digas la semana que viene lo resolvemos antes del lunes 20. El objetivo es que ese día, cuando firmemos la entrega, ya estés operando 100% en NeoVet sin necesidad de abrir GVet."
 
 ---
 
@@ -292,4 +292,4 @@ Antes de terminar, dejar acordado:
 
 **Contenido pendiente:**
 
-**Próxima reunión:** jueves 16 de abril (entrega formal)
+**Próxima reunión:** lunes 20 de abril (entrega formal)

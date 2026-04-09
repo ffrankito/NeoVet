@@ -1,7 +1,8 @@
 # Checklist Pre-Lanzamiento — NeoVet v1
 
-**Fecha de demo + UAT:** miércoles 9 de abril 2026
-**Fecha de entrega formal:** jueves 16 de abril 2026
+**Fecha de demo:** miércoles 9 de abril 2026
+**Semana de UAT:** lunes 13 – viernes 17 de abril 2026
+**Fecha de entrega formal:** lunes 20 de abril 2026
 **Responsables:** Tomás Pinolini / Franco Zancocchia
 
 ---
@@ -19,7 +20,7 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 
 ---
 
-## Antes del miércoles 9 (demo + UAT)
+## Antes del miércoles 9 (demo)
 
 ### Franco
 
@@ -62,11 +63,11 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 - [ ] **Emails del equipo** para crear las 9 cuentas de staff (5 vets, 2 recepcionistas, 1 peluquero)
 - [ ] **Precios de peluquería por tier** (mín / medio / difícil) → configurar en Settings → Precios de grooming
 - [ ] **Duraciones de cirugía** → confirmar en el catálogo de servicios
-- [ ] **¿Cargó datos nuevos en Geovet esta semana?** → si sí, hacer una migración final antes del 16
+- [ ] **¿Cargó datos nuevos en Geovet esta semana?** → si sí, hacer una migración final antes del 20
 
 ---
 
-## Antes del jueves 16 (entrega formal)
+## Antes del lunes 20 (entrega formal)
 
 ### Verificación post-UAT
 
@@ -107,7 +108,7 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 
 ## Migración final de Geovet (solo si Paula cargó datos nuevos)
 
-Si Paula estuvo usando Geovet entre la última importación y el 16 de abril:
+Si Paula estuvo usando Geovet entre la última importación y el 20 de abril:
 
 ```bash
 cd crm
@@ -130,9 +131,9 @@ npx tsx scripts/cleanup-imported-visits.ts
 
 ---
 
-## Post-entrega (16 de abril en adelante)
+## Post-entrega (20 de abril en adelante)
 
 - Eliminar el bloque de claves de este documento
 - Reducir acceso de la agencia según lo acordado con Paula
-- Iniciar período de garantía de 60 días (hasta 15 de junio)
+- Iniciar período de garantía de 60 días (hasta 19 de junio)
 - Fase D (facturación ARCA) se construye cuando lleguen credenciales — es independiente de la garantía

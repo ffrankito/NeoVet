@@ -162,6 +162,16 @@ Dentro de la ficha del cliente ves:
 - Perfil de grooming: comportamiento, tipo de pelaje, dificultades
 - Hallazgos registrados por el peluquero (nódulos, parasitosis, etc.)
 
+**Pestaña Internaciones:**
+- Pacientes que estuvieron o están internados
+- Cada internación muestra: fecha de admisión, motivo, observaciones diarias, estado (internado / dado de alta)
+- Hacé clic para ver las observaciones detalladas (signos vitales + notas clínicas)
+
+**Pestaña Procedimientos:**
+- Cirugías y procedimientos realizados al paciente
+- Cada procedimiento muestra: fecha, cirujano, anestesiólogo, insumos consumidos
+- El consumo de insumos descuenta stock del inventario automáticamente
+
 ---
 
 ## 5. Turnos
@@ -380,7 +390,137 @@ La caja queda abierta para todo el día. Todos los ingresos y egresos se registr
 
 ---
 
-## 10. Gestión de Staff (Solo Admin)
+## 10. Internaciones
+
+**Acceso:** "Internaciones" en la navegación (admin y veterinarios)
+
+### Admitir un Paciente
+- Botón "Nueva internación"
+- Seleccioná el paciente
+- Ingresá el motivo de internación (ej: "Cirugía de urgencia", "Observación post-operatoria")
+- Notas iniciales (estado al ingreso, indicaciones)
+- Vinculación opcional a una consulta previa
+- Hacé clic en "Admitir"
+
+⚠️ **Importante:** Solo puede haber una internación activa por paciente. Si el paciente ya está internado, primero hay que darle el alta.
+
+### Registrar Observaciones Diarias
+Mientras el paciente esté internado, registrá observaciones periódicas:
+- Botón "+ Observación" en la internación activa
+- **Signos vitales:** Peso (kg), temperatura (°C), frecuencia cardíaca (bpm), frecuencia respiratoria (rpm)
+- **Notas clínicas:** Alimentación, hidratación, medicación administrada, orina, heces, estado general
+- Podés registrar varias observaciones por día
+
+### Dar de Alta
+- Botón "Dar de alta" en la internación activa
+- Notas de alta (indicaciones, medicación a continuar, seguimiento)
+- El paciente pasa a estado "Dado de alta"
+- La internación queda en el historial del paciente
+
+### Ver Internaciones
+- **Vista lista:** Todas las internaciones con filtro: Internados / Dados de alta / Todos
+- Desde la ficha del paciente, pestaña "Internaciones" — ves el historial completo
+
+---
+
+## 11. Procedimientos
+
+**Acceso:** Desde la ficha del paciente → pestaña "Procedimientos" (admin y veterinarios)
+
+### Registrar un Procedimiento
+- Botón "Nuevo procedimiento"
+- Seleccioná el cirujano y el anestesiólogo (del staff)
+- Descripción del procedimiento
+- Vinculación opcional a una internación
+- Guardá
+
+### Agregar Insumos
+- Dentro del procedimiento, botón "+ Agregar insumo"
+- Seleccioná el producto del inventario (pet shop)
+- Cantidad utilizada
+- El stock del producto se **descuenta automáticamente**
+- Si eliminás un insumo, el stock se **restaura**
+
+### Seguimiento Post-Procedimiento
+- Botón "Agendar seguimiento" dentro del procedimiento
+- Funciona igual que el seguimiento post-consulta — crea un follow-up programado
+- El sistema envía recordatorio por email en la fecha indicada
+
+💡 **Por qué importa:** El registro de insumos es control de costos. Cada gasa, cada sutura, cada medicamento que se use en una cirugía queda documentado y descontado del stock.
+
+---
+
+## 12. Documentos de Consentimiento
+
+**Acceso:** Desde la ficha del paciente → pestaña "Documentos" o sección "Consentimientos" (admin y veterinarios)
+
+### Generar un Consentimiento
+- Botón "Nuevo consentimiento"
+- Elegí el tipo:
+  - **Autorización de cirugía y hospitalización** — el dueño autoriza el procedimiento quirúrgico
+  - **Acta de eutanasia** — incluye diagnóstico y matrícula del veterinario
+  - **Acuerdo de asesoría reproductiva (GenetiCan)** — documento de 2 páginas con texto legal
+
+### Datos Auto-llenados
+El sistema completa automáticamente:
+- Nombre del paciente, especie, raza, color de pelaje
+- Nombre y DNI del cliente
+- Nombre y matrícula del veterinario
+- Fecha actual
+
+Solo necesitás completar los campos específicos de cada documento (ej: diagnóstico para eutanasia, tipo de cirugía para autorización).
+
+### Descargar el PDF
+- Hacé clic en "Generar PDF"
+- El documento se genera y se guarda en Supabase Storage
+- Hacé clic en "Descargar" — se abre/descarga el PDF
+- El link de descarga es válido por 60 segundos — si expiró, hacé clic de nuevo
+
+💡 **Por qué importa:** Los consentimientos son documentos legales. Tenerlos generados digitalmente con todos los datos correctos es más rápido, más prolijo y más seguro que llenarlos a mano.
+
+---
+
+## 13. Cargos y Deudores
+
+**Acceso:** "Deudores" en la navegación (solo admin)
+
+### Cargos Automáticos
+El sistema genera cargos automáticamente cuando se registran:
+- **Consultas** — si el turno tiene un servicio con precio base
+- **Sesiones de peluquería** — si el precio final es mayor a $0
+- **Ventas del pet shop** — si la venta está vinculada a un paciente
+- **Procedimientos** — por los insumos consumidos
+
+No necesitás hacer nada para que se generen — aparecen solos.
+
+### Crear un Cargo Manual
+- Desde la ficha del cliente o desde "Deudores" → "Nuevo cargo"
+- Seleccioná el cliente
+- Descripción (ej: "Deuda pendiente de consulta anterior")
+- Monto
+- Categoría: consulta / peluquería / procedimiento / venta / internación / otro
+- Guardá
+
+### Registrar un Pago
+- Abrí el detalle de deuda del cliente (desde "Deudores" o ficha del cliente)
+- En la tabla de cargos pendientes, hacé clic en "Pagar"
+- Ingresá el monto del pago
+  - Si es menor al total → el cargo pasa a estado **"Parcial"**
+  - Si cubre el total → el cargo pasa a estado **"Pagado"**
+- Seleccioná método de pago
+- Guardá
+
+### Página "Deudores"
+- Muestra todos los clientes con saldo pendiente
+- Ordenados por monto de deuda (de mayor a menor)
+- Buscable por nombre de cliente
+- Hacé clic en un cliente para ver el detalle: resumen por categoría + tabla de todos los cargos
+
+⚠️ **Importante:** Revisá la página de deudores regularmente. Los cargos se acumulan automáticamente — es tu responsabilidad gestionar los cobros.
+
+---
+
+## 14. Gestión de Staff (Solo Admin)
 
 **Acceso:** "Configuración" → "Staff" (solo vos y otros admins)
 
@@ -408,7 +548,7 @@ El staff recibe un email con un link para activar su cuenta.
 
 ---
 
-## 11. Configuración
+## 15. Configuración
 
 **Acceso:** "Configuración" (solo admin)
 
@@ -443,7 +583,7 @@ El staff recibe un email con un link para activar su cuenta.
 
 ---
 
-## 12. Recordatorios por Email — Automáticos
+## 16. Recordatorios por Email — Automáticos
 
 **Importante:** El staff no necesita hacer nada. Estos se envían solos:
 
@@ -480,10 +620,14 @@ Como administrador, tu rol es **garantizar que la información esté completa y 
 
 - **Clientes y pacientes:** Datos correctos, fotos, microchips.
 - **Turnos:** Confirmados a tiempo, con recordatorios activos.
+- **Internaciones:** Observaciones registradas diariamente mientras el paciente esté internado.
+- **Procedimientos:** Cada cirugía con cirujano, anestesiólogo e insumos documentados.
+- **Consentimientos:** Generados antes de cada cirugía, eutanasia o acuerdo reproductivo.
 - **Caja:** Abierta cada mañana, cerrada cada noche con arqueo.
 - **Pet shop:** Stock actualizado, bajo stock vigilado.
+- **Deudores:** Revisados regularmente, pagos registrados a tiempo.
 - **Staff:** Roles claros, activos cuando corresponde.
 
-Esto es lo que permite que Paula tenga un registro completo, que los clientes no se pierdan turnos, y que todo fluya sin caos.
+Esto es lo que permite que Paula tenga un registro completo, que los clientes no se pierdan turnos, que las deudas estén controladas, y que todo fluya sin caos.
 
 Gracias por mantener el sistema limpio.

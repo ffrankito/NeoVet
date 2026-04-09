@@ -8,9 +8,9 @@
 | **Internal owner** | Tomás Pinolini |
 | **Tech lead** | Franco Zancocchia |
 | **Start date** | 2026-03-01 |
-| **Target delivery (v1)** | 2026-04-16 (UAT starts 2026-04-09) |
+| **Target delivery (v1)** | 2026-04-20 (UAT: 2026-04-13 a 2026-04-17) |
 | **Charter version** | 1.3 |
-| **Last updated** | 2026-04-07 |
+| **Last updated** | 2026-04-09 |
 
 ---
 
@@ -44,7 +44,11 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 - Email reminders via Resend + Vercel Cron: appointment 48h/24h before, vaccine 7 days before, post-consultation follow-ups
 - Pet shop: product catalog (9 categories), providers, stock entries, sales with multi-item cart, payment methods; stock auto-updates on entry/sale
 - Cash register: daily open/close sessions, income/expense movements, breakdown by payment method
-- Billing (Phase D — pending build): payment registration, ARCA electronic invoicing (Factura A/B/C), two fiscal entities, billing limit controls
+- Hospitalizations: admission with reason/notes, daily observations (vitals + clinical), discharge. One active hospitalization per patient
+- Procedures: registration with surgeon/anesthesiologist, supply consumption from inventory (auto-decrements stock), post-procedure follow-ups
+- Consent documents: PDF generation via templates (surgery authorization, euthanasia certificate, reproductive agreement) with auto-filled patient/client/vet data. Stored in Supabase Storage
+- Charges & debtors: polymorphic charges per consultation/grooming/procedure/sale/hospitalization, partial/total payments, debtors dashboard sorted by outstanding balance. Auto-charge on consultation, grooming session, and pet shop sale
+- Billing (Phase D — deferred to post-launch): payment registration, ARCA electronic invoicing (Factura A/B/C), two fiscal entities, billing limit controls
 - Role-based access control: `admin` (full access), `owner` (full access, same as admin), `vet` (clinical records only), `groomer` (grooming appointments and sessions only)
 - Staff management UI (admin only): create/edit/deactivate staff accounts and assign roles
 - Settings page (admin only): configurable grooming base prices per tier
@@ -86,6 +90,11 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | D12 | Pet shop: products, providers, stock entries, sales | Franco | ✅ Done |
 | D13 | Cash register: sessions, movements, payment method breakdown | Franco | ✅ Done |
 | D14 | Billing: ARCA electronic invoicing (Factura A/B/C), two fiscal entities, limit controls | Franco | 🔲 Deferred to post-launch (blocked on ARCA credentials) |
+| D15 | Hospitalizations: admission, daily observations (vitals + clinical), discharge | Franco | ✅ Done |
+| D16 | Procedures: registration with surgeon/anesthesiologist, supply consumption from inventory, post-procedure follow-ups | Franco | ✅ Done |
+| D17 | Consent documents: PDF generation (surgery authorization, euthanasia certificate, reproductive agreement) with auto-filled data | Franco | ✅ Done |
+| D18 | Charges & debtors: polymorphic charges per consultation/grooming/procedure/sale/hospitalization, partial/total payments, debtors dashboard | Franco | ✅ Done |
+| D19 | Delivery documentation: admin user guide, UAT testing guide, pre-launch checklist, v1/v2 brochures | Tomás | ✅ Done |
 
 ---
 
@@ -104,11 +113,13 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | Build — Phase K | Pet shop (products, providers, stock, sales) | ✅ Done |
 | Build — Phase K.B | Cash register (sessions, movements) | ✅ Done |
 | Build — Phase L | Day-one preparation (dashboard filtering, no-show, cancellation reason, email notifications, etc.) | ✅ Done |
+| Build — Phase M | Hospitalizations, procedures, consent documents (PDF), charges & debtors | ✅ Done |
 | Build — Phase D | Billing + ARCA integration | 🔲 Deferred to post-launch — blocked on ARCA credentials |
 | QA | Internal testing with real clinic data | ✅ Done (core features) |
-| UAT | Paula and team acceptance testing | 🔲 Starts 2026-04-09 |
-| Delivery | Formal handoff to Paula | 🔲 Scheduled 2026-04-16 |
-| Warranty | 60-day bug-fix guarantee | 🔲 2026-04-16 → 2026-06-15 |
+| Demo | Presentation to Paula with v2 preview | ✅ Done (2026-04-09) |
+| UAT | Paula and team acceptance testing | 🔲 2026-04-13 a 2026-04-17 |
+| Delivery | Formal handoff to Paula | 🔲 Scheduled 2026-04-20 |
+| Warranty | 60-day bug-fix guarantee | 🔲 2026-04-20 → 2026-06-19 |
 
 ---
 

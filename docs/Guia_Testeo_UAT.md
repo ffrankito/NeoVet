@@ -1,8 +1,8 @@
 # Guía de Testeo — NeoVet CRM v1
 
 **Para:** Paula Silveira
-**Fecha:** 9 de abril – 15 de abril 2026
-**Objetivo:** Verificar que el sistema funciona correctamente con tus datos reales antes de la entrega formal del 16 de abril.
+**Fecha:** 13 de abril – 17 de abril 2026
+**Objetivo:** Verificar que el sistema funciona correctamente con tus datos reales antes de la entrega formal del 20 de abril.
 
 ---
 
@@ -168,7 +168,53 @@ Si algo no sabés cómo hacerlo, consultá la **Guía de Administrador** que te 
 
 ---
 
-## 18. Datos de GVet
+## 18. Internaciones
+
+- [ ] Andá a "Internaciones" → "Nueva internación"
+- [ ] Seleccioná un paciente, ingresá un motivo (ej: "Observación post-operatoria") y guardá
+- [ ] **¿El paciente aparece como internado?**
+- [ ] Registrá una observación: cargá peso, temperatura, frecuencia cardíaca y una nota clínica
+- [ ] **¿La observación aparece en la internación?**
+- [ ] Dale el alta con notas de salida
+- [ ] **¿El estado cambió a "Dado de alta"?**
+- [ ] Volvé a la ficha del paciente → pestaña "Internaciones". **¿Aparece en el historial?**
+
+---
+
+## 19. Procedimientos
+
+- [ ] Abrí la ficha de un paciente → pestaña "Procedimientos"
+- [ ] Creá un procedimiento de prueba: elegí cirujano y anestesiólogo, escribí una descripción
+- [ ] Agregá un insumo del inventario (ej: un producto del pet shop) con cantidad 1
+- [ ] **¿El stock de ese producto bajó?**
+- [ ] Eliminá el insumo. **¿El stock se restauró?**
+- [ ] Desde el procedimiento, agendá un seguimiento para una fecha futura
+- [ ] **¿Se creó el follow-up?**
+
+---
+
+## 20. Documentos de consentimiento
+
+- [ ] Abrí la ficha de un paciente → "Nuevo consentimiento"
+- [ ] Elegí "Autorización de cirugía y hospitalización"
+- [ ] **¿Los datos del paciente, cliente y veterinario se llenaron solos?**
+- [ ] Hacé clic en "Generar PDF" → descargá el PDF. **¿Se ve correcto?**
+- [ ] Repetí con "Acta de eutanasia". **¿Incluye la matrícula del veterinario?**
+
+---
+
+## 21. Cargos y deudores
+
+- [ ] Creá un cargo manual para un cliente: andá a "Deudores" → "Nuevo cargo", elegí un cliente, poné un monto y descripción
+- [ ] **¿Aparece el cargo como "Pendiente"?**
+- [ ] Registrá un pago parcial (menos del total). **¿El estado cambió a "Parcial"?**
+- [ ] Registrá el pago restante. **¿El estado cambió a "Pagado"?**
+- [ ] Andá a la página "Deudores". **¿Se ven los clientes con saldo pendiente, ordenados por deuda?**
+- [ ] Verificá que una consulta o venta haya generado cargo automáticamente: completá un turno (o registrá una venta en pet shop) y fijate si aparece un cargo nuevo en la ficha del cliente
+
+---
+
+## 22. Datos de GVet
 
 - [ ] Buscá 5 clientes que uses seguido en la clínica. **¿Están todos?** **¿Los datos son correctos?**
 - [ ] Para cada uno, verificá que sus mascotas estén vinculadas
@@ -186,4 +232,4 @@ Mandale a Tomás un resumen de lo que encontraste:
 - **No se entiende:** algo que funciona pero es confuso
 - **Falta:** algo que esperabas encontrar y no está
 
-La reunión de entrega formal es el **jueves 16 de abril**. Antes de esa fecha, Tomás resuelve cualquier bug que hayas encontrado.
+La reunión de entrega formal es el **lunes 20 de abril**. Antes de esa fecha, Tomás resuelve cualquier bug que hayas encontrado.

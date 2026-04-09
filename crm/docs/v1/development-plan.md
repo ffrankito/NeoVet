@@ -444,9 +444,10 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 ### Pre-Launch — Configuración y Despliegue 🔲 Pendiente
 
 > **Timeline de entrega:**
-> - **9 de abril 2026** — Demo + inicio de UAT (semana de testeo con Paula)
-> - **16 de abril 2026** — Reunión de entrega formal (aceptación, firma simbólica, transferencia de accesos, corte seco de Geovet)
-> - **16 de abril – 15 de junio 2026** — Período de garantía (60 días, solo bugs)
+> - **9 de abril 2026** — Demo con Paula (presentación v1, feedback, preview v2)
+> - **13 al 17 de abril 2026** — Semana de UAT (Paula testea con datos reales)
+> - **20 de abril 2026** — Reunión de entrega formal (aceptación, firma simbólica, transferencia de accesos, corte seco de Geovet)
+> - **20 de abril – 19 de junio 2026** — Período de garantía (60 días, solo bugs)
 
 Estas tareas no requieren cambios de código. Son configuración, deploy y verificación.
 

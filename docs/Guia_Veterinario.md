@@ -95,6 +95,15 @@ Acá está el corazón. Es la lista de todas las consultas registradas.
 - Análisis de laboratorio, radiografías, ecografías — archivos subidos
 - Cada documento se descarga con un link firmado (válido 60 segundos, privado)
 
+### Tab "Internaciones"
+- Historial de internaciones del paciente
+- Si el paciente está internado actualmente, ves la internación activa con sus observaciones
+- Cada internación muestra: fecha, motivo, observaciones diarias, estado (internado / dado de alta)
+
+### Tab "Procedimientos"
+- Cirugías y procedimientos realizados
+- Cada uno muestra: fecha, cirujano, anestesiólogo, insumos consumidos, seguimiento agendado
+
 ### Tab "Peluquería"
 - Historial de sesiones de grooming
 - Hallazgos clínicos registrados por el peluquero (nódulos, parasitosis, heridas, etc.)
@@ -250,7 +259,83 @@ Después de completar una consulta, podés agendar automáticamente el próximo 
 
 ---
 
-## 10. Por Qué Registrar Todo — La Perspectiva de Paula
+## 10. Internaciones
+
+Cuando un paciente necesita quedarse en la clínica.
+
+### Admitir un Paciente
+- Desde "Internaciones" → "Nueva internación"
+- Seleccioná el paciente
+- Motivo de internación (ej: "Cirugía programada — extirpación de masa en flanc izquierdo")
+- Notas iniciales de ingreso
+- Vinculación opcional a una consulta previa
+- Guardá
+
+### Registrar Observaciones
+Mientras el paciente esté internado, registrá observaciones periódicas:
+- Desde la internación activa → "+ Observación"
+- **Signos vitales:** Peso (kg), temperatura (°C), FC (bpm), FR (rpm)
+- **Notas clínicas:** Alimentación (comió / no comió / cuánto), hidratación, medicación administrada, orina, heces, estado general
+- Podés registrar varias observaciones por día (ej: mañana y tarde)
+
+💡 **Por qué importa:** Las observaciones son el registro de evolución del paciente. Si otro vet toma la guardia, puede ver exactamente cómo evolucionó sin que le cuentes.
+
+### Dar de Alta
+- Botón "Dar de alta" en la internación activa
+- Notas de alta: indicaciones de cuidado en casa, medicación a continuar
+- El paciente pasa a estado "Dado de alta"
+
+---
+
+## 11. Procedimientos
+
+Para registrar cirugías y otros procedimientos que requieren documentación detallada.
+
+### Registrar un Procedimiento
+- Desde la ficha del paciente → pestaña "Procedimientos" → "Nuevo procedimiento"
+- Seleccioná el cirujano (vos u otro vet) y el anestesiólogo
+- Descripción del procedimiento (ej: "Ovariectomía bilateral", "Extracción de cuerpo extraño")
+- Vinculación opcional a una internación activa
+- Guardá
+
+### Registrar Insumos Consumidos
+- Dentro del procedimiento → "+ Agregar insumo"
+- Seleccioná el producto del inventario (ej: "Sutura Vicryl 3-0", "Ketamina 50ml")
+- Cantidad utilizada
+- **El stock se descuenta automáticamente** del inventario del pet shop
+- Si te equivocaste, eliminá el insumo y el stock se restaura
+
+### Seguimiento Post-Procedimiento
+- Botón "Agendar seguimiento" dentro del procedimiento
+- Elegí fecha y motivo (ej: "Control de puntos a 10 días")
+- El sistema envía recordatorio al cliente por email en esa fecha
+
+---
+
+## 12. Documentos de Consentimiento
+
+Antes de una cirugía, eutanasia o acuerdo reproductivo, generá el documento de consentimiento.
+
+### Generar un Consentimiento
+- Desde la ficha del paciente → "Nuevo consentimiento"
+- Elegí el tipo:
+  - **Autorización de cirugía y hospitalización** — el dueño autoriza el procedimiento
+  - **Acta de eutanasia** — incluye tu nombre, matrícula y el diagnóstico
+  - **Acuerdo de asesoría reproductiva** — documento legal completo (2 páginas)
+
+### Datos Auto-llenados
+El sistema completa automáticamente los datos del paciente (nombre, raza, color de pelaje), del cliente (nombre, DNI) y del veterinario (nombre, matrícula). Solo completás los campos específicos (tipo de cirugía, diagnóstico, etc.).
+
+### Descargar e Imprimir
+- Hacé clic en "Generar PDF"
+- Descargá el PDF y dáselo al cliente para que lo firme
+- El documento queda guardado en el historial del paciente
+
+💡 **Por qué importa:** Los consentimientos son obligación legal. Generarlos desde el sistema es más rápido que llenarlos a mano, y quedan archivados digitalmente.
+
+---
+
+## 13. Por Qué Registrar Todo — La Perspectiva de Paula
 
 Soy Paula. Necesito que registres cada consulta por varias razones:
 
@@ -272,7 +357,10 @@ Tu rol acá es **clínico y administrativo a la vez:**
 2. **Registrá SOAP completo** — motivo, hallazgos, diagnóstico, plan.
 3. **Cargá signos vitales, medicamentos, vacunas** — todo en el mismo lugar.
 4. **Subí documentos** — análisis, radiografías, fotos.
-5. **Agendá seguimientos** — no dependa de un papel perdido.
-6. **Completá el turno** — así Paula sabe que lo atendiste.
+5. **Registrá internaciones** — admisión, observaciones diarias, alta.
+6. **Documentá procedimientos** — cirujano, anestesiólogo, insumos consumidos.
+7. **Generá consentimientos** — antes de cada cirugía, eutanasia o acuerdo reproductivo.
+8. **Agendá seguimientos** — no dependa de un papel perdido.
+9. **Completá el turno** — así Paula sabe que lo atendiste.
 
 Es lo que permite que el equipo trabaje unificado. Gracias.
