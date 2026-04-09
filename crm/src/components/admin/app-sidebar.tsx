@@ -24,6 +24,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
   { href: "/dashboard/calendar",          label: "Agenda",        icon: <CalendarDays className="h-4 w-4" />, roles: ["admin", "owner", "vet", "groomer"] },
   { href: "/dashboard/hospitalizations",   label: "Internaciones", icon: "🏥", roles: ["admin", "owner", "vet"] },
   { href: "/dashboard/procedures",         label: "Procedimientos", icon: "🔬", roles: ["admin", "owner", "vet"] },
+  { href: "/dashboard/consent-documents",  label: "Consentimientos", icon: "📄", roles: ["admin", "owner", "vet"] },
   { href: "/dashboard/petshop",            label: "Pet Shop",      icon: "🛒", roles: ["admin", "owner"] },
   { href: "/dashboard/cash",               label: "Caja",          icon: "💰", roles: ["admin", "owner"] },
   { href: "/dashboard/settings/services", label: "Servicios",     icon: "🩺", roles: ["admin", "owner"] },
