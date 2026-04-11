@@ -130,7 +130,7 @@ function AppointmentRow({
   );
 }
 
-async function DashboardContent() {
+async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatientId?: string }) {
   const [role, sessionStaffId] = await Promise.all([getRole(), getSessionStaffId()]);
   const isAdmin = role === "admin" || role === "owner";
 
@@ -266,6 +266,7 @@ async function DashboardContent() {
         clients={walkInClients}
         patients={walkInPatients}
         services={walkInServices}
+        defaultPatientId={defaultWalkInPatientId}
       />
 
       {/* Sala de espera */}
@@ -348,7 +349,12 @@ function SummaryCard({
   );
 }
 
-export default function DashboardHome() {
+export default async function DashboardHome({
+  searchParams,
+}: {
+  searchParams: Promise<{ walkInPatientId?: string }>;
+}) {
+  const params = await searchParams;
   return (
     <Suspense
       fallback={
@@ -365,7 +371,7 @@ export default function DashboardHome() {
         </div>
       }
     >
-      <DashboardContent />
+      <DashboardContent defaultWalkInPatientId={params.walkInPatientId} />
     </Suspense>
   );
 }

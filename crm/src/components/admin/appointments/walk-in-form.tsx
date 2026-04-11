@@ -15,12 +15,14 @@ interface WalkInFormProps {
   clients: Array<{ id: string; name: string }>;
   patients: Array<{ id: string; name: string; species: string; clientId: string; clientName: string }>;
   services: Array<{ id: string; name: string; category: string | null }>;
+  defaultPatientId?: string;
 }
 
-export function WalkInForm({ clients, patients, services }: WalkInFormProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState("");
-  const [selectedPatient, setSelectedPatient] = useState("");
+export function WalkInForm({ clients, patients, services, defaultPatientId }: WalkInFormProps) {
+  const defaultPatient = defaultPatientId ? patients.find((p) => p.id === defaultPatientId) : undefined;
+  const [isOpen, setIsOpen] = useState(!!defaultPatientId);
+  const [selectedClient, setSelectedClient] = useState(defaultPatient?.clientId ?? "");
+  const [selectedPatient, setSelectedPatient] = useState(defaultPatientId ?? "");
   const [selectedService, setSelectedService] = useState("");
 
   const filteredPatients = patients.filter((p) => p.clientId === selectedClient);

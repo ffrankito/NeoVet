@@ -266,6 +266,19 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
+      {/* Return to waiting room shortcut — for completed appointments */}
+      {apt.status === "completed" && (
+        <>
+          <Separator />
+          <Link
+            href={`/dashboard?walkInPatientId=${apt.patientId}`}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            Volver a sala de espera
+          </Link>
+        </>
+      )}
+
       {apt.status === "completed" && apt.appointmentType !== "grooming" && (
         <>
           <Separator />
