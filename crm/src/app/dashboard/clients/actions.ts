@@ -28,7 +28,8 @@ export async function getClients(opts?: {
     ? or(
         ilike(clients.name, `%${opts.search}%`),
         ilike(clients.phone, `%${opts.search}%`),
-        ilike(clients.email, `%${opts.search}%`)
+        ilike(clients.email, `%${opts.search}%`),
+        sql`EXISTS (SELECT 1 FROM patients WHERE patients.client_id = clients.id AND patients.name ILIKE ${"%" + opts.search + "%"})`
       )
     : undefined;
 

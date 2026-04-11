@@ -65,7 +65,7 @@ export function ClientTable({ data, total, page, totalPages }: ClientTableProps)
       <div className="flex items-center justify-between gap-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <Input
-            placeholder="Buscar por nombre, teléfono o email..."
+            placeholder="Buscar por nombre, teléfono, email o mascota..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full max-w-80"
