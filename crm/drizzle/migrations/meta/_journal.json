@@ -162,6 +162,13 @@
       "when": 1775907302539,
       "tag": "0024_premium_ironclad",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1775919610854,
+      "tag": "0025_right_sister_grimm",
+      "breakpoints": true
     }
   ]
 }
