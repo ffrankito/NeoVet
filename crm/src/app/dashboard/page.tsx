@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/db";
-import { clients, patients, appointments, staff } from "@/db/schema";
+import { clients, patients, appointments, staff, services } from "@/db/schema";
 import { eq, sql, asc, and, gte, lt, ne, type SQL } from "drizzle-orm";
 import { getRole, getSessionStaffId } from "@/lib/auth";
 import { todayStartART, todayEndART, formatDateART, formatTimeART } from "@/lib/timezone";
@@ -10,6 +10,8 @@ import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
 import { getOpenSession } from "@/app/dashboard/cash/actions";
 import { Suspense } from "react";
+import { getServiceColors } from "@/lib/calendar-utils";
+import { cn } from "@/lib/utils";
 
 const statusLabels: Record<string, string> = {
   pending: "Pendiente",
@@ -26,6 +28,105 @@ const statusVariants: Record<string, "default" | "secondary" | "outline" | "dest
   cancelled: "destructive",
   no_show: "destructive",
 };
+
+function AppointmentRow({
+  apt,
+  dimmed = false,
+}: {
+  apt: {
+    id: string;
+    scheduledAt: Date;
+    status: string;
+    reason: string | null;
+    patientId: string;
+    patientName: string;
+    clientName: string;
+    clientId: string;
+    assignedStaffName: string | null;
+    appointmentType: string;
+    serviceCategory: string | null;
+    isWalkIn: boolean;
+    isUrgent: boolean;
+  };
+  dimmed?: boolean;
+}) {
+  const colors = getServiceColors(apt.serviceCategory);
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-4 px-4 py-3",
+        dimmed && "opacity-50",
+        apt.isUrgent && apt.status === "confirmed" && "bg-red-50 border-l-4 border-l-red-500"
+      )}
+    >
+      {/* Service category dot */}
+      <span
+        className={cn("h-3 w-3 shrink-0 rounded-full border", colors.bg, colors.border)}
+        title={apt.serviceCategory ?? "Sin servicio"}
+      />
+
+      {/* Time */}
+      <span className="w-14 shrink-0 text-sm font-mono font-medium text-muted-foreground">
+        {apt.isWalkIn
+          ? "S/T"
+          : formatTimeART(apt.scheduledAt, {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })}
+      </span>
+
+      {/* Patient + owner + reason + staff */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/dashboard/appointments/${apt.id}`}
+            className="font-medium hover:underline truncate"
+          >
+            {apt.patientName}
+          </Link>
+          {apt.isWalkIn && (
+            <Badge variant="outline" className="text-xs">
+              Sin turno
+            </Badge>
+          )}
+          {apt.isUrgent && (
+            <Badge variant="destructive" className="text-xs">
+              Urgente
+            </Badge>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground truncate">
+          <Link
+            href={`/dashboard/clients/${apt.clientId}`}
+            className="hover:underline"
+          >
+            {apt.clientName}
+          </Link>
+          {apt.reason ? ` — ${apt.reason}` : ""}
+          {apt.assignedStaffName ? (
+            <span className="ml-2 text-xs text-primary-600">
+              · {apt.assignedStaffName}
+            </span>
+          ) : null}
+        </p>
+      </div>
+
+      {/* Status badge */}
+      <Badge variant={statusVariants[apt.status] ?? "secondary"}>
+        {statusLabels[apt.status] ?? apt.status}
+      </Badge>
+
+      {/* Inline actions */}
+      <AppointmentActions
+        appointmentId={apt.id}
+        patientId={apt.patientId}
+        status={apt.status as "pending" | "confirmed" | "cancelled" | "completed" | "no_show"}
+      />
+    </div>
+  );
+}
 
 async function DashboardContent() {
   const [role, sessionStaffId] = await Promise.all([getRole(), getSessionStaffId()]);
@@ -77,11 +178,15 @@ async function DashboardContent() {
           clientId: clients.id,
           assignedStaffName: staff.name,
           appointmentType: appointments.appointmentType,
+          serviceCategory: services.category,
+          isWalkIn: appointments.isWalkIn,
+          isUrgent: appointments.isUrgent,
         })
         .from(appointments)
         .innerJoin(patients, eq(appointments.patientId, patients.id))
         .innerJoin(clients, eq(patients.clientId, clients.id))
         .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
+        .leftJoin(services, eq(appointments.serviceId, services.id))
         .where(
           and(
             gte(appointments.scheduledAt, todayStart),
@@ -96,6 +201,21 @@ async function DashboardContent() {
   const patientCount = Number(patientCountResult[0].count);
   const todayCount = Number(todayCountResult[0].count);
   const openCashSession = isAdmin ? await getOpenSession() : null;
+
+  // Split into 3 sections
+  const waitingRoom = todayAppointments
+    .filter((apt) => apt.status === "confirmed")
+    .sort((a, b) => {
+      if (a.isUrgent && !b.isUrgent) return -1;
+      if (!a.isUrgent && b.isUrgent) return 1;
+      return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+    });
+
+  const scheduled = todayAppointments
+    .filter((apt) => apt.status === "pending");
+
+  const finished = todayAppointments
+    .filter((apt) => apt.status === "completed" || apt.status === "no_show" || apt.status === "cancelled");
 
   return (
     <div className="space-y-8">
@@ -133,68 +253,62 @@ async function DashboardContent() {
         </Link>
       )}
 
-      {/* Today's appointments */}
+      {/* Sala de espera */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">{isAdmin ? "Turnos de hoy" : "Mis turnos de hoy"}</h2>
-
-        {todayAppointments.length === 0 ? (
-          <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
-            No hay turnos para hoy.
+        <h2 className="text-lg font-semibold">
+          Sala de espera
+          {waitingRoom.length > 0 && (
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({waitingRoom.length})
+            </span>
+          )}
+        </h2>
+        {waitingRoom.length === 0 ? (
+          <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground">
+            No hay pacientes en espera.
           </div>
         ) : (
           <div className="rounded-lg border divide-y">
-            {todayAppointments.map((apt) => (
-              <div
-                key={apt.id}
-                className="flex items-center gap-4 px-4 py-3"
-              >
-                {/* Time */}
-                <span className="w-14 shrink-0 text-sm font-mono font-medium text-muted-foreground">
-                  {formatTimeART(apt.scheduledAt, {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: false,
-                  })}
-                </span>
-
-                {/* Patient + owner + staff */}
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/dashboard/appointments/${apt.id}`}
-                    className="font-medium hover:underline truncate block"
-                  >
-                    {apt.patientName}
-                  </Link>
-                  <p className="text-sm text-muted-foreground truncate">
-                    <Link
-                      href={`/dashboard/clients/${apt.clientId}`}
-                      className="hover:underline"
-                    >
-                      {apt.clientName}
-                    </Link>
-                    {apt.reason ? ` — ${apt.reason}` : ""}
-                    {apt.assignedStaffName ? (
-                      <span className="ml-2 text-xs text-primary-600">· {apt.assignedStaffName}</span>
-                    ) : null}
-                  </p>
-                </div>
-
-                {/* Status badge */}
-                <Badge variant={statusVariants[apt.status] ?? "secondary"}>
-                  {statusLabels[apt.status] ?? apt.status}
-                </Badge>
-
-                {/* Inline actions */}
-                <AppointmentActions
-                  appointmentId={apt.id}
-                  patientId={apt.patientId}
-                  status={apt.status as "pending" | "confirmed" | "cancelled" | "completed" | "no_show"}
-                />
-              </div>
+            {waitingRoom.map((apt) => (
+              <AppointmentRow key={apt.id} apt={apt} />
             ))}
           </div>
         )}
       </div>
+
+      {/* Turnos programados */}
+      {scheduled.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold">
+            Turnos programados
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({scheduled.length})
+            </span>
+          </h2>
+          <div className="rounded-lg border divide-y">
+            {scheduled.map((apt) => (
+              <AppointmentRow key={apt.id} apt={apt} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Completados */}
+      {finished.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-muted-foreground">
+            Completados
+            <span className="ml-2 text-sm font-normal">
+              ({finished.length})
+            </span>
+          </h2>
+          <div className="rounded-lg border divide-y">
+            {finished.map((apt) => (
+              <AppointmentRow key={apt.id} apt={apt} dimmed />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
