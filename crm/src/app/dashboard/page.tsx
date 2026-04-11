@@ -9,6 +9,8 @@ import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
 import { getOpenSession } from "@/app/dashboard/cash/actions";
+import { getAllClientsForSelect, getAllPatientsForSelect, getServicesForWalkIn } from "@/app/dashboard/appointments/actions";
+import { WalkInForm } from "@/components/admin/appointments/walk-in-form";
 import { Suspense } from "react";
 import { getServiceColors } from "@/lib/calendar-utils";
 import { cn } from "@/lib/utils";
@@ -202,6 +204,12 @@ async function DashboardContent() {
   const todayCount = Number(todayCountResult[0].count);
   const openCashSession = isAdmin ? await getOpenSession() : null;
 
+  const [walkInClients, walkInPatients, walkInServices] = await Promise.all([
+    getAllClientsForSelect(),
+    getAllPatientsForSelect(),
+    getServicesForWalkIn(),
+  ]);
+
   // Split into 3 sections
   const waitingRoom = todayAppointments
     .filter((apt) => apt.status === "confirmed")
@@ -252,6 +260,13 @@ async function DashboardContent() {
           <span className="text-xs text-muted-foreground group-hover:text-foreground">Ver →</span>
         </Link>
       )}
+
+      {/* Walk-in form */}
+      <WalkInForm
+        clients={walkInClients}
+        patients={walkInPatients}
+        services={walkInServices}
+      />
 
       {/* Sala de espera */}
       <div className="space-y-4">

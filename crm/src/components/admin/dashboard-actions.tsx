@@ -10,7 +10,7 @@ export function DashboardActions() {
         Nuevo cliente
       </Link>
       <Link href="/dashboard/appointments/new" className={buttonVariants({ variant: "outline" })}>
-        Nuevo turno
+        Nuevo turno programado
       </Link>
     </div>
   );
