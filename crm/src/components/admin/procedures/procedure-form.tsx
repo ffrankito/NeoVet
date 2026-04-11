@@ -8,6 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createProcedure } from "@/app/dashboard/procedures/actions";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type ActionResult =
   | {
@@ -28,6 +35,19 @@ interface ClientOption {
   id: string;
   name: string;
 }
+
+const ASA_OPTIONS = [
+  { value: "1", label: "ASA 1 — Sano" },
+  { value: "2", label: "ASA 2 — Enfermedad sistémica leve" },
+  { value: "3", label: "ASA 3 — Enfermedad sistémica grave" },
+  { value: "4", label: "ASA 4 — Amenaza de vida" },
+  { value: "5", label: "ASA 5 — Moribundo" },
+  { value: "1E", label: "ASA 1E — Sano (emergencia)" },
+  { value: "2E", label: "ASA 2E — Enf. leve (emergencia)" },
+  { value: "3E", label: "ASA 3E — Enf. grave (emergencia)" },
+  { value: "4E", label: "ASA 4E — Amenaza de vida (emergencia)" },
+  { value: "5E", label: "ASA 5E — Moribundo (emergencia)" },
+] as const;
 
 interface ProcedureFormProps {
   staffList: Array<{ id: string; name: string }>;
@@ -65,7 +85,7 @@ export function ProcedureForm({
       : ({} as Record<string, string | string[] | undefined>);
 
   return (
-    <form action={dispatch} className="max-w-xl space-y-4">
+    <form action={dispatch} className="max-w-2xl space-y-4">
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
@@ -154,7 +174,23 @@ export function ProcedureForm({
         />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-2">
+        <Label htmlFor="asaScore">Valoración ASA</Label>
+        <Select name="asaScore">
+          <SelectTrigger id="asaScore">
+            <SelectValue placeholder="Seleccionar..." />
+          </SelectTrigger>
+          <SelectContent>
+            {ASA_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
         <fieldset className="space-y-2">
           <legend className="text-sm font-medium">Cirujano(s)</legend>
           <div className="space-y-1 rounded-md border p-3">
@@ -178,6 +214,64 @@ export function ProcedureForm({
             ))}
           </div>
         </fieldset>
+
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium">Ayudante(s)</legend>
+          <div className="space-y-1 rounded-md border p-3">
+            {staffList.map((s) => (
+              <label key={s.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                <input type="checkbox" name="assistantIds" value={s.id} className="rounded" />
+                {s.name}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+
+      {/* Pre-procedure vitals */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Signos vitales al inicio</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="space-y-1">
+            <Label htmlFor="preWeightKg" className="text-xs">Peso (kg)</Label>
+            <Input id="preWeightKg" name="preWeightKg" type="number" step="0.01" min="0" placeholder="0.00" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="preTemperature" className="text-xs">Temp. (&deg;C)</Label>
+            <Input id="preTemperature" name="preTemperature" type="number" step="0.1" min="30" max="45" placeholder="38.5" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="preHeartRate" className="text-xs">FC (lpm)</Label>
+            <Input id="preHeartRate" name="preHeartRate" type="number" step="1" min="0" placeholder="80" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="preRespiratoryRate" className="text-xs">FR (rpm)</Label>
+            <Input id="preRespiratoryRate" name="preRespiratoryRate" type="number" step="1" min="0" placeholder="20" />
+          </div>
+        </div>
+      </div>
+
+      {/* Post-procedure vitals */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Signos vitales al cierre</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="space-y-1">
+            <Label htmlFor="postWeightKg" className="text-xs">Peso (kg)</Label>
+            <Input id="postWeightKg" name="postWeightKg" type="number" step="0.01" min="0" placeholder="0.00" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="postTemperature" className="text-xs">Temp. (&deg;C)</Label>
+            <Input id="postTemperature" name="postTemperature" type="number" step="0.1" min="30" max="45" placeholder="38.5" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="postHeartRate" className="text-xs">FC (lpm)</Label>
+            <Input id="postHeartRate" name="postHeartRate" type="number" step="1" min="0" placeholder="80" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="postRespiratoryRate" className="text-xs">FR (rpm)</Label>
+            <Input id="postRespiratoryRate" name="postRespiratoryRate" type="number" step="1" min="0" placeholder="20" />
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">

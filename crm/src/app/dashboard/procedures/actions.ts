@@ -32,6 +32,15 @@ const procedureSchema = z.object({
   description: z.string().min(1, "La descripción es obligatoria."),
   type: z.string().optional(),
   notes: z.string().optional(),
+  asaScore: z.enum(["1", "2", "3", "4", "5", "1E", "2E", "3E", "4E", "5E", ""]).optional().transform((v) => v || undefined),
+  preWeightKg: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "El peso no es válido." }),
+  preTemperature: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "La temperatura no es válida." }),
+  preHeartRate: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "La FC no es válida." }),
+  preRespiratoryRate: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "La FR no es válida." }),
+  postWeightKg: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "El peso no es válido." }),
+  postTemperature: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "La temperatura no es válida." }),
+  postHeartRate: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "La FC no es válida." }),
+  postRespiratoryRate: z.string().optional().refine((v) => !v || !isNaN(parseFloat(v)), { message: "La FR no es válida." }),
 });
 
 const supplySchema = z.object({
@@ -127,6 +136,15 @@ export async function getProcedure(id: string) {
       description: procedures.description,
       type: procedures.type,
       notes: procedures.notes,
+      asaScore: procedures.asaScore,
+      preWeightKg: procedures.preWeightKg,
+      preTemperature: procedures.preTemperature,
+      preHeartRate: procedures.preHeartRate,
+      preRespiratoryRate: procedures.preRespiratoryRate,
+      postWeightKg: procedures.postWeightKg,
+      postTemperature: procedures.postTemperature,
+      postHeartRate: procedures.postHeartRate,
+      postRespiratoryRate: procedures.postRespiratoryRate,
       createdById: procedures.createdById,
       createdAt: procedures.createdAt,
       updatedAt: procedures.updatedAt,
@@ -161,6 +179,7 @@ export async function getProcedure(id: string) {
 
   const surgeons = staffAssignments.filter((s) => s.role === "surgeon");
   const anesthesiologists = staffAssignments.filter((s) => s.role === "anesthesiologist");
+  const assistants = staffAssignments.filter((s) => s.role === "assistant");
 
   // Fetch supplies with product names
   const supplies = await db
@@ -191,7 +210,7 @@ export async function getProcedure(id: string) {
     .where(eq(followUps.procedureId, id))
     .orderBy(desc(followUps.scheduledDate));
 
-  return { ...row, surgeons, anesthesiologists, supplies, followUps: linkedFollowUps };
+  return { ...row, surgeons, anesthesiologists, assistants, supplies, followUps: linkedFollowUps };
 }
 
 export async function getProceduresByPatient(patientId: string) {
@@ -277,11 +296,21 @@ export async function createProcedure(formData: FormData) {
     description: (formData.get("description") as string)?.trim() ?? "",
     type: (formData.get("type") as string)?.trim() || undefined,
     notes: (formData.get("notes") as string)?.trim() || undefined,
+    asaScore: (formData.get("asaScore") as string)?.trim() || undefined,
+    preWeightKg: (formData.get("preWeightKg") as string)?.trim() || undefined,
+    preTemperature: (formData.get("preTemperature") as string)?.trim() || undefined,
+    preHeartRate: (formData.get("preHeartRate") as string)?.trim() || undefined,
+    preRespiratoryRate: (formData.get("preRespiratoryRate") as string)?.trim() || undefined,
+    postWeightKg: (formData.get("postWeightKg") as string)?.trim() || undefined,
+    postTemperature: (formData.get("postTemperature") as string)?.trim() || undefined,
+    postHeartRate: (formData.get("postHeartRate") as string)?.trim() || undefined,
+    postRespiratoryRate: (formData.get("postRespiratoryRate") as string)?.trim() || undefined,
   };
 
   // Parse staff IDs from form (comma-separated or multiple form entries)
   const surgeonIds = (formData.getAll("surgeonIds") as string[]).filter(Boolean);
   const anesthesiologistIds = (formData.getAll("anesthesiologistIds") as string[]).filter(Boolean);
+  const assistantIds = (formData.getAll("assistantIds") as string[]).filter(Boolean);
 
   const parsed = procedureSchema.safeParse(raw);
   if (!parsed.success) {
@@ -301,6 +330,15 @@ export async function createProcedure(formData: FormData) {
       description: d.description,
       type: d.type || null,
       notes: d.notes || null,
+      asaScore: d.asaScore || null,
+      preWeightKg: d.preWeightKg || null,
+      preTemperature: d.preTemperature || null,
+      preHeartRate: d.preHeartRate || null,
+      preRespiratoryRate: d.preRespiratoryRate || null,
+      postWeightKg: d.postWeightKg || null,
+      postTemperature: d.postTemperature || null,
+      postHeartRate: d.postHeartRate || null,
+      postRespiratoryRate: d.postRespiratoryRate || null,
       createdById: staffMemberId,
     });
 
@@ -319,6 +357,14 @@ export async function createProcedure(formData: FormData) {
         procedureId: id,
         staffId: aId,
         role: "anesthesiologist",
+      });
+    }
+    for (const asId of assistantIds) {
+      await db.insert(procedureStaff).values({
+        id: procedureStaffId(),
+        procedureId: id,
+        staffId: asId,
+        role: "assistant",
       });
     }
   } catch {
@@ -342,10 +388,20 @@ export async function updateProcedure(id: string, formData: FormData) {
     description: (formData.get("description") as string)?.trim() ?? "",
     type: (formData.get("type") as string)?.trim() || undefined,
     notes: (formData.get("notes") as string)?.trim() || undefined,
+    asaScore: (formData.get("asaScore") as string)?.trim() || undefined,
+    preWeightKg: (formData.get("preWeightKg") as string)?.trim() || undefined,
+    preTemperature: (formData.get("preTemperature") as string)?.trim() || undefined,
+    preHeartRate: (formData.get("preHeartRate") as string)?.trim() || undefined,
+    preRespiratoryRate: (formData.get("preRespiratoryRate") as string)?.trim() || undefined,
+    postWeightKg: (formData.get("postWeightKg") as string)?.trim() || undefined,
+    postTemperature: (formData.get("postTemperature") as string)?.trim() || undefined,
+    postHeartRate: (formData.get("postHeartRate") as string)?.trim() || undefined,
+    postRespiratoryRate: (formData.get("postRespiratoryRate") as string)?.trim() || undefined,
   };
 
   const surgeonIds = (formData.getAll("surgeonIds") as string[]).filter(Boolean);
   const anesthesiologistIds = (formData.getAll("anesthesiologistIds") as string[]).filter(Boolean);
+  const assistantIds = (formData.getAll("assistantIds") as string[]).filter(Boolean);
 
   const parsed = procedureSchema.safeParse(raw);
   if (!parsed.success) {
@@ -374,6 +430,15 @@ export async function updateProcedure(id: string, formData: FormData) {
         description: d.description,
         type: d.type || null,
         notes: d.notes || null,
+        asaScore: d.asaScore || null,
+        preWeightKg: d.preWeightKg || null,
+        preTemperature: d.preTemperature || null,
+        preHeartRate: d.preHeartRate || null,
+        preRespiratoryRate: d.preRespiratoryRate || null,
+        postWeightKg: d.postWeightKg || null,
+        postTemperature: d.postTemperature || null,
+        postHeartRate: d.postHeartRate || null,
+        postRespiratoryRate: d.postRespiratoryRate || null,
         updatedAt: new Date(),
       })
       .where(eq(procedures.id, id));
@@ -394,6 +459,14 @@ export async function updateProcedure(id: string, formData: FormData) {
         procedureId: id,
         staffId: aId,
         role: "anesthesiologist",
+      });
+    }
+    for (const asId of assistantIds) {
+      await db.insert(procedureStaff).values({
+        id: procedureStaffId(),
+        procedureId: id,
+        staffId: asId,
+        role: "assistant",
       });
     }
 

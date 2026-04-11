@@ -51,6 +51,26 @@ function InfoCard({
   );
 }
 
+function VitalItem({
+  label,
+  value,
+  unit,
+}: {
+  label: string;
+  value: string | null;
+  unit: string;
+}) {
+  if (!value) return null;
+  return (
+    <div className="rounded-md border px-3 py-2">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="mt-0.5 text-sm font-medium">
+        {value} {unit}
+      </p>
+    </div>
+  );
+}
+
 export default async function ProcedureDetailPage({ params }: Props) {
   const { id } = await params;
   const procedure = await getProcedure(id);
@@ -85,6 +105,9 @@ export default async function ProcedureDetailPage({ params }: Props) {
             </h1>
             {procedure.type && (
               <Badge variant="secondary">{procedure.type}</Badge>
+            )}
+            {procedure.asaScore && (
+              <Badge variant="outline">ASA {procedure.asaScore}</Badge>
             )}
           </div>
           <p className="mt-1 text-muted-foreground">
@@ -132,7 +155,37 @@ export default async function ProcedureDetailPage({ params }: Props) {
           label="Anestesiólogo(s)"
           value={procedure.anesthesiologists.map((s) => s.staffName).join(", ") || null}
         />
+        <InfoCard
+          label="Ayudante(s)"
+          value={procedure.assistants.map((s) => s.staffName).join(", ") || null}
+        />
       </div>
+
+      {/* Pre-procedure vitals */}
+      {(procedure.preWeightKg || procedure.preTemperature || procedure.preHeartRate || procedure.preRespiratoryRate) && (
+        <div>
+          <p className="text-sm font-medium text-muted-foreground mb-2">Signos vitales al inicio</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <VitalItem label="Peso" value={procedure.preWeightKg} unit="kg" />
+            <VitalItem label="Temp." value={procedure.preTemperature} unit="°C" />
+            <VitalItem label="FC" value={procedure.preHeartRate} unit="lpm" />
+            <VitalItem label="FR" value={procedure.preRespiratoryRate} unit="rpm" />
+          </div>
+        </div>
+      )}
+
+      {/* Post-procedure vitals */}
+      {(procedure.postWeightKg || procedure.postTemperature || procedure.postHeartRate || procedure.postRespiratoryRate) && (
+        <div>
+          <p className="text-sm font-medium text-muted-foreground mb-2">Signos vitales al cierre</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <VitalItem label="Peso" value={procedure.postWeightKg} unit="kg" />
+            <VitalItem label="Temp." value={procedure.postTemperature} unit="°C" />
+            <VitalItem label="FC" value={procedure.postHeartRate} unit="lpm" />
+            <VitalItem label="FR" value={procedure.postRespiratoryRate} unit="rpm" />
+          </div>
+        </div>
+      )}
 
       {/* Notes */}
       {procedure.notes && (
