@@ -199,9 +199,9 @@ async function main() {
       await db.insert(consentTemplates).values(tpl);
       console.log(`  Insertada: ${tpl.name}`);
     } catch (err: unknown) {
-      console.error(
-        `  Error al insertar "${tpl.name}": ${err instanceof Error ? err.message : err}`
-      );
+      const cause = err instanceof Error && "cause" in err ? (err as { cause?: Error }).cause : null;
+      const msg = cause?.message ?? (err instanceof Error ? err.message : String(err));
+      console.error(`  Error al insertar "${tpl.name}": ${msg}`);
     }
   }
 
