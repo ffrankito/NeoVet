@@ -8,6 +8,7 @@ import { appointmentId } from "@/lib/ids";
 import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
 import { parseDateTimeAsART, dateToStartART, dateToEndART } from "@/lib/timezone";
+import { hasRole, getSessionStaffId } from "@/lib/auth";
 import { sendAndLogEmail } from "@/lib/email/send-email";
 import { BookingConfirmationEmail } from "@/lib/email/templates/booking-confirmation";
 import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
@@ -613,4 +614,53 @@ export async function getPatientMiniSummary(patientId: string) {
     isDeceased: patient?.deceased ?? false,
     isBrachycephalic,
   };
+}
+
+export async function getServicesForWalkIn() {
+  return db
+    .select({
+      id: services.id,
+      name: services.name,
+      category: services.category,
+    })
+    .from(services)
+    .where(eq(services.isActive, true))
+    .orderBy(services.name);
+}
+
+export async function createWalkIn(formData: FormData) {
+  const canManage = await hasRole("admin", "owner", "vet", "groomer");
+  if (!canManage) return { error: "No autorizado." };
+
+  const staffMemberId = await getSessionStaffId();
+  if (!staffMemberId) return { error: "No se pudo identificar al usuario." };
+
+  const patientId = (formData.get("patientId") as string)?.trim();
+  if (!patientId) return { error: "El paciente es obligatorio." };
+
+  const serviceId = (formData.get("serviceId") as string)?.trim() || null;
+  const reason = (formData.get("reason") as string)?.trim() || null;
+  const isUrgent = formData.get("isUrgent") === "on";
+
+  try {
+    await db.insert(appointments).values({
+      id: appointmentId(),
+      patientId,
+      appointmentType: "veterinary",
+      assignedStaffId: staffMemberId,
+      serviceId,
+      scheduledAt: new Date(),
+      durationMinutes: 30,
+      reason,
+      status: "confirmed",
+      isWalkIn: true,
+      isUrgent,
+      sendReminders: false,
+    });
+  } catch {
+    return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
 }
