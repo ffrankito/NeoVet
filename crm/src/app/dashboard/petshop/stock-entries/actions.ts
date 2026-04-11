@@ -90,6 +90,7 @@ export async function createStockEntry(formData: FormData) {
     quantity: formData.get("quantity") as string,
     costPrice: (formData.get("costPrice") as string) || undefined,
     notes: (formData.get("notes") as string)?.trim() ?? "",
+    expirationDate: (formData.get("expirationDate") as string)?.trim() || null,
   };
 
   const parsed = stockEntrySchema.safeParse(raw);
@@ -119,6 +120,7 @@ export async function createStockEntry(formData: FormData) {
       providerId: parsed.data.providerId || null,
       quantity: String(parsed.data.quantity),
       costPrice: costPriceStr,
+      expirationDate: raw.expirationDate || null,
       notes: parsed.data.notes || null,
       createdById: staffId,
     });

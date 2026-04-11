@@ -35,6 +35,7 @@ interface ProductRow {
   sellPrice: string;
   taxRate: number;
   isActive: boolean;
+  earliestExpiration: string | null;
 }
 
 interface ProductTableProps {
@@ -74,6 +75,18 @@ export function ProductTable({ data, total, page, totalPages }: ProductTableProp
 
   function isLowStock(row: ProductRow) {
     return Number(row.currentStock) <= Number(row.minStock);
+  }
+
+  function getExpirationStatus(row: ProductRow): "expired" | "expiring_soon" | null {
+    if (!row.earliestExpiration) return null;
+    const expDate = new Date(row.earliestExpiration);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    if (expDate < now) return "expired";
+    const in30Days = new Date(now);
+    in30Days.setDate(in30Days.getDate() + 30);
+    if (expDate <= in30Days) return "expiring_soon";
+    return null;
   }
 
   function formatPrice(value: string) {
@@ -131,6 +144,12 @@ export function ProductTable({ data, total, page, totalPages }: ProductTableProp
                     {product.name}
                     {!product.isActive && (
                       <Badge variant="outline" className="ml-2 text-xs">Inactivo</Badge>
+                    )}
+                    {getExpirationStatus(product) === "expired" && (
+                      <Badge variant="destructive" className="ml-2 text-xs">Vencido</Badge>
+                    )}
+                    {getExpirationStatus(product) === "expiring_soon" && (
+                      <Badge className="ml-2 text-xs bg-orange-100 text-orange-800 hover:bg-orange-100">Vence pronto</Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">

@@ -1,4 +1,4 @@
-import { numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { date, numeric, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { products } from "./products";
 import { providers } from "./providers";
 import { staff } from "./staff";
@@ -9,6 +9,7 @@ export const stockEntries = pgTable("stock_entries", {
   providerId: text("provider_id").references(() => providers.id, { onDelete: "set null" }),
   quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
   costPrice: numeric("cost_price", { precision: 10, scale: 2 }),
+  expirationDate: date("expiration_date"),
   notes: text("notes"),
   createdById: text("created_by_id").notNull().references(() => staff.id),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

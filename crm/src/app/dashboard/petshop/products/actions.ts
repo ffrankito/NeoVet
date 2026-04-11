@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { products, stockEntries } from "@/db/schema";
 import { productId } from "@/lib/ids";
 import { eq, ilike, or, sql, desc } from "drizzle-orm";
 import { z } from "zod";
@@ -45,7 +45,31 @@ export async function getProducts(opts?: {
     : undefined;
 
   const [data, countResult] = await Promise.all([
-    db.select().from(products).where(where).orderBy(desc(products.createdAt)).limit(limit).offset(offset),
+    db
+      .select({
+        id: products.id,
+        name: products.name,
+        category: products.category,
+        currentStock: products.currentStock,
+        minStock: products.minStock,
+        costPrice: products.costPrice,
+        sellPrice: products.sellPrice,
+        taxRate: products.taxRate,
+        isActive: products.isActive,
+        createdAt: products.createdAt,
+        updatedAt: products.updatedAt,
+        earliestExpiration: sql<string | null>`(
+          SELECT MIN(se.expiration_date)
+          FROM stock_entries se
+          WHERE se.product_id = products.id
+            AND se.expiration_date IS NOT NULL
+        )`.as("earliest_expiration"),
+      })
+      .from(products)
+      .where(where)
+      .orderBy(desc(products.createdAt))
+      .limit(limit)
+      .offset(offset),
     db.select({ count: sql<number>`count(*)` }).from(products).where(where),
   ]);
 

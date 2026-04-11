@@ -1,0 +1,1 @@
+ALTER TABLE "stock_entries" ADD COLUMN "expiration_date" date;

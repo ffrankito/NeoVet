@@ -104,6 +104,15 @@ export function StockEntryForm({ products, providers }: StockEntryFormProps) {
       </div>
 
       <div className="space-y-2">
+        <Label htmlFor="expirationDate">Fecha de vencimiento</Label>
+        <Input
+          id="expirationDate"
+          name="expirationDate"
+          type="date"
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="notes">Notas</Label>
         <Textarea
           id="notes"
