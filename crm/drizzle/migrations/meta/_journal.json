@@ -169,6 +169,13 @@
       "when": 1775919610854,
       "tag": "0025_right_sister_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1775946511560,
+      "tag": "0026_good_pride",
+      "breakpoints": true
     }
   ]
 }

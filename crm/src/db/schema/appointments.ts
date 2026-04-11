@@ -44,6 +44,8 @@ export const appointments = pgTable("appointments", {
   staffNotes: text("staff_notes"),
   cancellationReason: text("cancellation_reason"),
   sendReminders: boolean("send_reminders").default(true).notNull(),
+  isWalkIn: boolean("is_walk_in").default(false).notNull(),
+  isUrgent: boolean("is_urgent").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
