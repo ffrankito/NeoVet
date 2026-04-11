@@ -17,6 +17,11 @@ export const hospitalizationObservations = pgTable("hospitalization_observations
   heartRate: numeric("heart_rate", { precision: 5, scale: 0 }),
   respiratoryRate: numeric("respiratory_rate", { precision: 4, scale: 0 }),
 
+  // Physical exam
+  capillaryRefillTime: text("capillary_refill_time"),
+  mucousMembranes: text("mucous_membranes"),
+  sensorium: text("sensorium"),
+
   // Clinical observations
   feeding: text("feeding"),
   hydration: text("hydration"),

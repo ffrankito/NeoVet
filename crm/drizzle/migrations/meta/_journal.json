@@ -155,6 +155,13 @@
       "when": 1775753223087,
       "tag": "0023_organic_hellfire_club",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1775907302539,
+      "tag": "0024_premium_ironclad",
+      "breakpoints": true
     }
   ]
 }
