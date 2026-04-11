@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { addObservation } from "@/app/dashboard/hospitalizations/actions";
 
 type ActionResult =
@@ -14,6 +21,10 @@ type ActionResult =
       success?: boolean;
     }
   | undefined;
+
+const CAPILLARY_REFILL_OPTIONS = ["< 2 seg", "2-3 seg", "> 3 seg"] as const;
+const MUCOUS_MEMBRANE_OPTIONS = ["Rosadas", "Pálidas", "Cianóticas", "Ictéricas", "Congestionadas"] as const;
+const SENSORIUM_OPTIONS = ["Alerta", "Semicomatoso", "Comatoso"] as const;
 
 interface ObservationFormProps {
   hospitalizationId: string;
@@ -115,6 +126,66 @@ export function ObservationForm({ hospitalizationId }: ObservationFormProps) {
                 {errors.respiratoryRate}
               </p>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Examen físico */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Examen físico</p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="space-y-1">
+            <Label htmlFor="capillaryRefillTime" className="text-xs">
+              Llenado capilar
+            </Label>
+            <Select name="capillaryRefillTime">
+              <SelectTrigger id="capillaryRefillTime">
+                <SelectValue placeholder="Seleccionar..." />
+              </SelectTrigger>
+              <SelectContent>
+                {CAPILLARY_REFILL_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="mucousMembranes" className="text-xs">
+              Mucosas
+            </Label>
+            <Select name="mucousMembranes">
+              <SelectTrigger id="mucousMembranes">
+                <SelectValue placeholder="Seleccionar..." />
+              </SelectTrigger>
+              <SelectContent>
+                {MUCOUS_MEMBRANE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="sensorium" className="text-xs">
+              Sensorio
+            </Label>
+            <Select name="sensorium">
+              <SelectTrigger id="sensorium">
+                <SelectValue placeholder="Seleccionar..." />
+              </SelectTrigger>
+              <SelectContent>
+                {SENSORIUM_OPTIONS.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {opt}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
