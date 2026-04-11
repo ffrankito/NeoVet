@@ -197,6 +197,8 @@ export default async function HospitalizationDetailPage({ params }: Props) {
             {hospitalization.observations.map((obs) => {
               const hasVitals =
                 obs.weightKg || obs.temperature || obs.heartRate || obs.respiratoryRate;
+              const hasExam =
+                obs.capillaryRefillTime || obs.mucousMembranes || obs.sensorium;
               const hasClinical =
                 obs.feeding ||
                 obs.hydration ||
@@ -239,6 +241,27 @@ export default async function HospitalizationDetailPage({ params }: Props) {
                         label="FR"
                         value={obs.respiratoryRate}
                         unit="rpm"
+                      />
+                    </div>
+                  )}
+
+                  {/* Physical exam */}
+                  {hasExam && (
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      <VitalItem
+                        label="Llenado capilar"
+                        value={obs.capillaryRefillTime}
+                        unit=""
+                      />
+                      <VitalItem
+                        label="Mucosas"
+                        value={obs.mucousMembranes}
+                        unit=""
+                      />
+                      <VitalItem
+                        label="Sensorio"
+                        value={obs.sensorium}
+                        unit=""
                       />
                     </div>
                   )}
