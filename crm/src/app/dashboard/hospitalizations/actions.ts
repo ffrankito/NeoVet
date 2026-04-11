@@ -52,6 +52,18 @@ const observationSchema = z.object({
     .refine((v) => !v || !isNaN(parseFloat(v)), {
       message: "La frecuencia respiratoria no es válida.",
     }),
+  capillaryRefillTime: z
+    .enum(["< 2 seg", "2-3 seg", "> 3 seg", ""])
+    .optional()
+    .transform((v) => v || undefined),
+  mucousMembranes: z
+    .enum(["Rosadas", "Pálidas", "Cianóticas", "Ictéricas", "Congestionadas", ""])
+    .optional()
+    .transform((v) => v || undefined),
+  sensorium: z
+    .enum(["Alerta", "Semicomatoso", "Comatoso", ""])
+    .optional()
+    .transform((v) => v || undefined),
   feeding: z.string().optional(),
   hydration: z.string().optional(),
   medication: z.string().optional(),
@@ -185,6 +197,9 @@ export async function getHospitalization(id: string) {
       temperature: hospitalizationObservations.temperature,
       heartRate: hospitalizationObservations.heartRate,
       respiratoryRate: hospitalizationObservations.respiratoryRate,
+      capillaryRefillTime: hospitalizationObservations.capillaryRefillTime,
+      mucousMembranes: hospitalizationObservations.mucousMembranes,
+      sensorium: hospitalizationObservations.sensorium,
       feeding: hospitalizationObservations.feeding,
       hydration: hospitalizationObservations.hydration,
       medication: hospitalizationObservations.medication,
@@ -350,6 +365,12 @@ export async function addObservation(
       (formData.get("heartRate") as string)?.trim() || undefined,
     respiratoryRate:
       (formData.get("respiratoryRate") as string)?.trim() || undefined,
+    capillaryRefillTime:
+      (formData.get("capillaryRefillTime") as string)?.trim() || undefined,
+    mucousMembranes:
+      (formData.get("mucousMembranes") as string)?.trim() || undefined,
+    sensorium:
+      (formData.get("sensorium") as string)?.trim() || undefined,
     feeding:
       (formData.get("feeding") as string)?.trim() || undefined,
     hydration:
@@ -399,6 +420,9 @@ export async function addObservation(
       temperature: d.temperature || null,
       heartRate: d.heartRate || null,
       respiratoryRate: d.respiratoryRate || null,
+      capillaryRefillTime: d.capillaryRefillTime || null,
+      mucousMembranes: d.mucousMembranes || null,
+      sensorium: d.sensorium || null,
       feeding: d.feeding || null,
       hydration: d.hydration || null,
       medication: d.medication || null,
