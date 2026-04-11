@@ -8,6 +8,7 @@ export const staff = pgTable("staff", {
   role: text("role", { enum: ["admin", "owner", "vet", "groomer"] }).notNull(),
   licenseNumber: text("license_number"),
   isActive: boolean("is_active").notNull().default(true),
+  isExternal: boolean("is_external").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -18,7 +18,7 @@ import {
   procedureStaffId,
   procedureSupplyId,
 } from "@/lib/ids";
-import { eq, desc, and, sql, inArray } from "drizzle-orm";
+import { eq, desc, and, or, sql, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, hasRole } from "@/lib/auth";
 import { parseDateTimeAsART } from "@/lib/timezone";
@@ -260,7 +260,7 @@ export async function getStaffForProcedure() {
     .where(
       and(
         inArray(staff.role, ["admin", "owner", "vet"]),
-        eq(staff.isActive, true)
+        or(eq(staff.isActive, true), eq(staff.isExternal, true))
       )
     )
     .orderBy(staff.name);

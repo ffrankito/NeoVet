@@ -67,9 +67,16 @@ export function StaffList({ members }: { members: Staff[] }) {
               <td className="px-4 py-3 text-muted-foreground">{member.email}</td>
               <td className="px-4 py-3 text-muted-foreground">{roleLabels[member.role] ?? member.role}</td>
               <td className="px-4 py-3">
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${member.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
-                  {member.isActive ? "Activo" : "Inactivo"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${member.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}>
+                    {member.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                  {member.isExternal && (
+                    <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800">
+                      Externo
+                    </span>
+                  )}
+                </div>
               </td>
               <td className="px-4 py-3 text-right">
                 <div className="flex items-center justify-end gap-2">

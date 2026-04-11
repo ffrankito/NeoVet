@@ -6,6 +6,7 @@ import { staff } from "@/db/schema";
 import { staffId as generateStaffId } from "@/lib/ids";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { randomUUID } from "crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminLevel } from "@/lib/auth";
 
@@ -129,6 +130,45 @@ export async function reactivateStaffMember(id: string) {
   });
 
   await db.update(staff).set({ isActive: true, updatedAt: new Date() }).where(eq(staff.id, id));
+  revalidatePath("/dashboard/settings/staff");
+  return { success: true };
+}
+
+// ── External specialists ────────────────────────────────────────────────────
+
+const externalSpecialistSchema = z.object({
+  name: z.string().min(1, "El nombre es obligatorio."),
+  licenseNumber: z.string().optional(),
+});
+
+export async function createExternalSpecialist(formData: FormData) {
+  if (!(await isAdminLevel())) return { error: "No autorizado." };
+
+  const raw = {
+    name: (formData.get("name") as string)?.trim() ?? "",
+    licenseNumber: (formData.get("licenseNumber") as string)?.trim() || undefined,
+  };
+
+  const parsed = externalSpecialistSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors };
+  }
+
+  try {
+    await db.insert(staff).values({
+      id: generateStaffId(),
+      userId: `external_${randomUUID().replace(/-/g, "").slice(0, 16)}`,
+      email: `external_${Date.now()}@neovet.local`,
+      name: parsed.data.name,
+      role: "vet",
+      licenseNumber: parsed.data.licenseNumber || null,
+      isActive: true,
+      isExternal: true,
+    });
+  } catch {
+    return { error: "Error al guardar el especialista externo." };
+  }
+
   revalidatePath("/dashboard/settings/staff");
   return { success: true };
 }

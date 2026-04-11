@@ -12,9 +12,14 @@ export default async function StaffPage() {
           <h1 className="text-2xl font-bold tracking-tight">Equipo</h1>
           <p className="text-muted-foreground">Gestioná los usuarios del sistema y sus roles.</p>
         </div>
-        <a href="/dashboard/settings/staff/new" className={buttonVariants()}>
-          + Nuevo miembro
-        </a>
+        <div className="flex gap-3">
+          <a href="/dashboard/settings/staff/new" className={buttonVariants()}>
+            + Nuevo miembro
+          </a>
+          <a href="/dashboard/settings/staff/new-external" className={buttonVariants({ variant: "outline" })}>
+            + Especialista externo
+          </a>
+        </div>
       </div>
       <StaffList members={members} />
     </div>

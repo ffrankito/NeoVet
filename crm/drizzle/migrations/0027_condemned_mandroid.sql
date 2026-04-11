@@ -1,0 +1,1 @@
+ALTER TABLE "staff" ADD COLUMN "is_external" boolean DEFAULT false NOT NULL;
