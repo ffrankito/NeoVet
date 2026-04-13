@@ -154,6 +154,27 @@ Fecha: {{date}}
 Firma del profesional: ______________________
 Neovet — Servicio de Asesoría Reproductiva`;
 
+const SEDATION_TEMPLATE = `Por medio de este documento, yo {{clientName}} ({{clientDni}}) con dirección en {{clientAddress}} en la ciudad de Rosario.
+
+Extiendo mi completa y total autorización en favor de Neovet, para que lleve a cabo la sedación de mi mascota con el fin de realizar: {{sedationReason}}
+
+en el animal de mi propiedad:
+
+Nombre: {{patientName}}
+Especie: {{patientSpecies}}
+Raza: {{patientBreed}}
+Color de pelaje: {{patientCoatColor}}
+Sexo: {{patientSex}}
+Edad: {{patientAge}}
+Peso: {{patientWeight}} kg
+
+Declaro conocer los riesgos inherentes a la sedación y/o anestesia, incluyendo posibles reacciones adversas, complicaciones respiratorias o cardiovasculares, y en casos extremos, la muerte del animal. Asumo la responsabilidad de los costos del tratamiento y medicación que fueran necesarios.
+
+Firma del propietario: ______________________
+Aclaración: {{clientName}}
+DNI: {{clientDni}}
+Fecha: {{date}}`;
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -191,6 +212,11 @@ async function main() {
       id: createId("ctm"),
       name: "Acuerdo de asesoría reproductiva (GenetiCan 1)",
       bodyTemplate: REPRODUCTIVE_TEMPLATE,
+    },
+    {
+      id: createId("ctm"),
+      name: "Autorización de sedación",
+      bodyTemplate: SEDATION_TEMPLATE,
     },
   ];
 
