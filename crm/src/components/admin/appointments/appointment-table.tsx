@@ -37,6 +37,8 @@ interface AppointmentTableProps {
   total: number;
   page: number;
   totalPages: number;
+  typeFilter?: string;
+  showTypeFilter?: boolean;
 }
 
 export function AppointmentTable({
@@ -44,11 +46,14 @@ export function AppointmentTable({
   total,
   page,
   totalPages,
+  typeFilter: initialTypeFilter,
+  showTypeFilter = false,
 }: AppointmentTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [statusFilter, setStatusFilter] = useState(searchParams.get("status") ?? "all");
+  const [typeFilterValue, setTypeFilterValue] = useState(initialTypeFilter ?? "all");
   const [from, setFrom] = useState(searchParams.get("from") ?? "");
   const [to, setTo] = useState(searchParams.get("to") ?? "");
 
@@ -72,6 +77,7 @@ export function AppointmentTable({
     startTransition(() => {
       const params = new URLSearchParams();
       if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
+      if (typeFilterValue && typeFilterValue !== "all") params.set("type", typeFilterValue);
       if (from) params.set("from", from);
       if (to) params.set("to", to);
       router.push(`/dashboard/appointments?${params.toString()}`);
@@ -96,27 +102,31 @@ export function AppointmentTable({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all" label="Todos">
-                Todos
-              </SelectItem>
-              <SelectItem value="pending" label="Pendiente">
-                Pendiente
-              </SelectItem>
-              <SelectItem value="confirmed" label="Confirmado">
-                Confirmado
-              </SelectItem>
-              <SelectItem value="completed" label="Completado">
-                Completado
-              </SelectItem>
-              <SelectItem value="cancelled" label="Cancelado">
-                Cancelado
-              </SelectItem>
-              <SelectItem value="no_show" label="No se presentó">
-                No se presentó
-              </SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
+              <SelectItem value="pending">Pendiente</SelectItem>
+              <SelectItem value="confirmed">Confirmado</SelectItem>
+              <SelectItem value="completed">Completado</SelectItem>
+              <SelectItem value="cancelled">Cancelado</SelectItem>
+              <SelectItem value="no_show">No se presentó</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
+        {showTypeFilter && (
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Tipo</label>
+            <Select value={typeFilterValue} onValueChange={(v) => v && setTypeFilterValue(v)}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="veterinary">Veterinario</SelectItem>
+                <SelectItem value="grooming">Estética</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Desde</label>

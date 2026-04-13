@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
-  searchParams: Promise<{ status?: string; from?: string; to?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; from?: string; to?: string; page?: string; type?: string }>;
 }
 
 const subtitleByRole: Record<string, string> = {
@@ -25,7 +25,7 @@ export default async function AppointmentsPage({ searchParams }: Props) {
   const typeFilter =
     role === "vet" ? "veterinary" :
     role === "groomer" ? "grooming" :
-    undefined;
+    (params.type as "veterinary" | "grooming" | undefined) ?? undefined;
 
   const result = await getAppointments({
     status: params.status,
@@ -60,6 +60,8 @@ export default async function AppointmentsPage({ searchParams }: Props) {
           total={result.total}
           page={result.page}
           totalPages={result.totalPages}
+          typeFilter={params.type}
+          showTypeFilter={isAdmin}
         />
       </Suspense>
     </div>
