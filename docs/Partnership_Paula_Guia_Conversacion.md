@@ -7,7 +7,7 @@
 
 ## Contexto
 
-Este bloque estaba originalmente en `docs/Entrevista_Paula_V1_Demo.md` como parte de la reunión de demo v1. Se separó porque la reunión del 9 de abril se enfoca exclusivamente en la demo del producto + inicio del UAT. La propuesta de partnership es un tema aparte que Tomás evaluará si presentar en otro momento.
+Este bloque estaba originalmente en `docs/Entrevista_Paula_V1_Demo.md` como parte de la reunión de demo v1. Se separó porque la reunión del 9 de abril se enfoca exclusivamente en la demo del producto y la presentación del plan de UAT (que arranca el 13 de abril). La propuesta de partnership es un tema aparte que Tomás evaluará si presentar en otro momento.
 
 ---
 
