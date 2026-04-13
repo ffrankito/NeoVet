@@ -23,6 +23,7 @@ import {
 import type { SurgeryConsentProps } from "@/lib/pdf/templates/surgery-consent";
 import type { EuthanasiaConsentProps } from "@/lib/pdf/templates/euthanasia-consent";
 import type { ReproductiveAgreementProps } from "@/lib/pdf/templates/reproductive-agreement";
+import type { SedationConsentProps } from "@/lib/pdf/templates/sedation-consent";
 import { formatDateART } from "@/lib/timezone";
 
 // ── Queries ──────────────────────────────────────────────────────────────────
@@ -216,6 +217,8 @@ export async function generateConsentDocument(formData: FormData) {
     templateType = "euthanasia_consent";
   } else if (nameLower.includes("reproductiva")) {
     templateType = "reproductive_agreement";
+  } else if (nameLower.includes("sedaci\u00f3n") || nameLower.includes("sedacion")) {
+    templateType = "sedation_consent";
   } else {
     templateType = "surgery_consent"; // fallback
   }
@@ -281,6 +284,25 @@ export async function generateConsentDocument(formData: FormData) {
         diagnosis: customFields.diagnosis ?? "",
       };
       pdfBuffer = await renderConsentPdf("euthanasia_consent", props);
+    } else if (templateType === "sedation_consent") {
+      const props: SedationConsentProps = {
+        clientName: client.name,
+        clientDni: client.dni ?? "",
+        clientAddress: client.address ?? "",
+        patientName: patient.name,
+        patientSpecies: patientSpeciesAndSex,
+        patientBreed: patient.breed ?? "",
+        patientCoatColor: patient.coatColor ?? "",
+        patientWeight: patient.weightKg ?? "",
+        patientDob: patient.dateOfBirth ?? "",
+        historyNumber: patient.gvetHistoryNumber ?? undefined,
+        date: todayFormatted,
+        sedationReason:
+          customFields.sedationReason ??
+          procedureDescription ??
+          undefined,
+      };
+      pdfBuffer = await renderConsentPdf("sedation_consent", props);
     } else {
       // reproductive_agreement
       const props: ReproductiveAgreementProps = {

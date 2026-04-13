@@ -13,16 +13,22 @@ import {
   ReproductiveAgreementDocument,
   type ReproductiveAgreementProps,
 } from "./templates/reproductive-agreement";
+import {
+  SedationConsentDocument,
+  type SedationConsentProps,
+} from "./templates/sedation-consent";
 
 export type ConsentTemplateType =
   | "surgery_consent"
   | "euthanasia_consent"
-  | "reproductive_agreement";
+  | "reproductive_agreement"
+  | "sedation_consent";
 
 type TemplatePropsMap = {
   surgery_consent: SurgeryConsentProps;
   euthanasia_consent: EuthanasiaConsentProps;
   reproductive_agreement: ReproductiveAgreementProps;
+  sedation_consent: SedationConsentProps;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -32,6 +38,7 @@ const templateComponents: Record<ConsentTemplateType, AnyComponent> = {
   surgery_consent: SurgeryConsentDocument,
   euthanasia_consent: EuthanasiaConsentDocument,
   reproductive_agreement: ReproductiveAgreementDocument,
+  sedation_consent: SedationConsentDocument,
 };
 
 /**
