@@ -83,7 +83,7 @@ Every feature must pass 3 questions before entering v1 scope:
 3. **Is it validated?** Do we *know* users need it, or are we assuming? If assuming → defer.
 
 **Version targets:**
-- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS: UAT en curso desde 2026-04-09.**
+- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS: UAT no iniciado. Entrevistas con Paula y veterinarios (Valdemar, Fernanda) revelaron gaps que bloquean el reemplazo de Geovet (detalle de internaciones/fluidoterapia, registro de procedimientos con ASA y roles, auto-carga de cargos desde tratamientos, agendas compartidas entre vets, acceso a costos/presupuestos desde rol vet). Re-planificación de alcance y timeline en curso. Pendiente entrevista con recepción/administración.**
 - **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live. Automated reminders via WhatsApp.
 - **v3** — AI, reporting, advanced automation.
 

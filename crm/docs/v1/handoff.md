@@ -6,9 +6,9 @@
 | **Cliente** | Paula Silveyra — NeoVet |
 | **Agencia** | Tomás Pinolini / Franco Zancocchia |
 | **URL de producción** | https://neo-vet-eta.vercel.app/dashboard |
-| **Inicio de UAT** | 2026-04-09 |
-| **Fecha de entrega formal** | 2026-04-16 |
-| **Fin del período de garantía** | 2026-06-15 (60 días desde la entrega) |
+| **Inicio de UAT** | Pendiente — re-planificación en curso tras relevamiento con el equipo |
+| **Fecha de entrega formal** | Pendiente — bloqueada por gaps identificados en entrevistas con Paula y vets |
+| **Fin del período de garantía** | Pendiente (60 días desde la entrega) |
 | **Especificación técnica** | `crm/docs/v1/technical-spec.md` |
 | **Charter del proyecto** | `crm/docs/v1/charter.md` |
 

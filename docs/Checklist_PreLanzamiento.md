@@ -1,9 +1,11 @@
 # Checklist Pre-Lanzamiento — NeoVet v1
 
-**Fecha de demo:** miércoles 9 de abril 2026
-**Semana de UAT:** lunes 13 – viernes 17 de abril 2026
-**Fecha de entrega formal:** lunes 20 de abril 2026
+**Fecha de demo:** miércoles 9 de abril 2026 ✅ realizada
+**Semana de UAT:** Pendiente — NO iniciado (ver nota abajo)
+**Fecha de entrega formal:** Pendiente — TBD tras re-scope
 **Responsables:** Tomás Pinolini / Franco Zancocchia
+
+> **⚠️ Estado (2026-04-17):** El UAT previsto para 13–17 de abril no se ejecutó. Relevamiento con Paula, Valdemar y Fernanda identificó gaps (internaciones con fluidoterapia, procedimientos con ASA/roles, cargos auto, agendas compartidas, acceso a costos para vets, reemplazo de "Neocitas"). Pendiente: entrevista con recepción/administración, decisión de scope v1 vs v2, y nuevas fechas.
 
 ---
 

@@ -443,11 +443,21 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 ### Pre-Launch — Configuración y Despliegue 🔲 Pendiente
 
-> **Timeline de entrega:**
-> - **9 de abril 2026** — Demo con Paula (presentación v1, feedback, preview v2)
-> - **13 al 17 de abril 2026** — Semana de UAT (Paula testea con datos reales)
-> - **20 de abril 2026** — Reunión de entrega formal (aceptación, firma simbólica, transferencia de accesos, corte seco de Geovet)
-> - **20 de abril – 19 de junio 2026** — Período de garantía (60 días, solo bugs)
+> **Timeline de entrega (actualizado 2026-04-17):**
+> - **9 de abril 2026** — Demo con Paula ✅ realizada
+> - **UAT** — 🔲 No iniciado. Relevamiento con el equipo (Valdemar, Fernanda, próximamente recepción) identificó gaps que bloquean el reemplazo de Geovet. Ver sección "Gaps identificados post-demo" más abajo.
+> - **Entrega formal** — 🔲 Pendiente. Se re-planifica después de cerrar los gaps o de re-scopar v1 explícitamente.
+> - **Período de garantía** — 🔲 60 días desde la fecha de entrega (TBD).
+>
+> **Gaps identificados post-demo (2026-04-15/16):**
+> - Módulo de internaciones: vets piden fluidoterapia detallada (dosis, frecuencia, volumen por hora) e historial cronológico visible entre turnos.
+> - Procedimientos: valoración ASA, registro de cirujano/asistente/anestesista por rol.
+> - Cargos auto desde tratamientos: hoy los vets pasan papelitos a recepción → carga manual → errores. Falta flujo directo vet → cargos.
+> - Agendas compartidas entre veterinarios (especialmente Paula ↔ Fernanda para cesáreas/inseminaciones).
+> - Acceso a costos/presupuestos desde el rol `vet` (hoy solo admin).
+> - Reemplazo de "Neocitas" (segundo sistema externo de agenda, además de Geovet) — no documentado previamente.
+>
+> **Pendiente de definir:** cuáles de estos gaps entran en v1 (re-scope) vs. quedan como v2, y cómo afecta el timeline.
 
 Estas tareas no requieren cambios de código. Son configuración, deploy y verificación.
 
