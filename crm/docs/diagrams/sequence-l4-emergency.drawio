@@ -1,0 +1,67 @@
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram id="seq-l4-emergency" name="Sequence — L4 Emergency fast-path">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" pageWidth="1600" pageHeight="1000" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;Sequence — L4 Emergency fast-path&lt;/b&gt;&lt;br&gt;Patient-safety flow: keyword detection bypasses AI to guarantee sub-millisecond escalation" style="text;html=1;align=left;fontSize=16" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" value="&lt;b&gt;Why this diagram matters&lt;/b&gt;&lt;br&gt;The clinic specializes in brachycephalic breeds — respiratory emergencies are life-threatening. A missed L4 escalation = possible death.&lt;br&gt;&lt;br&gt;&lt;b&gt;Invariants to encode:&lt;/b&gt;&lt;br&gt;&amp;bull; Keyword check runs BEFORE the AI agent (no AI latency in the path)&lt;br&gt;&amp;bull; Urgency only goes UP (never auto-downgraded)&lt;br&gt;&amp;bull; L4 keywords in AR Spanish: convulsión, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción, emergencia, urgente, se está muriendo&lt;br&gt;&amp;bull; Only a human (dashboard) can downgrade" style="shape=note;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="420" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_cliente" value="Cliente" style="shape=umlLifeline;size=40;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="520" y="80" width="140" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_bot" value="Bot Web" style="shape=umlLifeline;size=40;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="720" y="80" width="140" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_keyword" value="L4 Keyword&#10;Detector" style="shape=umlLifeline;size=40;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="80" width="140" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_ai" value="AI Agent&#10;(Claude)" style="shape=umlLifeline;size=40;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1120" y="80" width="140" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="ll_staff" value="Staff / Paula&#10;(dashboard)" style="shape=umlLifeline;size=40;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1320" y="80" width="140" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_1" value="1: msg (&quot;mi perro no respira&quot;)" style="endArrow=classic;html=1;fontSize=10;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="590" y="340" as="sourcePoint" />
+            <mxPoint x="790" y="340" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2" value="2: check keywords (pre-AI)" style="endArrow=classic;html=1;fontSize=10;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="390" as="sourcePoint" />
+            <mxPoint x="990" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3" value="3: match → urgencyLevel = L4" style="endArrow=classic;html=1;fontSize=10;dashed=1" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="990" y="440" as="sourcePoint" />
+            <mxPoint x="790" y="440" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4" value="4: emergency contact + fast reply (AI bypassed)" style="endArrow=classic;html=1;fontSize=10;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="490" as="sourcePoint" />
+            <mxPoint x="590" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_5" value="5: notify + create BotEscalation" style="endArrow=classic;html=1;fontSize=10;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="790" y="540" as="sourcePoint" />
+            <mxPoint x="1390" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_todo" value="TODO: human-downgrade flow, resolvedAt write-back, audit trail" style="endArrow=none;html=1;fontSize=10;dashed=1;strokeColor=#999999" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="590" y="640" as="sourcePoint" />
+            <mxPoint x="1390" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

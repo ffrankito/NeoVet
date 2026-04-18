@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram id="use-cases" name="Use Cases — por Rol">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" pageWidth="1600" pageHeight="1100" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;Use Cases por Rol&lt;/b&gt;&lt;br&gt;Visual permission map. Helps spot gaps (e.g., &#34;should vet see costs? groomer cancel appointments?&#34;)" style="text;html=1;align=left;fontSize=16" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" value="&lt;b&gt;How to use&lt;/b&gt;&lt;br&gt;&amp;bull; List every capability the app exposes&lt;br&gt;&amp;bull; Draw a line from each actor to each use case they can trigger&lt;br&gt;&amp;bull; Missing lines where you expected them = permission gap or scope miss&lt;br&gt;&lt;br&gt;&lt;b&gt;From interview notes — verify these:&lt;/b&gt;&lt;br&gt;&amp;bull; Vet access to costos/presupuestos (Valdemar/Fernanda flagged)&lt;br&gt;&amp;bull; Shared agendas between vets&lt;br&gt;&amp;bull; Auto-carga of cargos from treatments" style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="360" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="a_admin" value="admin" style="shape=umlActor;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="340" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a_owner" value="owner&#10;(Paula)" style="shape=umlActor;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="470" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a_vet" value="vet" style="shape=umlActor;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="600" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a_groomer" value="groomer" style="shape=umlActor;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="730" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a_cliente" value="cliente" style="shape=umlActor;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="860" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="a_bot" value="bot&#10;(system)" style="shape=umlActor;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="80" y="980" width="40" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="sys_boundary" value="NeoVet" style="rounded=1;fillColor=none;strokeColor=#000000;fontSize=14;fontStyle=1;verticalAlign=top;align=center;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="460" y="320" width="1100" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_agenda" value="Ver agenda" style="ellipse;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="520" y="380" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_consulta" value="Registrar&#10;consulta (SOAP)" style="ellipse;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="720" y="380" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_hosp" value="Gestionar&#10;internaciones" style="ellipse;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="920" y="380" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_proc" value="Cargar&#10;procedimiento" style="ellipse;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1120" y="380" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_groom" value="Registrar sesión&#10;de peluquería" style="ellipse;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1320" y="380" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_cobro" value="Registrar&#10;cobro" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="520" y="520" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_petshop" value="Venta pet shop" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="720" y="520" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_stock" value="Ajustar stock" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="920" y="520" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_caja" value="Abrir/cerrar caja" style="ellipse;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1120" y="520" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_settings" value="Editar horarios&#10;y settings" style="ellipse;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="1320" y="520" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_consent" value="Emitir consent&#10;documento (PDF)" style="ellipse;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="520" y="660" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_staff" value="ABM staff" style="ellipse;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="720" y="660" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_downgrade" value="Downgrade&#10;urgencia bot" style="ellipse;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="920" y="660" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_turno_web" value="Pedir turno&#10;(web / bot)" style="ellipse;fillColor=#d0e0e3;strokeColor=#009999;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="520" y="860" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_info" value="Consultar info&#10;(horarios, precios)" style="ellipse;fillColor=#d0e0e3;strokeColor=#009999;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="720" y="860" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_escalate" value="Escalar L4&#10;(fast-path)" style="ellipse;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="520" y="980" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_reminders" value="Enviar&#10;recordatorios email" style="ellipse;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="720" y="980" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="todo_note" value="TODO: draw a line from each actor to each use case they can trigger. Missing lines = permission gap to discuss." style="shape=note;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#666666;fontSize=11;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4" vertex="1" parent="1">
+          <mxGeometry x="200" y="340" width="230" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

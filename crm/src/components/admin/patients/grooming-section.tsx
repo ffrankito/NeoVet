@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Separator } from "@/components/ui/separator";
 import { GroomingProfileForm } from "@/components/admin/grooming/grooming-profile-form";
-import type { GroomingProfile } from "@/db/schema";
+import type { GroomingProfileData } from "@/app/dashboard/grooming/actions";
 
 const tierLabels: Record<string, string> = {
   min: "Tranquilo",
@@ -35,7 +35,7 @@ type SessionWithStaff = {
 
 interface Props {
   patientId: string;
-  profile: GroomingProfile | null;
+  profile: GroomingProfileData | null;
   sessions: SessionWithStaff[];
   canEdit: boolean;
 }

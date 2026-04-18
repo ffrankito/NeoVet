@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import {
-  groomingProfiles,
   groomingSessions,
   appointments,
   patients,
@@ -14,7 +13,7 @@ import {
   cashSessions,
   cashMovements,
 } from "@/db/schema";
-import { groomingProfileId, groomingSessionId, cashMovementId } from "@/lib/ids";
+import { groomingSessionId, cashMovementId } from "@/lib/ids";
 import { eq, desc, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -31,11 +30,29 @@ const profileSchema = z.object({
   estimatedMinutes: z.number().int().positive().nullable().optional(),
 });
 
+// Shape returned by getGroomingProfile — the embedded grooming fields
+// projected from the patients row (post-Fix-1; no separate table).
+export type GroomingProfileData = {
+  patientId: string;
+  behaviorScore: number | null;
+  coatType: string | null;
+  coatDifficulties: string | null;
+  behaviorNotes: string | null;
+  estimatedMinutes: number | null;
+};
+
 export async function getGroomingProfile(patientId: string) {
   const [row] = await db
-    .select()
-    .from(groomingProfiles)
-    .where(eq(groomingProfiles.patientId, patientId))
+    .select({
+      patientId: patients.id,
+      behaviorScore: patients.groomingBehaviorScore,
+      coatType: patients.groomingCoatType,
+      coatDifficulties: patients.groomingCoatDifficulties,
+      behaviorNotes: patients.groomingBehaviorNotes,
+      estimatedMinutes: patients.groomingEstimatedMinutes,
+    })
+    .from(patients)
+    .where(eq(patients.id, patientId))
     .limit(1);
   return row ?? null;
 }
@@ -55,20 +72,29 @@ export async function upsertGroomingProfile(patientId: string, formData: FormDat
   }
 
   try {
-    const existing = await getGroomingProfile(patientId);
-
-    if (existing) {
-      await db
-        .update(groomingProfiles)
-        .set({ ...parsed.data, updatedAt: new Date() })
-        .where(eq(groomingProfiles.patientId, patientId));
-    } else {
-      await db.insert(groomingProfiles).values({
-        id: groomingProfileId(),
-        patientId,
-        ...parsed.data,
-      });
+    // Only include fields that were explicitly provided (matches prior
+    // upsert behaviour where empty strings from the form became `undefined`
+    // and were treated as "leave unchanged"; `null` explicitly clears).
+    const updates: Partial<typeof patients.$inferInsert> = {
+      updatedAt: new Date(),
+    };
+    if (parsed.data.behaviorScore !== undefined) {
+      updates.groomingBehaviorScore = parsed.data.behaviorScore;
     }
+    if (parsed.data.coatType !== undefined) {
+      updates.groomingCoatType = parsed.data.coatType;
+    }
+    if (parsed.data.coatDifficulties !== undefined) {
+      updates.groomingCoatDifficulties = parsed.data.coatDifficulties;
+    }
+    if (parsed.data.behaviorNotes !== undefined) {
+      updates.groomingBehaviorNotes = parsed.data.behaviorNotes;
+    }
+    if (parsed.data.estimatedMinutes !== undefined) {
+      updates.groomingEstimatedMinutes = parsed.data.estimatedMinutes;
+    }
+
+    await db.update(patients).set(updates).where(eq(patients.id, patientId));
   } catch {
     return { error: "Ocurrió un error al guardar el perfil de estética." };
   }
@@ -198,15 +224,6 @@ export async function createGroomingSession(
     notes: parsed.data.notes ?? null,
     createdById: staffRow?.id ?? null,
   });
-
-  // Auto-create grooming profile if it doesn't exist yet
-  const existing = await getGroomingProfile(patientId);
-  if (!existing) {
-    await db.insert(groomingProfiles).values({
-      id: groomingProfileId(),
-      patientId,
-    });
-  }
 
   // Auto-post grooming revenue to open cash session
   const finalPriceNum = parsed.data.finalPrice;

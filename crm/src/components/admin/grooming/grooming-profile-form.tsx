@@ -5,14 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { upsertGroomingProfile } from "@/app/dashboard/grooming/actions";
-import type { GroomingProfile } from "@/db/schema";
+import { upsertGroomingProfile, type GroomingProfileData } from "@/app/dashboard/grooming/actions";
 
 type ActionResult = { success?: boolean; errors?: Record<string, string[]> } | undefined;
 
 interface Props {
   patientId: string;
-  profile: GroomingProfile | null;
+  profile: GroomingProfileData | null;
 }
 
 export function GroomingProfileForm({ patientId, profile }: Props) {

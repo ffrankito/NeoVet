@@ -220,13 +220,13 @@ async function main() {
 
   const { default: postgres }  = await import("postgres");
   const { drizzle }             = await import("drizzle-orm/postgres-js");
-  const { clients, patients, groomingSessions, groomingProfiles, services, staff } =
+  const { clients, patients, groomingSessions, services, staff } =
     await import("../src/db/schema/index.js");
   const { eq, and, sql } = await import("drizzle-orm");
 
   const pg = postgres(DATABASE_URL, { max: 1 });
   const db = drizzle(pg, {
-    schema: { clients, patients, groomingSessions, groomingProfiles, services, staff },
+    schema: { clients, patients, groomingSessions, services, staff },
   });
 
   // Verify staff ID exists before processing anything
@@ -380,21 +380,8 @@ async function main() {
       continue;
     }
 
-    // --- Auto-create grooming profile if it doesn't exist ---
-    const profileRows = await db
-      .select({ id: groomingProfiles.id })
-      .from(groomingProfiles)
-      .where(eq(groomingProfiles.patientId, patientId))
-      .limit(1);
-
-    if (!profileRows.length) {
-      await db.insert(groomingProfiles).values({
-        id:        createId("gpr"),
-        patientId,
-        createdAt: sessionDate,
-        updatedAt: sessionDate,
-      });
-    }
+    // Note: grooming profile is now embedded in `patients` (Fix 1, migration 0029).
+    // Nothing to auto-create — the patient row already has the (nullable) profile columns.
 
     // --- Build notes for traceability ---
     const notes = tipo

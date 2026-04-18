@@ -1,0 +1,105 @@
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram id="c4-context" name="C4 — Context">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" pageWidth="1600" pageHeight="1000" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;C4 Level 1 — System Context&lt;/b&gt;&lt;br&gt;NeoVet as a black box + its users and external systems" style="text;html=1;align=left;fontSize=16" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" value="&lt;b&gt;C4 Context = single box for the system, actors around it.&lt;/b&gt;&lt;br&gt;Good for: onboarding, Paula-facing explanations, scope boundaries.&lt;br&gt;&lt;br&gt;Rules:&lt;br&gt;&amp;bull; Don't show internal structure (that's Container on page 2)&lt;br&gt;&amp;bull; Label every line with what flows (data? command?)&lt;br&gt;&amp;bull; Mark Geovet explicitly as LEGACY / being replaced" style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="320" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="neovet" value="&lt;b&gt;NeoVet&lt;/b&gt;&lt;br&gt;[Software System]&lt;br&gt;&lt;br&gt;CRM + Chatbot + Landing" style="rounded=0;fillColor=#1168bd;strokeColor=#0b4884;fontColor=#ffffff;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="720" y="440" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="cliente" value="&lt;b&gt;Cliente&lt;/b&gt;&lt;br&gt;[Persona]&lt;br&gt;&lt;br&gt;Dueño de mascota" style="shape=umlActor;fillColor=#08427b;strokeColor=#073b6f;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="440" y="200" width="80" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="paula" value="&lt;b&gt;Paula / Staff&lt;/b&gt;&lt;br&gt;[Persona]&lt;br&gt;&lt;br&gt;admin / owner / vet / groomer" style="shape=umlActor;fillColor=#08427b;strokeColor=#073b6f;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="1120" y="200" width="80" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="geovet" value="&lt;b&gt;Geovet (LEGACY)&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Current CRM.&lt;br&gt;No API. Being replaced." style="rounded=0;fillColor=#999999;strokeColor=#6c6c6c;fontColor=#ffffff;fontSize=11;fontStyle=1;whiteSpace=wrap;html=1;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="720" y="760" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="supabase" value="&lt;b&gt;Supabase&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;DB + Auth + Storage" style="rounded=0;fillColor=#999999;strokeColor=#6c6c6c;fontColor=#ffffff;fontSize=11;fontStyle=1;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="1120" y="580" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="resend" value="&lt;b&gt;Resend&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Email delivery" style="rounded=0;fillColor=#999999;strokeColor=#6c6c6c;fontColor=#ffffff;fontSize=11;fontStyle=1;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="440" y="580" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="kapso" value="&lt;b&gt;Kapso (v2)&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;WhatsApp channel" style="rounded=0;fillColor=#cccccc;strokeColor=#6c6c6c;fontColor=#000000;fontSize=11;fontStyle=1;whiteSpace=wrap;html=1;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="200" y="440" width="180" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="argdatos" value="&lt;b&gt;ArgentinaDatos&lt;/b&gt;&lt;br&gt;[External System]&lt;br&gt;&lt;br&gt;Feriados API" style="rounded=0;fillColor=#999999;strokeColor=#6c6c6c;fontColor=#ffffff;fontSize=11;fontStyle=1;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="1280" y="440" width="180" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" value="consulta info,&#10;pide turno" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="cliente" target="neovet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="gestiona pacientes,&#10;consultas, cobros" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="paula" target="neovet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="TODO: one-way migration&#10;(CSV/HTML export only)" style="endArrow=classic;html=1;fontSize=10;dashed=1" edge="1" parent="1" source="geovet" target="neovet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" value="reads/writes" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="neovet" target="supabase">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" value="sends reminders" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="neovet" target="resend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" value="v2: sends msgs" style="endArrow=classic;html=1;fontSize=10;dashed=1" edge="1" parent="1" source="neovet" target="kapso">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" value="fetches feriados" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="neovet" target="argdatos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="c4-container" name="C4 — Container">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" pageWidth="1600" pageHeight="1000" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;C4 Level 2 — Container&lt;/b&gt;&lt;br&gt;Zoom into NeoVet: the 3 apps + shared infra" style="text;html=1;align=left;fontSize=16" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="notes2" value="&lt;b&gt;Containers to document:&lt;/b&gt;&lt;br&gt;&amp;bull; crm/ — Next.js 16 App Router, Drizzle, SSR, email reminders via Resend&lt;br&gt;&amp;bull; chatbot/ — Next.js 16, AI SDK, Claude Sonnet 4.6&lt;br&gt;&amp;bull; landing/ — Astro 6 static site, embeds chatbot iframe&lt;br&gt;&lt;br&gt;Draw: what talks to what, on which protocol (HTTPS JSON? direct DB?), and which are deployed where (Vercel + Supabase).&lt;br&gt;&lt;br&gt;Flag v1 boundaries: chatbot does NOT call CRM in v1 (independent). v2 = integrated." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="420" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="neovet_boundary" value="NeoVet" style="rounded=1;dashed=1;fillColor=none;strokeColor=#1168bd;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="540" y="300" width="900" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="crm" value="&lt;b&gt;crm/&lt;/b&gt;&lt;br&gt;[Next.js 16 App]&lt;br&gt;&lt;br&gt;Staff dashboard, clinical history,&lt;br&gt;appointments, PDFs, cobros" style="rounded=0;fillColor=#1168bd;strokeColor=#0b4884;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="380" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="chatbot" value="&lt;b&gt;chatbot/&lt;/b&gt;&lt;br&gt;[Next.js 16 + AI SDK]&lt;br&gt;&lt;br&gt;Web widget (v1)&lt;br&gt;WhatsApp via Kapso (v2)" style="rounded=0;fillColor=#1168bd;strokeColor=#0b4884;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="900" y="380" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="landing" value="&lt;b&gt;landing/&lt;/b&gt;&lt;br&gt;[Astro 6 static]&lt;br&gt;&lt;br&gt;Marketing site&lt;br&gt;Embeds chatbot iframe" style="rounded=0;fillColor=#1168bd;strokeColor=#0b4884;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="1200" y="380" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="&lt;b&gt;PostgreSQL&lt;/b&gt;&lt;br&gt;[Supabase DB]" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#438dd5;strokeColor=#2e6295;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="600" y="620" width="220" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="storage" value="&lt;b&gt;Supabase Storage&lt;/b&gt;&lt;br&gt;[Object store]&lt;br&gt;grooming photos, consent PDFs" style="rounded=0;fillColor=#438dd5;strokeColor=#2e6295;fontColor=#ffffff;fontSize=11;whiteSpace=wrap;html=1" vertex="1" parent="1">
+          <mxGeometry x="900" y="620" width="220" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="rel1" value="reads/writes" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="crm" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel2" value="uploads PDFs / photos" style="endArrow=classic;html=1;fontSize=10" edge="1" parent="1" source="crm" target="storage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel3" value="iframe embed" style="endArrow=classic;html=1;fontSize=10;dashed=1" edge="1" parent="1" source="landing" target="chatbot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rel4" value="v2: API calls (bot→CRM)" style="endArrow=classic;html=1;fontSize=10;dashed=1;strokeColor=#999999" edge="1" parent="1" source="chatbot" target="crm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

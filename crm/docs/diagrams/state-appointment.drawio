@@ -1,0 +1,52 @@
+<mxfile host="app.diagrams.net" version="24.0.0">
+  <diagram id="state-appointment" name="State Machine — Appointment">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" pageWidth="1400" pageHeight="900" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;State Machine — Appointment lifecycle&lt;/b&gt;&lt;br&gt;States come straight from the schema enum. Document WHO can do each transition and under WHAT constraints." style="text;html=1;align=left;fontSize=16" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="notes" value="&lt;b&gt;For each transition, document:&lt;/b&gt;&lt;br&gt;&amp;bull; Who can trigger it (role: admin / owner / vet / groomer / cliente / system)&lt;br&gt;&amp;bull; Guards (e.g. &quot;only if scheduledAt &gt; now + 1h&quot;)&lt;br&gt;&amp;bull; Side effects (email? cargo? no-show stat?)&lt;br&gt;&amp;bull; Whether cancellationReason is required&lt;br&gt;&lt;br&gt;&lt;b&gt;Open questions:&lt;/b&gt;&lt;br&gt;&amp;bull; Can a completed appointment be reverted?&lt;br&gt;&amp;bull; no_show vs cancelled by client (same or different state?)&lt;br&gt;&amp;bull; Does confirmed auto-transition on scheduledAt passing?" style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="360" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="initial" value="" style="ellipse;fillColor=#000000;strokeColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="600" y="100" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="st_pending" value="pending" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="580" y="180" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_confirmed" value="confirmed" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="580" y="300" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_completed" value="completed" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;strokeWidth=3" vertex="1" parent="1">
+          <mxGeometry x="580" y="420" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_cancelled" value="cancelled" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="880" y="240" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_noshow" value="no_show" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="880" y="360" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="t_init" style="endArrow=classic;html=1;" edge="1" parent="1" source="initial" target="st_pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t_p_c" value="confirm by&#10;(recepción?)" style="endArrow=classic;html=1;fontSize=9" edge="1" parent="1" source="st_pending" target="st_confirmed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t_c_done" value="TODO: trigger" style="endArrow=classic;html=1;fontSize=9" edge="1" parent="1" source="st_confirmed" target="st_completed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t_p_cancel" value="cancel" style="endArrow=classic;html=1;fontSize=9" edge="1" parent="1" source="st_pending" target="st_cancelled">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t_c_cancel" value="cancel" style="endArrow=classic;html=1;fontSize=9" edge="1" parent="1" source="st_confirmed" target="st_cancelled">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t_c_noshow" value="no_show&#10;(auto?)" style="endArrow=classic;html=1;fontSize=9" edge="1" parent="1" source="st_confirmed" target="st_noshow">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

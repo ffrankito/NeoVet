@@ -1,0 +1,375 @@
+<mxfile host="65bd71144e">
+    <diagram id="neovet-domain-model" name="NeoVet Domain Model">
+        <mxGraphModel dx="842" dy="330" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1600" math="0" shadow="0" adaptiveColors="auto">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="ctx_clinical" value="CLINICAL CORE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="40" y="40" width="1320" height="480" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_platform" value="PLATFORM / STAFF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="1520" y="50" width="480" height="420" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_hospital" value="HOSPITALIZATION" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="40" y="620" width="420" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_procedures" value="PROCEDURES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="480" y="620" width="500" height="300" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_grooming" value="GROOMING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="1000" y="620" width="350" height="230" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_compliance" value="COMPLIANCE (Consents)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="1420" y="620" width="560" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_commerce" value="COMMERCE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="40" y="940" width="1200" height="420" as="geometry"/>
+                </mxCell>
+                <mxCell id="ctx_bot" value="CONVERSATIONAL (Bot)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d0e0e3;strokeColor=#009999;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=6;dashed=1;strokeWidth=2;fillOpacity=30" parent="1" vertex="1">
+                    <mxGeometry x="1260" y="940" width="720" height="420" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_client" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Client&lt;/b&gt;&lt;hr&gt;name&lt;br&gt;phone · dni · email" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="80" y="100" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_patient" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Patient&lt;/b&gt;&lt;hr&gt;name · species · breed&lt;br&gt;dateOfBirth · sex&lt;br&gt;deceased · neutered" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="340" y="100" width="200" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_grooming_profile" value="&lt;b&gt;&amp;laquo;VO&amp;raquo; GroomingProfile&lt;/b&gt;&lt;hr&gt;behaviorScore · coatType&lt;br&gt;estimatedMinutes&lt;br&gt;&lt;i&gt;(embedded in Patient)&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#9673a6;strokeWidth=1;dashed=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="360" y="210" width="170" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_consultation" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Consultation&lt;/b&gt;&lt;hr&gt;date · SOAP&lt;br&gt;weight · temp · HR · RR" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="620" y="100" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_appointment" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Appointment&lt;/b&gt;&lt;hr&gt;scheduledAt · type&lt;br&gt;status · cancellationReason" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="880" y="100" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_followup" value="&lt;b&gt;&amp;laquo;E&amp;raquo; FollowUp&lt;/b&gt; ⚠️&lt;hr&gt;scheduledDate · reason&lt;br&gt;&lt;i&gt;conflates 2 types&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1140" y="100" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_treatment_item" value="&lt;b&gt;&amp;laquo;E&amp;raquo; TreatmentItem&lt;/b&gt;&lt;hr&gt;medication · dose&lt;br&gt;frequency · status" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="620" y="320" width="180" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_complementary" value="&lt;b&gt;&amp;laquo;E&amp;raquo; ComplementaryMethod&lt;/b&gt;&lt;hr&gt;studyType · content&lt;br&gt;photoPath" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="820" y="320" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_vaccination" value="&lt;b&gt;&amp;laquo;E&amp;raquo; Vaccination&lt;/b&gt;&lt;hr&gt;vaccineName · appliedAt&lt;br&gt;nextDueAt · batchNumber" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="80" y="320" width="180" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_deworming" value="&lt;b&gt;&amp;laquo;E&amp;raquo; DewormingRecord&lt;/b&gt;&lt;hr&gt;product · appliedAt&lt;br&gt;nextDueAt · dose" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="280" y="320" width="180" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_document" value="&lt;b&gt;&amp;laquo;E&amp;raquo; Document&lt;/b&gt;&lt;hr&gt;fileName · category&lt;br&gt;storagePath · mimeType" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="1060" y="320" width="180" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_staff" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Staff&lt;/b&gt;&lt;hr&gt;name · email · role&lt;br&gt;licenseNumber · isActive" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1540" y="100" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_schedule_block" value="&lt;b&gt;&amp;laquo;E&amp;raquo; ScheduleBlock&lt;/b&gt;&lt;hr&gt;startDate · endDate&lt;br&gt;reason" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="1540" y="220" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_settings" value="&lt;b&gt;&amp;laquo;singleton&amp;raquo; Settings&lt;/b&gt;&lt;hr&gt;key-value store&lt;br&gt;&lt;i&gt;clinic hours, defaults&lt;/i&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="1540" y="340" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_email_log" value="&lt;b&gt;&amp;laquo;audit&amp;raquo; EmailLog&lt;/b&gt;&lt;hr&gt;type · referenceId&lt;br&gt;sentAt · sentTo" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d6b656;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="1760" y="340" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_hospitalization" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Hospitalization&lt;/b&gt;&lt;hr&gt;admittedAt · dischargedAt&lt;br&gt;reason · admittedBy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="80" y="680" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_hospital_obs" value="&lt;b&gt;&amp;laquo;E&amp;raquo; HospitalizationObservation&lt;/b&gt;&lt;hr&gt;recordedAt · vitals&lt;br&gt;feeding · hydration · meds" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#d79b00;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="80" y="800" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_procedure" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Procedure&lt;/b&gt;&lt;hr&gt;procedureDate · type&lt;br&gt;asaScore · pre/post vitals" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="520" y="680" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_proc_supply" value="&lt;b&gt;&amp;laquo;JT&amp;raquo; ProcedureSupply&lt;/b&gt;&lt;hr&gt;quantity · unitCost" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="520" y="800" width="180" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_proc_staff" value="&lt;b&gt;&amp;laquo;JT&amp;raquo; ProcedureStaff&lt;/b&gt;&lt;hr&gt;role (surgeon/anesth./asst.)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="740" y="800" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_grooming_session" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; GroomingSession&lt;/b&gt;&lt;hr&gt;priceTier · finalPrice&lt;br&gt;before/afterPhoto · findings" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1040" y="700" width="220" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_consent_template" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; ConsentTemplate&lt;/b&gt;&lt;hr&gt;name · bodyTemplate&lt;br&gt;isActive" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1460" y="680" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_consent_doc" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; ConsentDocument&lt;/b&gt;&lt;hr&gt;storagePath · customFields&lt;br&gt;generatedAt" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1740" y="680" width="220" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_product" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Product&lt;/b&gt;&lt;hr&gt;name · category&lt;br&gt;stock · costPrice · sellPrice" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="80" y="1000" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_service" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Service&lt;/b&gt;&lt;hr&gt;name · category&lt;br&gt;duration · basePrice" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="300" y="1000" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_provider" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Provider&lt;/b&gt;&lt;hr&gt;name · cuit · phone&lt;br&gt;email · isActive" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="520" y="1000" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_stock_entry" value="&lt;b&gt;&amp;laquo;E&amp;raquo; StockEntry&lt;/b&gt;&lt;hr&gt;quantity · costPrice&lt;br&gt;expirationDate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="740" y="1000" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_sale" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Sale&lt;/b&gt;&lt;hr&gt;paymentMethod · paymentId&lt;br&gt;notes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="80" y="1150" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_sale_item" value="&lt;b&gt;&amp;laquo;JT&amp;raquo; SaleItem&lt;/b&gt;&lt;hr&gt;quantity · unitPrice · taxRate" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="80" y="1260" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_charge" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; Charge&lt;/b&gt; ⚠️&lt;hr&gt;sourceType · sourceId&lt;br&gt;&lt;i&gt;polymorphic, no DB FK&lt;/i&gt;&lt;br&gt;amount · paidAmount · status" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#b85450;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="340" y="1150" width="220" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cash_session" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; CashSession&lt;/b&gt;&lt;hr&gt;openedAt · closedAt&lt;br&gt;initialAmount · closingAmount" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="620" y="1150" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_cash_movement" value="&lt;b&gt;&amp;laquo;E&amp;raquo; CashMovement&lt;/b&gt;&lt;hr&gt;type · amount&lt;br&gt;paymentMethod" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="620" y="1260" width="200" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_bot_contact" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; BotContact&lt;/b&gt;&lt;hr&gt;phone · name&lt;br&gt;isBlocked" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#009999;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1300" y="1000" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_bot_conv" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; BotConversation&lt;/b&gt;&lt;hr&gt;status · urgencyLevel&lt;br&gt;channel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#009999;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1540" y="1000" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_bot_message" value="&lt;b&gt;&amp;laquo;E&amp;raquo; BotMessage&lt;/b&gt;&lt;hr&gt;role · content&lt;br&gt;urgencyLevel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#009999;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="1780" y="1000" width="180" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_bot_escalation" value="&lt;b&gt;&amp;laquo;E&amp;raquo; BotEscalation&lt;/b&gt;&lt;hr&gt;reason · urgencyLevel&lt;br&gt;resolvedAt · notes" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#009999;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=10" parent="1" vertex="1">
+                    <mxGeometry x="1540" y="1150" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_bot_ctx" value="&lt;b&gt;&amp;laquo;AR&amp;raquo; BotBusinessContext&lt;/b&gt;&lt;hr&gt;key · value · label&lt;br&gt;category (KB entry)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#009999;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=6;spacingTop=4;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1300" y="1150" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend" value="&lt;b&gt;Legend&lt;/b&gt;&lt;hr&gt;&amp;laquo;AR&amp;raquo; Aggregate Root&lt;br&gt;&amp;laquo;E&amp;raquo; Entity (in aggregate)&lt;br&gt;&amp;laquo;VO&amp;raquo; Value Object&lt;br&gt;&amp;laquo;JT&amp;raquo; Junction Table&lt;br&gt;◆ composition (cascade)&lt;br&gt;◇ reference (set null / no cascade)&lt;br&gt;⚠️ schema divergence / smell" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1;verticalAlign=top;align=left;spacingLeft=8;spacingTop=6;fontSize=11" parent="1" vertex="1">
+                    <mxGeometry x="1780" y="1150" width="200" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_vo" value="&lt;b&gt;Divergence 1&lt;/b&gt;&lt;br&gt;GroomingProfile is stored as a separate table with UNIQUE(patientId). In DDD it is a 1:1 Value Object — it has no identity apart from its Patient and dies with it. Consider folding into Patient columns or a JSONB field." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4" parent="1" vertex="1">
+                    <mxGeometry x="580" y="210" width="210" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_charge" value="&lt;b&gt;Divergence 2&lt;/b&gt;&lt;br&gt;Charge.sourceId is polymorphic: it references Consultation | Grooming | Procedure | Sale | Hospitalization by string tag only. No FK enforcement. Integrity lives in app code. Consider typed subclasses or a charge-per-source join table." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4" parent="1" vertex="1">
+                    <mxGeometry x="340" y="1270" width="220" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_followup" value="&lt;b&gt;Divergence 3&lt;/b&gt;&lt;br&gt;FollowUp holds nullable FKs to BOTH Consultation AND Procedure. One row means either-or. Consider splitting into ConsultationFollowUp and ProcedureFollowUp, or a tagged union." style="shape=note;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4" parent="1" vertex="1">
+                    <mxGeometry x="1140" y="200" width="220" height="95" as="geometry"/>
+                </mxCell>
+                <mxCell id="note_staff_refs" value="&lt;b&gt;Note&lt;/b&gt;&lt;br&gt;Staff is referenced by many aggregates (createdById, recordedById, soldById, etc.). Those audit-trail references are omitted for clarity — they are NOT aggregate relationships, just user-tracking metadata." style="shape=note;whiteSpace=wrap;html=1;fillColor=#e8e8e8;strokeColor=#666666;fontSize=10;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4" parent="1" vertex="1">
+                    <mxGeometry x="1760" y="200" width="200" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_client_patient" style="endArrow=diamondThin;endFill=1;endSize=14;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#6c8ebf" parent="1" source="e_client" target="e_patient" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge_client_patient_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10" parent="edge_client_patient" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge_patient_consult" style="endArrow=diamondThin;endFill=1;endSize=14;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#6c8ebf" parent="1" source="e_patient" target="e_consultation" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_consult_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=10" parent="edge_patient_consult" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_vo" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#9673a6;dashed=1" parent="1" source="e_patient" target="e_grooming_profile" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_vo_lbl" value="1 ◆ 0..1 (VO)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_patient_vo" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_vacc" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#6c8ebf" parent="1" source="e_patient" target="e_vaccination" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_vacc_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_patient_vacc" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_deworm" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.25;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#6c8ebf" parent="1" source="e_patient" target="e_deworming" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="340" y="250"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge_patient_deworm_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_patient_deworm" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_doc" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.75;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#6c8ebf" parent="1" source="e_patient" target="e_document" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_patient_doc_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_patient_doc" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consult_treatment" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#6c8ebf" parent="1" source="e_consultation" target="e_treatment_item" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consult_treatment_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_consult_treatment" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consult_complementary" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=1;exitY=1;entryX=0;entryY=0;strokeWidth=1;strokeColor=#6c8ebf" parent="1" source="e_consultation" target="e_complementary" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consult_complementary_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_consult_complementary" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_appt_patient" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#6c8ebf;dashed=1" parent="1" source="e_appointment" target="e_patient" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_appt_patient_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_appt_patient" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consult_appt" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#6c8ebf;dashed=1" parent="1" source="e_consultation" target="e_appointment" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consult_appt_lbl" value="* ◇ 0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_consult_appt" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_followup_consult" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#6c8ebf;dashed=1" parent="1" source="e_followup" target="e_appointment" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_followup_consult_lbl" value="* ◇ 0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_followup_consult" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_appt_staff" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#d6b656;dashed=1" parent="1" source="e_appointment" target="e_staff" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_appt_staff_lbl" value="* ◇ 0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_appt_staff" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_staff_sched" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#d6b656" parent="1" source="e_staff" target="e_schedule_block" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_staff_sched_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_staff_sched" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_hosp_patient" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0.5;exitY=0;entryX=0;entryY=1;strokeColor=#d79b00;dashed=1" parent="1" source="e_hospitalization" target="e_patient" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_hosp_patient_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_hosp_patient" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_hosp_obs" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#d79b00" parent="1" source="e_hospitalization" target="e_hospital_obs" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_hosp_obs_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_hosp_obs" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_patient" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0.5;exitY=0;entryX=0.5;entryY=1;strokeColor=#b85450;dashed=1" parent="1" source="e_procedure" target="e_patient" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_patient_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_proc_patient" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_hosp" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#b85450;dashed=1" parent="1" source="e_procedure" target="e_hospitalization" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_hosp_lbl" value="* ◇ 0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_proc_hosp" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_supply" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.25;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#b85450" parent="1" source="e_procedure" target="e_proc_supply" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_supply_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_proc_supply" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_procstaff" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.75;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#b85450" parent="1" source="e_procedure" target="e_proc_staff" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_proc_procstaff_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_proc_procstaff" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_procsupply_product" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeColor=#82b366;dashed=1" parent="1" source="e_proc_supply" target="e_product" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_procsupply_product_lbl" value="* ◇ 1 (restrict)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_procsupply_product" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_procstaff_staff" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=1;exitY=0;entryX=0;entryY=1;strokeColor=#d6b656;dashed=1" parent="1" source="e_proc_staff" target="e_staff" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_procstaff_staff_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_procstaff_staff" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_grooming_patient" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=1;strokeColor=#9673a6;dashed=1" parent="1" source="e_grooming_session" target="e_patient" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_grooming_patient_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_grooming_patient" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_sale_item" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#82b366" parent="1" source="e_sale" target="e_sale_item" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_sale_item_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_sale_item" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_saleitem_product" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0.5;exitY=0;entryX=0.5;entryY=1;strokeColor=#82b366;dashed=1" parent="1" source="e_sale_item" target="e_product" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_saleitem_product_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_saleitem_product" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_stock_product" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeColor=#82b366;dashed=1" parent="1" source="e_stock_entry" target="e_product" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_stock_product_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_stock_product" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_stock_provider" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=1;strokeColor=#82b366;dashed=1" parent="1" source="e_stock_entry" target="e_provider" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_stock_provider_lbl" value="* ◇ 0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_stock_provider" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_cash_movement" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#82b366" parent="1" source="e_cash_session" target="e_cash_movement" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_cash_movement_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_cash_movement" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_charge_client" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0;entryX=0.5;entryY=1;strokeColor=#b85450;dashed=1" parent="1" source="e_charge" target="e_client" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_charge_client_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_charge_client" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consent_template_doc" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeColor=#666666;dashed=1" parent="1" source="e_consent_template" target="e_consent_doc" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consent_template_doc_lbl" value="1 ◇ * (set null)" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_consent_template_doc" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consent_patient" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0.5;exitY=0;entryX=1;entryY=0;strokeColor=#666666;dashed=1" parent="1" source="e_consent_doc" target="e_patient" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consent_patient_lbl" value="* ◇ 1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_consent_patient" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botcontact_client" style="endArrow=open;endSize=10;html=1;rounded=0;exitX=0;exitY=0;entryX=0;entryY=1;strokeColor=#009999;dashed=1" parent="1" source="e_bot_contact" target="e_client" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botcontact_client_lbl" value="* ◇ 0..1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_botcontact_client" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botcontact_conv" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=1;strokeColor=#009999" parent="1" source="e_bot_contact" target="e_bot_conv" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botcontact_conv_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_botcontact_conv" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botconv_msg" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=1;strokeColor=#009999" parent="1" source="e_bot_conv" target="e_bot_message" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botconv_msg_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_botconv_msg" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botconv_esc" style="endArrow=diamondThin;endFill=1;endSize=12;html=1;rounded=0;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=1;strokeColor=#009999" parent="1" source="e_bot_conv" target="e_bot_escalation" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_botconv_esc_lbl" value="1 ◆ *" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontSize=9" parent="edge_botconv_esc" vertex="1" connectable="0">
+                    <mxGeometry x="-0.1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="title" value="&lt;b&gt;NeoVet — Domain Model (DDD view)&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;Bounded contexts · Aggregate roots · Owned entities · Value objects. Audit/tracking refs to Staff (createdBy, recordedBy) are omitted.&lt;/span&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=16;fontStyle=0" parent="1" vertex="1">
+                    <mxGeometry x="40" width="1400" height="40" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
