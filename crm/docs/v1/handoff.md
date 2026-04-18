@@ -6,8 +6,8 @@
 | **Cliente** | Paula Silveyra — NeoVet |
 | **Agencia** | Tomás Pinolini / Franco Zancocchia |
 | **URL de producción** | https://neo-vet-eta.vercel.app/dashboard |
-| **Inicio de UAT** | Pendiente — re-planificación en curso tras relevamiento con el equipo |
-| **Fecha de entrega formal** | Pendiente — bloqueada por gaps identificados en entrevistas con Paula y vets |
+| **Estado del proyecto** | En desarrollo — UAT postpuesto tras relevamiento con el equipo |
+| **Fecha de entrega formal** | Pendiente — proyecto en fase de desarrollo, re-scope activo |
 | **Fin del período de garantía** | Pendiente (60 días desde la entrega) |
 | **Especificación técnica** | `crm/docs/v1/technical-spec.md` |
 | **Charter del proyecto** | `crm/docs/v1/charter.md` |
@@ -26,7 +26,7 @@
 
 ### Funcionalidad
 - [ ] Todos los entregables del charter probados en producción (D1–D14)
-- [ ] Paula y el equipo completaron el UAT
+- [ ] Paula y el equipo completaron el UAT (postpuesto — pendiente re-planificar)
 - [ ] Flujo de consulta completo probado: crear turno → confirmar → completar → registrar consulta → agregar ítems de tratamiento → métodos complementarios → agendar seguimiento
 - [ ] Flujo de peluquería completo probado: crear turno → asignar peluquero → registrar sesión → fotos subidas → hallazgos → ingreso en caja automático
 - [ ] Cada rol probado en aislamiento (vet, peluquero)

@@ -443,10 +443,10 @@ Tablas `cash_sessions` (`csh_`) y `cash_movements` (`cmv_`). Sidebar "Caja" (adm
 
 ### Pre-Launch — Configuración y Despliegue 🔲 Pendiente
 
-> **Timeline de entrega (actualizado 2026-04-17):**
+> **Timeline de entrega (actualizado 2026-04-18):**
 > - **9 de abril 2026** — Demo con Paula ✅ realizada
-> - **UAT** — 🔲 No iniciado. Relevamiento con el equipo (Valdemar, Fernanda, próximamente recepción) identificó gaps que bloquean el reemplazo de Geovet. Ver sección "Gaps identificados post-demo" más abajo.
-> - **Entrega formal** — 🔲 Pendiente. Se re-planifica después de cerrar los gaps o de re-scopar v1 explícitamente.
+> - **UAT** — 🔲 Postpuesto. El relevamiento con el equipo (Valdemar, Fernanda, próximamente recepción) identificó gaps que bloquean el reemplazo de Geovet. El proyecto volvió a fase de desarrollo activa para cerrar esos gaps. Ver sección "Gaps identificados post-demo" más abajo.
+> - **Entrega formal** — 🔲 Pendiente. Se reprograma cuando los gaps estén cerrados o el v1 esté re-scopado explícitamente.
 > - **Período de garantía** — 🔲 60 días desde la fecha de entrega (TBD).
 >
 > **Gaps identificados post-demo (2026-04-15/16):**

@@ -1,10 +1,10 @@
 # Guía de Testeo — NeoVet CRM v1
 
 **Para:** Paula Silveyra
-**Fecha:** Pendiente — UAT no iniciado (re-planificación en curso tras relevamiento con el equipo)
+**Fecha:** Pendiente — UAT postpuesto; el proyecto está en fase de desarrollo cerrando gaps
 **Objetivo:** Verificar que el sistema funciona correctamente con tus datos reales antes de la entrega formal.
 
-> **⚠️ Estado (2026-04-17):** Esta guía fue escrita asumiendo un UAT entre el 9 y el 15 de abril. Ese UAT no se ejecutó. Las entrevistas con Paula y los veterinarios (Valdemar, Fernanda) revelaron gaps funcionales que bloquean el reemplazo de Geovet. Antes de relanzar el UAT hay que: (1) cerrar o re-scopar los gaps, (2) entrevistar a recepción/administración, (3) definir nuevas fechas. Los escenarios siguientes siguen siendo válidos como base pero pueden requerir actualización cuando se cierre el re-scope.
+> **⚠️ Estado (2026-04-18):** Esta guía fue escrita asumiendo un UAT entre el 9 y el 15 de abril. Ese UAT no se ejecutó y está postpuesto. Las entrevistas con Paula y los veterinarios (Valdemar, Fernanda) revelaron gaps funcionales que bloquean el reemplazo de Geovet; el proyecto volvió a fase de desarrollo para cerrarlos. Antes de reprogramar el UAT hay que: (1) cerrar o re-scopar los gaps, (2) entrevistar a recepción/administración, (3) definir nuevas fechas. Los escenarios siguientes siguen siendo válidos como base pero pueden requerir actualización cuando se cierre el re-scope.
 
 ---
 

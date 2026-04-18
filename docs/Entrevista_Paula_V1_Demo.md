@@ -1,5 +1,7 @@
 # Guía de Entrevista — Demo V1 y Preview V2
 
+> **⚠️ Estado (2026-04-18):** Este documento fue escrito como guion para la demo del 9 de abril. Esa reunión se hizo y el UAT que se iba a arrancar al final **quedó postpuesto**: el relevamiento con Valdemar y Fernanda reveló gaps funcionales que bloquean el reemplazo de Geovet, y el proyecto volvió a fase de desarrollo activa. Se mantiene este guion como referencia histórica — los tiempos, fechas y bloque 6 (kickoff UAT) ya no aplican. Para el estado actual ver `crm/docs/v1/development-plan.md`.
+
 **Reunión con:** Paula Silveyra — NeoVet Centro Veterinario
 **Conducida por:** Tomás Pinolini
 **Duración estimada:** 90 minutos

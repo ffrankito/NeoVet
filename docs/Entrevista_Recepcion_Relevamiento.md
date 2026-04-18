@@ -7,7 +7,7 @@
 **Confidencialidad:** Full share con Paula. Hay que avisárselo a Gabriela en los primeros 2 minutos.
 **Fecha:** Pendiente — coordinar con Paula.
 
-**Contexto:** UAT no iniciado. Entrevistas con Valdemar y Fernanda (vets) dejaron gaps que involucran a recepción: papelitos para cobros, presupuestos verbales, coordinación verbal constante, estudios por email sin trazabilidad. Esta sesión cierra ese eje. Gabriela **no** vio NeoVet aún — no mostrar nada hoy.
+**Contexto:** UAT postpuesto; el proyecto está en fase de desarrollo cerrando gaps. Las entrevistas con Valdemar y Fernanda (vets) dejaron gaps que involucran a recepción: papelitos para cobros, presupuestos verbales, coordinación verbal constante, estudios por email sin trazabilidad. Esta sesión cierra ese eje. Gabriela **no** vio NeoVet aún — no mostrar nada hoy.
 
 ---
 
@@ -218,7 +218,7 @@ Si aparece cualquiera de estas frases, profundizar **en el momento**:
 
 ## Lo que NO busca esta sesión (por si alguien pregunta)
 
-- No es testeo del CRM. No hay UAT.
+- No es testeo del CRM. El UAT está postpuesto.
 - No es capacitación ni demo. NeoVet no se muestra.
 - No es evaluación de performance de Gabriela. Es mapeo de proceso.
 - No es reemplazo de una charla directa entre Paula y Gabriela sobre expectativas.

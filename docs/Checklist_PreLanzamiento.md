@@ -1,11 +1,11 @@
 # Checklist Pre-Lanzamiento — NeoVet v1
 
 **Fecha de demo:** miércoles 9 de abril 2026 ✅ realizada
-**Semana de UAT:** Pendiente — NO iniciado (ver nota abajo)
-**Fecha de entrega formal:** Pendiente — TBD tras re-scope
+**Semana de UAT:** Postpuesta — proyecto en fase de desarrollo (ver nota abajo)
+**Fecha de entrega formal:** Pendiente — TBD tras cerrar gaps de desarrollo
 **Responsables:** Tomás Pinolini / Franco Zancocchia
 
-> **⚠️ Estado (2026-04-17):** El UAT previsto para 13–17 de abril no se ejecutó. Relevamiento con Paula, Valdemar y Fernanda identificó gaps (internaciones con fluidoterapia, procedimientos con ASA/roles, cargos auto, agendas compartidas, acceso a costos para vets, reemplazo de "Neocitas"). Pendiente: entrevista con recepción/administración, decisión de scope v1 vs v2, y nuevas fechas.
+> **⚠️ Estado (2026-04-18):** UAT postpuesto. El relevamiento con Paula, Valdemar y Fernanda identificó gaps (internaciones con fluidoterapia, procedimientos con ASA/roles, cargos auto, agendas compartidas, acceso a costos para vets, reemplazo de "Neocitas"). El proyecto volvió a fase de desarrollo activa para cerrarlos. Pendiente: entrevista con recepción/administración, re-scope v1 vs v2, y reprogramación de UAT una vez cerrados los gaps.
 
 ---
 
@@ -71,7 +71,7 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 
 ## Antes del lunes 20 (entrega formal)
 
-### Verificación post-UAT
+### Verificación post-UAT *(pendiente — UAT postpuesto)*
 
 - [ ] **Todos los bugs reportados por Paula resueltos**
 - [ ] **Crons de Vercel verificados**: Vercel → Logs → Crons → verificar que corren a las 12:00 UTC diariamente
@@ -103,7 +103,7 @@ BOT_API_KEY=605868ec4b078514cd3bea471f76c6d58497ed5f776863d629ed80743aa9df3f
 ### Entrega
 
 - [ ] **Imprimir o enviar las guías de usuario** (Admin, Vet, Esteticista)
-- [ ] **Llevar la guía de testeo resuelta** con los resultados del UAT
+- [ ] **Llevar la guía de testeo resuelta** con los resultados del UAT *(cuando el UAT se reprograme)*
 - [ ] **Firmar simbólicamente el handoff** — ambas partes
 
 ---

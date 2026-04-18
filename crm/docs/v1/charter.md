@@ -8,7 +8,7 @@
 | **Internal owner** | Tomás Pinolini |
 | **Tech lead** | Franco Zancocchia |
 | **Start date** | 2026-03-01 |
-| **Target delivery (v1)** | Pendiente — UAT no iniciado, re-planificación en curso |
+| **Target delivery (v1)** | Pendiente — proyecto en fase de desarrollo, UAT postpuesto |
 | **Charter version** | 1.4 |
 | **Last updated** | 2026-04-17 |
 
@@ -117,7 +117,7 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | Build — Phase D | Billing + ARCA integration | 🔲 Deferred to post-launch — blocked on ARCA credentials |
 | QA | Internal testing with real clinic data | ✅ Done (core features) |
 | Demo | Presentation to Paula with v2 preview | ✅ Done (2026-04-09) |
-| UAT | Paula and team acceptance testing | 🔲 No iniciado — relevamiento post-demo con vets identificó gaps que bloquean el reemplazo de Geovet |
+| UAT | Paula and team acceptance testing | 🔲 Postpuesto — relevamiento post-demo identificó gaps; el proyecto volvió a fase de desarrollo para cerrarlos antes de reprogramar |
 | Delivery | Formal handoff to Paula | 🔲 Pendiente — TBD tras re-scope |
 | Warranty | 60-day bug-fix guarantee | 🔲 Pendiente — 60 días desde entrega |
 

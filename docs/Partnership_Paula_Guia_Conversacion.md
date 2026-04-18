@@ -1,6 +1,6 @@
 # Guía de Conversación — Propuesta de Partnership con Paula
 
-> **Estado:** Separado de la reunión de demo v1 (2026-04-09). Evaluar si incluir en una reunión futura. **Actualización 2026-04-17:** UAT no ejecutado. Diferir esta conversación hasta después de cerrar los gaps funcionales con el equipo y tener fechas nuevas de entrega.
+> **Estado:** Separado de la reunión de demo v1 (2026-04-09). Evaluar si incluir en una reunión futura. **Actualización 2026-04-18:** UAT postpuesto; el proyecto volvió a fase de desarrollo para cerrar los gaps relevados. Diferir esta conversación hasta tener fechas nuevas de entrega.
 > **Documento de referencia:** `NeoVet_Propuesta_Partner_Paula.md` (raíz del repo)
 
 ---

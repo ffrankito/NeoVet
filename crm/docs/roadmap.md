@@ -55,7 +55,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 > **Exit criteria:** Los clientes interactúan con el chatbot; el staff maneja menos tareas manuales.
 > **Empieza:** Solo después de que v1 esté estable y Paula use NeoVet como herramienta primaria.
 
-**Plan detallado:** `crm/docs/v2/development-plan.md` *(a crear cuando v1 esté en UAT)*
+**Plan detallado:** `crm/docs/v2/development-plan.md` *(a crear cuando v1 haya cerrado los gaps de desarrollo y esté listo para UAT)*
 
 | Feature | Área |
 |---|---|
@@ -97,7 +97,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 > **Exit criteria:** Decisiones basadas en datos; carga administrativa manual casi nula.
 > **Empieza:** Solo después de que v2 esté estable. Requiere datos de uso validados de v1/v2.
 
-**Plan detallado:** `crm/docs/v3/development-plan.md` *(a crear cuando v2 esté en UAT)*
+**Plan detallado:** `crm/docs/v3/development-plan.md` *(a crear cuando v2 esté listo para UAT)*
 
 | Feature | Área |
 |---|---|
