@@ -48,6 +48,11 @@ yarn-error.log*
 # Import data (sensitive client data from Geovet)
 crm/scripts/data/
 
+# Interview and meeting transcripts — sensitive clinic staff content.
+# These live in Tomás's private Obsidian vault at ~/ObsidianVaults/neovet/raw/
+# (meetings/ + interviews/). Do not re-track here.
+docs/raw_meetings/
+
 # vercel
 .vercel
 
