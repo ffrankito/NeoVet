@@ -187,6 +187,7 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 | PDF | @react-pdf/renderer | `crm/` |
 | Storage | Supabase Storage | `crm/` (grooming photos, consent PDFs) |
 | AI | Anthropic Claude Sonnet 4.6 via AI SDK | `chatbot/` |
+| Error tracking | Sentry (`@sentry/nextjs`) | `crm/` (chatbot + landing pending Phase T1b/T1c) |
 | Deployment | Vercel | All apps |
 
 ---

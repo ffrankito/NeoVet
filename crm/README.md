@@ -14,6 +14,7 @@ Internal staff tool for the NeoVet veterinary clinic. Manages clients (pet owner
 - Drizzle ORM + Supabase (PostgreSQL)
 - Supabase Auth (email login) + Supabase Storage (photos, documents)
 - Resend + Vercel Cron (email notifications)
+- Sentry (error tracking, server + edge + browser; session replay disabled for PHI)
 - Deployed to Vercel
 
 ---
@@ -50,6 +51,11 @@ Fill in `.env.local`:
 | `BOT_API_KEY` | Any random string (protects bot API endpoints) | Yes |
 | `EMAIL_FROM` | Verified sender in Resend | No (defaults to `onboarding@resend.dev`) |
 | `CLINIC_ADDRESS` | Clinic address for email templates | No (defaults to `Morrow 4064, Rosario`) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry → project → Settings → Client Keys (DSN) | Yes |
+| `SENTRY_DSN` | Same value as `NEXT_PUBLIC_SENTRY_DSN` (server/edge read this one) | Yes |
+| `SENTRY_AUTH_TOKEN` | [sentry.io/settings/auth-tokens](https://sentry.io/settings/auth-tokens/) — scopes `project:releases`, `org:read`. Build-time only (source-map upload). | Yes (for production builds) |
+| `SENTRY_ORG` | Sentry org slug | Yes |
+| `SENTRY_PROJECT` | Sentry project slug | Yes |
 
 > `drizzle-kit` requires `DATABASE_URL` in **Session mode** (port 5432) for migrations. See `docs/v1/handoff.md` for the full setup guide.
 

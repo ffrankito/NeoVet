@@ -22,6 +22,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 | Email | Resend + Vercel Cron | 6.10.0 |
 | Validation | Zod | 4.3.6 |
 | Hosting | Vercel | — |
+| Error tracking | Sentry (`@sentry/nextjs`) | 11.x |
 
 ---
 
@@ -78,9 +79,17 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - `src/lib/auth.ts` — `getRole()`, `hasRole()`, `isAdminLevel()`, `getSessionStaffId()`
 
 ### Email
-- `src/lib/email/resend.ts` — Resend client init
+- `src/lib/email/resend.ts` — Resend client via `getResend()` lazy getter (constructed on first call; throws if `RESEND_API_KEY` is absent). Never import a pre-built `resend` singleton — always call `getResend()` at the send site.
 - `src/lib/email/send-email.ts` — shared `sendAndLogEmail()` helper with idempotency
 - `src/lib/email/templates/` — 5 JSX templates (appointment-reminder, booking-confirmation, cancellation-notification, follow-up, vaccine-reminder)
+
+### Observability (Sentry)
+- `src/instrumentation.ts` — Next.js runtime hook; loads the right Sentry config per `NEXT_RUNTIME`. Also exports `onRequestError` for unhandled server errors.
+- `src/instrumentation-client.ts` — browser SDK init. Session replay **off** (CRM handles PHI). `sendDefaultPii: false`.
+- `src/sentry.server.config.ts` — Node runtime. `sendDefaultPii: false`, `includeLocalVariables: false`, `beforeSend` drops `NEXT_REDIRECT` / `NEXT_NOT_FOUND` control-flow noise.
+- `src/sentry.edge.config.ts` — edge runtime (proxy.ts, edge route handlers).
+- `src/app/global-error.tsx` — React render-crash boundary (mandatory `"use client"`).
+- `next.config.ts` wraps in `withSentryConfig` with `tunnelRoute: "/monitoring"`; `src/proxy.ts` matcher excludes `monitoring` so tunneled events skip auth.
 
 ### Utilities
 - `src/lib/ids.ts` — prefixed ID generators (`apt_`, `cli_`, `pat_`, `con_`, `gss_`, `csh_`, `cmv_`, `log_`, `hos_`, `hob_`, `prc_`, `psu_`, `ctm_`, `cdc_`, `chg_`, etc.)
@@ -112,6 +121,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **ID generation**: always use prefixed IDs from `src/lib/ids.ts` (e.g., `appointmentId()` → `apt_abc123`)
 - **Timezone**: always use helpers from `src/lib/timezone.ts` for Argentina time — never use raw `new Date()` for display
 - **Email sending**: use `sendAndLogEmail()` from `src/lib/email/send-email.ts` — it handles Resend + dedup via `email_logs`
+- **External SDK clients**: lazy-init any SDK that validates credentials in its constructor (Resend, Stripe, etc.) behind a `getXxx()` getter. Never export a pre-built singleton at module load — a missing env var will crash any route that transitively imports the module, even routes that never use the SDK. See `src/lib/email/resend.ts` for the pattern.
 
 ---
 
