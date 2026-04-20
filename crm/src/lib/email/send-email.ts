@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { emailLogs } from "@/db/schema";
 import { emailLogId } from "@/lib/ids";
-import { resend, EMAIL_FROM } from "./resend";
+import { getResend, EMAIL_FROM } from "./resend";
 import { and, eq } from "drizzle-orm";
 
 interface SendEmailOptions {
@@ -37,7 +37,7 @@ export async function sendAndLogEmail({
   if (existing) return false;
 
   try {
-    await resend.emails.send({ from: EMAIL_FROM, to, subject, html });
+    await getResend().emails.send({ from: EMAIL_FROM, to, subject, html });
     await db.insert(emailLogs).values({
       id: emailLogId(),
       type: logType,

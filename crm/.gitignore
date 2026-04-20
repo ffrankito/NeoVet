@@ -25,3 +25,7 @@ npm-debug.log*
 scripts/gvet-data/
 scripts/gvet-pages/
 scripts/.gvet-session.json
+.vercel
+
+# Sentry
+.env.sentry-build-plugin
