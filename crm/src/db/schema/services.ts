@@ -17,6 +17,7 @@ export const serviceCategoryEnum = pgEnum("service_category", [
   "vacunacion",
   "petshop",
   "otro",
+  "endocrinologia",
 ]);
 
 export const services = pgTable("services", {

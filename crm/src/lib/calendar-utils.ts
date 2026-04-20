@@ -120,6 +120,7 @@ export const SERVICE_COLORS: Record<string, ColorSet> = {
   domicilio:    { bg: "bg-orange-100", border: "border-orange-400", text: "text-orange-800" },
   reproduccion: { bg: "bg-purple-100", border: "border-purple-400", text: "text-purple-800" },
   cardiologia:  { bg: "bg-violet-100", border: "border-violet-400", text: "text-violet-800" },
+  endocrinologia:{ bg: "bg-teal-100",  border: "border-teal-400",   text: "text-teal-800"   },
   petshop:      { bg: "bg-gray-100",   border: "border-gray-400",   text: "text-gray-800"   },
   otro:         { bg: "bg-gray-100",   border: "border-gray-400",   text: "text-gray-800"   },
 };
