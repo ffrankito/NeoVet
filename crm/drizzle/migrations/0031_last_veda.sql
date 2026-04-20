@@ -1,0 +1,1 @@
+ALTER TYPE "public"."service_category" ADD VALUE 'endocrinologia';

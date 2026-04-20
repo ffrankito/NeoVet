@@ -33,6 +33,13 @@ const SERVICES = [
     basePrice: null,
   },
   {
+    name: "Endocrinologia",
+    category: "endocrinologia" as const,
+    defaultDurationMinutes: 45,
+    blockDurationMinutes: null,
+    basePrice: null,
+  },
+  {
     name: "Reproduccion",
     category: "reproduccion" as const,
     defaultDurationMinutes: 30,
