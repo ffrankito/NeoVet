@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { followUps, patients, clients, emailLogs } from "@/db/schema";
 import { and, eq, isNull, lte } from "drizzle-orm";
-import { resend, EMAIL_FROM } from "@/lib/email/resend";
+import { getResend, EMAIL_FROM } from "@/lib/email/resend";
 import { FollowUpEmail } from "@/lib/email/templates/follow-up";
 import { render } from "@react-email/render";
 
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
         })
       );
 
-      await resend.emails.send({
+      await getResend().emails.send({
         from: EMAIL_FROM,
         to: fu.clientEmail,
         subject: `Control programado para su mascota — NeoVet`,
