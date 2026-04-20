@@ -129,7 +129,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
 
-**Current state:** 23 migrations (0000–0022), 35 tables.
+**Current state:** 30 migrations (latest: `0031_last_veda` — endocrinología service category), 35 tables.
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`

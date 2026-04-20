@@ -18,11 +18,18 @@
 
 ### Seguridad
 - [x] Todas las credenciales de Supabase configuradas en Vercel
+- [x] `CRON_SECRET` y `BOT_API_KEY` rotados 2026-04-20 (valores históricos del checklist archivados fuera del repo)
 - [ ] Sin secretos commiteados al repositorio (`git grep -r "service_role"`)
 - [x] `.env.example` actualizado con todas las variables requeridas
 - [x] HTTPS activo (Vercel por defecto)
 - [ ] Rutas protegidas por autenticación verificadas en producción
 - [ ] `npm audit` ejecutado — sin vulnerabilidades altas o críticas
+
+### Observabilidad
+- [x] Sentry integrado en el CRM (`@sentry/nextjs`) — Phase T1a, 2026-04-20. Proyecto `ravena/neovet-crm`. Event flow verificado vía issue `NEOVET-CRM-2`.
+- [ ] Sentry en el chatbot (Phase T1b — pendiente)
+- [ ] Sentry en el landing Astro (Phase T1c — pendiente)
+- [ ] Langfuse en el chatbot para traces de Claude (Phase T2 — pendiente)
 
 ### Funcionalidad
 - [ ] Todos los entregables del charter probados en producción (D1–D14)
@@ -47,7 +54,7 @@
 - [ ] UI verificada en mobile
 
 ### Datos
-- [x] Migraciones 0001–0023 aplicadas en Supabase producción
+- [x] Migraciones 0001–0031 aplicadas en Supabase producción
 - [x] Importación de GVet completada (2097 clientes, 2291 pacientes)
 - [x] Importación scrapeada de GVet: internaciones, procedimientos, deudores
 - [x] `bot_business_context` seeded (11 registros)

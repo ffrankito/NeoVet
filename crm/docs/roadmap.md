@@ -3,9 +3,11 @@
 | Field | Value |
 |---|---|
 | **Project** | NeoVet CRM |
-| **Última actualización** | 2026-04-05 |
+| **Última actualización** | 2026-04-20 |
 
 Este documento describe el plan de largo plazo del CRM en tres versiones. Cada versión tiene su propio plan detallado en `crm/docs/vN/development-plan.md`.
+
+> **Nota 2026-04-20:** El alcance de v1 fue re-escopado el 2026-04-19 tras entrevistas post-demo con el equipo de la clínica (ver `crm/docs/v1/charter.md` — actualización a v1.5 pendiente). Cambios principales: la facturación ARCA (antes Fase D en v1) se movió a v2; se agregaron 9 features nuevas a v1 (fluidoterapia + timeline de internaciones, agenda compartida entre vets, consent de sedación, retorno del consultorio, endocrinología, búsqueda por nombre de mascota, auto-charge desde tratamientos, acceso read-only a precios para vets, stopgap WhatsApp); y se agregó un workpackage de observabilidad (Sentry + Langfuse + PostHog) — Sentry en el CRM shippado 2026-04-20. El tablero de status actual vive fuera del repo.
 
 ---
 
@@ -31,7 +33,8 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Turnos | Creación, confirmación, cancelación, asignación de profesional; tipos veterinario / estética; modalidad (clínica / virtual / domicilio) |
 | Historia clínica | Consultas SOAP + signos vitales + plan de tratamiento (con dosis, frecuencia, duración) + vacunas + desparasitaciones + documentos (con categorías) + métodos complementarios |
 | Estética | Perfil de estética por paciente, registro de sesiones con fotos y hallazgos, tipos de servicio configurables con precio base por servicio y override manual |
-| Facturación | Registro de pagos, facturación electrónica ARCA (Factura A/B/C), dos entidades fiscales, control de límites por entidad |
+| Facturación | *Diferido a v2 tras el re-scope 2026-04-19 — el flujo manual actual (caja diaria → contadora mensual → ARCA) es funcional y no bloquea el reemplazo de Geovet.* |
+| Observabilidad | Sentry en CRM (errores server/edge/browser) — Phase T1a shippado 2026-04-20. Chatbot y landing pendientes (T1b/T1c). |
 | Catálogo de servicios | Tabla de servicios con duración predeterminada y bloqueo por cirugía |
 | Calendario semanal | Vista semanal con slots libres, bloqueos de cirugía y suspensión de agenda por profesional |
 | Recordatorios por email | Turno 48h/24h antes, vacunas 7 días antes, seguimiento post-consulta — vía Resend + Vercel Cron |
@@ -47,6 +50,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 - Recordatorios por WhatsApp (son v2 — en v1 se usan emails)
 - Reportes y analíticas
 - Integración Geovet (no existe API — solo exportación manual)
+- Facturación ARCA (movida a v2 el 2026-04-19 — el flujo manual actual no es el cuello de botella)
 
 ---
 
@@ -59,6 +63,9 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 
 | Feature | Área |
 |---|---|
+| **Facturación electrónica ARCA (Factura A/B/C)** — dos entidades fiscales, control de límites, integración con la contadora (migrado desde v1 el 2026-04-19) | Facturación |
+| Langfuse en el chatbot — traces de Claude, evals, versionado de prompts (Phase T2) | Observabilidad |
+| PostHog en landing + CRM — funnel de conversión, analíticas de uso (Phase T3) | Observabilidad |
 | API pública del CRM — endpoints para que el chatbot lea/escriba turnos | Integración |
 | Autogestión de turnos online vía chatbot | Scheduling |
 | WhatsApp bidireccional (provider TBD — evaluar Kapso, Twilio, Meta Cloud API) | Comunicación |

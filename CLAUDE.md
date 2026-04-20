@@ -83,7 +83,7 @@ Every feature must pass 3 questions before entering v1 scope:
 3. **Is it validated?** Do we *know* users need it, or are we assuming? If assuming → defer.
 
 **Version targets:**
-- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS: En fase de desarrollo. UAT postpuesto. Entrevistas con Paula y veterinarios (Valdemar, Fernanda) revelaron gaps que bloquean el reemplazo de Geovet (detalle de internaciones/fluidoterapia, registro de procedimientos con ASA y roles, auto-carga de cargos desde tratamientos, agendas compartidas entre vets, acceso a costos/presupuestos desde rol vet). Re-scope y continúa el desarrollo. Pendiente entrevista con recepción/administración.**
+- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS (2026-04-20): En fase de desarrollo. UAT postpuesto. Tras entrevistas post-demo con Paula, Valdemar, Fernanda, Rocío y Gabriela, el alcance se re-escopó el 2026-04-19: ARCA (Fase D) pasa a v2; se agregaron 9 features Paula-facing + 1 workpackage de observabilidad. Status de los 10 items al 2026-04-20: 4 shippados (agenda compartida Paula-Fernanda, sedación consent, Sentry en CRM, endocrinología); 3 parciales (fluidoterapia + timeline, búsqueda por nombre de mascota, auto-charge desde tratamientos); 2 pendientes (retorno del consultorio, acceso read-only a precios para vets); 1 bloqueado en reunión con Paula (stopgap WhatsApp).**
 - **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live. Automated reminders via WhatsApp.
 - **v3** — AI, reporting, advanced automation.
 

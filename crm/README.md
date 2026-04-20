@@ -120,7 +120,7 @@ src/
 │   ├── render-consent.ts     # PDF rendering entry point
 │   └── templates/            # 3 consent PDF templates (surgery, euthanasia, reproductive)
 drizzle/
-└── migrations/               # 22 SQL migration files (0000–0021)
+└── migrations/               # 30 SQL migration files (latest: 0031_last_veda — endocrinologia service type)
 scripts/
 ├── import-gvet.ts            # Client/patient import from GVet CSV
 ├── import-visitas.ts         # Consultation import from GVet CSV
