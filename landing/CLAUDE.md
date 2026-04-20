@@ -18,6 +18,7 @@ Single-page marketing site for the NeoVet clinic. Conversion-focused landing wit
 | Styling | Tailwind CSS 4 (`@theme` design tokens in `global.css`) |
 | Font | DM Sans (Google Fonts, loaded via preconnect) |
 | Icons/OG | web-asset-generator skill (`~/.claude/skills/web-asset-generator/`) |
+| Error tracking | Sentry (`@sentry/astro`) — project `ravena/neovet-landing` |
 | Hosting | Vercel (static output) |
 
 **CRITICAL: This is NOT a Next.js app.** Do not generate:
@@ -107,8 +108,21 @@ When Phase 4 starts:
 CSP currently allows:
 - Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`)
 - Google Maps iframes (`google.com/maps`, `maps.googleapis.com`)
+- Chatbot iframe (`neo-vet-widget.vercel.app`)
+- Sentry ingest for error reporting (`o4510911785467904.ingest.us.sentry.io` — specific to the `ravena` org, not a wildcard)
 
 When adding third-party scripts (analytics, maps, fonts), update the `Content-Security-Policy` in `vercel.json` to explicitly allow those domains. Do not use `unsafe-eval` or wildcard (`*`) in the CSP.
+
+---
+
+## Observability (Sentry) — Phase T1c
+
+Installed 2026-04-20 via `@sentry/astro` integration in `astro.config.mjs`. Browser-side only (the landing is static SSG; no server-side Sentry init runs at request time). Session replay **disabled** — the landing doesn't handle PHI but keeping the discipline consistent across the three apps.
+
+- Env vars use Astro's `PUBLIC_` prefix for browser-exposed values (`PUBLIC_SENTRY_DSN`), and plain process env for build-time (`SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`).
+- Source maps upload at build time via the integration's `sourceMapsUploadOptions`.
+- CSP `connect-src` must include the org's ingest endpoint (narrow, not wildcard) — see Security section.
+- No tunnel route — Astro's static output doesn't have a server to proxy through. The browser talks to Sentry directly, which is why the CSP change matters.
 
 ---
 

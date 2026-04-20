@@ -16,6 +16,10 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+!.env.example
+
+# Sentry (auth token lives here during local builds)
+.env.sentry-build-plugin
 
 # macOS-specific files
 .DS_Store
