@@ -12,63 +12,101 @@ interface Props {
 const { href, cta, icon, title, description, badge, featured = false } = Astro.props;
 ---
 
-<div class:list={[
-  "group rounded-2xl p-4 sm:p-6 transition-all hover:shadow-lg",
-  featured
-    ? "border-2 border-primary-200 bg-primary-50/50 hover:border-primary-400"
-    : "border border-neutral-200 bg-neutral-50 hover:border-primary-300"
-]}>
-  {badge && (
-    <span class="inline-block rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-700">
-      {badge}
-    </span>
-  )}
+<a 
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="service-card-wrapper group block"
+>
+  <div class="service-card">
+    <div class="service-card-inner">
+      
+      {badge && (
+        <span class="inline-block rounded-full bg-blue-500/20 px-2.5 py-0.5 text-xs font-semibold text-blue-300 mb-3">
+          {badge}
+        </span>
+      )}
 
-  <!-- Icon: slot or emoji fallback -->
-  <div class:list={[featured ? "mt-3" : "mt-0 sm:mb-4"]}>
-    <slot name="icon">
-      {icon && <span class="text-4xl">{icon}</span>}
-    </slot>
+      <!-- Icon -->
+      <div class="mb-4">
+        <slot name="icon">
+          {icon && <span class="text-5xl">{icon}</span>}
+        </slot>
+      </div>
+
+      <!-- Title -->
+      <h3 class="text-xl font-bold text-white mb-2">
+        {title}
+      </h3>
+
+      <!-- Description -->
+      <p class="text-sm text-white/70 leading-relaxed mb-4">
+        {description}
+      </p>
+
+      <!-- CTA -->
+      <div class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-blue-200 transition-colors">
+        {cta}
+        <svg
+          class="h-4 w-4 transition-transform group-hover:translate-x-1"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+          />
+        </svg>
+      </div>
+
+    </div>
   </div>
+</a>
 
-  <h3 class:list={[
-    "font-semibold text-neutral-900",
-    featured ? "mt-3 text-lg" : "mt-2 text-sm sm:text-lg"
-  ]}>
-    {title}
-  </h3>
+<style>
+  .service-card-wrapper {
+    width: 100%;
+    max-width: 320px;
+  }
 
-  <p class:list={[
-    "leading-relaxed text-neutral-500",
-    featured ? "mt-2 text-sm" : "mt-1 hidden text-sm sm:mt-2 sm:block"
-  ]}>
-    {description}
-  </p>
+  .service-card {
+    width: 100%;
+    height: 340px;
+    background-image: linear-gradient(163deg, #e660a3 0%, #46f5ac 100%);
+    border-radius: 20px;
+    padding: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+  }
 
-  <a
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    class:list={[
-      "mt-3 inline-flex items-center gap-1 text-sm font-medium transition-colors",
-      featured
-        ? "text-primary-700 hover:text-primary-900"
-        : "text-primary-600 hover:text-primary-800"
-    ]}
-  >
-    {cta}
-    <svg
-      class="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke-width="2"
-      stroke="currentColor"
-    >
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-      />
-    </svg>
-  </a>
-</div>
+  .service-card:hover {
+    box-shadow: 
+      0 0 30px 1px rgba(236, 121, 211, 0.4),
+      0 0 60px 2px rgba(96, 165, 250, 0.2);
+    transform: translateY(-4px);
+  }
+
+  .service-card-inner {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f8f3f3 0%,  #f0bad5 100%);
+    border-radius: 18px;
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .service-card:hover .service-card-inner {
+    transform: scale(0.98);
+  }
+
+  @media (max-width: 640px) {
+    .service-card {
+      height: 300px;
+    }
+  }
+</style>

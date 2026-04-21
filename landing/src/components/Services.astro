@@ -173,3 +173,58 @@ const services = [
     </div>
   </div>
 </section>
+
+<style>
+  /* === ESPECIALIDADES === */
+  
+  /* Fade-in del contenedor */
+  #especialidades > div {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Cards de especialidades con entrada escalonada */
+  #especialidades .grid > * {
+    animation: slideInUp 0.6s ease-out both;
+  }
+
+  #especialidades .grid > *:nth-child(1) { animation-delay: 0.1s; }
+  #especialidades .grid > *:nth-child(2) { animation-delay: 0.2s; }
+  #especialidades .grid > *:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* === SERVICIOS GENERALES === */
+
+  /* Fade-in del contenedor */
+  #servicios > div {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  /* Grid de servicios con entrada escalonada */
+  #servicios .grid > * {
+    animation: slideInUp 0.6s ease-out both;
+  }
+
+  #servicios .grid > *:nth-child(1) { animation-delay: 0.1s; }
+  #servicios .grid > *:nth-child(2) { animation-delay: 0.15s; }
+  #servicios .grid > *:nth-child(3) { animation-delay: 0.2s; }
+  #servicios .grid > *:nth-child(4) { animation-delay: 0.25s; }
+  #servicios .grid > *:nth-child(5) { animation-delay: 0.3s; }
+  #servicios .grid > *:nth-child(6) { animation-delay: 0.35s; }
+  #servicios .grid > *:nth-child(7) { animation-delay: 0.4s; }
+  #servicios .grid > *:nth-child(8) { animation-delay: 0.45s; }
+</style>

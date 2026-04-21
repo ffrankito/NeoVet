@@ -72,3 +72,139 @@
     </div>
   </div>
 </section>
+<style>
+  /* Animación de entrada de la sección */
+  #ubicacion > div {
+    animation: fadeIn 0.8s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Cards de contacto con animación escalonada */
+  #ubicacion .space-y-6 > div {
+    animation: slideInLeft 0.6s ease-out both;
+  }
+
+  #ubicacion .space-y-6 > div:nth-child(1) { animation-delay: 0.1s; }
+  #ubicacion .space-y-6 > div:nth-child(2) { animation-delay: 0.2s; }
+  #ubicacion .space-y-6 > div:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Hover en los íconos */
+  #ubicacion .bg-primary-100 {
+    transition: all 0.3s ease;
+  }
+
+  #ubicacion .flex.items-start:hover .bg-primary-100 {
+    background: linear-gradient(135deg, #10b981, #059669);
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  #ubicacion .flex.items-start:hover .bg-primary-100 svg {
+    color: white;
+  }
+
+  /* Animación del ícono en hover */
+  #ubicacion .bg-primary-100 svg {
+    transition: all 0.3s ease;
+  }
+
+  #ubicacion .flex.items-start:hover .bg-primary-100 svg {
+    animation: iconBounce 0.6s ease;
+  }
+
+  @keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-5px); }
+    75% { transform: translateY(-3px); }
+  }
+
+  /* Links con underline animado */
+  #ubicacion a[href^="tel"],
+  #ubicacion a[href^="mailto"] {
+    position: relative;
+    display: inline-block;
+    transition: color 0.3s ease;
+  }
+
+  #ubicacion a[href^="tel"]::after,
+  #ubicacion a[href^="mailto"]::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s ease;
+  }
+
+  #ubicacion a[href^="tel"]:hover::after,
+  #ubicacion a[href^="mailto"]:hover::after {
+    width: 100%;
+  }
+
+  /* Mapa con animación de entrada */
+  #ubicacion iframe {
+    animation: slideInRight 0.8s ease-out 0.3s both;
+    transition: transform 0.3s ease;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Zoom suave en el mapa */
+  #ubicacion .aspect-\[4\/3\] {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #ubicacion .aspect-\[4\/3\]::before {
+    content: '📍';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    font-size: 2rem;
+    animation: pinBounce 2s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pinBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  #ubicacion .aspect-\[4\/3\]:hover iframe {
+    transform: scale(1.02);
+  }
+
+  /* Border con gradiente animado */
+  #ubicacion .aspect-\[4\/3\] {
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #10b981, #059669) border-box;
+    border-radius: 1rem;
+  }
+</style>

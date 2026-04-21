@@ -81,3 +81,161 @@ const schedule = [
     </div>
   </div>
 </section>
+<style>
+  /* Animación del contenedor */
+  #horarios .max-w-xl {
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Animación escalonada de las filas */
+  #horarios .divide-y > div {
+    animation: slideIn 0.5s ease-out both;
+  }
+
+  #horarios .divide-y > div:nth-child(1) { animation-delay: 0.1s; }
+  #horarios .divide-y > div:nth-child(2) { animation-delay: 0.2s; }
+  #horarios .divide-y > div:nth-child(3) { animation-delay: 0.3s; }
+  #horarios .divide-y > div:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Hover en cada fila */
+  #horarios .divide-y > div {
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+
+  #horarios .divide-y > div:hover {
+    background: #f0fdf4 !important;
+    transform: translateX(8px);
+  }
+
+  /* Pulso en el indicador verde */
+  #horarios .bg-whatsapp {
+    position: relative;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    }
+  }
+
+  /* Animación especial para guardia obstétrica */
+  #horarios .bg-accent-500 {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    }
+  }
+
+  /* Badge de emergencia con animación */
+  #horarios .bg-accent-50 {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #horarios .bg-accent-50::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(245, 158, 11, 0.1), transparent);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* Link de WhatsApp con flecha animada */
+  #horarios .mt-8 a {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  #horarios .mt-8 a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s ease;
+  }
+
+  #horarios .mt-8 a:hover::after {
+    width: 100%;
+  }
+
+  #horarios .mt-8 a svg {
+    transition: transform 0.3s ease;
+  }
+
+  #horarios .mt-8 a:hover svg {
+    transform: translateX(5px);
+  }
+
+  /* Efecto de brillo en el contenedor */
+  #horarios .rounded-2xl {
+    position: relative;
+    overflow: hidden;
+  }
+
+  #horarios .rounded-2xl::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(16, 185, 129, 0.05),
+      transparent
+    );
+    transform: rotate(45deg);
+    animation: shine 4s ease-in-out infinite;
+  }
+
+  @keyframes shine {
+    0% { left: -50%; }
+    50% { left: 150%; }
+    100% { left: 150%; }
+  }
+</style>

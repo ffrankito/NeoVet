@@ -7,56 +7,320 @@ const whatsappUrl = "https://api.whatsapp.com/send/?phone=543413101194&text&type
 
 <section id="inicio" class="relative flex min-h-screen items-end overflow-hidden">
 
-  <!-- Background image -->
-  <Image
-    src={heroBg}
-    alt=""
-    class="absolute inset-0 h-full w-full object-cover"
-    width={1920}
-    height={1080}
-    loading="eager"
-  />
+  <!-- Background image with parallax -->
+  <div class="absolute inset-0 overflow-hidden">
+    <Image
+      src={heroBg}
+      alt=""
+      class="hero-bg absolute inset-0 h-full w-full object-cover scale-110"
+      width={1920}
+      height={1080}
+      loading="eager"
+    />
+  </div>
 
-  <!-- Dark overlay -->
-  <div
-    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30"
-    aria-hidden="true"
-  ></div>
+  <!-- Animated gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/40 animate-pulse-slow" aria-hidden="true"></div>
+  
+  <!-- Decorative elements -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+  </div>
 
-  <!-- Content — pinned to bottom-left -->
-  <div class="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-32 sm:px-10 lg:px-8">
-    <p class="text-sm font-semibold uppercase tracking-widest text-primary-300">
-      Centro Veterinario en Rosario
-    </p>
+  <!-- Animated grid overlay -->
+  <div class="absolute inset-0 opacity-10">
+    <div class="animated-grid h-full w-full"></div>
+  </div>
 
-    <h1 class="mt-4 max-w-3xl text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-      <!-- PLACEHOLDER: confirm final headline with Paula -->
-      Cuidamos a tu mascota como parte de nuestra familia
+  <!-- Content -->
+  <div class="relative z-10 mx-auto w-full max-w-7xl px-6 pb-24 pt-32 sm:px-10 lg:px-8">
+    
+    <!-- Badge tag -->
+    <div class="hero-badge inline-flex items-center gap-2 mb-6">
+      <div class="pulse-dot"></div>
+      <span class="text-sm font-bold uppercase tracking-wider">Centro Veterinario en Rosario</span>
+    </div>
+
+    <!-- Main title -->
+    <h1 class="hero-title max-w-4xl">
+      <span class="block text-white/90 text-2xl sm:text-3xl font-semibold mb-3">
+        Cuidamos a tu mascota
+      </span>
+      <span class="block text-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black leading-none">
+        Como parte de nuestra familia
+      </span>
     </h1>
 
-    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
-      <!-- PLACEHOLDER: confirm final subheadline with Paula -->
-      Especialistas en reproducción canina, cirugía, cardiología y más. Atención profesional con calidez humana.
+    <!-- Subtitle -->
+    <p class="hero-subtitle mt-8 max-w-2xl text-xl sm:text-2xl leading-relaxed text-white/90 font-medium">
+      Especialistas en reproducción canina, cirugía, cardiología y más. 
+      <span class="text-primary-300">Atención profesional con calidez humana.</span>
     </p>
 
-    <div class="mt-10 flex flex-col gap-4 sm:flex-row">
+    <!-- CTA buttons -->
+    <div class="hero-cta mt-12 flex flex-col gap-4 sm:flex-row sm:items-center">
+      
+      <!-- WhatsApp button (primary) -->
       <a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        class="inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-7 py-3.5 text-base font-semibold text-white shadow-lg transition-all hover:bg-whatsapp-dark hover:shadow-xl"
+        class="btn-whatsapp group/wa"
       >
-        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-        </svg>
-        Contactanos
+        <span class="relative z-10 flex items-center justify-center gap-3">
+          <svg class="h-6 w-6 transition-transform duration-300 group-hover/wa:rotate-12 group-hover/wa:scale-110" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          <span class="font-bold text-lg">Contactanos por WhatsApp</span>
+        </span>
+        <div class="btn-ripple"></div>
       </a>
-      <a
-        href="#servicios"
-        class="inline-flex items-center justify-center rounded-full border-2 border-white/30 px-7 py-3.5 text-base font-semibold text-white transition-all hover:border-white/60 hover:bg-white/10"
-      >
-        Servicios
+
+      <!-- Services button (secondary) -->
+      <a href="#servicios" class="btn-secondary group/srv">
+        <span class="flex items-center justify-center gap-2">
+          <span class="font-bold text-lg">Ver servicios</span>
+          <svg class="h-5 w-5 transition-transform duration-300 group-hover/srv:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
       </a>
+
     </div>
+
+<!-- Trust indicators -->
+<div class="hero-stats mt-16 grid grid-cols-3 gap-6 max-w-2xl">
+  <div class="stat-card">
+    <div class="stat-icon">🏆</div>
+    <p class="stat-value text-white">+10</p>
+    <p class="stat-label text-white/80">Años de experiencia</p>
   </div>
+  <div class="stat-card">
+    <div class="stat-icon">❤️</div>
+    <p class="stat-value text-white">24/7</p>
+    <p class="stat-label text-white/80">Guardia obstétrica</p>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon">⭐</div>
+    <p class="stat-value text-white">100%</p>
+    <p class="stat-label text-white/80">Dedicación</p>
+  </div>
+</div>
+
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+    <a href="#servicios" class="scroll-indicator">
+      <svg class="h-6 w-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+      </svg>
+    </a>
+  </div>
+
 </section>
+
+<style>
+  /* Hero base */
+  #inicio {
+    animation: fadeIn 1.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Background parallax effect */
+  .hero-bg {
+    transition: transform 0.1s ease-out;
+    will-change: transform;
+  }
+
+  /* Animated grid */
+  .animated-grid {
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 30s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+
+  /* Floating orbs */
+  .floating-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.15;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  .orb-1 {
+    top: 20%;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
+
+  .orb-2 {
+    top: 60%;
+    right: 15%;
+    width: 250px;
+    height: 250px;
+    background: linear-gradient(135deg, #ec4899, #be185d);
+    animation-delay: 2s;
+  }
+
+  .orb-3 {
+    bottom: 10%;
+    left: 40%;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    animation-delay: 4s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -30px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+  }
+
+  /* Pulse slow for overlay */
+  .animate-pulse-slow {
+    animation: pulseSlow 8s ease-in-out infinite;
+  }
+
+  @keyframes pulseSlow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.92; }
+  }
+
+  /* Badge tag */
+  .hero-badge {
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    background: rgba(16, 185, 129, 0.15);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: rgb(167, 243, 208);
+    animation: slideDown 0.8s ease-out 0.2s both;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgb(16, 185, 129);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+
+  /* Title */
+  .hero-title {
+    animation: slideUp 1s ease-out 0.4s both;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #fff 0%, #10b981 50%, #ec4899 100%);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 6s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+  }
+
+  /* Subtitle */
+  .hero-subtitle {
+    animation: slideUp 1s ease-out 0.6s both;
+  }
+
+  /* CTA */
+  .hero-cta {
+    animation: slideUp 1s ease-out 0.8s both;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* WhatsApp button */
+  .btn-whatsapp {
+    position: relative;
+    overflow: hidden;
+    padding: 1.25rem 2.5rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: white;
+    font-weight: 700;
+    box-shadow: 
+      0 10px 30px rgba(37, 211, 102, 0.4),
+      0 0 60px rgba(37, 211, 102, 0.2);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-whatsapp:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 
+      0 20px 40px rgba(37, 211, 102, 0.5),
+      0 0 80px rgba(37, 211, 102, 0.3);
+  }
+
+  .btn-whatsapp:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+
+  .btn-ripple {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.6s, opacity 0.6s;
+  }
+
+  .btn-whatsapp:hover .btn-ripple {
+    transform: scale(2);
+    opacity: 1;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    padding: 1.25rem 2.5rem;
+    border-radius: 9999px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+    color: white;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+    background:
+
+    
