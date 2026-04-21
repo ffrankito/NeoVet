@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Separator } from "@/components/ui/separator";
 import { CancelAppointmentButton } from "@/components/admin/appointments/cancel-appointment-button";
 import { AssignStaffSelect } from "@/components/admin/appointments/assign-staff-select";
+import { SendToQueueForm } from "@/components/admin/appointments/send-to-queue-form";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -266,7 +267,17 @@ export default async function AppointmentDetailPage({ params }: Props) {
         </>
       )}
 
-      {/* Return to waiting room shortcut — for completed appointments */}
+      {/* Send to waiting-room queue — completed veterinary appointments, vet+ only */}
+      {apt.status === "completed" &&
+        apt.appointmentType === "veterinary" &&
+        (role === "admin" || role === "owner" || role === "vet") && (
+          <>
+            <Separator />
+            <SendToQueueForm appointmentId={id} />
+          </>
+        )}
+
+      {/* Walk-in shortcut — create a fresh appointment for the same patient */}
       {apt.status === "completed" && (
         <>
           <Separator />
@@ -274,7 +285,7 @@ export default async function AppointmentDetailPage({ params }: Props) {
             href={`/dashboard?walkInPatientId=${apt.patientId}`}
             className={buttonVariants({ variant: "outline" })}
           >
-            Volver a sala de espera
+            Registrar nueva visita (walk-in)
           </Link>
         </>
       )}
