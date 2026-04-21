@@ -9,6 +9,7 @@ import { TreatmentItemToggle } from "@/components/admin/consultations/treatment-
 import { ComplementaryMethodsSection } from "@/components/admin/consultations/complementary-methods-section";
 import { getFollowUpsByConsultation } from "../follow-up-actions";
 import { FollowUpSection } from "@/components/admin/consultations/follow-up-section";
+import { SendToQueueForm } from "@/components/admin/appointments/send-to-queue-form";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -177,6 +178,14 @@ const [consultation, items, methods, fuList] = await Promise.all([
           followUps={fuList}
         />
       </div>
+
+      {/* Send patient back to waiting-room queue for follow-up tasks */}
+      {consultation.appointment && (
+        <>
+          <Separator />
+          <SendToQueueForm appointmentId={consultation.appointment.id} />
+        </>
+      )}
 
       {/* Schedule follow-up appointment shortcut */}
       <Separator />

@@ -23,6 +23,7 @@ const ROLE_BLOCKS: Record<string, string[]> = {
     "/dashboard/deudores",
     "/dashboard/petshop",
     "/dashboard/cash",
+    "/dashboard/sala-de-espera",
   ],
 };
 

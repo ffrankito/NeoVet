@@ -211,6 +211,13 @@
       "when": 1776708615329,
       "tag": "0031_last_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1776787529694,
+      "tag": "0032_normal_sentry",
+      "breakpoints": true
     }
   ]
 }

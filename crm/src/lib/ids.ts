@@ -34,3 +34,4 @@ export const procedureSupplyId = () => createId("psu");
 export const consentTemplateId = () => createId("ctm");
 export const consentDocumentId = () => createId("cdc");
 export const chargeId = () => createId("chg");
+export const retornoQueueId = () => createId("rtq");

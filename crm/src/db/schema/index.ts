@@ -31,3 +31,4 @@ export * from "./procedure_supplies";
 export * from "./consent_templates";
 export * from "./consent_documents";
 export * from "./charges";
+export * from "./retorno_queue";

@@ -23,6 +23,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 | Validation | Zod | 4.3.6 |
 | Hosting | Vercel | — |
 | Error tracking | Sentry (`@sentry/nextjs`) | 11.x |
+| Testing | Vitest | 4.1.5 |
 
 ---
 
@@ -73,7 +74,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ### Schema
 - `src/db/schema/` — 34 tables. Index at `src/db/schema/index.ts`.
-- Key schemas: `appointments.ts`, `consultations.ts`, `staff.ts`, `cash_sessions.ts`, `grooming_sessions.ts`, `email_logs.ts`, `hospitalizations.ts`, `hospitalization_observations.ts`, `procedures.ts`, `procedure_supplies.ts`, `consent_templates.ts`, `consent_documents.ts`, `charges.ts`
+- Key schemas: `appointments.ts`, `consultations.ts`, `staff.ts`, `cash_sessions.ts`, `grooming_sessions.ts`, `email_logs.ts`, `hospitalizations.ts`, `hospitalization_observations.ts`, `procedures.ts`, `procedure_supplies.ts`, `consent_templates.ts`, `consent_documents.ts`, `charges.ts`, `retorno_queue.ts`
 
 ### Auth
 - `src/lib/supabase/middleware.ts` — auth middleware, reads role from JWT `app_metadata`, sets `x-user-role` header
@@ -103,7 +104,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - `src/lib/pdf/templates/` — 3 templates: `surgery-consent.tsx`, `euthanasia-consent.tsx`, `reproductive-agreement.tsx`
 
 ### Dashboard modules
-- `src/app/dashboard/` — 14 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, precios, procedures, settings
+- `src/app/dashboard/` — 15 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, precios, procedures, sala-de-espera, settings
 
 ### API routes
 - `src/app/api/cron/` — 3 cron jobs (appointment-reminders, follow-ups, vaccine-reminders)
