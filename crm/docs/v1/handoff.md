@@ -27,8 +27,8 @@
 
 ### Observabilidad
 - [x] Sentry integrado en el CRM (`@sentry/nextjs`) — Phase T1a, 2026-04-20. Proyecto `ravena/neovet-crm`. Event flow verificado vía issue `NEOVET-CRM-2`.
-- [ ] Sentry en el chatbot (Phase T1b — pendiente)
-- [ ] Sentry en el landing Astro (Phase T1c — pendiente)
+- [x] Sentry integrado en el chatbot (`@sentry/nextjs`) — Phase T1b, código merged 2026-04-20. Proyecto `ravena/neovet-chatbot`. Verificación runtime pendiente de env vars en el proyecto Vercel del chatbot.
+- [x] Sentry integrado en el landing Astro (`@sentry/astro`) — Phase T1c, código merged 2026-04-20. Proyecto `ravena/neovet-landing`. Verificación runtime pendiente de env vars en el proyecto Vercel del landing. CSP actualizada para permitir connect-src al ingest endpoint de Sentry.
 - [ ] Langfuse en el chatbot para traces de Claude (Phase T2 — pendiente)
 
 ### Funcionalidad
@@ -54,7 +54,7 @@
 - [ ] UI verificada en mobile
 
 ### Datos
-- [x] Migraciones 0001–0031 aplicadas en Supabase producción
+- [x] Migraciones 0001–0031 aplicadas en Supabase producción (última: endocrinología service category)
 - [x] Importación de GVet completada (2097 clientes, 2291 pacientes)
 - [x] Importación scrapeada de GVet: internaciones, procedimientos, deudores
 - [x] `bot_business_context` seeded (11 registros)

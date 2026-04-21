@@ -52,6 +52,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Procedures** — surgical/medical procedures with multiple surgeons + anesthesiologists (join table `procedure_staff`). Supply consumption from products (decrements stock). Follow-up reminders via `follow_ups` table (added `procedureId` FK). Linked optionally to hospitalization.
 - **Consent documents** — template-based PDF generation via `@react-pdf/renderer`. 3 templates: surgery authorization, euthanasia consent, reproductive agreement (GenetiCan 1). Auto-fills patient/client data. Stored in Supabase Storage (`consent-documents` bucket). Signed URL downloads (60s expiry).
 - **Charges & deudores** — every billable event creates a charge. Auto-charge hooks on: consultations (service basePrice), grooming sessions (finalPrice), pet shop sales (item totals). Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
+- **Precios (vet read-only)** — `/dashboard/precios` — two-table read-only reference of service basePrices and product sellPrices for admin / owner / vet (not groomer). Single text-search across both. Costs (`costPrice`) deliberately hidden. Built so vets can answer "¿esto cuánto sale?" mid-consult without interrupting reception.
 - **Bot API endpoints** — `/api/bot/*` (6 routes, API key auth) ready for v2 chatbot integration.
 
 ### What's NOT built (v1 remaining)
@@ -102,7 +103,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - `src/lib/pdf/templates/` — 3 templates: `surgery-consent.tsx`, `euthanasia-consent.tsx`, `reproductive-agreement.tsx`
 
 ### Dashboard modules
-- `src/app/dashboard/` — 13 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, procedures, settings
+- `src/app/dashboard/` — 14 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, precios, procedures, settings
 
 ### API routes
 - `src/app/api/cron/` — 3 cron jobs (appointment-reminders, follow-ups, vaccine-reminders)

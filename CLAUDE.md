@@ -83,7 +83,7 @@ Every feature must pass 3 questions before entering v1 scope:
 3. **Is it validated?** Do we *know* users need it, or are we assuming? If assuming → defer.
 
 **Version targets:**
-- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS (2026-04-20): En fase de desarrollo. UAT postpuesto. Tras entrevistas post-demo con Paula, Valdemar, Fernanda, Rocío y Gabriela, el alcance se re-escopó el 2026-04-19: ARCA (Fase D) pasa a v2; se agregaron 9 features Paula-facing + 1 workpackage de observabilidad. Status de los 10 items al 2026-04-20: 4 shippados (agenda compartida Paula-Fernanda, sedación consent, Sentry en CRM, endocrinología); 3 parciales (fluidoterapia + timeline, búsqueda por nombre de mascota, auto-charge desde tratamientos); 2 pendientes (retorno del consultorio, acceso read-only a precios para vets); 1 bloqueado en reunión con Paula (stopgap WhatsApp).**
+- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS (2026-04-20, end of day): En fase de desarrollo. UAT postpuesto. Tras entrevistas post-demo con Paula, Valdemar, Fernanda, Rocío y Gabriela, el alcance se re-escopó el 2026-04-19: ARCA (Fase D) pasa a v2; se agregaron 9 features Paula-facing + 1 workpackage de observabilidad. Status de los 10 items: 5 shippados (agenda compartida Paula-Fernanda, sedación consent, endocrinología, búsqueda por nombre de mascota, acceso read-only a precios para vets); 2 parciales (fluidoterapia + timeline, auto-charge desde tratamientos); 1 spec-drafted bloqueado en Paula (retorno del consultorio — 3 preguntas abiertas P1-P3); 1 bloqueado en reunión con Paula (stopgap WhatsApp); 1 observability multi-fase en curso (T1a CRM completo y verificado; T1b chatbot + T1c landing con código merged, verificación runtime pendiente de env vars en Vercel).**
 - **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live. Automated reminders via WhatsApp.
 - **v3** — AI, reporting, advanced automation.
 
@@ -187,7 +187,7 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 | PDF | @react-pdf/renderer | `crm/` |
 | Storage | Supabase Storage | `crm/` (grooming photos, consent PDFs) |
 | AI | Anthropic Claude Sonnet 4.6 via AI SDK | `chatbot/` |
-| Error tracking | Sentry (`@sentry/nextjs`) | `crm/` (chatbot + landing pending Phase T1b/T1c) |
+| Error tracking | Sentry | `crm/` + `chatbot/` — `@sentry/nextjs`; `landing/` — `@sentry/astro`. T1a CRM verified; T1b/T1c runtime verification pending Vercel env vars. |
 | Deployment | Vercel | All apps |
 
 ---

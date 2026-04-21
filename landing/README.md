@@ -11,6 +11,7 @@ Single-page marketing site for the NeoVet veterinary clinic. Sections: Hero, Ser
 | Framework | Astro 6 + TypeScript |
 | Styling | Tailwind CSS 4 (`@theme` design tokens) |
 | Font | DM Sans (Google Fonts) |
+| Error tracking | Sentry (`@sentry/astro`) — project `ravena/neovet-landing` |
 | Hosting | Vercel (static output) |
 | Assets | web-asset-generator (favicons, OG images) |
 

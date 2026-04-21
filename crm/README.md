@@ -92,6 +92,7 @@ src/
 │   │   ├── hospitalizations/ # Patient admissions, daily observations, discharge
 │   │   ├── patients/         # Patient CRUD + vaccinations + deworming + documents
 │   │   ├── petshop/          # Products, providers, stock entries, sales
+│   │   ├── precios/          # Vet read-only pricing reference (services + products)
 │   │   ├── procedures/       # Surgical/medical procedures + supply consumption
 │   │   └── settings/         # Estética prices, service catalog, staff management, clinic hours
 │   ├── api/
@@ -157,6 +158,7 @@ scripts/
 - **Consent documents** — PDF generation system with 3 templates (surgery authorization, euthanasia consent, reproductive agreement). Auto-fills patient/client data. Stored in Supabase Storage.
 - **Charges & deudores** — billable charges with partial payment support. Auto-charge hooks on estética sessions, pet shop sales, and consultations. Debtors page shows clients with unpaid balances, category breakdown, inline payment recording.
 - **Patient detail** — 8 tabs: Información, Historia clínica, Internaciones, Procedimientos, Vacunas, Desparasitaciones, Documentos, Estética.
+- **Precios (vet read-only)** — `/dashboard/precios` gives admin/owner/vet a search-friendly reference of active service basePrices and product sellPrices. Product `costPrice` is deliberately hidden. Built so a vet can answer "¿esto cuánto sale?" mid-consult without interrupting reception.
 
 No public API (except bot endpoints for v2). No chatbot integration. No WhatsApp (v2). See `docs/v1/charter.md` for full scope.
 

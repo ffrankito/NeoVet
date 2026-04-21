@@ -34,7 +34,7 @@ Antes de incluir cualquier feature en una versión, debe pasar estas tres pregun
 | Historia clínica | Consultas SOAP + signos vitales + plan de tratamiento (con dosis, frecuencia, duración) + vacunas + desparasitaciones + documentos (con categorías) + métodos complementarios |
 | Estética | Perfil de estética por paciente, registro de sesiones con fotos y hallazgos, tipos de servicio configurables con precio base por servicio y override manual |
 | Facturación | *Diferido a v2 tras el re-scope 2026-04-19 — el flujo manual actual (caja diaria → contadora mensual → ARCA) es funcional y no bloquea el reemplazo de Geovet.* |
-| Observabilidad | Sentry en CRM (errores server/edge/browser) — Phase T1a shippado 2026-04-20. Chatbot y landing pendientes (T1b/T1c). |
+| Observabilidad | Sentry en CRM + chatbot + landing — Phase T1a completo y verificado 2026-04-20; T1b (`@sentry/nextjs` en chatbot) y T1c (`@sentry/astro` en landing) con código merged 2026-04-20, verificación runtime pendiente de env vars en Vercel. |
 | Catálogo de servicios | Tabla de servicios con duración predeterminada y bloqueo por cirugía |
 | Calendario semanal | Vista semanal con slots libres, bloqueos de cirugía y suspensión de agenda por profesional |
 | Recordatorios por email | Turno 48h/24h antes, vacunas 7 días antes, seguimiento post-consulta — vía Resend + Vercel Cron |
