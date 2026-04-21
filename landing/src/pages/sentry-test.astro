@@ -1,0 +1,19 @@
+---
+// Sentry test page — Phase T1c verification. Delete this file after the
+// event appears in the ravena/neovet-landing Sentry dashboard.
+export const prerender = true;
+---
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sentry test — delete after T1c verification</title>
+  </head>
+  <body>
+    <p>Throwing a test error in the browser. Check ravena/neovet-landing in Sentry.</p>
+    <script>
+      setTimeout(() => {
+        throw new Error("Sentry test error — landing T1c verification, delete after");
+      }, 500);
+    </script>
+  </body>
+</html>

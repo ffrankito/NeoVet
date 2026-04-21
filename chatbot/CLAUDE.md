@@ -18,6 +18,7 @@ Conversational assistant for NeoVet clinic clients. v1 delivers via a web widget
 | Styling | Tailwind CSS |
 | AI | Vercel AI SDK + Claude claude-sonnet-4-6 |
 | Hosting | Vercel |
+| Error tracking | Sentry (`@sentry/nextjs`) — project `ravena/neovet-chatbot` |
 
 **Not in this app's stack in v1:**
 - No Drizzle ORM or database — the chatbot is stateless in v1
@@ -51,6 +52,21 @@ Conversational assistant for NeoVet clinic clients. v1 delivers via a web widget
 - Use Vercel AI SDK `streamText` for chat responses
 - Keep the system prompt grounded in real clinic data — do not hallucinate services, hours, or prices
 - No tools, function calling, or system integrations in v1
+
+---
+
+## Observability (Sentry) — Phase T1b
+
+Installed 2026-04-20 following the same privacy-first pattern as the CRM. Sentry org `ravena`, project `neovet-chatbot`. Tunnel route at `/monitoring` to survive ad-blockers on the embedded widget.
+
+- `src/instrumentation.ts` — Next.js boot hook; loads the right config per `NEXT_RUNTIME` and re-exports `onRequestError`.
+- `src/instrumentation-client.ts` — browser SDK. **No session replay** (widget messages may contain pet names / personal info), `sendDefaultPii: false`.
+- `src/sentry.server.config.ts` — Node runtime. `sendDefaultPii: false`, `includeLocalVariables: false`, `beforeSend` drops Next.js control-flow errors (`NEXT_REDIRECT` / `NEXT_NOT_FOUND`).
+- `src/sentry.edge.config.ts` — edge runtime.
+- `src/app/global-error.tsx` — React render-crash boundary.
+- `next.config.ts` wraps in `withSentryConfig`.
+
+When turning on v2 features (L3 symptom analysis, user data), reconsider the `sendDefaultPii` and session-replay flags — the risk calculus changes once the widget handles medical content.
 
 ---
 
