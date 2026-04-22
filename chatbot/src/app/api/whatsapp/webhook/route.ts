@@ -31,24 +31,28 @@ async function sendWhatsappReply(
   message: string,
   phoneNumberId: string
 ): Promise<void> {
-  const res = await fetch("https://api.kapso.app/v1/messages", {
+  const body = {
+    to,
+    phone_number_id: phoneNumberId,
+    type: "text",
+    text: { body: message },
+  };
+
+  console.log("[kapso] Intentando enviar a:", to, "phoneNumberId:", phoneNumberId);
+  console.log("[kapso] Body:", JSON.stringify(body));
+
+  const res = await fetch("https://api.kapso.ai/v1/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${process.env.KAPSO_API_KEY}`,
     },
-    body: JSON.stringify({
-      to,
-      phone_number_id: phoneNumberId,
-      type: "text",
-      text: { body: message },
-    }),
+    body: JSON.stringify(body),
   });
 
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("[kapso] Error enviando mensaje:", res.status, err);
-  }
+  const responseText = await res.text();
+  console.log("[kapso] Status:", res.status);
+  console.log("[kapso] Response:", responseText);
 }
 
 export async function GET() {
@@ -63,7 +67,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Solo procesamos mensajes de texto
   if (body.message.type !== "text" || !body.message.text?.body) {
     return NextResponse.json({ ok: true, skipped: "non-text message" });
   }
@@ -73,12 +76,14 @@ export async function POST(req: NextRequest) {
   const messageId = body.message.id;
   const phoneNumberId = body.phone_number_id;
 
+  console.log("[webhook] Mensaje recibido de:", phone, "texto:", userMessage);
+  console.log("[webhook] phoneNumberId:", phoneNumberId);
+
   if (!phone || !userMessage || !messageId) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   try {
-    // Detección L4 pre-AI
     if (isL4Emergency(userMessage)) {
       const session = await getOrCreateSession(phone);
       await saveMessage(session.conversationId, "user", userMessage);
@@ -88,31 +93,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ reply: L4_RESPONSE });
     }
 
-    // Obtener sesión y historial
     const session = await getOrCreateSession(phone);
-
-    // Guardar mensaje entrante
     await saveMessage(session.conversationId, "user", userMessage);
 
-    // Construir historial para el agente
     const messages = [
       ...session.messages,
       { role: "user" as const, content: userMessage },
     ];
 
-    // Correr el agente
     const reply = await runWhatsappAgent(messages, phone);
+    console.log("[webhook] Reply del agente:", reply.slice(0, 100));
 
-    // Guardar respuesta
     await saveMessage(session.conversationId, "assistant", reply);
-
-    // Mandar respuesta a WhatsApp via Kapso
     await sendWhatsappReply(body.message.from, reply, phoneNumberId);
 
     return NextResponse.json({ reply });
 
   } catch (error) {
-    console.error("[whatsapp/webhook] Error:", error);
+    console.error("[webhook] Error:", error);
 
     const fallback =
       "Disculpá, tuve un problema técnico. " +
