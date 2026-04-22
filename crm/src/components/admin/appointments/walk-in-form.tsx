@@ -90,7 +90,7 @@ export function WalkInForm({ clients, patients, services, defaultPatientId }: Wa
                 options={filteredPatients.map((p) => ({
                   value: p.id,
                   label: p.name,
-                  sublabel: p.species,
+                  sublabel: p.clientName,
                 }))}
                 value={selectedPatient}
                 onChange={setSelectedPatient}

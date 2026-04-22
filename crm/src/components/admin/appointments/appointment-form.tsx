@@ -368,7 +368,7 @@ export function AppointmentForm({
                     ...filteredPatients.map((p) => ({
                       value: p.id,
                       label: p.name,
-                      sublabel: p.species,
+                      sublabel: p.clientName,
                     })),
                   ]}
                   value={selectedPatient}
