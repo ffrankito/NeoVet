@@ -31,26 +31,26 @@ async function sendWhatsappReply(
   message: string,
   phoneNumberId: string
 ): Promise<{ status: number; body: string }> {
-  const payload = {
-    to,
-    phone_number_id: phoneNumberId,
-    type: "text",
-    text: { body: message },
-  };
-
-  const res = await fetch("https://api.kapso.ai/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.KAPSO_API_KEY}`,
-    },
-    body: JSON.stringify(payload),
-  });
+  const res = await fetch(
+    `https://api.kapso.ai/meta/whatsapp/${phoneNumberId}/messages`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.KAPSO_API_KEY}`,
+      },
+      body: JSON.stringify({
+        messaging_product: "whatsapp",
+        to: to.replace(/\D/g, ""),
+        type: "text",
+        text: { body: message },
+      }),
+    }
+  );
 
   const responseBody = await res.text();
   return { status: res.status, body: responseBody };
 }
-
 export async function GET() {
   return NextResponse.json({ ok: true, service: "NeoVet WhatsApp Bot" });
 }
