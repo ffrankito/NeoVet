@@ -32,12 +32,12 @@ async function sendWhatsappReply(
   phoneNumberId: string
 ): Promise<{ status: number; body: string }> {
   const res = await fetch(
-    `https://api.kapso.ai/meta/whatsapp/${phoneNumberId}/messages`,
+    `https://api.kapso.ai/meta/whatsapp/v24.0/${phoneNumberId}/messages`,
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.KAPSO_API_KEY}`,
+        "X-API-Key": process.env.KAPSO_API_KEY!,
       },
       body: JSON.stringify({
         messaging_product: "whatsapp",
