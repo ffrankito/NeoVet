@@ -3,11 +3,14 @@
 | Campo | Valor |
 |---|---|
 | **Proyecto** | NeoVet Landing Page |
-| **Última actualización** | 2026-04-05 |
+| **Última actualización** | 2026-04-21 (reconciliado post commit `49c161b`) |
 | **Roadmap del CRM** | `crm/docs/roadmap.md` |
 | **Roadmap del Chatbot** | `chatbot/docs/roadmap.md` |
 
 Este documento describe features potenciales para la landing page, sincronizadas con las versiones del CRM y chatbot. Muchos ítems están marcados como **TBD** (to be decided) — requieren validación con Paula antes de implementar.
+
+> [!info] Auditoría 2026-04-21
+> El 2026-04-21 se hizo un reality check contra código post commit `49c161b` (Franco). El commit shippeó contenido significativo pero no actualizó este roadmap. Esta revisión reconcilia el estado. Bugs encontrados y findings detallados en [[wiki/lint/2026-04-21-landing-audit]] (vault). Hygiene (`landing.zip`, desktop hero): [[wiki/lint/2026-04-21-landing-hygiene]].
 
 ---
 
@@ -29,29 +32,48 @@ Este documento describe features potenciales para la landing page, sincronizadas
 | Mobile responsive | ✅ |
 | Security headers (CSP, HSTS, etc.) | ✅ |
 | Redesign v2 (BakerStreet-inspired hero) | ✅ |
+| **Sección Horarios como componente dedicado** (2026-04-21) | ✅ |
+| **Sección Ubicación como componente dedicado con mapa embebido** (2026-04-21) | ✅ |
+| **Sección Reseñas con testimonios reales (3 cards)** (2026-04-21) | ✅ |
+| **Dirección final**: Morrow 4064 (entre Robles y Forner), Rosario, Santa Fe | ✅ |
+| **Teléfono + email consistentes**: (341) 310-1194 / veterinarianeo@gmail.com | ✅ |
+| **Lista de servicios finalizada en código** (pending Paula review) | 🟡 |
+| **Datos de horarios en código** (pending Paula confirmation — PLACEHOLDER aún presente) | 🟡 |
+| **Links a redes sociales parcial**: Instagram + TikTok ✅ | 🟡 |
+| **Fotos Paula + paciente en hero y about** | 🟡 (parciales — falta desktop hero) |
 
-### Pendiente — Content swap (bloqueado por entrevista con Paula)
+### Pendiente — Content swap (bloqueado por Paula)
 
 | Entregable | Estado | Notas |
 |---|---|---|
-| Logo real (SVG ideal) | 🔲 | Paula debe proveer |
-| Fotos de la clínica (exterior, interior, equipo, pacientes) | 🔲 | Paula debe proveer |
-| Bios de veterinarios + especialidades | 🔲 | Paula debe confirmar qué mostrar |
-| Dirección actualizada (¿se mudaron de Morrow 4100?) | 🔲 | Confirmar con Paula |
-| Teléfono/email/horarios confirmados | 🔲 | Confirmar con Paula |
-| Lista de servicios finalizada | 🔲 | Confirmar con Paula |
-| Testimonios reales | 🔲 | Paula provee o conecta Google Reviews |
-| Links a redes sociales | 🔲 | Paula debe proveer |
-| Favicons + OG images regenerados con logo real | 🔲 | Post-logo |
-| Dominio asignado | 🔲 | Paula debe decidir |
+| Logo real (SVG ideal) | 🔲 | Paula debe proveer. `public/neovet-logo.png` sigue siendo placeholder. |
+| Bios de veterinarios + especialidades | 🔲 | Solo Paula está en About. Confirmar si quiere sumar a Valdemar/Fernanda/Rocío o mantener personal brand. |
+| **Confirmación de horarios** | 🔲 | Datos ya están (L-S 9:30-12:30/16:30-20:00), falta sign-off de Paula + borrar PLACEHOLDER en `Hours.astro:23`. |
+| **Google Business Profile URL real** | 🔲 | Link en `Reviews.astro:66` es `maps.app.goo.gl/NeoVetRosario` — **URL inventada, va a 404**. |
+| **Facebook correcto** | 🔲 | Link actual apunta a `CriaderoTiaClarita/` — confirmar si es intencional. |
+| **X / Twitter** | 🔲 | `href="#"` en Footer. Paula provee URL o borramos el ícono. |
+| Favicons + OG images regenerados con logo real | 🔲 | Post-logo. Actualmente generados Mar 26–31 desde placeholder. |
+| Dominio asignado | 🔲 | Paula debe decidir. |
 
 ### Pendiente — Mejoras técnicas (no requieren a Paula)
 
 | Entregable | Estado | Notas |
 |---|---|---|
 | Conectar formulario de contacto a backend | 🔲 | Opciones: Formspree, Resend, o deep link a WhatsApp. **TBD** — confirmar con Paula qué prefiere. |
-| Google Reviews widget con datos reales | 🔲 | Reemplazar placeholder. Requiere URL de perfil de Google Business. |
-| QR de WhatsApp | 🔲 **TBD** | Código QR escaneable para agregar el número de la clínica. Simple pero confirmar si Paula lo quiere. |
+| QR de WhatsApp | 🔲 **TBD** | Código QR escaneable. Simple pero confirmar si Paula lo quiere. |
+
+### Bugs y hygiene encontrados en auditoría 2026-04-21
+
+Ver detalle en [[wiki/lint/2026-04-21-landing-audit]] (vault):
+
+- **P0 typo**: `Contactoa` en `ContactForm.astro:32` (visible a todo visitante).
+- **P0 fake URL**: Google Reviews link inventado.
+- **P0 URL sospechosa**: Facebook apunta a criadero, no clínica.
+- **P2 archivo huérfano**: `pau_vete_perri.jpeg` (227 KB) agregado en `49c161b` pero no importado por ningún componente.
+- **P3 design tokens**: `ServiceCard.astro` usa colores hardcoded (#e660a3/#46f5ac, text-blue-*) que rompen el sistema de tokens.
+- **P3 UX**: Navbar 2 links vs Footer 7 links — inconsistencia de navegación.
+
+Ver también [[wiki/lint/2026-04-21-landing-hygiene]] por `landing.zip` (~84 MiB en git root) y desktop hero.
 
 ---
 
