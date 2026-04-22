@@ -30,16 +30,13 @@ async function sendWhatsappReply(
   to: string,
   message: string,
   phoneNumberId: string
-): Promise<void> {
-  const body = {
+): Promise<{ status: number; body: string }> {
+  const payload = {
     to,
     phone_number_id: phoneNumberId,
     type: "text",
     text: { body: message },
   };
-
-  console.log("[kapso] Intentando enviar a:", to, "phoneNumberId:", phoneNumberId);
-  console.log("[kapso] Body:", JSON.stringify(body));
 
   const res = await fetch("https://api.kapso.ai/v1/messages", {
     method: "POST",
@@ -47,12 +44,11 @@ async function sendWhatsappReply(
       "Content-Type": "application/json",
       "Authorization": `Bearer ${process.env.KAPSO_API_KEY}`,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
 
-  const responseText = await res.text();
-  console.log("[kapso] Status:", res.status);
-  console.log("[kapso] Response:", responseText);
+  const responseBody = await res.text();
+  return { status: res.status, body: responseBody };
 }
 
 export async function GET() {
@@ -76,9 +72,6 @@ export async function POST(req: NextRequest) {
   const messageId = body.message.id;
   const phoneNumberId = body.phone_number_id;
 
-  console.log("[webhook] Mensaje recibido de:", phone, "texto:", userMessage);
-  console.log("[webhook] phoneNumberId:", phoneNumberId);
-
   if (!phone || !userMessage || !messageId) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
@@ -89,8 +82,8 @@ export async function POST(req: NextRequest) {
       await saveMessage(session.conversationId, "user", userMessage);
       await saveMessage(session.conversationId, "assistant", L4_RESPONSE);
       await escalateConversation(session.conversationId);
-      await sendWhatsappReply(body.message.from, L4_RESPONSE, phoneNumberId);
-      return NextResponse.json({ reply: L4_RESPONSE });
+      const r = await sendWhatsappReply(body.message.from, L4_RESPONSE, phoneNumberId);
+      return NextResponse.json({ reply: L4_RESPONSE, kapsoStatus: r.status, kapsoBody: r.body });
     }
 
     const session = await getOrCreateSession(phone);
@@ -102,12 +95,15 @@ export async function POST(req: NextRequest) {
     ];
 
     const reply = await runWhatsappAgent(messages, phone);
-    console.log("[webhook] Reply del agente:", reply.slice(0, 100));
-
     await saveMessage(session.conversationId, "assistant", reply);
-    await sendWhatsappReply(body.message.from, reply, phoneNumberId);
 
-    return NextResponse.json({ reply });
+    const kapsoResult = await sendWhatsappReply(body.message.from, reply, phoneNumberId);
+
+    return NextResponse.json({
+      reply,
+      kapsoStatus: kapsoResult.status,
+      kapsoBody: kapsoResult.body,
+    });
 
   } catch (error) {
     console.error("[webhook] Error:", error);
@@ -116,8 +112,8 @@ export async function POST(req: NextRequest) {
       "Disculpá, tuve un problema técnico. " +
       "Podés escribirnos directamente al *+54 9 341 310-1194* y te atendemos enseguida.";
 
-    await sendWhatsappReply(body.message.from, fallback, phoneNumberId).catch(() => {});
+    const r = await sendWhatsappReply(body.message.from, fallback, phoneNumberId).catch(() => ({ status: 0, body: "error" }));
 
-    return NextResponse.json({ reply: fallback }, { status: 200 });
+    return NextResponse.json({ reply: fallback, kapsoStatus: r.status, kapsoBody: r.body }, { status: 200 });
   }
 }
