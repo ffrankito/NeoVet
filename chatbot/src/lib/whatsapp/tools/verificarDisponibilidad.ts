@@ -16,24 +16,15 @@ export const verificarDisponibilidad = tool({
   execute: async ({ date, serviceId, days }) => {
     const params = new URLSearchParams({ date, days: String(days) });
     if (serviceId) params.set("serviceId", serviceId);
-
     const res = await fetch(
       `${CRM_URL}/api/bot/availability?${params.toString()}`,
-      { headers: { "x-bot-api-key": BOT_API_KEY } }
+      { headers: { "authorization": `Bearer ${BOT_API_KEY}` } }
     );
-
     if (!res.ok) throw new Error(`Error verificando disponibilidad: ${res.status}`);
-
     const availability: Record<string, string[]> = await res.json();
-
     if (Object.keys(availability).length === 0) {
-      return {
-        disponible: false,
-        mensaje: "No hay turnos disponibles en las fechas consultadas.",
-        slots: {},
-      };
+      return { disponible: false, mensaje: "No hay turnos disponibles.", slots: {} };
     }
-
     return { disponible: true, slots: availability };
   },
 });

@@ -12,13 +12,10 @@ export const obtenerServicios = tool({
   parameters: z.object({}),
   execute: async () => {
     const res = await fetch(`${CRM_URL}/api/bot/services`, {
-      headers: { "x-bot-api-key": BOT_API_KEY },
+      headers: { "authorization": `Bearer ${BOT_API_KEY}` },
     });
-
     if (!res.ok) throw new Error(`Error obteniendo servicios: ${res.status}`);
-
     const services = await res.json();
-
     return services.map((s: {
       id: string;
       name: string;

@@ -27,7 +27,7 @@ export const crearClienteYPaciente = tool({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-bot-api-key": BOT_API_KEY,
+        "authorization": `Bearer ${BOT_API_KEY}`,
       },
       body: JSON.stringify({
         name: ownerName,
@@ -43,12 +43,10 @@ export const crearClienteYPaciente = tool({
         },
       }),
     });
-
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
       throw new Error(`Error creando cliente: ${res.status} — ${JSON.stringify(error)}`);
     }
-
-    return await res.json(); // { clientId, patientId, ok: true }
+    return await res.json();
   },
 });

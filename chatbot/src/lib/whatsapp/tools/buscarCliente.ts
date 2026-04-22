@@ -14,11 +14,9 @@ export const buscarCliente = tool({
   execute: async ({ phone }) => {
     const res = await fetch(
       `${CRM_URL}/api/bot/clients?phone=${encodeURIComponent(phone)}`,
-      { headers: { "x-bot-api-key": BOT_API_KEY } }
+      { headers: { "authorization": `Bearer ${BOT_API_KEY}` } }
     );
-
     if (!res.ok) throw new Error(`Error buscando cliente: ${res.status}`);
-
-    return await res.json(); // null si no existe, objeto con patients[] si existe
+    return await res.json();
   },
 });
