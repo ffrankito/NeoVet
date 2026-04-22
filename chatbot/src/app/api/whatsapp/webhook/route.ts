@@ -23,7 +23,33 @@ type KapsoWebhookPayload = {
     id: string;
     status: string;
   };
+  phone_number_id: string;
 };
+
+async function sendWhatsappReply(
+  to: string,
+  message: string,
+  phoneNumberId: string
+): Promise<void> {
+  const res = await fetch("https://api.kapso.app/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.KAPSO_API_KEY}`,
+    },
+    body: JSON.stringify({
+      to,
+      phone_number_id: phoneNumberId,
+      type: "text",
+      text: { body: message },
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("[kapso] Error enviando mensaje:", res.status, err);
+  }
+}
 
 export async function GET() {
   return NextResponse.json({ ok: true, service: "NeoVet WhatsApp Bot" });
@@ -45,6 +71,7 @@ export async function POST(req: NextRequest) {
   const phone = body.message.from.replace(/\D/g, "");
   const userMessage = body.message.text.body.trim();
   const messageId = body.message.id;
+  const phoneNumberId = body.phone_number_id;
 
   if (!phone || !userMessage || !messageId) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -57,6 +84,7 @@ export async function POST(req: NextRequest) {
       await saveMessage(session.conversationId, "user", userMessage);
       await saveMessage(session.conversationId, "assistant", L4_RESPONSE);
       await escalateConversation(session.conversationId);
+      await sendWhatsappReply(body.message.from, L4_RESPONSE, phoneNumberId);
       return NextResponse.json({ reply: L4_RESPONSE });
     }
 
@@ -78,7 +106,9 @@ export async function POST(req: NextRequest) {
     // Guardar respuesta
     await saveMessage(session.conversationId, "assistant", reply);
 
-    // Responder a Kapso
+    // Mandar respuesta a WhatsApp via Kapso
+    await sendWhatsappReply(body.message.from, reply, phoneNumberId);
+
     return NextResponse.json({ reply });
 
   } catch (error) {
@@ -87,6 +117,8 @@ export async function POST(req: NextRequest) {
     const fallback =
       "Disculpá, tuve un problema técnico. " +
       "Podés escribirnos directamente al *+54 9 341 310-1194* y te atendemos enseguida.";
+
+    await sendWhatsappReply(body.message.from, fallback, phoneNumberId).catch(() => {});
 
     return NextResponse.json({ reply: fallback }, { status: 200 });
   }
