@@ -1,6 +1,16 @@
 ---
 const whatsappUrl =
   "https://api.whatsapp.com/send/?phone=543413101194&text&type=phone_number&app_absent=0";
+
+const navLinks = [
+  { label: "Inicio", href: "#inicio" },
+  { label: "Servicios", href: "#servicios" },
+  { label: "Nosotros", href: "#nosotros" },
+  { label: "Contacto", href: "#contacto" },
+  { label: "Horarios", href: "#horarios" },
+  { label: "Ubicación", href: "#ubicacion" },
+  { label: "Reseñas", href: "#resenas" },
+];
 ---
 
 <nav class="fixed top-0 z-50 w-full">
@@ -14,14 +24,18 @@ const whatsappUrl =
       />
     </a>
 
-    <!-- Right side: two links -->
-    <div class="flex items-center gap-4">
-      <a
-        href="#servicios"
-        class="nav-link text-sm font-medium text-white/80 transition-colors hover:text-white"
-      >
-        Servicios
-      </a>
+    <!-- Right side: nav links (desktop) + WhatsApp CTA -->
+    <div class="flex items-center gap-4 lg:gap-5">
+      <div class="hidden lg:flex items-center gap-5">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class="nav-link text-sm font-medium text-white/80 transition-colors hover:text-white"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
       <a
         href={whatsappUrl}
         target="_blank"

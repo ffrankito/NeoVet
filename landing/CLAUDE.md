@@ -38,7 +38,7 @@ Single page assembled in `src/pages/index.astro`:
 ```
 Base.astro (layout — chat widget, scroll animations via IntersectionObserver)
   └── index.astro
-        ├── Navbar.astro        (fixed transparent, logo + Servicios + Contactanos)
+        ├── Navbar.astro        (fixed transparent, logo + 7 anchor links + Contactanos CTA — links hidden < lg)
         ├── Hero.astro          (#inicio — full-bleed bg image, dark overlay, CTAs)
         ├── UspCards.astro      (4 value proposition cards, no anchor)
         ├── Services.astro      (#especialidades — 3 featured; #servicios — 8 standard)

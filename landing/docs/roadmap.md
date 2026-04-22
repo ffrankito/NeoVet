@@ -66,14 +66,33 @@ Este documento describe features potenciales para la landing page, sincronizadas
 
 Ver detalle en [[wiki/lint/2026-04-21-landing-audit]] (vault):
 
-- **P0 typo**: `Contactoa` en `ContactForm.astro:32` (visible a todo visitante).
-- **P0 fake URL**: Google Reviews link inventado.
-- **P0 URL sospechosa**: Facebook apunta a criadero, no clínica.
-- **P2 archivo huérfano**: `pau_vete_perri.jpeg` (227 KB) agregado en `49c161b` pero no importado por ningún componente.
-- **P3 design tokens**: `ServiceCard.astro` usa colores hardcoded (#e660a3/#46f5ac, text-blue-*) que rompen el sistema de tokens.
-- **P3 UX**: Navbar 2 links vs Footer 7 links — inconsistencia de navegación.
+- ✅ **P0 typo**: `Contactoa` → `Contacto` en `ContactForm.astro:32`. Fixed.
+- 🔲 **P0 fake URL**: Google Reviews link inventado — **pendiente URL real de Paula**.
+- 🔲 **P0 URL sospechosa**: Facebook `CriaderoTiaClarita` — **pendiente confirmación Paula**.
+- ✅ **P2 archivo huérfano**: `pau_vete_perri.jpeg` eliminado del repo.
+- ✅ **P3 design tokens + contraste**: `ServiceCard.astro` refactorizado a tokens (borde teal→rose, bg blanco sólido, texto neutral-900/600, badges y CTAs a `primary-*`). **Nota**: el contraste blanco-sobre-rosa era un bug visual real (texto ilegible), no solo desalineación de design system.
+- ✅ **P3 UX navegación**: `Navbar.astro` ahora tiene los 7 links del Footer (Inicio, Servicios, Nosotros, Contacto, Horarios, Ubicación, Reseñas). Hidden < lg, visible en desktop. WhatsApp CTA siempre visible.
 
-Ver también [[wiki/lint/2026-04-21-landing-hygiene]] por `landing.zip` (~84 MiB en git root) y desktop hero.
+**Bugs adicionales descubiertos y fixeados en la misma sesión (no estaban en la auditoría original):**
+
+- ✅ **About.astro truncado**: `.btn-secondary` terminaba en `padding: 1remz` sin cerrar el bloque ni el `</style>`. Reconstruido con tratamiento ghost-primary (borde + texto teal, shadow y hover matcheando btn-primary). Esto explicaba por qué el botón "Agendar turno" se veía mal.
+- ✅ **Footer logo rendering broken**: `<Image src={logo}>` de Astro producía una URL malformada con path absoluto local. Eliminado del markup + ambos imports.
+- ✅ **Google Maps pin al borde**: swap `-32.95746,-60.64653` (corner) → `-32.879556,-60.735333` (mid-block "altura 64"), zoom `16`.
+- ✅ **Twitter icon removido**: confirmado que NeoVet no tiene Twitter, se eliminó el icono + comentario PLACEHOLDER del Footer.
+
+**Hygiene** ([[wiki/lint/2026-04-21-landing-hygiene]]):
+- ✅ **`landing.zip`** (84 MiB) eliminado via `git rm` + `*.zip` agregado al `.gitignore` raíz.
+- ✅ **Desktop hero deletion** — ya resuelto silencioso (Hero.astro no referencia paths desktop).
+
+**Quedan pendientes (bloqueados en Paula):**
+- Google Business Profile URL real
+- Facebook URL correcta
+- Horarios confirmation + remover PLACEHOLDER de `Hours.astro:23`
+- Logo SVG real
+- Favicons + OG regenerados con logo real
+- Contact form backend (Formspree/Resend/WhatsApp deep-link)
+- QR de WhatsApp (decisión)
+- Dominio final
 
 ---
 

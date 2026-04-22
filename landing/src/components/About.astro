@@ -303,9 +303,31 @@ import paulaImg from '../assets/images/paula_and_vet.jpeg';
     transform: translateX(100%);
   }
 
-  /* Secondary button */
+  /* Secondary button — ghost-primary treatment */
   .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 0.75rem;
-    border: 2px solid rgb(209, 213, 219);
+    border: 2px solid rgb(54, 143, 136); /* primary-500 */
     background: white;
-    padding: 1remz
+    padding: calc(1rem - 2px) calc(2rem - 2px);
+    font-weight: 700;
+    color: rgb(42, 115, 112); /* primary-600 */
+    box-shadow: 0 4px 6px -1px rgba(54, 143, 136, 0.12);
+    transition: all 0.3s;
+    line-height: 1.5;
+  }
+
+  .btn-secondary:hover {
+    background: rgb(240, 253, 251); /* primary-50 */
+    border-color: rgb(42, 115, 112); /* primary-600 */
+    color: rgb(31, 90, 87); /* primary-700 */
+    box-shadow: 0 10px 15px -3px rgba(54, 143, 136, 0.22);
+    transform: scale(1.05);
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.95);
+  }
+</style>

@@ -22,7 +22,7 @@ const { href, cta, icon, title, description, badge, featured = false } = Astro.p
     <div class="service-card-inner">
       
       {badge && (
-        <span class="inline-block rounded-full bg-blue-500/20 px-2.5 py-0.5 text-xs font-semibold text-blue-300 mb-3">
+        <span class="inline-block rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-semibold text-primary-700 mb-3">
           {badge}
         </span>
       )}
@@ -35,17 +35,17 @@ const { href, cta, icon, title, description, badge, featured = false } = Astro.p
       </div>
 
       <!-- Title -->
-      <h3 class="text-xl font-bold text-white mb-2">
+      <h3 class="text-xl font-bold text-neutral-900 mb-2">
         {title}
       </h3>
 
       <!-- Description -->
-      <p class="text-sm text-white/70 leading-relaxed mb-4">
+      <p class="text-sm text-neutral-600 leading-relaxed mb-4">
         {description}
       </p>
 
       <!-- CTA -->
-      <div class="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-300 group-hover:text-blue-200 transition-colors">
+      <div class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 group-hover:text-primary-800 transition-colors">
         {cta}
         <svg
           class="h-4 w-4 transition-transform group-hover:translate-x-1"
@@ -75,7 +75,7 @@ const { href, cta, icon, title, description, badge, featured = false } = Astro.p
   .service-card {
     width: 100%;
     height: 340px;
-    background-image: linear-gradient(163deg, #e660a3 0%, #46f5ac 100%);
+    background-image: linear-gradient(163deg, #7bc1b7 0%, #e96982 100%);
     border-radius: 20px;
     padding: 4px;
     transition: all 0.3s ease;
@@ -83,16 +83,16 @@ const { href, cta, icon, title, description, badge, featured = false } = Astro.p
   }
 
   .service-card:hover {
-    box-shadow: 
-      0 0 30px 1px rgba(236, 121, 211, 0.4),
-      0 0 60px 2px rgba(96, 165, 250, 0.2);
+    box-shadow:
+      0 0 30px 1px rgba(123, 193, 183, 0.35),
+      0 0 60px 2px rgba(233, 105, 130, 0.18);
     transform: translateY(-4px);
   }
 
   .service-card-inner {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #f8f3f3 0%,  #f0bad5 100%);
+    background: #ffffff;
     border-radius: 18px;
     padding: 1.5rem;
     transition: all 0.2s ease;
