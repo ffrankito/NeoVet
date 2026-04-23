@@ -150,6 +150,8 @@ export function AppointmentForm({
   const [newClientName, setNewClientName] = useState("");
   const [newClientPhone, setNewClientPhone] = useState("");
   const [newClientEmail, setNewClientEmail] = useState("");
+  const [newClientDni, setNewClientDni] = useState("");
+  const [newClientAddress, setNewClientAddress] = useState("");
   const [newPatientName, setNewPatientName] = useState("");
   const [newPatientSpecies, setNewPatientSpecies] = useState("perro");
   const [newPatientBreed, setNewPatientBreed] = useState("");
@@ -173,6 +175,8 @@ export function AppointmentForm({
       setNewClientName("");
       setNewClientPhone("");
       setNewClientEmail("");
+      setNewClientDni("");
+      setNewClientAddress("");
     }
   }
 
@@ -222,6 +226,8 @@ export function AppointmentForm({
             clientName: newClientName,
             clientPhone: newClientPhone,
             clientEmail: newClientEmail,
+            clientDni: newClientDni,
+            clientAddress: newClientAddress,
             patientName: newPatientName,
             patientSpecies: newPatientSpecies,
             patientBreed: newPatientBreed,
@@ -337,6 +343,27 @@ export function AppointmentForm({
                     value={newClientEmail}
                     onChange={(e) => setNewClientEmail(e.target.value)}
                     placeholder="email@ejemplo.com"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="newClientDni">DNI <span className="text-xs text-muted-foreground">(opcional)</span></Label>
+                  <Input
+                    id="newClientDni"
+                    inputMode="numeric"
+                    value={newClientDni}
+                    onChange={(e) => setNewClientDni(e.target.value)}
+                    placeholder="12345678"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="newClientAddress">Dirección <span className="text-xs text-muted-foreground">(opcional)</span></Label>
+                  <Input
+                    id="newClientAddress"
+                    value={newClientAddress}
+                    onChange={(e) => setNewClientAddress(e.target.value)}
+                    placeholder="Morrow 4064, Rosario"
                   />
                 </div>
               </div>

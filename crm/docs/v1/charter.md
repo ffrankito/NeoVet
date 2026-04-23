@@ -79,7 +79,7 @@ Nine Paula-facing additions approved via WhatsApp. Stopgap #9 cancelled 2026-04-
 - **A3 — Sedación consent PDF template.** ✅ Shipped 2026-04-13. Pending: Paula's Spanish paragraph for the consent body.
 - **A4 — Retorno del consultorio.** ✅ Shipped 2026-04-21 (commit `5803409`, migration `0032`). `retorno_queue` table + 9 state-machine tests + unified sala-de-espera (walk-ins + retornos).
 - **A5 — Endocrinología as a service type.** ✅ Shipped 2026-04-20 (migration `0031`). `serviceCategoryEnum` extended.
-- **A6 — Pet-name search.** 🟡 Partial — client-directory search matches pet name; patient-list page + appointment-booking pet lookup still owner-only.
+- **A6 — Pet-name search.** ✅ Done (2026-04-23) — rescoped after audit: *"any entity where the patient is the protagonist must be searchable by pet name"*. Shared `buildPatientAwareSearchClause` helper (searches `patients.name`, `clients.name`, `clients.dni`, `clients.phone`, `clients.address`), with 9 pure unit tests covering each column and empty-input guards. Applied across all 5 patient-centric list pages: **appointments, hospitalizations, procedures, consent-documents, grooming**. Each list page got a "Buscar" input with placeholder *"Mascota, dueño, DNI, teléfono, dirección"*; results paginate correctly under search. Also surfaced a client-data gap — DNI and address fields weren't being captured by the client form; fixed (see A11).
 - **A7 — Auto-charge from vet treatments.** 🟡 Partial — consultation-level auto-charge shipped (one line per consultation from service `basePrice`). Per-treatment-item line-charge (MyVete pattern) not built; requires treatment-item model evolution.
 - **A8 — Vet read-only pricing.** ✅ Shipped 2026-04-20 (PR #16, commit `cb4dcd5`). `/dashboard/precios` page for admin/owner/vet; `costPrice` hidden.
 - **~~A9 — WhatsApp stopgap auto-reply~~.** ❌ Cancelled 2026-04-22 — pre-existing Welcome Message on Paula's WhatsApp Business covered the same content.
@@ -87,6 +87,10 @@ Nine Paula-facing additions approved via WhatsApp. Stopgap #9 cancelled 2026-04-
 ### Added 2026-04-19 (engineering workpackage)
 
 - **A10 — Observability (Sentry + Langfuse + PostHog).** 🟡 In progress. T1a (CRM Sentry) shipped + verified 2026-04-20. T1b (chatbot Sentry) + T1c (landing Sentry) code merged 2026-04-20; runtime verification pending Vercel env vars. T2 Langfuse + T3 PostHog queued.
+
+### Added 2026-04-23 (surfaced during A6 smoke test)
+
+- **A11 — Client data fields: DNI + address.** ✅ Shipped. The client form (create + edit) was only capturing name / phone / email, even though the schema has `dni` and `address` columns. Surfaced during smoke test of A6 pet-name search — a client couldn't be found by DNI because DNI was never stored. Added DNI + address inputs to the main client form, the client detail page, and the inline client creation used when creating an appointment for a new client. Paula mentioned at the 2026-04-22 sync that she searches by DNI regularly in GVet, so this is load-bearing for A6. No migration needed — columns already existed.
 
 ### Out of scope (v1)
 
@@ -134,10 +138,11 @@ Nine Paula-facing additions approved via WhatsApp. Stopgap #9 cancelled 2026-04-
 | D22 | Sedación consent PDF template (A3) | Franco | ✅ Done — commits `fc30587`, `f4b00f3`, `5c5606e`. Awaiting Paula's Spanish paragraph. |
 | D23 | Retorno del consultorio (A4) | Franco | ✅ Done — commit `5803409`, migration `0032` |
 | D24 | Endocrinología service type (A5) | Franco | ✅ Done — migration `0031` |
-| D25 | Pet-name search (A6) | Franco | 🟡 Partial — client directory ok; patient directory + booking lookup still owner-only |
+| D25 | Pet-name search (A6) | Franco / Tomás | ✅ Done 2026-04-23 — shared `buildPatientAwareSearchClause` helper + applied across 5 patient-centric list pages (appointments, hospitalizations, procedures, consent-documents, grooming). 9 unit tests covering all columns + guards. |
 | D26 | Auto-charge from vet treatments (A7) | Franco | 🟡 Partial — consultation-level done; per-treatment-item line-charge not built |
 | D27 | Vet read-only pricing (A8) | Franco | ✅ Done — PR #16, commit `cb4dcd5`, `/dashboard/precios` |
 | D28 | Observability: Sentry on all 3 apps + Langfuse + PostHog (A10) | Tomás + Franco | 🟡 In progress — T1a ✅ verified; T1b + T1c code merged, runtime verification pending Vercel env vars; T2 + T3 queued |
+| D29 | Client data fields — DNI + address (A11) | Tomás | ✅ Done 2026-04-23 — added to form, detail page, inline creation |
 
 ---
 
@@ -170,7 +175,7 @@ Listed here so v1 handoff audits don't miss that the CRM schema now has a `sourc
 | Build — Phase L | Day-one preparation (dashboard filtering, no-show, cancellation reason, email notifications, etc.) | ✅ Done |
 | Build — Phase M | Hospitalizations, procedures, consent documents (PDF), charges & debtors | ✅ Done |
 | Build — Phase D | Billing + ARCA integration | 🚫 Moved to v2 (2026-04-19) — see Scope Updates §1 |
-| Build — Phase N | 2026-04-19 re-scope absorption: 8 Paula-facing additions (A1–A8) + engineering observability (A10) | 🟡 In progress — 5 shipped, 2 partial, 1 cancelled (A9 stopgap), 1 blocked on Paula's sedación text |
+| Build — Phase N | 2026-04-19 re-scope absorption: 8 Paula-facing additions (A1–A8) + engineering observability (A10) | 🟡 In progress — 6 shipped (A2, A3, A4, A5, A6, A8), 2 partial (A1 fluidoterapia, A7 auto-charge per-item), 1 cancelled (A9 stopgap), 1 blocked on Paula's sedación text |
 | Demo | Presentation to Paula with v2 preview | ✅ Done (2026-04-09) |
 | Post-demo interviews | Individual interviews with Valdemar, Fernanda, Rocío, Gabriela | ✅ Done (2026-04-14 / 04-17 / 04-18) |
 | Paula sync — scope re-lock | Consolidation meeting with Paula on interview outcomes, scope confirmation, L4 keyword dictation | ✅ Done (2026-04-22) |

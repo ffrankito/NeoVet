@@ -66,6 +66,14 @@ export default async function ClientDetailPage({ params }: Props) {
           <p className="mt-1">{client.email ?? "—"}</p>
         </div>
         <div>
+          <p className="text-sm font-medium text-muted-foreground">DNI</p>
+          <p className="mt-1">{client.dni ?? "—"}</p>
+        </div>
+        <div className="sm:col-span-2">
+          <p className="text-sm font-medium text-muted-foreground">Dirección</p>
+          <p className="mt-1">{client.address ?? "—"}</p>
+        </div>
+        <div>
           <p className="text-sm font-medium text-muted-foreground">Mascotas</p>
           <p className="mt-1">{client.patients.length}</p>
         </div>

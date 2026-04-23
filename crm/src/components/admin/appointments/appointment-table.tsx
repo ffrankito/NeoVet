@@ -56,6 +56,7 @@ export function AppointmentTable({
   const [typeFilterValue, setTypeFilterValue] = useState(initialTypeFilter ?? "all");
   const [from, setFrom] = useState(searchParams.get("from") ?? "");
   const [to, setTo] = useState(searchParams.get("to") ?? "");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
 
   const statusLabels: Record<string, string> = {
     pending: "Pendiente",
@@ -80,6 +81,8 @@ export function AppointmentTable({
       if (typeFilterValue && typeFilterValue !== "all") params.set("type", typeFilterValue);
       if (from) params.set("from", from);
       if (to) params.set("to", to);
+      const trimmedQ = searchTerm.trim();
+      if (trimmedQ) params.set("q", trimmedQ);
       router.push(`/dashboard/appointments?${params.toString()}`);
     });
   }
@@ -95,6 +98,20 @@ export function AppointmentTable({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Buscar</label>
+          <Input
+            type="search"
+            placeholder="Mascota, dueño, DNI, teléfono, dirección"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") applyFilters();
+            }}
+            className="w-60"
+          />
+        </div>
+
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Estado</label>
           <Select value={statusFilter} onValueChange={(v) => v && setStatusFilter(v)}>

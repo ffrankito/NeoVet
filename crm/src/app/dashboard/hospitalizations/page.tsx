@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
-  searchParams: Promise<{ status?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string }>;
 }
 
 export default async function HospitalizationsPage({ searchParams }: Props) {
@@ -18,6 +18,7 @@ export default async function HospitalizationsPage({ searchParams }: Props) {
   const statusParam = params.status as "active" | "discharged" | "all" | undefined;
   const result = await getHospitalizations({
     status: statusParam,
+    search: params.q,
     page,
   });
 

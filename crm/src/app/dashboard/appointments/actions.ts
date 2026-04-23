@@ -9,6 +9,7 @@ import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
 import { parseDateTimeAsART, dateToStartART, dateToEndART } from "@/lib/timezone";
 import { hasRole, getSessionStaffId } from "@/lib/auth";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 import { sendAndLogEmail } from "@/lib/email/send-email";
 import { BookingConfirmationEmail } from "@/lib/email/templates/booking-confirmation";
 import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
@@ -50,6 +51,7 @@ export async function getAppointments(opts?: {
   appointmentType?: "veterinary" | "grooming";
   from?: string;
   to?: string;
+  search?: string;
   page?: number;
   limit?: number;
 }) {
@@ -79,6 +81,9 @@ export async function getAppointments(opts?: {
   if (opts?.to) {
     conditions.push(lte(appointments.scheduledAt, dateToEndART(opts.to)));
   }
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  if (searchClause) conditions.push(searchClause);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -119,6 +124,8 @@ export async function getAppointments(opts?: {
     db
       .select({ count: sql<number>`count(*)` })
       .from(appointments)
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .innerJoin(clients, eq(patients.clientId, clients.id))
       .where(whereClause),
   ]);
 
@@ -476,6 +483,8 @@ const inlineClientSchema = z.object({
   clientName: z.string().min(1, "El nombre del cliente es obligatorio."),
   clientPhone: z.string().min(1, "El teléfono es obligatorio."),
   clientEmail: z.string().email("El email no es válido.").optional().or(z.literal("")),
+  clientDni: z.string().optional().or(z.literal("")),
+  clientAddress: z.string().optional().or(z.literal("")),
   patientName: z.string().min(1, "El nombre de la mascota es obligatorio."),
   patientSpecies: z.string().min(1, "La especie es obligatoria."),
   patientBreed: z.string().optional().or(z.literal("")),
@@ -507,6 +516,8 @@ export async function createClientAndPatient(data: InlineClientData) {
       name: parsed.data.clientName,
       phone: parsed.data.clientPhone,
       email: parsed.data.clientEmail || null,
+      dni: parsed.data.clientDni || null,
+      address: parsed.data.clientAddress || null,
     });
 
     await db.insert(patients).values({

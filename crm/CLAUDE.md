@@ -97,6 +97,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 ### Utilities
 - `src/lib/ids.ts` — prefixed ID generators (`apt_`, `cli_`, `pat_`, `con_`, `gss_`, `csh_`, `cmv_`, `log_`, `hos_`, `hob_`, `prc_`, `psu_`, `ctm_`, `cdc_`, `chg_`, etc.)
 - `src/lib/timezone.ts` — Argentina timezone helpers (`todayStartART`, `todayEndART`, `formatART`, `parseDateTimeAsART`, etc.)
+- `src/lib/search/patient-aware-search.ts` — reusable Drizzle predicate for list-page search. `buildPatientAwareSearchClause(term)` returns an `ilike(... or ...)` across `patients.name`, `clients.name`, `clients.dni`, `clients.phone`, `clients.address`. Returns `undefined` for empty/whitespace terms (no filter). Unit-tested against compiled SQL via `PgDialect.sqlToQuery` in `src/lib/search/patient-aware-search.test.ts`.
 
 ### PDF Generation
 - `src/lib/pdf/render-consent.ts` — entry point: `renderConsentPdf(templateType, data)` → Buffer
@@ -125,6 +126,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Timezone**: always use helpers from `src/lib/timezone.ts` for Argentina time — never use raw `new Date()` for display
 - **Email sending**: use `sendAndLogEmail()` from `src/lib/email/send-email.ts` — it handles Resend + dedup via `email_logs`
 - **External SDK clients**: lazy-init any SDK that validates credentials in its constructor (Resend, Stripe, etc.) behind a `getXxx()` getter. Never export a pre-built singleton at module load — a missing env var will crash any route that transitively imports the module, even routes that never use the SDK. See `src/lib/email/resend.ts` for the pattern.
+- **Patient-aware list search**: when adding text search to any list-page action whose entity has a `patients` + `clients` relationship (appointments, hospitalizations, procedures, consent documents, grooming), use `buildPatientAwareSearchClause(term)` from `src/lib/search/patient-aware-search.ts` rather than rolling a new `ilike` chain. **Important:** the count query in the same action must also `innerJoin(patients).innerJoin(clients)`, otherwise the search predicate references out-of-scope columns and the count breaks.
 
 ---
 

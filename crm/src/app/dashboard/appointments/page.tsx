@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
-  searchParams: Promise<{ status?: string; from?: string; to?: string; page?: string; type?: string }>;
+  searchParams: Promise<{ status?: string; from?: string; to?: string; page?: string; type?: string; q?: string }>;
 }
 
 const subtitleByRole: Record<string, string> = {
@@ -32,6 +32,7 @@ export default async function AppointmentsPage({ searchParams }: Props) {
     appointmentType: typeFilter,
     from: params.from,
     to: params.to,
+    search: params.q,
     page,
   });
 

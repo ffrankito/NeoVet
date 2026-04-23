@@ -17,6 +17,7 @@ import {
 import { eq, desc, and, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, hasRole } from "@/lib/auth";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -76,6 +77,7 @@ const observationSchema = z.object({
 
 export async function getHospitalizations(opts?: {
   status?: "active" | "discharged" | "all";
+  search?: string;
   page?: number;
   limit?: number;
 }) {
@@ -93,6 +95,9 @@ export async function getHospitalizations(opts?: {
       sql`${hospitalizations.dischargedAt} IS NOT NULL`
     );
   }
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  if (searchClause) conditions.push(searchClause);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -122,6 +127,8 @@ export async function getHospitalizations(opts?: {
     db
       .select({ count: sql<number>`count(*)` })
       .from(hospitalizations)
+      .innerJoin(patients, eq(hospitalizations.patientId, patients.id))
+      .innerJoin(clients, eq(patients.clientId, clients.id))
       .where(whereClause),
   ]);
 

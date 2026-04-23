@@ -15,6 +15,7 @@ import { consentDocumentId as genConsentDocumentId } from "@/lib/ids";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, hasRole, isAdminLevel } from "@/lib/auth";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   renderConsentPdf,
@@ -40,6 +41,7 @@ export async function getConsentDocuments(opts?: {
   page?: number;
   limit?: number;
   patientId?: string;
+  search?: string;
 }) {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 20;
@@ -49,6 +51,9 @@ export async function getConsentDocuments(opts?: {
   if (opts?.patientId) {
     conditions.push(eq(consentDocuments.patientId, opts.patientId));
   }
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  if (searchClause) conditions.push(searchClause);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -76,6 +81,8 @@ export async function getConsentDocuments(opts?: {
     db
       .select({ count: sql<number>`count(*)` })
       .from(consentDocuments)
+      .innerJoin(patients, eq(consentDocuments.patientId, patients.id))
+      .leftJoin(clients, eq(consentDocuments.clientId, clients.id))
       .where(whereClause),
   ]);
 

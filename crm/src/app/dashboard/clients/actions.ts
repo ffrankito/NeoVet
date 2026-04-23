@@ -13,6 +13,8 @@ const clientSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
   phone: z.string().min(1, "El teléfono es obligatorio."),
   email: z.string().email("El email no es válido.").optional().or(z.literal("")),
+  dni: z.string().optional().or(z.literal("")),
+  address: z.string().optional().or(z.literal("")),
 });
 
 export async function getClients(opts?: {
@@ -88,6 +90,8 @@ export async function createClient(formData: FormData) {
     name: (formData.get("name") as string)?.trim() ?? "",
     phone: (formData.get("phone") as string)?.trim() ?? "",
     email: (formData.get("email") as string)?.trim() ?? "",
+    dni: (formData.get("dni") as string)?.trim() ?? "",
+    address: (formData.get("address") as string)?.trim() ?? "",
   };
 
   const parsed = clientSchema.safeParse(raw);
@@ -98,6 +102,8 @@ export async function createClient(formData: FormData) {
         name: fieldErrors.name?.[0],
         phone: fieldErrors.phone?.[0],
         email: fieldErrors.email?.[0],
+        dni: fieldErrors.dni?.[0],
+        address: fieldErrors.address?.[0],
       },
     };
   }
@@ -110,6 +116,8 @@ export async function createClient(formData: FormData) {
       name: parsed.data.name,
       phone: parsed.data.phone,
       email: parsed.data.email || null,
+      dni: parsed.data.dni || null,
+      address: parsed.data.address || null,
     });
   } catch (err) {
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
@@ -124,6 +132,8 @@ export async function updateClient(id: string, formData: FormData) {
     name: (formData.get("name") as string)?.trim() ?? "",
     phone: (formData.get("phone") as string)?.trim() ?? "",
     email: (formData.get("email") as string)?.trim() ?? "",
+    dni: (formData.get("dni") as string)?.trim() ?? "",
+    address: (formData.get("address") as string)?.trim() ?? "",
   };
 
   const parsed = clientSchema.safeParse(raw);
@@ -134,6 +144,8 @@ export async function updateClient(id: string, formData: FormData) {
         name: fieldErrors.name?.[0],
         phone: fieldErrors.phone?.[0],
         email: fieldErrors.email?.[0],
+        dni: fieldErrors.dni?.[0],
+        address: fieldErrors.address?.[0],
       },
     };
   }
@@ -145,6 +157,8 @@ export async function updateClient(id: string, formData: FormData) {
         name: parsed.data.name,
         phone: parsed.data.phone,
         email: parsed.data.email || null,
+        dni: parsed.data.dni || null,
+        address: parsed.data.address || null,
         updatedAt: new Date(),
       })
       .where(eq(clients.id, id));

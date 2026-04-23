@@ -7,7 +7,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Props {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }
 
 export default async function ProceduresPage({ searchParams }: Props) {
@@ -15,7 +15,7 @@ export default async function ProceduresPage({ searchParams }: Props) {
   const page = Number(params.page) || 1;
   const role = await getRole();
 
-  const result = await getProcedures({ page });
+  const result = await getProcedures({ page, search: params.q });
 
   const canCreate = role === "admin" || role === "owner" || role === "vet";
 

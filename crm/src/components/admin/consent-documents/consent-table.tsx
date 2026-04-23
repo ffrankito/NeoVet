@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -47,6 +48,16 @@ export function ConsentTable({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
+
+  function applySearch() {
+    startTransition(() => {
+      const params = new URLSearchParams();
+      const trimmed = searchTerm.trim();
+      if (trimmed) params.set("q", trimmed);
+      router.push(`/dashboard/consent-documents?${params.toString()}`);
+    });
+  }
 
   function goToPage(p: number) {
     startTransition(() => {
@@ -72,7 +83,25 @@ export function ConsentTable({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-end">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Buscar</label>
+          <Input
+            type="search"
+            placeholder="Mascota, dueño, DNI, teléfono, dirección"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") applySearch();
+            }}
+            className="w-60"
+          />
+        </div>
+
+        <Button variant="outline" onClick={applySearch} disabled={isPending}>
+          Buscar
+        </Button>
+
         <span className="ml-auto text-sm text-muted-foreground">
           {total} documento{total !== 1 ? "s" : ""}
         </span>
