@@ -54,7 +54,8 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Consent documents** — template-based PDF generation via `@react-pdf/renderer`. 3 templates: surgery authorization, euthanasia consent, reproductive agreement (GenetiCan 1). Auto-fills patient/client data. Stored in Supabase Storage (`consent-documents` bucket). Signed URL downloads (60s expiry).
 - **Charges & deudores** — every billable event creates a charge. Auto-charge hooks on: consultations (service basePrice), grooming sessions (finalPrice), pet shop sales (item totals). Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
 - **Precios (vet read-only)** — `/dashboard/precios` — two-table read-only reference of service basePrices and product sellPrices for admin / owner / vet (not groomer). Single text-search across both. Costs (`costPrice`) deliberately hidden. Built so vets can answer "¿esto cuánto sale?" mid-consult without interrupting reception.
-- **Bot API endpoints** — `/api/bot/*` (6 routes, API key auth) ready for v2 chatbot integration.
+- **Bot API endpoints** — `/api/bot/*` (6 routes, `BOT_API_KEY` auth) consumed by the v2 WhatsApp bot that Franco shipped 2026-04-22. Routes: `availability`, `appointments`, `clients` (GET by phone + POST to register new client+first pet from WhatsApp), `context`, `services`. See `chatbot/src/lib/whatsapp/tools/` for the live consumers.
+- **`clients.source`** — new column added 2026-04-22 (migration `0033_add_source_to_clients`). Enum values: `whatsapp | web | manual`, default `manual`. Set to `whatsapp` by the bot's `POST /api/bot/clients` path when it registers a new client from a WhatsApp conversation. Existing rows default to `manual`; GVet-imported rows also `manual` (not backfilled to `gvet` — if that distinction matters later, the `importedFromGvet` boolean still tracks it).
 
 ### What's NOT built (v1 remaining)
 
@@ -62,8 +63,8 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ### Hard boundaries for v1
 
-- No public API beyond bot endpoints — CRM and chatbot are independent in v1
-- No WhatsApp notifications — email only; WhatsApp reminders are v2
+- No public API beyond `BOT_API_KEY`-guarded `/api/bot/*` endpoints. Those endpoints are now consumed in production by the v2 WhatsApp bot (see `chatbot/` app) — scope is still narrow and auth-gated, but the "chatbot and CRM are independent" framing no longer applies to the WhatsApp channel.
+- No outbound WhatsApp from the CRM — email only (Resend). WhatsApp reminders remain v2.
 - No reporting or analytics
 - No audit log — `createdBy` + `updatedAt` provide partial traceability
 - No prescription printout — treatment plans viewable in-app but not exportable
@@ -131,7 +132,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
 
-**Current state:** 30 migrations (latest: `0031_last_veda` — endocrinología service category), 35 tables.
+**Current state:** 34 migrations (latest: `0033_add_source_to_clients` — `source` channel column for bot-vs-manual acquisition tracking), 35 tables.
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`

@@ -3,14 +3,26 @@
 | Field | Value |
 |---|---|
 | **Project name** | NeoVet CRM |
-| **Client** | NeoVet (Paula Silveira) |
-| **Client contact** | Paula Silveira — clinic owner |
+| **Client** | NeoVet (Paula Silveyra) |
+| **Client contact** | Paula Silveyra — clinic owner, Mat. 2046 |
 | **Internal owner** | Tomás Pinolini |
 | **Tech lead** | Franco Zancocchia |
 | **Start date** | 2026-03-01 |
-| **Target delivery (v1)** | Pendiente — proyecto en fase de desarrollo, UAT postpuesto |
-| **Charter version** | 1.4 |
-| **Last updated** | 2026-04-17 |
+| **Target delivery (v1)** | Pendiente — proyecto en fase de desarrollo post re-scope. UAT sigue postpuesto hasta cerrar los 2 items parciales y el 1 bloqueado restantes de los 8 Paula-facing additions. |
+| **Charter version** | 1.5 |
+| **Last updated** | 2026-04-23 |
+
+---
+
+## Scope updates since v1.4 (2026-04-17 → 2026-04-23)
+
+Three substantive updates are folded into this revision. See `neovet-vault` for decision-trail detail.
+
+1. **Phase D (ARCA electronic invoicing) moved from v1 to v2.** Decided 2026-04-19, approved by Paula same day via WhatsApp. Rationale: current Virginia-led month-end workflow (daily caja → month-end proportion calculation by contracted estudio → Gabriela generates invoices in ARCA) is functional and not the urgency bottleneck. Virginia reliability validated via Gabriela. D14 is re-classified from "deferred within v1" to "v2 scope".
+
+2. **Nine Paula-facing v1 additions added 2026-04-19.** Surfaced from post-demo interviews with Valdemar, Fernanda, Rocío, and Gabriela. Approved by Paula via WhatsApp ("Dale!"). Detail under Deliverables below (D20–D27). Originally 10 additions including a WhatsApp stopgap auto-reply — see #3.
+
+3. **WhatsApp stopgap auto-reply cancelled 2026-04-22.** At the Paula post-interview sync, Paula revealed her WhatsApp Business number already had a Welcome Message covering horarios, dirección, booking link, emergencia-call, and a no-presupuestos-por-WhatsApp line. The stopgap was solving an already-solved problem. Freed capacity went to accelerating the v2 WhatsApp chatbot — MVP shipped the same afternoon (see §Adjacent v2 work below).
 
 ---
 
@@ -22,7 +34,9 @@ The clinic currently manages clients, patients, and appointments using Geovet �
 
 ## Proposed Solution
 
-A staff-only internal tool for managing clients (pet owners), patients (pets), clinical history, appointments, estética, pet shop, cash register, and email reminders. It replaces Geovet as the system of record for the clinic's operational data. No chatbot integration in v1.
+A staff-only internal tool for managing clients (pet owners), patients (pets), clinical history, appointments, estética, pet shop, cash register, and email reminders. It replaces Geovet as the system of record for the clinic's operational data.
+
+The v1 web-widget chatbot (FAQ-only) remains architecturally independent from the CRM. The v2 WhatsApp chatbot — which is out of v1 scope but materially in development as of 2026-04-22 — is the only system allowed to consume the CRM, via `BOT_API_KEY`-guarded `/api/bot/*` endpoints.
 
 ---
 
@@ -56,13 +70,33 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 - Email login for staff (Supabase Auth)
 - One-time data import from Geovet CSV exports (clients, patients, consultations, products)
 
+### Added 2026-04-19 (v1.5 re-scope)
+
+Nine Paula-facing additions approved via WhatsApp. Stopgap #9 cancelled 2026-04-22 (see Scope Updates §3). Status as of 2026-04-23:
+
+- **A1 — Fluidoterapia + chronological internación timeline.** 🟡 Partial — observation columns done; fluidoterapia as structured data + timeline UI still pending.
+- **A2 — Shared calendar between Paula and Fernanda.** ✅ Shipped — multi-staff calendar visibility already worked via the existing staff-filter.
+- **A3 — Sedación consent PDF template.** ✅ Shipped 2026-04-13. Pending: Paula's Spanish paragraph for the consent body.
+- **A4 — Retorno del consultorio.** ✅ Shipped 2026-04-21 (commit `5803409`, migration `0032`). `retorno_queue` table + 9 state-machine tests + unified sala-de-espera (walk-ins + retornos).
+- **A5 — Endocrinología as a service type.** ✅ Shipped 2026-04-20 (migration `0031`). `serviceCategoryEnum` extended.
+- **A6 — Pet-name search.** 🟡 Partial — client-directory search matches pet name; patient-list page + appointment-booking pet lookup still owner-only.
+- **A7 — Auto-charge from vet treatments.** 🟡 Partial — consultation-level auto-charge shipped (one line per consultation from service `basePrice`). Per-treatment-item line-charge (MyVete pattern) not built; requires treatment-item model evolution.
+- **A8 — Vet read-only pricing.** ✅ Shipped 2026-04-20 (PR #16, commit `cb4dcd5`). `/dashboard/precios` page for admin/owner/vet; `costPrice` hidden.
+- **~~A9 — WhatsApp stopgap auto-reply~~.** ❌ Cancelled 2026-04-22 — pre-existing Welcome Message on Paula's WhatsApp Business covered the same content.
+
+### Added 2026-04-19 (engineering workpackage)
+
+- **A10 — Observability (Sentry + Langfuse + PostHog).** 🟡 In progress. T1a (CRM Sentry) shipped + verified 2026-04-20. T1b (chatbot Sentry) + T1c (landing Sentry) code merged 2026-04-20; runtime verification pending Vercel env vars. T2 Langfuse + T3 PostHog queued.
+
 ### Out of scope (v1)
 
-- Public API (no chatbot integration)
-- WhatsApp notifications (v2 — email only in v1)
+- Public API to the outside world (no end-client facing API)
+- Outbound WhatsApp from the CRM (email reminders only in v1; WhatsApp reminders remain v2)
+- ARCA electronic invoicing (moved to v2 per Scope Updates §1)
 - Reporting or analytics
 - Multi-clinic or multi-location support
 - Estética findings → vet escalation (pending esteticista interview — v2)
+- v2 WhatsApp chatbot itself — *adjacent work* shipped 2026-04-22 but outside v1 scope; see §Adjacent v2 work below.
 
 ### Assumptions
 
@@ -89,12 +123,33 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | D11 | Mobile-responsive UI | Franco | ✅ Done |
 | D12 | Pet shop: products, providers, stock entries, sales | Franco | ✅ Done |
 | D13 | Cash register: sessions, movements, payment method breakdown | Franco | ✅ Done |
-| D14 | Billing: ARCA electronic invoicing (Factura A/B/C), two fiscal entities, limit controls | Franco | 🔲 Deferred to post-launch (blocked on ARCA credentials) |
+| D14 | Billing: ARCA electronic invoicing (Factura A/B/C), two fiscal entities, limit controls | Franco | 🚫 **Moved to v2 (2026-04-19)** — see Scope Updates §1. Current Virginia-led month-end flow continues through v1 and into early v2. |
 | D15 | Hospitalizations: admission, daily observations (vitals + clinical), discharge | Franco | ✅ Done |
 | D16 | Procedures: registration with surgeon/anesthesiologist, supply consumption from inventory, post-procedure follow-ups | Franco | ✅ Done |
 | D17 | Consent documents: PDF generation (surgery authorization, euthanasia certificate, reproductive agreement) with auto-filled data | Franco | ✅ Done |
 | D18 | Charges & debtors: polymorphic charges per consultation/grooming/procedure/sale/hospitalization, partial/total payments, debtors dashboard | Franco | ✅ Done |
 | D19 | Delivery documentation: admin user guide, UAT testing guide, pre-launch checklist, v1/v2 brochures | Tomás | ✅ Done |
+| D20 | Fluidoterapia + internación timeline (A1) | Franco | 🟡 Partial — observation cols done; structured fluidoterapia + timeline UI pending |
+| D21 | Shared calendar Paula ↔ Fernanda (A2) | Franco | ✅ Done — satisfied by existing multi-staff calendar; Fernanda walkthrough pending |
+| D22 | Sedación consent PDF template (A3) | Franco | ✅ Done — commits `fc30587`, `f4b00f3`, `5c5606e`. Awaiting Paula's Spanish paragraph. |
+| D23 | Retorno del consultorio (A4) | Franco | ✅ Done — commit `5803409`, migration `0032` |
+| D24 | Endocrinología service type (A5) | Franco | ✅ Done — migration `0031` |
+| D25 | Pet-name search (A6) | Franco | 🟡 Partial — client directory ok; patient directory + booking lookup still owner-only |
+| D26 | Auto-charge from vet treatments (A7) | Franco | 🟡 Partial — consultation-level done; per-treatment-item line-charge not built |
+| D27 | Vet read-only pricing (A8) | Franco | ✅ Done — PR #16, commit `cb4dcd5`, `/dashboard/precios` |
+| D28 | Observability: Sentry on all 3 apps + Langfuse + PostHog (A10) | Tomás + Franco | 🟡 In progress — T1a ✅ verified; T1b + T1c code merged, runtime verification pending Vercel env vars; T2 + T3 queued |
+
+---
+
+## Adjacent v2 work (informational, not v1 scope)
+
+**v2 WhatsApp chatbot MVP shipped 2026-04-22.** Franco shipped the Kapso integration the same afternoon as the Paula post-interview sync, in 11 commits (`bd12b70` → `f2ddbe3`, +5182 lines). Webhook live; end-to-end verification against Paula's production number pending.
+
+- **Chatbot side:** `chatbot/src/app/api/whatsapp/webhook/route.ts` + `chatbot/src/lib/whatsapp/{agent,session}.ts` + 5 tools (`buscarCliente`, `crearClienteYPaciente`, `obtenerServicios`, `verificarDisponibilidad`, `reservarTurno`).
+- **CRM side (cross-app integration surface):** new `POST /api/bot/clients` endpoint + new `clients.source` column (enum: `whatsapp | web | manual`, migration `0033`). Guarded by `BOT_API_KEY`.
+- **This does not alter v1's "no public API" stance.** The v1 web widget remains isolated. Only the v2 WhatsApp channel consumes the CRM. See ADR `2026-04-chatbot-crm-api-narrowed` in the vault for the reconciliation.
+
+Listed here so v1 handoff audits don't miss that the CRM schema now has a `source` column that may show `whatsapp` values pre-v2-launch once Franco tests against his own cell.
 
 ---
 
@@ -114,11 +169,14 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | Build — Phase K.B | Cash register (sessions, movements) | ✅ Done |
 | Build — Phase L | Day-one preparation (dashboard filtering, no-show, cancellation reason, email notifications, etc.) | ✅ Done |
 | Build — Phase M | Hospitalizations, procedures, consent documents (PDF), charges & debtors | ✅ Done |
-| Build — Phase D | Billing + ARCA integration | 🔲 Deferred to post-launch — blocked on ARCA credentials |
-| QA | Internal testing with real clinic data | ✅ Done (core features) |
+| Build — Phase D | Billing + ARCA integration | 🚫 Moved to v2 (2026-04-19) — see Scope Updates §1 |
+| Build — Phase N | 2026-04-19 re-scope absorption: 8 Paula-facing additions (A1–A8) + engineering observability (A10) | 🟡 In progress — 5 shipped, 2 partial, 1 cancelled (A9 stopgap), 1 blocked on Paula's sedación text |
 | Demo | Presentation to Paula with v2 preview | ✅ Done (2026-04-09) |
-| UAT | Paula and team acceptance testing | 🔲 Postpuesto — relevamiento post-demo identificó gaps; el proyecto volvió a fase de desarrollo para cerrarlos antes de reprogramar |
-| Delivery | Formal handoff to Paula | 🔲 Pendiente — TBD tras re-scope |
+| Post-demo interviews | Individual interviews with Valdemar, Fernanda, Rocío, Gabriela | ✅ Done (2026-04-14 / 04-17 / 04-18) |
+| Paula sync — scope re-lock | Consolidation meeting with Paula on interview outcomes, scope confirmation, L4 keyword dictation | ✅ Done (2026-04-22) |
+| QA | Internal testing with real clinic data | ✅ Done (core features); re-run needed for D20–D28 |
+| UAT | Paula and team acceptance testing | 🔲 Postpuesto — reprogramable cuando A1 / A6 / A7 cierren (partials → shipped) y Paula entregue el párrafo de sedación (A3) |
+| Delivery | Formal handoff to Paula | 🔲 Pendiente — TBD tras UAT |
 | Warranty | 60-day bug-fix guarantee | 🔲 Pendiente — 60 días desde entrega |
 
 ---
@@ -128,9 +186,11 @@ A staff-only internal tool for managing clients (pet owners), patients (pets), c
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
 | R1 | Geovet export format is inconsistent or incomplete | Medium | Medium | ✅ Resolved — export analyzed and imported successfully |
-| R2 | Scope creep into chatbot API integration | Medium | High | Enforce v1 boundary — no public API until v2 |
-| R3 | ARCA billing complexity delays v1 launch | High | Medium | Phase D is the only remaining v1 deliverable. All core operational features (Phases A–L) are complete and usable without billing. Phase D is blocked on Paula providing ARCA credentials and certificate. |
-| R4 | Estética findings escalation logic undefined | Medium | Low | Deferred pending esteticista interview — checkboxes built, alerting logic is v2 |
+| R2 | Scope creep from v2 work into v1 | Medium | High | The 2026-04-22 v2 WhatsApp bot MVP is tracked as *adjacent v2 work*, not v1 scope. v1's "no public API" rule narrows to "v1 web widget is isolated; v2 WhatsApp channel may consume `/api/bot/*` only". Ongoing enforcement: code reviews flag chatbot-side calls to the CRM from the web widget path. |
+| R3 | ~~ARCA billing complexity delays v1 launch~~ | — | — | ✅ Neutralized — Phase D moved to v2 (see Scope Updates §1) |
+| R4 | Estética findings escalation logic undefined | Medium | Low | Deferred pending esteticista interview — checkboxes built, alerting logic is v2. Esteticista slot currently vacant (Lautaro left); revisit when replacement hired. |
+| R5 | v1 partial deliverables (A1, A6, A7) cause UAT slip | Medium | Medium | A1 fluidoterapia needs structured schema + timeline UI; A6 needs patient-directory search + booking pet-lookup; A7 needs treatment-item model evolution (coupled with A8 pricing visibility, already shipped). Timeboxed: if any of the three aren't closable in 1–2 sessions, descope to v1.5 follow-up. |
+| R6 | Doc-lag between code and vault | High | Medium | Franco transitioning to direct vault contribution per Option C (2026-04-23). Fallback: ship-note ingest workflow (Option A). Monitored in [[wiki/people/franco-zancocchia]]. |
 
 ---
 
