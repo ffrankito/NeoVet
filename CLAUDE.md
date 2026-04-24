@@ -131,10 +131,21 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 
 ## Data Migration Notes
 
-- Data is imported from Geovet via manual CSV exports and HTML scraping (Geovet has no API).
+- Data will eventually be imported from Geovet via manual CSV exports and HTML scraping (Geovet has no API).
 - Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`, `import-gvet-scraped.ts`, `parse-gvet-html.ts`, `import-estetica.ts`.
 - HTML scraping workflow: save GVet pages as `.htm` files → run `parse-gvet-html.ts` → run `import-gvet-scraped.ts`.
 - The `clients` table includes an `importedFromGvet` boolean flag and `gvetId` for traceability.
+
+### Smoke-test seed data
+
+For UI / dashboard development against an empty DB:
+
+```bash
+cd crm && npx tsx scripts/seed-dashboard-smoke.ts   # seed (idempotent)
+cd crm && npx tsx scripts/inspect-db.ts             # snapshot current counts
+```
+
+The seed is tagged — all rows are identifiable via `clients.phone LIKE 'SMOKE-%'`, `products.name LIKE '[SMOKE]%'`, and `cashSessions.name LIKE '[SMOKE]%'`. Re-running the seed cleans prior smoke data first, then re-inserts. Creates: 10 clients, 13 patients, 13 today-dated appointments (mix of statuses, 2 urgent, 2 walk-ins), 5 unpaid charges (3 distinct clients), 4 low-stock products + 1 healthy control, 1 open cash session. Must be deleted before real data goes in — no automatic cleanup.
 
 ---
 
@@ -250,17 +261,15 @@ L4 keyword lists live in two files (agent.ts + whatsapp-system.ts) and must be k
 
 ---
 
-## Git & Database Branching Strategy
+## Git & Database Strategy
 
-| Branch | Supabase DB | Purpose |
-|--------|-------------|---------| 
-| `main` | Production DB | Stable, production-ready code. |
-| `dev` | Preview DB (Supabase Branch) | Active development and testing. |
+**Currently single-environment:** `main` branch, one Supabase project (`ajpzsmcqlbbuzimjjwyi`). All local work and deployments run against the same DB. The DB is essentially empty of real clinic data — Paula is not live yet.
+
+**Planned (before Paula goes live):** create a Supabase preview branch for dev/testing so migrations and seed scripts don't touch production data. Until then, be deliberate about destructive operations.
 
 **Local env setup:**
 ```bash
-cp crm/.env.prod crm/.env.local    # → point to production DB
-cp crm/.env.dev crm/.env.local     # → point to dev DB
+cp crm/.env.prod crm/.env.local    # canonical env values for local dev
 ```
 
 Database URL format for migrations (session mode, port 5432):

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { db } from "@/db";
-import { clients, patients, appointments, staff, services } from "@/db/schema";
-import { eq, sql, asc, and, gte, lt, ne, type SQL } from "drizzle-orm";
+import { clients, patients, appointments, staff, services, charges, products } from "@/db/schema";
+import { eq, asc, and, gte, lt, inArray, sql, type SQL } from "drizzle-orm";
 import { getRole, getSessionStaffId } from "@/lib/auth";
 import { todayStartART, todayEndART, formatDateART, formatTimeART } from "@/lib/timezone";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
 import { getOpenSession } from "@/app/dashboard/cash/actions";
-import { getAllClientsForSelect, getAllPatientsForSelect, getServicesForWalkIn } from "@/app/dashboard/appointments/actions";
+import { getAllPatientsForSelect, getServicesForWalkIn } from "@/app/dashboard/appointments/actions";
 import { WalkInForm } from "@/components/admin/appointments/walk-in-form";
 import { Suspense } from "react";
 import { getServiceColors } from "@/lib/calendar-utils";
@@ -130,6 +130,30 @@ function AppointmentRow({
   );
 }
 
+async function getAdminAlerts() {
+  const [unpaidResult, lowStockResult] = await Promise.all([
+    db
+      .select({ count: sql<number>`count(distinct ${charges.clientId})` })
+      .from(charges)
+      .where(inArray(charges.status, ["pending", "partial"])),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(
+        and(
+          eq(products.isActive, true),
+          sql`${products.minStock}::numeric > 0`,
+          sql`${products.currentStock}::numeric <= ${products.minStock}::numeric`
+        )
+      ),
+  ]);
+
+  return {
+    unpaidClients: Number(unpaidResult[0].count),
+    lowStock: Number(lowStockResult[0].count),
+  };
+}
+
 async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatientId?: string }) {
   const [role, sessionStaffId] = await Promise.all([getRole(), getSessionStaffId()]);
   const isAdmin = role === "admin" || role === "owner";
@@ -153,62 +177,42 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
     roleFilters.push(eq(appointments.appointmentType, "grooming"));
   }
 
-  const [clientCountResult, patientCountResult, todayCountResult, todayAppointments] =
+  const todayAppointments = await db
+    .select({
+      id: appointments.id,
+      scheduledAt: appointments.scheduledAt,
+      status: appointments.status,
+      reason: appointments.reason,
+      patientId: appointments.patientId,
+      patientName: patients.name,
+      clientName: clients.name,
+      clientId: clients.id,
+      assignedStaffName: staff.name,
+      appointmentType: appointments.appointmentType,
+      serviceCategory: services.category,
+      isWalkIn: appointments.isWalkIn,
+      isUrgent: appointments.isUrgent,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .innerJoin(clients, eq(patients.clientId, clients.id))
+    .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
+    .where(
+      and(
+        gte(appointments.scheduledAt, todayStart),
+        lt(appointments.scheduledAt, todayEnd),
+        ...roleFilters
+      )
+    )
+    .orderBy(asc(appointments.scheduledAt));
+
+  const [openCashSession, adminAlerts, [walkInPatients, walkInServices]] =
     await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(clients),
-      db.select({ count: sql<number>`count(*)` }).from(patients),
-      db
-        .select({ count: sql<number>`count(*)` })
-        .from(appointments)
-        .where(
-          and(
-            gte(appointments.scheduledAt, todayStart),
-            lt(appointments.scheduledAt, todayEnd),
-            ne(appointments.status, "cancelled"),
-            ...roleFilters
-          )
-        ),
-      db
-        .select({
-          id: appointments.id,
-          scheduledAt: appointments.scheduledAt,
-          status: appointments.status,
-          reason: appointments.reason,
-          patientId: appointments.patientId,
-          patientName: patients.name,
-          clientName: clients.name,
-          clientId: clients.id,
-          assignedStaffName: staff.name,
-          appointmentType: appointments.appointmentType,
-          serviceCategory: services.category,
-          isWalkIn: appointments.isWalkIn,
-          isUrgent: appointments.isUrgent,
-        })
-        .from(appointments)
-        .innerJoin(patients, eq(appointments.patientId, patients.id))
-        .innerJoin(clients, eq(patients.clientId, clients.id))
-        .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
-        .leftJoin(services, eq(appointments.serviceId, services.id))
-        .where(
-          and(
-            gte(appointments.scheduledAt, todayStart),
-            lt(appointments.scheduledAt, todayEnd),
-            ...roleFilters
-          )
-        )
-        .orderBy(asc(appointments.scheduledAt)),
+      isAdmin ? getOpenSession() : Promise.resolve(null),
+      isAdmin ? getAdminAlerts() : Promise.resolve({ unpaidClients: 0, lowStock: 0 }),
+      Promise.all([getAllPatientsForSelect(), getServicesForWalkIn()]),
     ]);
-
-  const clientCount = Number(clientCountResult[0].count);
-  const patientCount = Number(patientCountResult[0].count);
-  const todayCount = Number(todayCountResult[0].count);
-  const openCashSession = isAdmin ? await getOpenSession() : null;
-
-  const [walkInClients, walkInPatients, walkInServices] = await Promise.all([
-    getAllClientsForSelect(),
-    getAllPatientsForSelect(),
-    getServicesForWalkIn(),
-  ]);
 
   // Split into 3 sections
   const waitingRoom = todayAppointments
@@ -225,6 +229,14 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
   const finished = todayAppointments
     .filter((apt) => apt.status === "completed" || apt.status === "no_show" || apt.status === "cancelled");
 
+  const todayCount = todayAppointments.filter((a) => a.status !== "cancelled").length;
+  const completedCount = finished.filter((a) => a.status === "completed").length;
+  const pendingCount = scheduled.length;
+  const urgentCount = todayAppointments.filter(
+    (a) => a.isUrgent && a.status !== "cancelled"
+  ).length;
+  const nextAppointment = waitingRoom[0];
+
   return (
     <div className="space-y-8">
       {/* Page title */}
@@ -233,41 +245,83 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
         <p className="text-muted-foreground capitalize">{todayLabel}</p>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Clientes" count={clientCount} href="/dashboard/clients" />
-        <SummaryCard label="Pacientes" count={patientCount} href="/dashboard/patients" />
-        <SummaryCard label="Turnos hoy" count={todayCount} href="/dashboard/appointments" />
+      {/* KPI row — today-scoped, role-aware */}
+      <div className={cn(
+        "grid gap-4 sm:grid-cols-2",
+        isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"
+      )}>
+        <KpiCard
+          label="Turnos hoy"
+          value={todayCount}
+          sub={`${completedCount} completados · ${pendingCount} pendientes`}
+          href="/dashboard/appointments"
+        />
+        <KpiCard
+          label="En espera"
+          value={waitingRoom.length}
+          sub={
+            nextAppointment
+              ? `Próximo: ${formatTimeART(nextAppointment.scheduledAt, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })} · ${nextAppointment.patientName}`
+              : "Sin pacientes"
+          }
+          href="/dashboard/sala-de-espera"
+        />
+        <KpiCard
+          label="Urgentes"
+          value={urgentCount}
+          sub={urgentCount > 0 ? "Atender primero" : "Sin urgencias"}
+          tone={urgentCount > 0 ? "danger" : "default"}
+          href="/dashboard/appointments"
+        />
+        {isAdmin && (
+          <KpiCard
+            label="Caja"
+            value={openCashSession ? "Abierta" : "Cerrada"}
+            sub={
+              openCashSession
+                ? `Desde ${formatTimeART(openCashSession.openedAt, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}`
+                : "Tocá para abrir"
+            }
+            tone={openCashSession ? "success" : "warning"}
+            href="/dashboard/cash"
+            isText
+          />
+        )}
       </div>
 
-      {/* Quick actions */}
-      <DashboardActions />
-
-      {/* Cash register status — admin only */}
+      {/* Alert strip — admin/owner only */}
       {isAdmin && (
-        <Link
-          href="/dashboard/cash"
-          className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
-        >
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground">Caja</p>
-            {openCashSession ? (
-              <p className="text-sm font-semibold text-green-700">Abierta</p>
-            ) : (
-              <p className="text-sm font-semibold text-red-600">Cerrada</p>
-            )}
-          </div>
-          <span className="text-xs text-muted-foreground group-hover:text-foreground">Ver →</span>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <AlertChip
+            label="Deudores"
+            count={adminAlerts.unpaidClients}
+            href="/dashboard/deudores"
+          />
+          <AlertChip
+            label="Stock bajo"
+            count={adminAlerts.lowStock}
+            href="/dashboard/petshop/products"
+          />
+        </div>
       )}
 
-      {/* Walk-in form */}
-      <WalkInForm
-        clients={walkInClients}
-        patients={walkInPatients}
-        services={walkInServices}
-        defaultPatientId={defaultWalkInPatientId}
-      />
+      {/* Quick actions */}
+      <div className="flex flex-wrap items-center gap-3">
+        <DashboardActions />
+        <WalkInForm
+          patients={walkInPatients}
+          services={walkInServices}
+          defaultPatientId={defaultWalkInPatientId}
+        />
+      </div>
 
       {/* Sala de espera */}
       <div className="space-y-4">
@@ -329,7 +383,7 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
   );
 }
 
-function SummaryCard({
+function AlertChip({
   label,
   count,
   href,
@@ -338,13 +392,71 @@ function SummaryCard({
   count: number;
   href: string;
 }) {
+  const hasAlert = count > 0;
   return (
     <Link
       href={href}
-      className="group rounded-xl border bg-card p-6 transition-colors hover:bg-accent"
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-all hover:shadow-sm",
+        hasAlert
+          ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+          : "border-border bg-background text-muted-foreground hover:bg-muted"
+      )}
     >
-      <p className="text-3xl font-bold tracking-tight">{count}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+      <span
+        className={cn(
+          "h-2 w-2 rounded-full",
+          hasAlert ? "bg-amber-500" : "bg-muted-foreground/30"
+        )}
+      />
+      <span className="font-medium">{label}</span>
+      <span className="tabular-nums text-xs">· {count}</span>
+    </Link>
+  );
+}
+
+function KpiCard({
+  label,
+  value,
+  sub,
+  href,
+  tone = "default",
+  isText = false,
+}: {
+  label: string;
+  value: number | string;
+  sub?: string;
+  href: string;
+  tone?: "default" | "danger" | "success" | "warning";
+  isText?: boolean;
+}) {
+  const toneClass = {
+    default: "text-foreground",
+    danger: "text-red-600",
+    success: "text-green-700",
+    warning: "text-amber-700",
+  }[tone];
+
+  return (
+    <Link
+      href={href}
+      className="group rounded-xl border bg-card p-5 transition-all hover:border-foreground/20 hover:shadow-sm"
+    >
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p
+        className={cn(
+          "mt-2 font-bold tracking-tight tabular-nums",
+          isText ? "text-2xl" : "text-3xl",
+          toneClass
+        )}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="mt-1 truncate text-xs text-muted-foreground">{sub}</p>
+      )}
     </Link>
   );
 }
@@ -363,7 +475,8 @@ export default async function DashboardHome({
             <div className="h-8 w-48 bg-muted rounded animate-pulse" />
             <div className="h-4 w-64 bg-muted rounded animate-pulse mt-2" />
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />

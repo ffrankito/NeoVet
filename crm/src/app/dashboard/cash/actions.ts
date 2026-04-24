@@ -92,7 +92,7 @@ export async function getCashSession(id: string) {
 
 export async function getOpenSession() {
   const [session] = await db
-    .select({ id: cashSessions.id })
+    .select({ id: cashSessions.id, openedAt: cashSessions.openedAt })
     .from(cashSessions)
     .where(isNull(cashSessions.closedAt))
     .limit(1);

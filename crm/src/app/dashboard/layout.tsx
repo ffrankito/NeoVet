@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getRole } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/admin/app-sidebar";
+import { Topbar } from "@/components/admin/topbar";
 
 export default async function DashboardLayout({
   children,
@@ -19,14 +20,17 @@ export default async function DashboardLayout({
 
   const role = await getRole();
 
-return (
+  return (
     <div className="flex min-h-screen">
       <AppSidebar user={user} role={role} />
-      <main className="flex-1 overflow-auto pt-14 lg:pt-0">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          {children}
-        </div>
-      </main>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Topbar user={user} role={role} />
+        <main className="flex-1 overflow-auto pt-14 lg:pt-0">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
-  )
+  );
 }

@@ -5,6 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { createWalkIn } from "@/app/dashboard/appointments/actions";
 
 type ActionResult =
@@ -12,20 +22,15 @@ type ActionResult =
   | undefined;
 
 interface WalkInFormProps {
-  clients: Array<{ id: string; name: string }>;
   patients: Array<{ id: string; name: string; species: string; clientId: string; clientName: string }>;
   services: Array<{ id: string; name: string; category: string | null }>;
   defaultPatientId?: string;
 }
 
-export function WalkInForm({ clients, patients, services, defaultPatientId }: WalkInFormProps) {
-  const defaultPatient = defaultPatientId ? patients.find((p) => p.id === defaultPatientId) : undefined;
-  const [isOpen, setIsOpen] = useState(!!defaultPatientId);
-  const [selectedClient, setSelectedClient] = useState(defaultPatient?.clientId ?? "");
+export function WalkInForm({ patients, services, defaultPatientId }: WalkInFormProps) {
+  const [open, setOpen] = useState(!!defaultPatientId);
   const [selectedPatient, setSelectedPatient] = useState(defaultPatientId ?? "");
   const [selectedService, setSelectedService] = useState("");
-
-  const filteredPatients = patients.filter((p) => p.clientId === selectedClient);
 
   const action = async (_prev: ActionResult, formData: FormData) => {
     formData.set("patientId", selectedPatient);
@@ -38,56 +43,42 @@ export function WalkInForm({ clients, patients, services, defaultPatientId }: Wa
   // On success, reset form and close
   useEffect(() => {
     if (result?.success) {
-      setSelectedClient("");
       setSelectedPatient("");
       setSelectedService("");
-      setIsOpen(false);
+      setOpen(false);
     }
   }, [result]);
-
-  if (!isOpen) {
-    return (
-      <Button variant="outline" onClick={() => setIsOpen(true)}>
-        + Agregar a sala de espera
-      </Button>
-    );
-  }
 
   const error = result && "error" in result ? result.error : null;
 
   return (
-    <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
-      <h3 className="text-sm font-semibold">Agregar paciente a sala de espera</h3>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger
+        render={
+          <Button variant="outline">Agregar a sala de espera</Button>
+        }
+      />
+      <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+        <SheetHeader className="border-b">
+          <SheetTitle>Agregar a sala de espera</SheetTitle>
+          <SheetDescription>
+            Registrá un paciente que llega sin turno previo.
+          </SheetDescription>
+        </SheetHeader>
 
-      {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
+        <form action={dispatch} className="flex min-h-0 flex-1 flex-col">
+          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+            {error && (
+              <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
 
-      <form action={dispatch} className="space-y-4">
-        {/* Client selector */}
-        <div className="space-y-2">
-          <Label>Cliente *</Label>
-          <SearchableSelect
-            options={clients.map((c) => ({ value: c.id, label: c.name }))}
-            value={selectedClient}
-            onChange={(v) => { setSelectedClient(v); setSelectedPatient(""); }}
-            placeholder="Seleccioná un cliente"
-            searchPlaceholder="Buscar cliente..."
-            emptyMessage="No se encontró ningún cliente."
-          />
-        </div>
-
-        {/* Patient selector — only show when client selected */}
-        {selectedClient && (
-          <div className="space-y-2">
-            <Label>Paciente *</Label>
-            {filteredPatients.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Este cliente no tiene pacientes.</p>
-            ) : (
+            {/* Patient search — finds by patient name OR owner name */}
+            <div className="space-y-2">
+              <Label>Paciente *</Label>
               <SearchableSelect
-                options={filteredPatients.map((p) => ({
+                options={patients.map((p) => ({
                   value: p.id,
                   label: p.name,
                   sublabel: p.clientName,
@@ -95,52 +86,51 @@ export function WalkInForm({ clients, patients, services, defaultPatientId }: Wa
                 value={selectedPatient}
                 onChange={setSelectedPatient}
                 placeholder="Seleccioná un paciente"
-                searchPlaceholder="Buscar paciente..."
+                searchPlaceholder="Buscar mascota o dueño..."
                 emptyMessage="No se encontró ningún paciente."
               />
-            )}
+            </div>
+
+            {/* Service selector — optional */}
+            <div className="space-y-2">
+              <Label>Servicio</Label>
+              <SearchableSelect
+                options={services.map((s) => ({ value: s.id, label: s.name }))}
+                value={selectedService}
+                onChange={setSelectedService}
+                placeholder="Seleccionar servicio (opcional)"
+                searchPlaceholder="Buscar servicio..."
+                emptyMessage="No se encontró ningún servicio."
+              />
+            </div>
+
+            {/* Reason — optional */}
+            <div className="space-y-2">
+              <Label htmlFor="walkInReason">Motivo</Label>
+              <Input
+                id="walkInReason"
+                name="reason"
+                placeholder="Motivo de consulta..."
+              />
+            </div>
+
+            {/* Urgent checkbox */}
+            <label className="flex cursor-pointer items-center gap-2">
+              <input type="checkbox" name="isUrgent" className="rounded" />
+              <span className="text-sm font-medium text-red-600">Urgente</span>
+            </label>
           </div>
-        )}
 
-        {/* Service selector — optional */}
-        <div className="space-y-2">
-          <Label>Servicio</Label>
-          <SearchableSelect
-            options={services.map((s) => ({ value: s.id, label: s.name }))}
-            value={selectedService}
-            onChange={setSelectedService}
-            placeholder="Seleccionar servicio (opcional)"
-            searchPlaceholder="Buscar servicio..."
-            emptyMessage="No se encontró ningún servicio."
-          />
-        </div>
-
-        {/* Reason — optional */}
-        <div className="space-y-2">
-          <Label htmlFor="walkInReason">Motivo</Label>
-          <Input
-            id="walkInReason"
-            name="reason"
-            placeholder="Motivo de consulta..."
-          />
-        </div>
-
-        {/* Urgent checkbox */}
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" name="isUrgent" className="rounded" />
-          <span className="text-sm font-medium text-red-600">Urgente</span>
-        </label>
-
-        {/* Buttons */}
-        <div className="flex gap-3">
-          <Button type="submit" disabled={isPending || !selectedPatient}>
-            {isPending ? "Agregando..." : "Agregar"}
-          </Button>
-          <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-            Cancelar
-          </Button>
-        </div>
-      </form>
-    </div>
+          <SheetFooter className="flex-row justify-end gap-3 border-t p-4">
+            <SheetClose
+              render={<Button type="button" variant="outline">Cancelar</Button>}
+            />
+            <Button type="submit" disabled={isPending || !selectedPatient}>
+              {isPending ? "Agregando..." : "Agregar"}
+            </Button>
+          </SheetFooter>
+        </form>
+      </SheetContent>
+    </Sheet>
   );
 }

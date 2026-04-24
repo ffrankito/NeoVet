@@ -33,7 +33,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ### What's built
 
-- **Clients & patients** — full CRUD, avatar upload, deceased flag, GVet import flag. 1,771 clients + 1,380 patients imported.
+- **Clients & patients** — full CRUD, avatar upload, deceased flag, GVet import flag. DB is currently populated with smoke-test data only (12 clients / 15 patients / 22 appointments as of 2026-04-24) — Paula is not yet live on the new system. Historical GVet imports (1,771 clients / 1,380 patients) were exploratory and have been cleared.
 - **Clinical history** — SOAP consultations with vitals, treatment items (medication/dose/frequency/duration), vaccinations, deworming records, documents (5 categories + Supabase Storage), complementary methods (study reports + photos).
 - **Appointments** — create/confirm/complete/cancel/no-show. 5 statuses: `pending`, `confirmed`, `completed`, `cancelled`, `no_show`. Cancellation captures optional reason. Types: `veterinary` / `grooming`. Consultation types: `clinica` / `virtual` / `domicilio`.
 - **Calendar** — weekly view (desktop) / daily (mobile), color-coded services, surgery blocks, free-slot visualization, staff filter, schedule suspension with auto-cancel.
@@ -132,20 +132,19 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ## Database & Migrations
 
-This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
+This app currently runs against a single Supabase project (no preview branch yet — see root `CLAUDE.md`). A dev branch is planned before Paula goes live.
 
 **Current state:** 34 migrations (latest: `0033_add_source_to_clients` — `source` channel column for bot-vs-manual acquisition tracking), 35 tables.
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`
 - Run `npm run db:generate` to generate the SQL migration file in `drizzle/migrations/`
-- Commit the migration file and push — Supabase branching applies it to the appropriate DB
+- Commit the migration file and push — Supabase applies it on deploy.
 - **Important:** If Drizzle generates CREATE TABLE statements for tables that already exist in the DB (happened with bot tables in migration 0019), manually strip them from the SQL file before committing.
 
-**Switching environments locally** — `.env.local` is the active env, swap it by copying:
+**Local env setup** — `.env.local` is the active env. Copy canonical values from `.env.prod`:
 ```bash
-cp .env.dev .env.local           # → preview DB (dev branch)
-cp .env.production  .env.local   # → production DB (careful)
+cp .env.prod .env.local
 ```
 
 **Supabase CLI** is configured in `supabase/` and linked to project ref `ajpzsmcqlbbuzimjjwyi`.
