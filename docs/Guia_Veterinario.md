@@ -21,23 +21,38 @@ Hola. Te escribo porque necesito que registres cada consulta en el sistema. No e
 
 ## 2. El Dashboard
 
-Cuando ingresás, ves **"Tus turnos de hoy"** — solo los que están asignados a vos, ordenados por hora.
+Cuando ingresás, lo primero que ves arriba de todo es la tarjeta **"Próximo paciente"**. Esa tarjeta es tu orientación para el siguiente turno — armada para que en un vistazo sepas a quién vas a atender y con qué cuidados.
 
-### Leer un Turno
-- **Paciente:** Nombre de la mascota
-- **Cliente:** Nombre del dueño (nombre y teléfono)
-- **Hora:** A qué hora está programado
-- **Servicio:** Qué tipo de consulta es (ej: "Revisación", "Cirugía", "Seguimiento")
-- **Estado:** Por confirmar / Confirmado / Completado / No se presentó
+### Tarjeta "Próximo paciente"
+Muestra el turno más próximo asignado a vos (ordenado: primero urgentes, después por hora):
+- **Hora** del turno (arriba a la derecha)
+- **Nombre de la mascota** (grande)
+- **Especie · Raza · Sexo**
+- **Chips de alerta** cuando aplican:
+  - 🔴 **Urgente** — caso marcado como urgencia
+  - 🟡 **Braquicéfalo** — raza de riesgo respiratorio (bulldog, pug, boxer, shih tzu, etc.)
+  - 🔴 **Fallecido** — si por error el paciente quedó marcado así, avisá a admin
+- **Motivo** de la consulta
+- **Dueño** (clickeable — te lleva a su ficha)
+- **Última consulta** (fecha)
+- **Vacunas vencidas** (en rojo, si hay)
+- Link **"Ver ficha del paciente →"**
 
-### Resumen del Paciente (en la tarjeta del turno)
-Ves un mini-resumen:
-- Edad del paciente
-- Última consulta: fecha y motivo
-- Vacunas vencidas (si las hay)
-- Alerta braquicéfalo (si es un bulldog u otra raza de riesgo)
+💡 **Por qué importa:** Esa tarjeta te prepara. Si ves "Braquicéfalo", sabés que tenés que manejarlo con más cuidado (sedación, anestesia, calor). Si hay vacunas vencidas, podés ofrecerlas en esta cita. Si es urgente, priorizá el espacio físico y los recursos antes de que entre.
 
-💡 **Por qué importa:** Ese resumen te prepara. Si ves una alerta, sabés que hay riesgo respiratorio. Si hay vacunas vencidas, podés ofrecerlas en esta cita.
+### Si no tenés turnos hoy
+Verás la misma tarjeta con borde punteado y el mensaje *"No tenés próximo turno hoy"*. No es un error — es el estado tranquilo.
+
+### Debajo de la tarjeta
+- Fila de tarjetas con el resumen del día (Turnos hoy, En espera, Urgentes).
+- Botones para crear cliente, agendar turno, o agregar un paciente a sala de espera.
+- Las secciones **Sala de espera**, **Turnos programados** y **Completados** te muestran tu lista del día filtrada (solo tus turnos, solo consultas veterinarias — no estética).
+
+### Estados de un turno
+- **Por confirmar** (pendiente)
+- **Confirmado** (listo para atender)
+- **Completado** (ya lo atendiste)
+- **No se presentó / Cancelado** (no vino)
 
 ---
 

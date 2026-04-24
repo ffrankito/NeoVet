@@ -143,6 +143,7 @@ Nine Paula-facing additions approved via WhatsApp. Stopgap #9 cancelled 2026-04-
 | D27 | Vet read-only pricing (A8) | Franco | ✅ Done — PR #16, commit `cb4dcd5`, `/dashboard/precios` |
 | D28 | Observability: Sentry on all 3 apps + Langfuse + PostHog (A10) | Tomás + Franco | 🟡 In progress — T1a ✅ verified; T1b + T1c code merged, runtime verification pending Vercel env vars; T2 + T3 queued |
 | D29 | Client data fields — DNI + address (A11) | Tomás | ✅ Done 2026-04-23 — added to form, detail page, inline creation |
+| D30 | Dashboard polish + role-specific views | Tomás | ✅ Done 2026-04-24 — commits `99af000` + `098b2a3`. Global desktop topbar with user menu; today-scoped KPI row (Turnos hoy / En espera / Urgentes / Caja) replaces lifetime counts; admin alert strip (Deudores + Stock bajo); walk-in form converted to shadcn Sheet drawer with patient-aware search; VetHeroCard (`Próximo paciente`) for role=vet; GroomingCard grid (`Mi día`) for role=groomer; AppointmentRow density + hover pass. Also shipped: `scripts/seed-dashboard-smoke.ts`, `scripts/inspect-db.ts`, `scripts/set-user-role.ts`. |
 
 ---
 

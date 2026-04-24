@@ -26,36 +26,44 @@ Hola. Soy Paula. Esta guía es para vos y para cualquiera que tenga acceso admin
 
 Cuando ingresas, ves el dashboard. Acá está el corazón de la operación del día.
 
-### Tarjetas de Resumen (arriba)
-- **Turnos de hoy:** Total de citas programadas para hoy
-- **Clientes:** Cantidad total de clientes en el sistema
-- **Pacientes:** Cantidad total de mascotas
-- **Ingresos:** Total de dinero que registramos hoy (si la caja ya se abrió)
+### Barra superior (arriba a la derecha)
+- Tu email + badge con tu rol (Admin).
+- Clic en tu avatar para cerrar sesión.
 
-### Sección "Turnos del Día" (centro)
-Aca ves TODOS los turnos de hoy, ordenados por hora:
-- Hora del turno
-- Cliente (nombre) y paciente (nombre de la mascota)
-- Profesional asignado (vos, el veterinario, el esteticista)
-- Tipo: Veterinario / Estética
-- Estado: Por confirmar / Confirmado / Completado / No se presentó / Cancelado
+### Panel de control — Tarjetas del día (fila de 4 tarjetas)
+Las tarjetas reflejan lo que está pasando **hoy**, no totales históricos:
+- **Turnos hoy:** total del día, con sub-línea *"X completados · Y pendientes"*
+- **En espera:** cuántos pacientes están confirmados y esperando; muestra *"Próximo: HH:MM · <Nombre>"*
+- **Urgentes:** se pone roja cuando hay ≥ 1. Si dice "Sin urgencias", respirá tranquila.
+- **Caja:** dice "Abierta desde HH:MM" o "Cerrada" (en ámbar). Clic para ir a la vista de caja.
 
-**Cómo leer un turno:**
-- Si está en gris: pendiente de confirmar
-- Si está en azul: confirmado, listo para atender
-- Si está en verde: ya se completó
-- Si está en rojo: se canceló o no asistió el cliente
+Cada tarjeta es clickeable — te lleva a la lista completa del dato que mostra.
 
-**Acciones rápidas:**
-- Hacé clic en el turno para ver detalles
-- Desde la tarjeta, podés confirmar, completar, cancelar o marcar "no se presentó"
+### Tira de alertas (debajo de las tarjetas, solo admin/dueño)
+Dos pastillas chicas que pasan a ámbar cuando hay algo pendiente:
+- **Deudores:** cantidad de clientes con cuentas sin pagar (pendiente o parcial). Clic para ir a Deudores.
+- **Stock bajo:** productos activos que tocaron el mínimo. Clic para ir a Pet Shop.
 
-### Widget de Caja (abajo)
-- Balance actual de efectivo y total por método de pago
-- Si la caja no está abierta, ves un botón "Abrir caja"
-- No podés registrar gastos o ingresos si la caja está cerrada
+Si las dos están grises → "todo tranquilo". Si alguna está ámbar → tocarla y resolver.
 
-💡 **Por qué importa:** El dashboard es tu panel de control. Miralo cada mañana. Te avisa qué está pendiente, quién viene, cuánto dinero entra.
+### Acciones rápidas (fila de 3 botones)
+- **Nuevo cliente** — alta de cliente + primera mascota.
+- **Nuevo turno programado** — agendar con fecha y hora.
+- **Agregar a sala de espera** — abre un panel lateral para registrar un paciente que llegó sin turno (o uno que atendieron por urgencia y ahora registrás). Dentro del panel: un solo buscador que acepta nombre de mascota **o** dueño.
+
+### Sala de espera
+Pacientes confirmados que están en la clínica ahora. Ordenados: primero los urgentes (fondo rojo + barra roja a la izquierda), después por hora. Cada fila:
+- Punto de color por tipo de servicio, hora, mascota, dueño, motivo, veterinario asignado, estado.
+- Pasar el mouse por arriba → fondo clarito, indica que es accionable.
+- Botones al final de cada fila para confirmar, completar, cancelar o marcar "no se presentó".
+
+### Turnos programados
+Todavía no confirmados (pending) para hoy, por hora. Misma estructura que sala de espera.
+
+### Completados
+Los que ya se atendieron, o se cancelaron, o no se presentaron. Aparecen en gris (60% opacidad) — están ahí para consulta, no para acción.
+
+💡 **Por qué importa:** El dashboard es tu panel de control. Miralo cada mañana. Las tarjetas te dicen qué está pasando, la tira de alertas te avisa qué quedó pendiente, y sala de espera te muestra quién está adentro ahora.
 
 ---
 

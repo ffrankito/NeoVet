@@ -14,17 +14,29 @@ Hola. Te cuento cómo usar el sistema para registrar tus sesiones de estética. 
 
 ---
 
-## 2. El Dashboard
+## 2. El Dashboard — "Mi día"
 
-Cuando ingresás, ves **"Tus turnos de hoy"** — solo los turnos de estética asignados a vos, ordenados por hora.
+Cuando ingresás, ves tu sección **"Mi día"**: una grilla de tarjetas, una por cada turno de estética asignado a vos para hoy, ordenadas por hora.
 
-**Cada turno muestra:**
-- Paciente (nombre de la mascota)
-- Cliente (nombre del dueño)
-- Hora
-- Estado (Por confirmar / Confirmado / Completado / No se presentó)
+En pantalla grande ves 3 columnas, en tablet 2, en celular 1. No hay listas largas — es una vista visual pensada para tu día.
 
-Hacé clic en un turno para ver detalles o registrar la sesión.
+**Cada tarjeta muestra:**
+- **Hora** del turno (arriba a la izquierda, en tipografía mono)
+- **Estado** (arriba a la derecha): Por confirmar / Confirmado / Completado / No se presentó / Cancelado
+- **Nombre de la mascota** (grande, en negrita)
+- **Especie · Raza** (debajo, chiquito)
+- **Servicio** (ej: "Baño y corte", "Corte sanitario", "Limpieza dental")
+- **Nombre del dueño**
+- **Chips del perfil de estética** (si están cargados):
+  - Tipo de pelaje (ej: "Pelo largo", "Doble capa")
+  - Puntaje de manejo (ej: "Manejo 8/10" — cuanto más bajo, más complicado)
+  - Tiempo estimado (ej: "~45 min")
+
+Las tarjetas de turnos ya completados, cancelados o "no se presentó" aparecen con opacidad reducida — están ahí para consulta, no para acción.
+
+Clic en una tarjeta → te lleva al detalle del turno para registrar la sesión.
+
+💡 **Por qué importa:** La grilla reemplaza la lista densa que tenía el sistema antes. Cada tarjeta es un proyecto visual — mirás la de Rocky (Bulldog, manejo 6/10, ~60 min) y ya sabés qué te espera antes de abrir nada.
 
 ---
 
