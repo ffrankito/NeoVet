@@ -9,7 +9,7 @@ import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
 import { getOpenSession } from "@/app/dashboard/cash/actions";
-import { getAllPatientsForSelect, getServicesForWalkIn } from "@/app/dashboard/appointments/actions";
+import { getAllPatientsForSelect, getServicesForWalkIn, getPatientMiniSummary } from "@/app/dashboard/appointments/actions";
 import { WalkInForm } from "@/components/admin/appointments/walk-in-form";
 import { Suspense } from "react";
 import { getServiceColors } from "@/lib/calendar-utils";
@@ -53,13 +53,15 @@ function AppointmentRow({
   dimmed?: boolean;
 }) {
   const colors = getServiceColors(apt.serviceCategory);
+  const isUrgentActive = apt.isUrgent && apt.status === "confirmed";
 
   return (
     <div
       className={cn(
-        "flex items-center gap-4 px-4 py-3",
+        "flex items-center gap-3 px-3 py-2.5 transition-colors duration-150",
+        !dimmed && "hover:bg-muted/40",
         dimmed && "opacity-50",
-        apt.isUrgent && apt.status === "confirmed" && "bg-red-50 border-l-4 border-l-red-500"
+        isUrgentActive && "bg-red-50 border-l-4 border-l-red-500 hover:bg-red-100/60"
       )}
     >
       {/* Service category dot */}
@@ -185,11 +187,18 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
       reason: appointments.reason,
       patientId: appointments.patientId,
       patientName: patients.name,
+      patientSpecies: patients.species,
+      patientBreed: patients.breed,
+      patientSex: patients.sex,
+      groomingCoatType: patients.groomingCoatType,
+      groomingBehaviorScore: patients.groomingBehaviorScore,
+      groomingEstimatedMinutes: patients.groomingEstimatedMinutes,
       clientName: clients.name,
       clientId: clients.id,
       assignedStaffName: staff.name,
       appointmentType: appointments.appointmentType,
       serviceCategory: services.category,
+      serviceName: services.name,
       isWalkIn: appointments.isWalkIn,
       isUrgent: appointments.isUrgent,
     })
@@ -237,6 +246,24 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
   ).length;
   const nextAppointment = waitingRoom[0];
 
+  // Vet-specific: next confirmed/pending appointment (urgent first, then by time)
+  const nextForVet =
+    role === "vet"
+      ? [...todayAppointments]
+          .filter((a) => a.status === "confirmed" || a.status === "pending")
+          .sort((a, b) => {
+            if (a.isUrgent && !b.isUrgent) return -1;
+            if (!a.isUrgent && b.isUrgent) return 1;
+            return (
+              new Date(a.scheduledAt).getTime() -
+              new Date(b.scheduledAt).getTime()
+            );
+          })[0] ?? null
+      : null;
+  const vetPatientSummary = nextForVet
+    ? await getPatientMiniSummary(nextForVet.patientId)
+    : null;
+
   return (
     <div className="space-y-8">
       {/* Page title */}
@@ -244,6 +271,11 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
         <h1 className="text-2xl font-bold tracking-tight">Panel de control</h1>
         <p className="text-muted-foreground capitalize">{todayLabel}</p>
       </div>
+
+      {/* Vet hero card — only for vet role */}
+      {role === "vet" && (
+        <VetHeroCard next={nextForVet} summary={vetPatientSummary} />
+      )}
 
       {/* KPI row — today-scoped, role-aware */}
       <div className={cn(
@@ -323,63 +355,319 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
         />
       </div>
 
-      {/* Sala de espera */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">
-          Sala de espera
-          {waitingRoom.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({waitingRoom.length})
-            </span>
-          )}
-        </h2>
-        {waitingRoom.length === 0 ? (
-          <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground">
-            No hay pacientes en espera.
-          </div>
-        ) : (
-          <div className="rounded-lg border divide-y">
-            {waitingRoom.map((apt) => (
-              <AppointmentRow key={apt.id} apt={apt} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Turnos programados */}
-      {scheduled.length > 0 && (
+      {/* Groomer view: card grid of today's grooming appointments */}
+      {role === "groomer" && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">
-            Turnos programados
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({scheduled.length})
-            </span>
+            Mi día
+            {todayAppointments.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({todayAppointments.length})
+              </span>
+            )}
           </h2>
-          <div className="rounded-lg border divide-y">
-            {scheduled.map((apt) => (
-              <AppointmentRow key={apt.id} apt={apt} />
-            ))}
-          </div>
+          {todayAppointments.length === 0 ? (
+            <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
+              No tenés sesiones de estética hoy.
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {todayAppointments.map((apt) => (
+                <GroomingCard key={apt.id} apt={apt} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Completados */}
-      {finished.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            Completados
-            <span className="ml-2 text-sm font-normal">
-              ({finished.length})
-            </span>
-          </h2>
-          <div className="rounded-lg border divide-y">
-            {finished.map((apt) => (
-              <AppointmentRow key={apt.id} apt={apt} dimmed />
-            ))}
+      {/* Non-groomer view: existing row-based sections */}
+      {role !== "groomer" && (
+        <>
+          {/* Sala de espera */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">
+              Sala de espera
+              {waitingRoom.length > 0 && (
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({waitingRoom.length})
+                </span>
+              )}
+            </h2>
+            {waitingRoom.length === 0 ? (
+              <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground">
+                No hay pacientes en espera.
+              </div>
+            ) : (
+              <div className="rounded-lg border divide-y">
+                {waitingRoom.map((apt) => (
+                  <AppointmentRow key={apt.id} apt={apt} />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
+
+          {/* Turnos programados */}
+          {scheduled.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">
+                Turnos programados
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({scheduled.length})
+                </span>
+              </h2>
+              <div className="rounded-lg border divide-y">
+                {scheduled.map((apt) => (
+                  <AppointmentRow key={apt.id} apt={apt} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Completados */}
+          {finished.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-muted-foreground">
+                Completados
+                <span className="ml-2 text-sm font-normal">
+                  ({finished.length})
+                </span>
+              </h2>
+              <div className="rounded-lg border divide-y">
+                {finished.map((apt) => (
+                  <AppointmentRow key={apt.id} apt={apt} dimmed />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
+  );
+}
+
+function VetHeroCard({
+  next,
+  summary,
+}: {
+  next: {
+    id: string;
+    scheduledAt: Date;
+    reason: string | null;
+    patientId: string;
+    patientName: string;
+    patientSpecies: string;
+    patientBreed: string | null;
+    patientSex: string | null;
+    clientName: string;
+    clientId: string;
+    isUrgent: boolean;
+    isWalkIn: boolean;
+  } | null;
+  summary: Awaited<ReturnType<typeof getPatientMiniSummary>> | null;
+}) {
+  if (!next || !summary) {
+    return (
+      <div className="rounded-xl border border-dashed bg-card p-8 text-center">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Próximo paciente
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          No tenés próximo turno hoy.
+        </p>
+      </div>
+    );
+  }
+
+  const timeLabel = next.isWalkIn
+    ? "S/T"
+    : formatTimeART(next.scheduledAt, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+  const descriptors = [
+    next.patientSpecies,
+    next.patientBreed,
+    next.patientSex,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const lastDate = summary.lastConsultation
+    ? new Date(summary.lastConsultation.createdAt).toLocaleDateString("es-AR")
+    : null;
+
+  return (
+    <div className="rounded-xl border bg-card p-6 shadow-sm">
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Próximo paciente
+        </p>
+        <p className="font-mono text-lg font-semibold tabular-nums">
+          {timeLabel}
+        </p>
+      </div>
+
+      <h2 className="mt-3 text-3xl font-bold tracking-tight">
+        {next.patientName}
+      </h2>
+      {descriptors && (
+        <p className="mt-1 text-sm text-muted-foreground">{descriptors}</p>
+      )}
+
+      {(summary.isBrachycephalic || summary.isDeceased || next.isUrgent) && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {next.isUrgent && (
+            <Badge variant="destructive" className="text-xs">
+              Urgente
+            </Badge>
+          )}
+          {summary.isBrachycephalic && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+              Braquicéfalo
+            </span>
+          )}
+          {summary.isDeceased && (
+            <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+              Fallecido
+            </span>
+          )}
+        </div>
+      )}
+
+      {next.reason && (
+        <p className="mt-4 text-base">{next.reason}</p>
+      )}
+
+      <p className="mt-2 text-sm text-muted-foreground">
+        Dueño:{" "}
+        <Link
+          href={`/dashboard/clients/${next.clientId}`}
+          className="text-foreground hover:underline"
+        >
+          {next.clientName}
+        </Link>
+      </p>
+
+      {(lastDate || summary.overdueVaccines.length > 0) && (
+        <div className="mt-4 space-y-1 border-t pt-3 text-sm">
+          {lastDate && (
+            <p className="text-muted-foreground">
+              Última consulta: <span className="text-foreground">{lastDate}</span>
+            </p>
+          )}
+          {summary.overdueVaccines.length > 0 && (
+            <p className="text-red-600">
+              Vacunas vencidas:{" "}
+              {summary.overdueVaccines.map((v) => v.name).join(", ")}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="mt-5 flex justify-end">
+        <Link
+          href={`/dashboard/patients/${next.patientId}`}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          Ver ficha del paciente →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function GroomingCard({
+  apt,
+}: {
+  apt: {
+    id: string;
+    scheduledAt: Date;
+    status: string;
+    reason: string | null;
+    patientId: string;
+    patientName: string;
+    patientSpecies: string;
+    patientBreed: string | null;
+    clientName: string;
+    clientId: string;
+    serviceName: string | null;
+    groomingCoatType: string | null;
+    groomingBehaviorScore: number | null;
+    groomingEstimatedMinutes: number | null;
+    isWalkIn: boolean;
+  };
+}) {
+  const dimmed =
+    apt.status === "completed" ||
+    apt.status === "cancelled" ||
+    apt.status === "no_show";
+
+  const timeLabel = apt.isWalkIn
+    ? "S/T"
+    : formatTimeART(apt.scheduledAt, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+  const descriptors = [apt.patientSpecies, apt.patientBreed]
+    .filter(Boolean)
+    .join(" · ");
+
+  const profileChips: { label: string }[] = [];
+  if (apt.groomingCoatType) profileChips.push({ label: apt.groomingCoatType });
+  if (apt.groomingBehaviorScore !== null)
+    profileChips.push({ label: `Manejo ${apt.groomingBehaviorScore}/10` });
+  if (apt.groomingEstimatedMinutes !== null)
+    profileChips.push({ label: `~${apt.groomingEstimatedMinutes} min` });
+
+  return (
+    <Link
+      href={`/dashboard/appointments/${apt.id}`}
+      className={cn(
+        "group flex flex-col rounded-xl border bg-card p-4 transition-all hover:border-foreground/20 hover:shadow-sm",
+        dimmed && "opacity-60 hover:opacity-80"
+      )}
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="font-mono text-sm font-semibold tabular-nums text-muted-foreground">
+          {timeLabel}
+        </span>
+        <Badge variant={statusVariants[apt.status] ?? "secondary"} className="text-xs">
+          {statusLabels[apt.status] ?? apt.status}
+        </Badge>
+      </div>
+
+      <h3 className="mt-2 text-xl font-bold tracking-tight">
+        {apt.patientName}
+      </h3>
+      {descriptors && (
+        <p className="text-xs text-muted-foreground">{descriptors}</p>
+      )}
+
+      {apt.serviceName && (
+        <p className="mt-3 text-sm font-medium">{apt.serviceName}</p>
+      )}
+
+      <p className="mt-1 text-xs text-muted-foreground truncate">
+        {apt.clientName}
+      </p>
+
+      {profileChips.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {profileChips.map((chip) => (
+            <span
+              key={chip.label}
+              className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+            >
+              {chip.label}
+            </span>
+          ))}
+        </div>
+      )}
+    </Link>
   );
 }
 
