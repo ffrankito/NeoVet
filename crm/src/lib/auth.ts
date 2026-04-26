@@ -1,18 +1,41 @@
-import { headers } from "next/headers";
 import type { StaffRole } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/db";
 import { staff } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+const VALID_ROLES: readonly StaffRole[] = [
+  "admin",
+  "owner",
+  "vet",
+  "groomer",
+] as const;
+
 /**
- * Reads the current user's role from the x-user-role header set by middleware.
+ * Resolves the current user's role by re-verifying the Supabase JWT and
+ * reading `app_metadata.role` directly. Does not trust the `x-user-role`
+ * request header (which is forgeable by any client).
+ *
+ * Returns null if: no authenticated user, user is `disabled`, role is
+ * missing, or role is not a known StaffRole.
+ *
  * Only valid in server components and server actions.
  */
 export async function getRole(): Promise<StaffRole | null> {
-  const headersList = await headers();
-  const role = headersList.get("x-user-role");
-  return (role as StaffRole) ?? null;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const meta = user.app_metadata ?? {};
+  if (meta.disabled === true) return null;
+
+  const role = meta.role;
+  if (typeof role !== "string") return null;
+  if (!VALID_ROLES.includes(role as StaffRole)) return null;
+
+  return role as StaffRole;
 }
 
 /**

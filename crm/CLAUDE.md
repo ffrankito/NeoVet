@@ -79,8 +79,9 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - Key schemas: `appointments.ts`, `consultations.ts`, `staff.ts`, `cash_sessions.ts`, `grooming_sessions.ts`, `email_logs.ts`, `hospitalizations.ts`, `hospitalization_observations.ts`, `procedures.ts`, `procedure_supplies.ts`, `consent_templates.ts`, `consent_documents.ts`, `charges.ts`, `retorno_queue.ts`
 
 ### Auth
-- `src/lib/supabase/middleware.ts` — auth middleware, reads role from JWT `app_metadata`, sets `x-user-role` header
-- `src/lib/auth.ts` — `getRole()`, `hasRole()`, `isAdminLevel()`, `getSessionStaffId()`
+- `src/lib/supabase/middleware.ts` — auth middleware, reads role from JWT `app_metadata`, sets `x-user-role` header on the response (used **only** by `src/proxy.ts` for navigation gating, in the same call frame).
+- `src/lib/auth.ts` — `getRole()`, `hasRole()`, `isAdminLevel()`, `getSessionStaffId()`. `getRole()` re-verifies the JWT via `supabase.auth.getUser()` and reads `app_metadata.role` directly — it does **not** trust the `x-user-role` request header (which is forgeable). It also returns null for users with `app_metadata.disabled === true` or with a role that isn't a known `StaffRole`. Server actions and server components must call `hasRole(...)` for every privileged action — middleware-level URL gating is navigation-only and does not protect Server Action RPC endpoints.
+- `src/lib/charges/create.ts` — internal `createChargeForSource(...)` helper used by consultations/grooming/sales completions. Lives outside any `"use server"` file so it cannot be invoked as an RPC; callers are responsible for upstream authorization.
 
 ### Email
 - `src/lib/email/resend.ts` — Resend client via `getResend()` lazy getter (constructed on first call; throws if `RESEND_API_KEY` is absent). Never import a pre-built `resend` singleton — always call `getResend()` at the send site.

@@ -388,34 +388,3 @@ export async function deleteCharge(id: string) {
 
 // ── Utility (non-form) ─────────────────────────────────────────────────────
 
-/**
- * Creates a charge programmatically from another server action.
- * NOT a form action — takes direct parameters.
- * Used when completing grooming sessions, procedures, hospitalizations, etc.
- * Returns the new charge ID.
- */
-export async function createChargeForSource(
-  sourceType: string,
-  sourceId: string,
-  clientId: string,
-  description: string,
-  amount: number,
-  staffId: string
-): Promise<string> {
-  const id = genChargeId();
-
-  await db.insert(charges).values({
-    id,
-    clientId,
-    sourceType,
-    sourceId,
-    description,
-    amount: String(amount),
-    paidAmount: "0",
-    status: "pending",
-    createdById: staffId,
-  });
-
-  revalidatePath("/dashboard/deudores");
-  return id;
-}

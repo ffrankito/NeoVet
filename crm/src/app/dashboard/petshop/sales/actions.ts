@@ -8,7 +8,7 @@ import { saleId, saleItemId } from "@/lib/ids";
 import { eq, sql, desc } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, isAdminLevel } from "@/lib/auth";
-import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { createChargeForSource } from "@/lib/charges/create";
 import { patients } from "@/db/schema";
 
 const saleItemSchema = z.object({

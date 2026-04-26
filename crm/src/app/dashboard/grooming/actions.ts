@@ -17,7 +17,7 @@ import { groomingSessionId, cashMovementId } from "@/lib/ids";
 import { eq, desc, isNull, and } from "drizzle-orm";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { createChargeForSource } from "@/lib/charges/create";
 import { randomUUID } from "crypto";
 import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 

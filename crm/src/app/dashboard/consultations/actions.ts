@@ -8,7 +8,7 @@ import { consultationId } from "@/lib/ids";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 import { saveTreatmentItems } from "./treatment-actions";
-import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { createChargeForSource } from "@/lib/charges/create";
 import { getSessionStaffId } from "@/lib/auth";
 
 const consultationSchema = z.object({
