@@ -89,3 +89,24 @@ export function formatTimeART(
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleTimeString("es-AR", { timeZone: ART_TIMEZONE, ...options });
 }
+
+/**
+ * Returns the number of minutes since ART midnight for a given Date.
+ *
+ * Use this when comparing a stored UTC Date against ART-local slot strings
+ * (e.g. "09:30") — never compare `getUTCHours()` directly against ART
+ * strings, that's silently 3h off.
+ *
+ * Returns a value in [0, 1440).
+ */
+export function dateToMinutesART(date: Date): number {
+  // en-CA gives ISO-style "HH:MM" reliably across runtimes.
+  const timeStr = date.toLocaleTimeString("en-CA", {
+    timeZone: ART_TIMEZONE,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const [h, m] = timeStr.split(":").map(Number);
+  return h * 60 + m;
+}

@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { clients, patients } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { verifyBotApiKey } from "@/lib/bot-auth";
+import { revalidateBotMutation } from "@/lib/bot-revalidate";
 import { z } from "zod";
 import { clientId as genClientId, patientId as genPatientId } from "@/lib/ids";
 
@@ -109,6 +110,8 @@ export async function POST(req: NextRequest) {
     sex: patient.sex,
     dateOfBirth: patient.dateOfBirth ?? null,
   });
+
+  revalidateBotMutation();
 
   return NextResponse.json(
     { clientId: newClientId, patientId: newPatientId, ok: true },
