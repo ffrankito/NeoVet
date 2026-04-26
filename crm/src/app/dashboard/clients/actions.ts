@@ -5,8 +5,18 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { clients } from "@/db/schema";
 import { clientId } from "@/lib/ids";
-import { eq, ilike, or, sql, desc, and, gte, ne, asc } from "drizzle-orm";
-import { patients, appointments, services, staff } from "@/db/schema";
+import { eq, ilike, or, sql, desc, and, gte, ne, asc, count, inArray } from "drizzle-orm";
+import {
+  patients,
+  appointments,
+  services,
+  staff,
+  consultations,
+  hospitalizations,
+  procedures,
+  groomingSessions,
+  charges,
+} from "@/db/schema";
 import { z } from "zod";
 import { isAdminLevel } from "@/lib/auth";
 
@@ -169,6 +179,80 @@ export async function updateClient(id: string, formData: FormData) {
 
   revalidatePath("/dashboard/clients");
   redirect(`/dashboard/clients/${id}`);
+}
+
+export type ClientDeletePreview = {
+  patients: number;
+  consultations: number;
+  appointments: number;
+  hospitalizations: number;
+  procedures: number;
+  groomingSessions: number;
+  pendingCharges: number;
+};
+
+/**
+ * Counts the records that will be permanently destroyed by deleteClient(id).
+ * Walks through patients to also count their cascade impact (consultations,
+ * appointments, hospitalizations, etc.). Used to populate the confirmation
+ * dialog so admins see what they're about to wipe before confirming.
+ *
+ * Admin / owner only.
+ */
+export async function getClientDeletePreview(
+  id: string,
+): Promise<ClientDeletePreview> {
+  if (!(await isAdminLevel())) {
+    throw new Error("No autorizado");
+  }
+
+  const patientRows = await db
+    .select({ id: patients.id })
+    .from(patients)
+    .where(eq(patients.clientId, id));
+  const patientIds = patientRows.map((p) => p.id);
+
+  // Empty IN () is invalid SQL — short-circuit when the client has no pets.
+  const noPatients = patientIds.length === 0;
+
+  const [
+    [{ n: pendingChargesCount } = { n: 0 }],
+    [{ n: consultationsCount } = { n: 0 }],
+    [{ n: appointmentsCount } = { n: 0 }],
+    [{ n: hospitalizationsCount } = { n: 0 }],
+    [{ n: proceduresCount } = { n: 0 }],
+    [{ n: groomingCount } = { n: 0 }],
+  ] = await Promise.all([
+    db
+      .select({ n: count() })
+      .from(charges)
+      .where(and(eq(charges.clientId, id), inArray(charges.status, ["pending", "partial"]))),
+    noPatients
+      ? Promise.resolve([{ n: 0 }])
+      : db.select({ n: count() }).from(consultations).where(inArray(consultations.patientId, patientIds)),
+    noPatients
+      ? Promise.resolve([{ n: 0 }])
+      : db.select({ n: count() }).from(appointments).where(inArray(appointments.patientId, patientIds)),
+    noPatients
+      ? Promise.resolve([{ n: 0 }])
+      : db.select({ n: count() }).from(hospitalizations).where(inArray(hospitalizations.patientId, patientIds)),
+    noPatients
+      ? Promise.resolve([{ n: 0 }])
+      : db.select({ n: count() }).from(procedures).where(inArray(procedures.patientId, patientIds)),
+    noPatients
+      ? Promise.resolve([{ n: 0 }])
+      : db.select({ n: count() }).from(groomingSessions).where(inArray(groomingSessions.patientId, patientIds)),
+  ]);
+
+  return {
+    patients: patientIds.length,
+    consultations: Number(consultationsCount),
+    appointments: Number(appointmentsCount),
+    hospitalizations: Number(hospitalizationsCount),
+    procedures: Number(proceduresCount),
+    groomingSessions: Number(groomingCount),
+    pendingCharges: Number(pendingChargesCount),
+  };
 }
 
 export async function deleteClient(id: string) {
