@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
     .where(
       and(
         lte(followUps.scheduledDate, today),
-        isNull(followUps.sentAt)
+        isNull(followUps.sentAt),
+        eq(followUps.status, "pending")
       )
     );
 

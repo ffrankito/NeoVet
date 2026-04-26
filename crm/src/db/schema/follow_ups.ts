@@ -1,7 +1,13 @@
-import { pgTable, text, timestamp, date } from "drizzle-orm/pg-core";
+import { pgEnum, pgTable, text, timestamp, date } from "drizzle-orm/pg-core";
 import { patients } from "./patients";
 import { consultations } from "./consultations";
 import { procedures } from "./procedures";
+
+export const followUpStatusEnum = pgEnum("follow_up_status", [
+  "pending",
+  "done",
+  "dismissed",
+]);
 
 export const followUps = pgTable("follow_ups", {
   id: text("id").primaryKey(),
@@ -15,8 +21,10 @@ export const followUps = pgTable("follow_ups", {
   scheduledDate: date("scheduled_date").notNull(),
   reason: text("reason").notNull(),
   sentAt: timestamp("sent_at", { withTimezone: true }),
+  status: followUpStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type FollowUp = typeof followUps.$inferSelect;
 export type NewFollowUp = typeof followUps.$inferInsert;
+export type FollowUpStatus = "pending" | "done" | "dismissed";

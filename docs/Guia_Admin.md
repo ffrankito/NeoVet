@@ -40,11 +40,12 @@ Las tarjetas reflejan lo que está pasando **hoy**, no totales históricos:
 Cada tarjeta es clickeable — te lleva a la lista completa del dato que mostra.
 
 ### Tira de alertas (debajo de las tarjetas, solo admin/dueño)
-Dos pastillas chicas que pasan a ámbar cuando hay algo pendiente:
+Tres pastillas chicas que pasan a ámbar cuando hay algo pendiente:
 - **Deudores:** cantidad de clientes con cuentas sin pagar (pendiente o parcial). Clic para ir a Deudores.
 - **Stock bajo:** productos activos que tocaron el mínimo. Clic para ir a Pet Shop.
+- **Seguimientos vencidos:** controles programados (desde consultas o procedimientos) cuya fecha ya pasó y nadie marcó como atendidos ni descartó. Clic para ir a Seguimientos.
 
-Si las dos están grises → "todo tranquilo". Si alguna está ámbar → tocarla y resolver.
+Si las tres están grises → "todo tranquilo". Si alguna está ámbar → tocarla y resolver.
 
 ### Acciones rápidas (fila de 3 botones)
 - **Nuevo cliente** — alta de cliente + primera mascota.
@@ -525,6 +526,36 @@ No necesitás hacer nada para que se generen — aparecen solos.
 - Hacé clic en un cliente para ver el detalle: resumen por categoría + tabla de todos los cargos
 
 ⚠️ **Importante:** Revisá la página de deudores regularmente. Los cargos se acumulan automáticamente — es tu responsabilidad gestionar los cobros.
+
+---
+
+## 13.5. Seguimientos
+
+**Dónde:** sección "Seguimientos" del dashboard, justo debajo de Sala de espera. No hay página aparte — se gestiona desde el dashboard. (Visible para admin, dueño, veterinario; no aparece para peluquero.)
+
+### Qué son
+Controles programados que un veterinario crea al cerrar una consulta o procedimiento ("tráemela en 15 días a control de la pata"). El sistema guarda la fecha y envía un recordatorio por email al dueño cuando se acerca la fecha.
+
+### La sección
+Tres pestañas en la cabecera:
+- **Pendientes** (por defecto): lo que todavía no se resolvió. Los vencidos (fecha ya pasó) aparecen arriba con fondo ámbar y etiqueta "Vencido".
+- **Atendidos:** los que alguien marcó como resueltos.
+- **Descartados:** los que alguien decidió dejar pasar.
+
+Cada fila muestra: fecha, mascota, dueño, motivo, y origen (link a la consulta o procedimiento que lo generó).
+
+### Acciones por fila
+- En **Pendientes:**
+  - **Marcar atendido** → el control ya se hizo (el paciente volvió, se resolvió).
+  - **Descartar** → ya no es relevante (cliente canceló la relación, el caso cambió, etc.). **Importante:** al descartar, el cron de email también deja de mandarle recordatorios.
+- En **Atendidos** / **Descartados:**
+  - **Reabrir** → lo vuelve a "Pendientes" si te confundiste.
+
+### Cuándo usarla
+- Cada mañana, al ver la pastilla "Seguimientos vencidos" en ámbar en la tira de alertas → clic y la página baja directo a la sección.
+- Un seguimiento sin respuesta tras la fecha programada significa: o el paciente no volvió (llamarlo), o ya se atendió (marcar atendido), o ya no aplica (descartar). **Dejarlo pendiente no es una opción** — los recordatorios por email seguirán cayéndole al dueño.
+
+💡 **Por qué importa:** sin esta gestión, los seguimientos se pierden en la nada. Un paciente con post-operatorio que no vuelve es un riesgo clínico. Un recordatorio que sigue mandándose a alguien que ya no quiere saber nada es ruido que erosiona la relación. Tres botones y se resuelve.
 
 ---
 

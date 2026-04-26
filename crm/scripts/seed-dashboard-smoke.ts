@@ -25,6 +25,7 @@ import {
   charges,
   products,
   cashSessions,
+  followUps,
 } from "../src/db/schema";
 import {
   clientId,
@@ -33,6 +34,7 @@ import {
   chargeId,
   productId,
   cashSessionId,
+  followUpId,
 } from "../src/lib/ids";
 import { parseDateTimeAsART, todayStartART } from "../src/lib/timezone";
 
@@ -236,6 +238,25 @@ async function seed() {
     initialAmount: "5000",
   });
 
+  // --- Follow-ups (4 pending: 3 overdue + 1 future; 1 done; 1 dismissed) ----
+  // Cascades with clients via patient FK, so cleanup is automatic.
+  const dayOffset = (days: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  };
+  await db.insert(followUps).values([
+    // Overdue (pending, scheduledDate in the past) → count toward alert chip
+    { id: followUpId(), patientId: patientsData[0].id, scheduledDate: dayOffset(-7),  reason: "Control post-consulta respiratoria", status: "pending" },
+    { id: followUpId(), patientId: patientsData[2].id, scheduledDate: dayOffset(-3),  reason: "Revisión de pata",                     status: "pending" },
+    { id: followUpId(), patientId: patientsData[8].id, scheduledDate: dayOffset(-14), reason: "Post-operatorio castración",           status: "pending" },
+    // Future (pending, not overdue) → should NOT count
+    { id: followUpId(), patientId: patientsData[4].id, scheduledDate: dayOffset(7),   reason: "Control anual",                        status: "pending" },
+    // Already handled
+    { id: followUpId(), patientId: patientsData[1].id, scheduledDate: dayOffset(-10), reason: "Control vacunación",                   status: "done" },
+    { id: followUpId(), patientId: patientsData[5].id, scheduledDate: dayOffset(-20), reason: "Control pelo",                         status: "dismissed" },
+  ]);
+
   // --- Summary --------------------------------------------------------------
   console.log(`\nSeed complete (dated ${todayDateStr} ART):`);
   console.log(`  clients:       ${clientsData.length}`);
@@ -244,6 +265,7 @@ async function seed() {
   console.log(`  charges:       5 (3 distinct clients)`);
   console.log(`  products:      5 (4 low-stock, 1 healthy control)`);
   console.log(`  cash session:  1 open`);
+  console.log(`  follow-ups:    6 (3 overdue pending, 1 future pending, 1 done, 1 dismissed)`);
 }
 
 seed()

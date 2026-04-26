@@ -5,11 +5,20 @@ import { eq, asc, and, gte, lt, inArray, sql, type SQL } from "drizzle-orm";
 import { getRole, getSessionStaffId } from "@/lib/auth";
 import { todayStartART, todayEndART, formatDateART, formatTimeART } from "@/lib/timezone";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
 import { getOpenSession } from "@/app/dashboard/cash/actions";
 import { getAllPatientsForSelect, getServicesForWalkIn, getPatientMiniSummary } from "@/app/dashboard/appointments/actions";
+import {
+  getOverdueFollowUpCount,
+  getFollowUps,
+  markFollowUpDone,
+  markFollowUpDismissed,
+  reopenFollowUp,
+  type FollowUpRow,
+} from "@/app/dashboard/follow-ups-actions";
 import { WalkInForm } from "@/components/admin/appointments/walk-in-form";
 import { Suspense } from "react";
 import { getServiceColors } from "@/lib/calendar-utils";
@@ -133,7 +142,7 @@ function AppointmentRow({
 }
 
 async function getAdminAlerts() {
-  const [unpaidResult, lowStockResult] = await Promise.all([
+  const [unpaidResult, lowStockResult, overdueFollowUps] = await Promise.all([
     db
       .select({ count: sql<number>`count(distinct ${charges.clientId})` })
       .from(charges)
@@ -148,15 +157,25 @@ async function getAdminAlerts() {
           sql`${products.currentStock}::numeric <= ${products.minStock}::numeric`
         )
       ),
+    getOverdueFollowUpCount(),
   ]);
 
   return {
     unpaidClients: Number(unpaidResult[0].count),
     lowStock: Number(lowStockResult[0].count),
+    overdueFollowUps,
   };
 }
 
-async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatientId?: string }) {
+type FollowUpsTab = "pending" | "done" | "dismissed";
+
+async function DashboardContent({
+  defaultWalkInPatientId,
+  followUpsTab,
+}: {
+  defaultWalkInPatientId?: string;
+  followUpsTab: FollowUpsTab;
+}) {
   const [role, sessionStaffId] = await Promise.all([getRole(), getSessionStaffId()]);
   const isAdmin = role === "admin" || role === "owner";
 
@@ -216,12 +235,21 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
     )
     .orderBy(asc(appointments.scheduledAt));
 
-  const [openCashSession, adminAlerts, [walkInPatients, walkInServices]] =
-    await Promise.all([
-      isAdmin ? getOpenSession() : Promise.resolve(null),
-      isAdmin ? getAdminAlerts() : Promise.resolve({ unpaidClients: 0, lowStock: 0 }),
-      Promise.all([getAllPatientsForSelect(), getServicesForWalkIn()]),
-    ]);
+  const showFollowUps = role !== "groomer";
+
+  const [
+    openCashSession,
+    adminAlerts,
+    [walkInPatients, walkInServices],
+    followUpRows,
+  ] = await Promise.all([
+    isAdmin ? getOpenSession() : Promise.resolve(null),
+    isAdmin
+      ? getAdminAlerts()
+      : Promise.resolve({ unpaidClients: 0, lowStock: 0, overdueFollowUps: 0 }),
+    Promise.all([getAllPatientsForSelect(), getServicesForWalkIn()]),
+    showFollowUps ? getFollowUps(followUpsTab) : Promise.resolve([] as FollowUpRow[]),
+  ]);
 
   // Split into 3 sections
   const waitingRoom = todayAppointments
@@ -342,6 +370,11 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
             count={adminAlerts.lowStock}
             href="/dashboard/petshop/products"
           />
+          <AlertChip
+            label="Seguimientos vencidos"
+            count={adminAlerts.overdueFollowUps}
+            href="#follow-ups"
+          />
         </div>
       )}
 
@@ -405,6 +438,9 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
               </div>
             )}
           </div>
+
+          {/* Seguimientos */}
+          <FollowUpsSection rows={followUpRows} tab={followUpsTab} />
 
           {/* Turnos programados */}
           {scheduled.length > 0 && (
@@ -671,6 +707,173 @@ function GroomingCard({
   );
 }
 
+const FOLLOW_UP_TABS: { key: FollowUpsTab; label: string }[] = [
+  { key: "pending", label: "Pendientes" },
+  { key: "done", label: "Atendidos" },
+  { key: "dismissed", label: "Descartados" },
+];
+
+function FollowUpsSection({
+  rows,
+  tab,
+}: {
+  rows: FollowUpRow[];
+  tab: FollowUpsTab;
+}) {
+  return (
+    <div id="follow-ups" className="space-y-4 scroll-mt-20">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-lg font-semibold">
+          Seguimientos
+          {rows.length > 0 && (
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({rows.length})
+            </span>
+          )}
+        </h2>
+      </div>
+
+      {/* Tabs (URL-driven via ?followUpsTab=...) */}
+      <div className="flex gap-1 border-b">
+        {FOLLOW_UP_TABS.map(({ key, label }) => (
+          <Link
+            key={key}
+            href={`/dashboard?followUpsTab=${key}#follow-ups`}
+            scroll={false}
+            className={cn(
+              "px-3 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+              tab === key
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      {/* List */}
+      {rows.length === 0 ? (
+        <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground text-sm">
+          {tab === "pending"
+            ? "No hay seguimientos pendientes."
+            : tab === "done"
+            ? "Todavía no marcaste ningún seguimiento como atendido."
+            : "No descartaste ningún seguimiento."}
+        </div>
+      ) : (
+        <div className="rounded-lg border divide-y">
+          {rows.map((row) => (
+            <FollowUpRowView key={row.id} row={row} tab={tab} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function FollowUpRowView({
+  row,
+  tab,
+}: {
+  row: FollowUpRow;
+  tab: FollowUpsTab;
+}) {
+  const scheduledLabel = new Date(row.scheduledDate).toLocaleDateString(
+    "es-AR",
+    { day: "2-digit", month: "short", year: "numeric" }
+  );
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-start gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40",
+        row.isOverdue && "bg-amber-50/60"
+      )}
+    >
+      <div className="w-24 shrink-0">
+        <p className="font-mono text-sm font-medium">{scheduledLabel}</p>
+        {row.isOverdue && (
+          <Badge
+            variant="outline"
+            className="mt-1 text-[10px] border-amber-300 bg-amber-100 text-amber-800"
+          >
+            Vencido
+          </Badge>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-[200px]">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <Link
+            href={`/dashboard/patients/${row.patientId}`}
+            className="font-medium hover:underline truncate"
+          >
+            {row.patientName}
+          </Link>
+          <span className="text-xs text-muted-foreground">
+            ·{" "}
+            <Link
+              href={`/dashboard/clients/${row.clientId}`}
+              className="hover:underline"
+            >
+              {row.clientName}
+            </Link>
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground mt-0.5">{row.reason}</p>
+        {(row.consultationId || row.procedureId) && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Origen:{" "}
+            {row.consultationId && (
+              <Link
+                href={`/dashboard/consultations/${row.consultationId}`}
+                className="hover:underline"
+              >
+                consulta
+              </Link>
+            )}
+            {row.procedureId && (
+              <Link
+                href={`/dashboard/procedures/${row.procedureId}`}
+                className="hover:underline"
+              >
+                procedimiento
+              </Link>
+            )}
+          </p>
+        )}
+      </div>
+
+      <div className="flex gap-2 shrink-0">
+        {tab === "pending" ? (
+          <>
+            <form action={markFollowUpDone}>
+              <input type="hidden" name="id" value={row.id} />
+              <Button type="submit" size="sm" variant="outline">
+                Marcar atendido
+              </Button>
+            </form>
+            <form action={markFollowUpDismissed}>
+              <input type="hidden" name="id" value={row.id} />
+              <Button type="submit" size="sm" variant="ghost">
+                Descartar
+              </Button>
+            </form>
+          </>
+        ) : (
+          <form action={reopenFollowUp}>
+            <input type="hidden" name="id" value={row.id} />
+            <Button type="submit" size="sm" variant="ghost">
+              Reabrir
+            </Button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AlertChip({
   label,
   count,
@@ -749,12 +952,17 @@ function KpiCard({
   );
 }
 
+function parseFollowUpsTab(value: string | undefined): FollowUpsTab {
+  return value === "done" || value === "dismissed" ? value : "pending";
+}
+
 export default async function DashboardHome({
   searchParams,
 }: {
-  searchParams: Promise<{ walkInPatientId?: string }>;
+  searchParams: Promise<{ walkInPatientId?: string; followUpsTab?: string }>;
 }) {
   const params = await searchParams;
+  const followUpsTab = parseFollowUpsTab(params.followUpsTab);
   return (
     <Suspense
       fallback={
@@ -772,7 +980,10 @@ export default async function DashboardHome({
         </div>
       }
     >
-      <DashboardContent defaultWalkInPatientId={params.walkInPatientId} />
+      <DashboardContent
+        defaultWalkInPatientId={params.walkInPatientId}
+        followUpsTab={followUpsTab}
+      />
     </Suspense>
   );
 }

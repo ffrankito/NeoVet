@@ -274,6 +274,36 @@ Después de completar una consulta, podés agendar automáticamente el próximo 
 
 ---
 
+## 9.5 Gestión de Seguimientos (en el dashboard)
+
+Distinto a "agendar un seguimiento como turno": acá vos ves la **lista de controles programados** (con fecha y motivo) que generaste desde tus consultas o procedimientos. El sistema mandó (o va a mandar) un recordatorio por email al dueño cuando llegue la fecha. Tu trabajo es decidir qué pasó con cada uno cuando la fecha ya pasó.
+
+### Dónde encontrarlo
+- En el dashboard, debajo de Sala de espera, hay una sección "Seguimientos" con tres pestañas: **Pendientes** (por defecto) · **Atendidos** · **Descartados**.
+- Si hay seguimientos vencidos (fecha ≤ hoy y todavía pendientes), aparecen arriba con fondo ámbar.
+
+### Cada fila muestra
+- Fecha programada + etiqueta "Vencido" si ya pasó
+- Mascota (link) + dueño (link)
+- Motivo del control
+- Origen — link a la consulta o procedimiento de donde salió
+
+### Qué hacer con un seguimiento vencido
+Tres opciones, una por botón:
+
+- **Marcar atendido:** el paciente volvió y ya lo atendiste. Lo sacás de la lista.
+- **Descartar:** ya no aplica (el caso cambió, el cliente desapareció, decidiste que no era necesario). **Importante:** al descartar, el sistema deja de mandar recordatorios por email.
+- **Reabrir** (en Atendidos / Descartados): si te confundiste y querés que vuelva a estar pendiente.
+
+### Por qué importa
+- Si un paciente con post-operatorio no vuelve, es un riesgo clínico. Esta lista es lo que te permite verlo.
+- Si dejás un seguimiento "pendiente" indefinidamente, el sistema seguirá mandándole emails al dueño. Eso erosiona la relación con clientes que ya cerraron el ciclo.
+- Es trabajo de 3 segundos por fila. Hacerlo cada mañana cierra el bucle.
+
+⚠️ **No confundir con la sección 9.** §9 es para *agendar un nuevo turno* del paciente. §9.5 es para *resolver* los controles que ya programaste. Distintos botones, distinto tipo de objeto en la base de datos, mismo concepto clínico.
+
+---
+
 ## 10. Internaciones
 
 Cuando un paciente necesita quedarse en la clínica.
