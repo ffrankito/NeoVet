@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
+import { assertCronSecret } from "@/lib/cron-secret";
 
 const INITIAL_SETTINGS = [
   { key: "clinic_hours_weekday_morning_start", value: "09:30" },
@@ -12,10 +13,8 @@ const INITIAL_SETTINGS = [
 ];
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
   let inserted = 0;
   for (const setting of INITIAL_SETTINGS) {

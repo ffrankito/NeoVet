@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 import type { StaffRole } from "@/db/schema";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/db";
@@ -12,12 +13,27 @@ const VALID_ROLES: readonly StaffRole[] = [
 ] as const;
 
 /**
+ * Extracts a validated StaffRole from a Supabase user's JWT app_metadata.
+ * Returns null if: no user, user is `disabled`, role is missing, or role
+ * is not a known StaffRole.
+ *
+ * Use this directly in API route handlers that already called
+ * `supabase.auth.getUser()` to avoid a second auth round-trip.
+ */
+export function roleFromUser(user: User | null): StaffRole | null {
+  if (!user) return null;
+  const meta = user.app_metadata ?? {};
+  if (meta.disabled === true) return null;
+  const role = meta.role;
+  if (typeof role !== "string") return null;
+  if (!VALID_ROLES.includes(role as StaffRole)) return null;
+  return role as StaffRole;
+}
+
+/**
  * Resolves the current user's role by re-verifying the Supabase JWT and
  * reading `app_metadata.role` directly. Does not trust the `x-user-role`
  * request header (which is forgeable by any client).
- *
- * Returns null if: no authenticated user, user is `disabled`, role is
- * missing, or role is not a known StaffRole.
  *
  * Only valid in server components and server actions.
  */
@@ -26,16 +42,7 @@ export async function getRole(): Promise<StaffRole | null> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  const meta = user.app_metadata ?? {};
-  if (meta.disabled === true) return null;
-
-  const role = meta.role;
-  if (typeof role !== "string") return null;
-  if (!VALID_ROLES.includes(role as StaffRole)) return null;
-
-  return role as StaffRole;
+  return roleFromUser(user);
 }
 
 /**

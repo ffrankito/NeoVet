@@ -5,14 +5,13 @@ import { and, eq, isNull, lte } from "drizzle-orm";
 import { getResend, EMAIL_FROM } from "@/lib/email/resend";
 import { FollowUpEmail } from "@/lib/email/templates/follow-up";
 import { render } from "@react-email/render";
+import { assertCronSecret } from "@/lib/cron-secret";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
   const today = new Date().toISOString().split("T")[0];
 

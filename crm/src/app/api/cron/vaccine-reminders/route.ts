@@ -5,14 +5,13 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { VaccineReminderEmail } from "@/lib/email/templates/vaccine-reminder";
 import { render } from "@react-email/render";
 import { sendAndLogEmail } from "@/lib/email/send-email";
+import { assertCronSecret } from "@/lib/cron-secret";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
   // Fecha de 7 días desde hoy en formato YYYY-MM-DD
   const in7Days = new Date();

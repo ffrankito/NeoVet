@@ -8,6 +8,7 @@ import { clientId } from "@/lib/ids";
 import { eq, ilike, or, sql, desc, and, gte, ne, asc } from "drizzle-orm";
 import { patients, appointments, services, staff } from "@/db/schema";
 import { z } from "zod";
+import { isAdminLevel } from "@/lib/auth";
 
 const clientSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio."),
@@ -171,6 +172,12 @@ export async function updateClient(id: string, formData: FormData) {
 }
 
 export async function deleteClient(id: string) {
+  // Hard delete cascades to patients, consultations, appointments,
+  // hospitalizations, procedures, consent_documents, vaccinations,
+  // grooming_sessions, follow_ups. Admin / owner only.
+  if (!(await isAdminLevel())) {
+    throw new Error("No autorizado");
+  }
   await db.delete(clients).where(eq(clients.id, id));
   revalidatePath("/dashboard/clients");
   redirect("/dashboard/clients");

@@ -3,11 +3,17 @@ import { db } from "@/db";
 import { scheduleBlocks, staff, appointments, patients, clients, services } from "@/db/schema";
 import { eq, and, gte, lte, ne } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
+import { roleFromUser } from "@/lib/auth";
 import { scheduleBlockId } from "@/lib/ids";
 import { dateToStartART, dateToEndART } from "@/lib/timezone";
 import { sendAndLogEmail } from "@/lib/email/send-email";
 import { render } from "@react-email/render";
 import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
+
+// YYYY-MM-DD
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// HH:MM (00:00 .. 23:59)
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 // GET — listar bloqueos del staff logueado en un rango de fechas
 export async function GET(req: NextRequest) {
@@ -51,6 +57,14 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
+  // Only clinical staff (admin, owner, vet) can suspend agendas — this
+  // mass-cancels assigned appointments and emails clients. Groomers must
+  // not be able to trigger that side-effect.
+  const role = roleFromUser(user);
+  if (!role || (role !== "admin" && role !== "owner" && role !== "vet")) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+  }
+
   const staffMember = await db
     .select()
     .from(staff)
@@ -66,6 +80,24 @@ export async function POST(req: NextRequest) {
 
   if (!startDate || !endDate) {
     return NextResponse.json({ error: "startDate y endDate son requeridos" }, { status: 400 });
+  }
+  if (typeof startDate !== "string" || !DATE_RE.test(startDate)) {
+    return NextResponse.json({ error: "startDate debe tener formato YYYY-MM-DD" }, { status: 400 });
+  }
+  if (typeof endDate !== "string" || !DATE_RE.test(endDate)) {
+    return NextResponse.json({ error: "endDate debe tener formato YYYY-MM-DD" }, { status: 400 });
+  }
+  if (endDate < startDate) {
+    return NextResponse.json({ error: "endDate no puede ser anterior a startDate" }, { status: 400 });
+  }
+  if (startTime != null && startTime !== "" && (typeof startTime !== "string" || !TIME_RE.test(startTime))) {
+    return NextResponse.json({ error: "startTime debe tener formato HH:MM" }, { status: 400 });
+  }
+  if (endTime != null && endTime !== "" && (typeof endTime !== "string" || !TIME_RE.test(endTime))) {
+    return NextResponse.json({ error: "endTime debe tener formato HH:MM" }, { status: 400 });
+  }
+  if (startTime && endTime && endTime < startTime) {
+    return NextResponse.json({ error: "endTime no puede ser anterior a startTime" }, { status: 400 });
   }
 
   const block = await db

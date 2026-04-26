@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { botBusinessContext } from "@/db/schema";
+import { assertCronSecret } from "@/lib/cron-secret";
 
 const contextId = (key: string) => `bbc_${key.replace(/[^a-z0-9]/g, "_")}`;
 
@@ -19,10 +20,8 @@ const INITIAL_CONTEXT = [
 ];
 
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
   let inserted = 0;
   for (const item of INITIAL_CONTEXT) {
