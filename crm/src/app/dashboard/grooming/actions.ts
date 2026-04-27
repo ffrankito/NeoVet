@@ -21,6 +21,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createChargeForSource } from "@/lib/charges/create";
 import { randomUUID } from "crypto";
 import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
+import { hasRole } from "@/lib/auth";
 
 // ── Grooming Profile ─────────────────────────────────────────────────────────
 
@@ -196,6 +197,10 @@ export async function createGroomingSession(
   appointmentId: string | null,
   formData: FormData
 ) {
+  if (!(await hasRole("admin", "owner", "groomer"))) {
+    return { error: "No autorizado." };
+  }
+
   const findingsRaw = formData.getAll("findings") as string[];
 
   const raw = {
@@ -220,9 +225,10 @@ export async function createGroomingSession(
     ? await db.select({ id: staff.id }).from(staff).where(eq(staff.userId, user.id)).limit(1)
     : [null];
 
-  // Handle photo uploads
+  // Handle photo uploads — failures surface as warnings (don't block session save).
   let beforePhotoPath: string | null = null;
   let afterPhotoPath: string | null = null;
+  const photoWarnings: string[] = [];
 
   const beforeFile = formData.get("beforePhoto") as File | null;
   const afterFile = formData.get("afterPhoto") as File | null;
@@ -233,7 +239,15 @@ export async function createGroomingSession(
     const { error } = await supabase.storage
       .from("grooming-photos")
       .upload(path, beforeFile);
-    if (!error) beforePhotoPath = path;
+    if (error) {
+      Sentry.captureException(error, {
+        tags: { context: "grooming_photo_upload", kind: "before" },
+        extra: { patientId, path },
+      });
+      photoWarnings.push("La foto 'antes' no pudo guardarse.");
+    } else {
+      beforePhotoPath = path;
+    }
   }
 
   if (afterFile && afterFile.size > 0) {
@@ -242,7 +256,15 @@ export async function createGroomingSession(
     const { error } = await supabase.storage
       .from("grooming-photos")
       .upload(path, afterFile);
-    if (!error) afterPhotoPath = path;
+    if (error) {
+      Sentry.captureException(error, {
+        tags: { context: "grooming_photo_upload", kind: "after" },
+        extra: { patientId, path },
+      });
+      photoWarnings.push("La foto 'después' no pudo guardarse.");
+    } else {
+      afterPhotoPath = path;
+    }
   }
 
   const newSessionId = groomingSessionId();
@@ -318,7 +340,10 @@ export async function createGroomingSession(
   revalidatePath(`/dashboard/patients/${patientId}`);
   revalidatePath("/dashboard/cash");
   revalidatePath("/dashboard/deudores");
-  return { success: true };
+  return {
+    success: true as const,
+    photoWarnings: photoWarnings.length > 0 ? photoWarnings : undefined,
+  };
 }
 
 export async function getSignedPhotoUrl(path: string) {

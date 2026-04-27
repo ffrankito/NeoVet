@@ -18,7 +18,14 @@ const FINDINGS = [
   { value: "dermatitis", label: "Dermatitis" },
 ];
 
-type ActionResult = { success?: boolean; errors?: Record<string, string[]>; error?: string } | undefined;
+type ActionResult =
+  | {
+      success?: boolean;
+      photoWarnings?: string[];
+      errors?: Record<string, string[]>;
+      error?: string;
+    }
+  | undefined;
 
 type EsteticaService = {
   id: string;
@@ -52,7 +59,9 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, esteti
     formData.set("serviceId", serviceId);
     selectedFindings.forEach((f) => formData.append("findings", f));
     const result = await createGroomingSession(patientId, appointmentId, formData);
-    if (result?.success) {
+    // Auto-navigate only on a clean success. If photos failed, keep the user
+    // on this page so they see the warning banner and can decide to retry or proceed.
+    if (result?.success && !result.photoWarnings) {
       router.push(`/dashboard/patients/${patientId}?tab=estetica`);
     }
     return result;
@@ -61,12 +70,30 @@ export function GroomingSessionForm({ patientId, appointmentId, groomers, esteti
   const [result, dispatch, isPending] = useActionState<ActionResult, FormData>(action, undefined);
   const fieldErrors = result && "errors" in result ? (result.errors ?? {}) : {};
   const globalError = result && "error" in result ? (result.error as string) : null;
+  const photoWarnings = result?.photoWarnings;
 
   return (
     <form action={dispatch} className="max-w-lg space-y-6">
       {globalError && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {globalError}
+        </div>
+      )}
+
+      {photoWarnings && photoWarnings.length > 0 && (
+        <div className="rounded-lg border border-amber-400/60 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p className="font-medium">La sesión se guardó, pero hubo problemas con las fotos:</p>
+          <ul className="mt-1 list-disc pl-5">
+            {photoWarnings.map((w) => (
+              <li key={w}>{w}</li>
+            ))}
+          </ul>
+          <a
+            href={`/dashboard/patients/${patientId}?tab=estetica`}
+            className="mt-2 inline-block font-medium underline"
+          >
+            Continuar al paciente
+          </a>
         </div>
       )}
 

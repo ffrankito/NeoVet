@@ -195,6 +195,10 @@ export async function getAppointmentById(id: string) {
 }
 
 export async function createAppointment(formData: FormData) {
+  if (!(await hasRole("admin", "owner", "vet", "groomer"))) {
+    return { error: "No autorizado." };
+  }
+
   const consultationTypeRaw = ((formData.get("consultationType") as string) || "").trim();
   const serviceIdRaw = ((formData.get("serviceId") as string) || "").trim();
   const reason = ((formData.get("reason") as string) || "").trim() || null;

@@ -342,23 +342,50 @@ export async function generateConsentDocument(formData: FormData) {
       .upload(storagePath, pdfBuffer, { contentType: "application/pdf" });
 
     if (uploadError) {
-      console.error("Storage upload error:", uploadError);
+      Sentry.captureException(uploadError, {
+        tags: { context: "consent_doc_upload" },
+        extra: { documentId, storagePath, patientId: patient.id },
+      });
       return { error: "Error al subir el documento. Intenta de nuevo." };
     }
 
-    // Insert into DB
-    await db.insert(consentDocuments).values({
-      id: documentId,
-      templateId: template.id,
-      patientId: patient.id,
-      clientId: client.id,
-      procedureId: d.procedureId || null,
-      hospitalizationId: d.hospitalizationId || null,
-      storagePath,
-      customFields: Object.keys(customFields).length > 0 ? customFields : null,
-      generatedAt: new Date(),
-      createdById: staffMemberId,
-    });
+    // Insert into DB — wrapped in a transaction (single-statement today, but
+    // shape is ready for future co-writes like an audit log row). On insert
+    // failure, run a compensating Storage delete so we don't leave an orphan
+    // signed PDF that no DB row points to.
+    try {
+      await db.transaction(async (tx) => {
+        await tx.insert(consentDocuments).values({
+          id: documentId,
+          templateId: template.id,
+          patientId: patient.id,
+          clientId: client.id,
+          procedureId: d.procedureId || null,
+          hospitalizationId: d.hospitalizationId || null,
+          storagePath,
+          customFields: Object.keys(customFields).length > 0 ? customFields : null,
+          generatedAt: new Date(),
+          createdById: staffMemberId,
+        });
+      });
+    } catch (insertErr) {
+      Sentry.captureException(insertErr, {
+        tags: { context: "consent_doc_insert" },
+        extra: { documentId, storagePath, patientId: patient.id },
+      });
+      // Compensating delete — best-effort. If it also fails, the orphan tag
+      // makes the leftover PDF findable for manual cleanup.
+      const { error: deleteErr } = await supabase.storage
+        .from("consent-documents")
+        .remove([storagePath]);
+      if (deleteErr) {
+        Sentry.captureException(deleteErr, {
+          tags: { context: "consent_doc_orphan" },
+          extra: { storagePath, patientId: patient.id },
+        });
+      }
+      return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
+    }
   } catch (err) {
     Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };

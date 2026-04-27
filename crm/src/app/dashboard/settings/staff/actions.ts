@@ -90,15 +90,39 @@ export async function updateStaffMember(id: string, formData: FormData) {
   const [existing] = await db.select({ userId: staff.userId }).from(staff).where(eq(staff.id, id)).limit(1);
   if (!existing) return { error: "Miembro no encontrado." };
 
+  // Auth + DB are two stores that cannot share a transaction. Auth is the
+  // live source for authorization (read at request time via getRole()); the
+  // staff row is for display/filtering. Order: Auth first, DB second.
+  // - If Auth fails → nothing committed, surface error.
+  // - If DB fails after Auth → user has new auth role but stale display; on
+  //   retry both updates are idempotent (same value re-applied) and the two
+  //   stores re-converge. Specific error message tells Paula to retry.
   const supabaseAdmin = createAdminClient();
-  await supabaseAdmin.auth.admin.updateUserById(existing.userId, {
-    app_metadata: { role: parsed.data.role },
-  });
+  try {
+    const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(existing.userId, {
+      app_metadata: { role: parsed.data.role },
+    });
+    if (authErr) throw authErr;
+  } catch (err) {
+    Sentry.captureException(err, { tags: { context: "staff_role_auth_update" } });
+    return { error: "No se pudo actualizar el rol en Auth. Intentá de nuevo." };
+  }
 
-  await db
-    .update(staff)
-    .set({ name: parsed.data.name, role: parsed.data.role, updatedAt: new Date() })
-    .where(eq(staff.id, id));
+  try {
+    await db
+      .update(staff)
+      .set({ name: parsed.data.name, role: parsed.data.role, updatedAt: new Date() })
+      .where(eq(staff.id, id));
+  } catch (err) {
+    Sentry.captureException(err, {
+      tags: { context: "staff_role_db_update", inconsistency: "auth_committed_db_failed" },
+      extra: { staffId: id, newRole: parsed.data.role },
+    });
+    return {
+      error:
+        "El rol se actualizó en Auth pero falló el guardado. Reintentá para sincronizar.",
+    };
+  }
 
   revalidatePath("/dashboard/settings/staff");
   return { success: true };
@@ -111,11 +135,29 @@ export async function deactivateStaffMember(id: string) {
   if (!existing) return { error: "Miembro no encontrado." };
 
   const supabaseAdmin = createAdminClient();
-  await supabaseAdmin.auth.admin.updateUserById(existing.userId, {
-    app_metadata: { disabled: true },
-  });
+  try {
+    const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(existing.userId, {
+      app_metadata: { disabled: true },
+    });
+    if (authErr) throw authErr;
+  } catch (err) {
+    Sentry.captureException(err, { tags: { context: "staff_disable_auth" } });
+    return { error: "No se pudo desactivar al miembro en Auth. Intentá de nuevo." };
+  }
 
-  await db.update(staff).set({ isActive: false, updatedAt: new Date() }).where(eq(staff.id, id));
+  try {
+    await db.update(staff).set({ isActive: false, updatedAt: new Date() }).where(eq(staff.id, id));
+  } catch (err) {
+    Sentry.captureException(err, {
+      tags: { context: "staff_disable_db", inconsistency: "auth_committed_db_failed" },
+      extra: { staffId: id },
+    });
+    return {
+      error:
+        "El miembro quedó desactivado en Auth pero falló el guardado. Reintentá para sincronizar.",
+    };
+  }
+
   revalidatePath("/dashboard/settings/staff");
   return { success: true };
 }
@@ -127,11 +169,29 @@ export async function reactivateStaffMember(id: string) {
   if (!existing) return { error: "Miembro no encontrado." };
 
   const supabaseAdmin = createAdminClient();
-  await supabaseAdmin.auth.admin.updateUserById(existing.userId, {
-    app_metadata: { disabled: false },
-  });
+  try {
+    const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(existing.userId, {
+      app_metadata: { disabled: false },
+    });
+    if (authErr) throw authErr;
+  } catch (err) {
+    Sentry.captureException(err, { tags: { context: "staff_enable_auth" } });
+    return { error: "No se pudo reactivar al miembro en Auth. Intentá de nuevo." };
+  }
 
-  await db.update(staff).set({ isActive: true, updatedAt: new Date() }).where(eq(staff.id, id));
+  try {
+    await db.update(staff).set({ isActive: true, updatedAt: new Date() }).where(eq(staff.id, id));
+  } catch (err) {
+    Sentry.captureException(err, {
+      tags: { context: "staff_enable_db", inconsistency: "auth_committed_db_failed" },
+      extra: { staffId: id },
+    });
+    return {
+      error:
+        "El miembro quedó reactivado en Auth pero falló el guardado. Reintentá para sincronizar.",
+    };
+  }
+
   revalidatePath("/dashboard/settings/staff");
   return { success: true };
 }

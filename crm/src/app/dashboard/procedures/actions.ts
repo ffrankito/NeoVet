@@ -330,51 +330,54 @@ export async function createProcedure(formData: FormData) {
   let id: string;
   try {
     id = genProcedureId();
-    await db.insert(procedures).values({
-      id,
-      patientId: d.patientId,
-      hospitalizationId: d.hospitalizationId || null,
-      procedureDate: parseDateTimeAsART(d.procedureDate),
-      description: d.description,
-      type: d.type || null,
-      notes: d.notes || null,
-      asaScore: d.asaScore || null,
-      preWeightKg: d.preWeightKg || null,
-      preTemperature: d.preTemperature || null,
-      preHeartRate: d.preHeartRate || null,
-      preRespiratoryRate: d.preRespiratoryRate || null,
-      postWeightKg: d.postWeightKg || null,
-      postTemperature: d.postTemperature || null,
-      postHeartRate: d.postHeartRate || null,
-      postRespiratoryRate: d.postRespiratoryRate || null,
-      createdById: staffMemberId,
-    });
 
-    // Insert staff assignments
-    for (const sId of surgeonIds) {
-      await db.insert(procedureStaff).values({
-        id: procedureStaffId(),
-        procedureId: id,
-        staffId: sId,
-        role: "surgeon",
+    // Atomic: procedure row + all 3 staff-role groups land together or not at all.
+    await db.transaction(async (tx) => {
+      await tx.insert(procedures).values({
+        id,
+        patientId: d.patientId,
+        hospitalizationId: d.hospitalizationId || null,
+        procedureDate: parseDateTimeAsART(d.procedureDate),
+        description: d.description,
+        type: d.type || null,
+        notes: d.notes || null,
+        asaScore: d.asaScore || null,
+        preWeightKg: d.preWeightKg || null,
+        preTemperature: d.preTemperature || null,
+        preHeartRate: d.preHeartRate || null,
+        preRespiratoryRate: d.preRespiratoryRate || null,
+        postWeightKg: d.postWeightKg || null,
+        postTemperature: d.postTemperature || null,
+        postHeartRate: d.postHeartRate || null,
+        postRespiratoryRate: d.postRespiratoryRate || null,
+        createdById: staffMemberId,
       });
-    }
-    for (const aId of anesthesiologistIds) {
-      await db.insert(procedureStaff).values({
-        id: procedureStaffId(),
-        procedureId: id,
-        staffId: aId,
-        role: "anesthesiologist",
-      });
-    }
-    for (const asId of assistantIds) {
-      await db.insert(procedureStaff).values({
-        id: procedureStaffId(),
-        procedureId: id,
-        staffId: asId,
-        role: "assistant",
-      });
-    }
+
+      for (const sId of surgeonIds) {
+        await tx.insert(procedureStaff).values({
+          id: procedureStaffId(),
+          procedureId: id,
+          staffId: sId,
+          role: "surgeon",
+        });
+      }
+      for (const aId of anesthesiologistIds) {
+        await tx.insert(procedureStaff).values({
+          id: procedureStaffId(),
+          procedureId: id,
+          staffId: aId,
+          role: "anesthesiologist",
+        });
+      }
+      for (const asId of assistantIds) {
+        await tx.insert(procedureStaff).values({
+          id: procedureStaffId(),
+          procedureId: id,
+          staffId: asId,
+          role: "assistant",
+        });
+      }
+    });
   } catch (err) {
     Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
@@ -419,6 +422,7 @@ export async function updateProcedure(id: string, formData: FormData) {
 
   const d = parsed.data;
 
+  let existingPatientId: string | null = null;
   try {
     const [existing] = await db
       .select({ patientId: procedures.patientId })
@@ -429,61 +433,66 @@ export async function updateProcedure(id: string, formData: FormData) {
     if (!existing) {
       return { error: "Procedimiento no encontrado." };
     }
+    existingPatientId = existing.patientId;
 
-    await db
-      .update(procedures)
-      .set({
-        patientId: d.patientId,
-        hospitalizationId: d.hospitalizationId || null,
-        procedureDate: parseDateTimeAsART(d.procedureDate),
-        description: d.description,
-        type: d.type || null,
-        notes: d.notes || null,
-        asaScore: d.asaScore || null,
-        preWeightKg: d.preWeightKg || null,
-        preTemperature: d.preTemperature || null,
-        preHeartRate: d.preHeartRate || null,
-        preRespiratoryRate: d.preRespiratoryRate || null,
-        postWeightKg: d.postWeightKg || null,
-        postTemperature: d.postTemperature || null,
-        postHeartRate: d.postHeartRate || null,
-        postRespiratoryRate: d.postRespiratoryRate || null,
-        updatedAt: new Date(),
-      })
-      .where(eq(procedures.id, id));
+    // Atomic: update + delete-staff + reinsert-staff. Without this, a failure
+    // mid-reinsert leaves the procedure with zero staff (the delete already
+    // committed). The transaction restores all-or-nothing semantics.
+    await db.transaction(async (tx) => {
+      await tx
+        .update(procedures)
+        .set({
+          patientId: d.patientId,
+          hospitalizationId: d.hospitalizationId || null,
+          procedureDate: parseDateTimeAsART(d.procedureDate),
+          description: d.description,
+          type: d.type || null,
+          notes: d.notes || null,
+          asaScore: d.asaScore || null,
+          preWeightKg: d.preWeightKg || null,
+          preTemperature: d.preTemperature || null,
+          preHeartRate: d.preHeartRate || null,
+          preRespiratoryRate: d.preRespiratoryRate || null,
+          postWeightKg: d.postWeightKg || null,
+          postTemperature: d.postTemperature || null,
+          postHeartRate: d.postHeartRate || null,
+          postRespiratoryRate: d.postRespiratoryRate || null,
+          updatedAt: new Date(),
+        })
+        .where(eq(procedures.id, id));
 
-    // Replace staff assignments: delete all, re-insert
-    await db.delete(procedureStaff).where(eq(procedureStaff.procedureId, id));
-    for (const sId of surgeonIds) {
-      await db.insert(procedureStaff).values({
-        id: procedureStaffId(),
-        procedureId: id,
-        staffId: sId,
-        role: "surgeon",
-      });
-    }
-    for (const aId of anesthesiologistIds) {
-      await db.insert(procedureStaff).values({
-        id: procedureStaffId(),
-        procedureId: id,
-        staffId: aId,
-        role: "anesthesiologist",
-      });
-    }
-    for (const asId of assistantIds) {
-      await db.insert(procedureStaff).values({
-        id: procedureStaffId(),
-        procedureId: id,
-        staffId: asId,
-        role: "assistant",
-      });
-    }
+      await tx.delete(procedureStaff).where(eq(procedureStaff.procedureId, id));
+      for (const sId of surgeonIds) {
+        await tx.insert(procedureStaff).values({
+          id: procedureStaffId(),
+          procedureId: id,
+          staffId: sId,
+          role: "surgeon",
+        });
+      }
+      for (const aId of anesthesiologistIds) {
+        await tx.insert(procedureStaff).values({
+          id: procedureStaffId(),
+          procedureId: id,
+          staffId: aId,
+          role: "anesthesiologist",
+        });
+      }
+      for (const asId of assistantIds) {
+        await tx.insert(procedureStaff).values({
+          id: procedureStaffId(),
+          procedureId: id,
+          staffId: asId,
+          role: "assistant",
+        });
+      }
+    });
 
     revalidatePath("/dashboard/procedures");
     revalidatePath(`/dashboard/procedures/${id}`);
     revalidatePath(`/dashboard/patients/${d.patientId}`);
-    if (existing.patientId !== d.patientId) {
-      revalidatePath(`/dashboard/patients/${existing.patientId}`);
+    if (existingPatientId !== d.patientId) {
+      revalidatePath(`/dashboard/patients/${existingPatientId}`);
     }
   } catch (err) {
     Sentry.captureException(err);

@@ -130,34 +130,38 @@ export async function createSale(data: {
   try {
     id = saleId();
 
-    await db.insert(sales).values({
-      id,
-      patientId: parsed.data.patientId || null,
-      soldById: staffId,
-      createdById: staffId,
-      paymentMethod: parsed.data.paymentMethod,
-      notes: parsed.data.notes || null,
-    });
-
-    for (const item of parsed.data.items) {
-      await db.insert(saleItems).values({
-        id: saleItemId(),
-        saleId: id,
-        productId: item.productId,
-        quantity: String(item.quantity),
-        unitPrice: String(item.unitPrice),
-        taxRate: item.taxRate,
+    // Atomic: sale row + sale_items rows + stock decrements all-or-nothing.
+    // Without a transaction, a mid-loop crash leaves stock decremented for
+    // items that lost their sale_items row.
+    await db.transaction(async (tx) => {
+      await tx.insert(sales).values({
+        id,
+        patientId: parsed.data.patientId || null,
+        soldById: staffId,
+        createdById: staffId,
+        paymentMethod: parsed.data.paymentMethod,
+        notes: parsed.data.notes || null,
       });
 
-      // Decrement stock
-      await db
-        .update(products)
-        .set({
-          currentStock: sql`${products.currentStock}::numeric - ${item.quantity}`,
-          updatedAt: new Date(),
-        })
-        .where(eq(products.id, item.productId));
-    }
+      for (const item of parsed.data.items) {
+        await tx.insert(saleItems).values({
+          id: saleItemId(),
+          saleId: id,
+          productId: item.productId,
+          quantity: String(item.quantity),
+          unitPrice: String(item.unitPrice),
+          taxRate: item.taxRate,
+        });
+
+        await tx
+          .update(products)
+          .set({
+            currentStock: sql`${products.currentStock}::numeric - ${item.quantity}`,
+            updatedAt: new Date(),
+          })
+          .where(eq(products.id, item.productId));
+      }
+    });
   } catch (err) {
     Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
