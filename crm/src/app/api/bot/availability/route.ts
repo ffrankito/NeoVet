@@ -4,6 +4,7 @@ import { appointments, scheduleBlocks, settings, services } from "@/db/schema";
 import { and, eq, gte, lte, ne } from "drizzle-orm";
 import { verifyBotApiKey } from "@/lib/bot-auth";
 import { getFeriados, isFeriado } from "@/lib/feriados";
+import { dateToStartART, dateToEndART, dateToMinutesART } from "@/lib/timezone";
 
 // Horarios por defecto si no están en settings
 const DEFAULT_HOURS = {
@@ -97,9 +98,10 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // Turnos confirmados del día
-    const fromDate = new Date(`${dateStr}T00:00:00.000Z`);
-    const toDate = new Date(`${dateStr}T23:59:59.999Z`);
+    // Turnos confirmados del día — ART-anchored window so ART-evening
+    // appointments (which roll into the next UTC day) aren't missed.
+    const fromDate = dateToStartART(dateStr);
+    const toDate = dateToEndART(dateStr);
 
     const bookedAppointments = await db
       .select({ scheduledAt: appointments.scheduledAt, durationMinutes: appointments.durationMinutes })
@@ -134,7 +136,9 @@ export async function GET(req: NextRequest) {
 
       const hasConflict = bookedAppointments.some((appt) => {
         const apptDate = new Date(appt.scheduledAt);
-        const apptMinutes = apptDate.getUTCHours() * 60 + apptDate.getUTCMinutes();
+        // ART-local minutes — slot strings are ART, appointments are stored
+        // as UTC. Comparing getUTCHours() directly is silently 3h off.
+        const apptMinutes = dateToMinutesART(apptDate);
         const apptEnd = apptMinutes + (appt.durationMinutes ?? 30);
         return slotMinutes < apptEnd && slotEnd > apptMinutes;
       });

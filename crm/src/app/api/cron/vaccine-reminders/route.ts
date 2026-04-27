@@ -5,19 +5,18 @@ import { and, eq, isNotNull } from "drizzle-orm";
 import { VaccineReminderEmail } from "@/lib/email/templates/vaccine-reminder";
 import { render } from "@react-email/render";
 import { sendAndLogEmail } from "@/lib/email/send-email";
+import { assertCronSecret } from "@/lib/cron-secret";
+import { addDaysToARTDateString, todayARTAsDateString } from "@/lib/timezone";
+import * as Sentry from "@sentry/nextjs";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
-  // Fecha de 7 días desde hoy en formato YYYY-MM-DD
-  const in7Days = new Date();
-  in7Days.setDate(in7Days.getDate() + 7);
-  const target = in7Days.toISOString().split("T")[0];
+  // Fecha de 7 días desde hoy en ART (YYYY-MM-DD).
+  const target = addDaysToARTDateString(todayARTAsDateString(), 7);
 
   const upcoming = await db
     .select({
@@ -63,7 +62,8 @@ export async function GET(req: NextRequest) {
       });
 
       sent ? results.sent++ : results.skipped++;
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       results.errors++;
     }
   }

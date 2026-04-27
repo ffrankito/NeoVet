@@ -2,19 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { followUps, patients, clients, emailLogs } from "@/db/schema";
 import { and, eq, isNull, lte } from "drizzle-orm";
-import { getResend, EMAIL_FROM } from "@/lib/email/resend";
+import { getResend, getEmailFrom } from "@/lib/email/resend";
 import { FollowUpEmail } from "@/lib/email/templates/follow-up";
 import { render } from "@react-email/render";
+import { assertCronSecret } from "@/lib/cron-secret";
+import { todayARTAsDateString } from "@/lib/timezone";
+import * as Sentry from "@sentry/nextjs";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayARTAsDateString();
 
   const pending = await db
     .select({
@@ -30,7 +31,8 @@ export async function GET(req: NextRequest) {
     .where(
       and(
         lte(followUps.scheduledDate, today),
-        isNull(followUps.sentAt)
+        isNull(followUps.sentAt),
+        eq(followUps.status, "pending")
       )
     );
 
@@ -50,7 +52,7 @@ export async function GET(req: NextRequest) {
       );
 
       await getResend().emails.send({
-        from: EMAIL_FROM,
+        from: getEmailFrom(),
         to: fu.clientEmail,
         subject: `Control programado para su mascota — NeoVet`,
         html,
@@ -62,7 +64,8 @@ export async function GET(req: NextRequest) {
         .where(eq(followUps.id, fu.id));
 
       results.sent++;
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       results.errors++;
     }
   }

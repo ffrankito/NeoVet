@@ -3,8 +3,11 @@
 | Campo | Valor |
 |---|---|
 | **Proyecto** | NeoVet Chatbot |
-| **Última actualización** | 2026-04-05 |
+| **Última actualización** | 2026-04-23 |
 | **Roadmap del CRM** | `crm/docs/roadmap.md` — las versiones del chatbot están sincronizadas con las del CRM |
+
+> [!info] Cambio de alcance 2026-04-22
+> Tras la reunión con Paula del 2026-04-22, v1 fase WhatsApp stopgap se canceló (Paula ya tiene auto-respondedor en WhatsApp Business). Franco aceleró v2: shipeó MVP del bot WhatsApp-Kapso el mismo día (agente + sesión + 5 tools + webhook + L4 fast-path). Las fases A/B/C/D de v2 pasan de "planeadas" a "en progreso simultáneo" — ver marcas debajo.
 
 Este documento describe el plan de largo plazo del chatbot en tres versiones. Cada versión se sincroniza con la versión equivalente del CRM.
 
@@ -53,92 +56,92 @@ Mismo criterio que el CRM:
 
 ---
 
-## v2 — WhatsApp + Turnos + Triage
+## v2 — WhatsApp + Turnos + Triage — 🟡 En desarrollo activo
 
 > **Exit criteria:** Los clientes sacan y cancelan turnos por WhatsApp sin llamar a la clínica. Las emergencias se detectan y escalan en sub-segundo.
-> **Empieza:** Solo después de que CRM v1 esté estable y desplegado en producción.
-> **Depende de:** CRM v2 (API pública + WhatsApp reminders)
+> **Estado (2026-04-23):** MVP shipeado 2026-04-22 (commits `bd12b70` → `f2ddbe3`). Webhook Kapso activo, end-to-end verification contra el número de producción de Paula **pendiente**. Franco prototipa contra su propio celular.
 
 ### Decisiones de diseño (resueltas)
 
 | Decisión | Resolución |
 |---|---|
-| Base de datos | Supabase compartida con el CRM — tablas `bot_*` ya existen en producción |
-| System prompt | Dinámico desde `bot_business_context` vía CRM API, cacheado en cold start |
-| WhatsApp provider | **TBD** — evaluar Kapso, Twilio y Meta Cloud API antes de Fase B |
-| Web widget en v2 | Upgrades menores: prompt dinámico + localStorage. Sin booking. |
+| Base de datos | Supabase compartida con el CRM — tablas `bot_*`. Bot escribe vía `@supabase/supabase-js` con service-role (bypassa RLS). |
+| System prompt | Hardcodeado en `src/lib/prompts/whatsapp-system.ts` (MVP). Migración a `bot_business_context` vía CRM API queda como Fase A.1 |
+| WhatsApp provider | ✅ **Kapso** — seleccionado y en producción (commit `bd12b70`, 2026-04-22). Endpoint: `POST api.kapso.ai/meta/whatsapp/v24.0/{phone_number_id}/messages`, header `X-API-Key` |
+| Web widget en v2 | Upgrades menores: prompt dinámico + localStorage. Sin booking. No empezado. |
 | WhatsApp en v2 | Transaccional completo: booking, cancelación, triage |
-| Admin UI | Dentro del CRM en `/dashboard/bot` — no app separada |
-| Conversaciones | Timeout 4h inactividad, staff puede cerrar, grace period 24h para reabrir, contexto de 20 mensajes a Claude |
-| Resolución de contacto | Auto-match por teléfono → si no hay match, bot pide nombre y staff vincula manualmente |
-| Contactos no vinculados | Pueden recibir FAQ pero no pueden hacer booking ("no encontramos tu ficha") |
-| Escalación L4 (v2) | Muestra info de emergencia + "llamá YA" + deja de responder |
+| Admin UI | Dentro del CRM en `/dashboard/bot` — no app separada. No empezado. |
+| Conversaciones | **MVP actual:** timeout 60min inactividad (`SESSION_TIMEOUT_MINUTES` en `session.ts`). Planeado: 4h + grace period 24h. |
+| Resolución de contacto | Bot crea `bot_contact` con teléfono. Match a `client` existente se hace por teléfono vía `buscarCliente` tool → si no hay match, bot pide datos y usa `crearClienteYPaciente` (POST a `/api/bot/clients` del CRM). El campo `clients.source = "whatsapp"` marca el origen. |
+| Contactos no vinculados | **MVP actual:** el bot crea cliente+paciente de una si el usuario quiere turno. Staff-linking manual queda para Fase A. |
+| Escalación L4 (v2) | Muestra info de emergencia + "llamá YA" + deja de responder. Implementado en `agent.ts` + webhook L4 fast-path. |
 
 ### Fases
 
 ---
 
-#### Fase A — Fundación
+#### Fase A — Fundación — 🟡 Parcial
 
-| Entregable | Notas |
-|---|---|
-| Chatbot conecta a Supabase del CRM | Usa las tablas `bot_contacts`, `bot_conversations`, `bot_messages` existentes |
-| Persistencia de conversaciones | Cada mensaje se guarda en `bot_messages`. Historial se carga al reconectar. |
-| Resolución de contacto por teléfono | Auto-match contra `clients.phone`. Si no hay match → `bot_contacts` sin `client_id`. |
-| System prompt dinámico | Fetch a `/api/bot/context` en cold start, cache en memoria. Paula actualiza desde CRM admin. |
-| Web widget: localStorage persistence | Mensajes sobreviven refresh. ID de conversación en localStorage. |
-| Web widget: prompt dinámico | Misma fuente que WhatsApp — `bot_business_context` en vez de hardcoded |
-| CRM: `/dashboard/bot` — lista de conversaciones | Admin ve threads, estado, urgency level, contacto vinculado/no vinculado |
-| CRM: vinculación manual de contacto → cliente | Admin puede vincular un `bot_contact` a un `client` existente o crear cliente nuevo |
-| **Evaluación de provider WhatsApp** | Comparar Kapso vs Twilio vs Meta Cloud API. Decidir antes de empezar Fase B. |
-
----
-
-#### Fase B — Canal WhatsApp
-
-**Requiere:** Fase A completa + provider WhatsApp seleccionado.
-
-| Entregable | Notas |
-|---|---|
-| Integración con WhatsApp Business API | SDK del provider elegido |
-| Webhook receiver para mensajes entrantes | Endpoint en chatbot que recibe mensajes de WhatsApp, crea/continúa conversación |
-| Routing unificado web + WhatsApp | Mismo "cerebro" (Claude + tools), diferente canal. `bot_conversations.channel` = `web` o `whatsapp`. |
-| Envío de respuestas por WhatsApp | Bot responde al número del cliente vía API del provider |
-| Lifecycle de conversación | Timeout 4h inactividad → cierre automático. Reapertura si mensaje dentro de 24h. Staff puede cerrar manualmente. |
+| Entregable | Estado | Notas |
+|---|---|---|
+| Chatbot conecta a Supabase del CRM | ✅ | `src/lib/whatsapp/session.ts` usa `@supabase/supabase-js` con service-role. Instalado en commit `f38a8c9`. |
+| Persistencia de conversaciones | ✅ | `saveMessage()` escribe cada turno a `bot_messages`. Historial se carga con `getOrCreateSession()`. |
+| Resolución de contacto por teléfono | 🟡 | `buscarCliente` tool hace match por teléfono via CRM. No hay `client_id` link en `bot_contacts` todavía. |
+| System prompt dinámico | 🔲 | MVP usa `WHATSAPP_SYSTEM_PROMPT` hardcoded. Migrar a `bot_business_context` queda pendiente. |
+| Web widget: localStorage persistence | 🔲 | No empezado |
+| Web widget: prompt dinámico | 🔲 | No empezado |
+| CRM: `/dashboard/bot` — lista de conversaciones | 🔲 | No empezado |
+| CRM: vinculación manual de contacto → cliente | 🔲 | No empezado |
+| **Evaluación de provider WhatsApp** | ✅ | **Kapso** elegido y en producción desde 2026-04-22 |
 
 ---
 
-#### Fase C — Herramientas transaccionales
+#### Fase B — Canal WhatsApp — 🟡 MVP shipeado
 
-**Requiere:** Fase A + Fase B completas.
+**Estado (2026-04-23):** MVP funcional vía Kapso. End-to-end contra Paula pendiente.
 
-| Entregable | Notas |
-|---|---|
-| AI function calling: `check_availability` | `GET /api/bot/availability` — "¿Tenés turno el jueves?" → slots libres |
-| AI function calling: `book_appointment` | `POST /api/bot/appointments` — "Quiero turno el jueves a las 10" → crea turno |
-| AI function calling: `cancel_appointment` | `DELETE /api/bot/appointments/[id]` — "Quiero cancelar mi turno" → cancela |
-| AI function calling: `get_services` | `GET /api/bot/services` — "¿Qué servicios ofrecen?" → lista live |
-| AI function calling: `get_client_appointments` | `GET /api/bot/clients?phone={phone}` — "¿Cuándo es mi próximo turno?" |
-| Guard para contactos no vinculados | Si `bot_contact.client_id` es null → "no encontramos tu ficha, un miembro del equipo te va a contactar" |
-| CRM: recordatorios por WhatsApp | Confirmación, 24h/1h antes, vacunas, peluquería, seguimiento post-consulta — vía provider de WhatsApp |
-| Web widget: sin tools | El widget web sigue siendo FAQ-only. Solo WhatsApp tiene herramientas transaccionales. |
+| Entregable | Estado | Notas |
+|---|---|---|
+| Integración con WhatsApp Business API | ✅ | Vía Kapso (`api.kapso.ai`). Header `X-API-Key`. 7 fix-commits el 2026-04-22 iterando sobre shape de payload y auth. |
+| Webhook receiver para mensajes entrantes | ✅ | `src/app/api/whatsapp/webhook/route.ts`. GET = health check para verificación de Kapso. POST = mensajes. |
+| Routing unificado web + WhatsApp | 🟡 | MVP: chat widget y WhatsApp usan endpoints y prompts separados. No hay todavía un "cerebro" único. |
+| Envío de respuestas por WhatsApp | ✅ | `sendWhatsappReply()` en webhook llama a Kapso `POST /meta/whatsapp/v24.0/{phone_number_id}/messages`. |
+| Lifecycle de conversación | 🟡 | MVP: timeout 60min. Planeado: 4h + grace period 24h. Staff close manual aún no implementado. |
 
 ---
 
-#### Fase D — Urgency triage (L1–L4)
+#### Fase C — Herramientas transaccionales — 🟡 Parcial
 
-**Requiere:** Fase A + Fase B completas. Independiente de Fase C (se puede hacer en paralelo).
+**Estado (2026-04-23):** 5 de las 5 tools originales shipeadas (renombradas). Booking flow completo (buscar/crear cliente + disponibilidad + reservar). Cancelación y consulta de turnos existentes: no.
 
-| Entregable | Notas |
-|---|---|
-| L4 keyword fast-path | Lista hardcodeada de 12 keywords en español argentino. Se ejecuta **antes** del AI. Sub-milisegundo. |
-| L1–L3 clasificación por AI | Claude evalúa el nivel de urgencia en cada mensaje. `bot_conversations.urgency_level` se actualiza. |
-| Urgency solo sube, nunca baja automáticamente | Solo un staff member puede bajar el nivel desde el dashboard. |
-| L4 → info de emergencia + stop | Bot muestra teléfono de emergencia + "llamá YA" + deja de responder. No notifica al staff en v2. |
-| Escalation records | Se crea registro en `bot_escalations` con reason + urgency_level. |
-| CRM: cola de escalaciones en `/dashboard/bot` | Admin ve escalaciones pendientes, puede resolver con notas. |
+| Entregable | Estado | Notas |
+|---|---|---|
+| Tool `buscarCliente` | ✅ | `GET /api/bot/clients?phone=` — reemplaza `get_client_appointments` |
+| Tool `crearClienteYPaciente` | ✅ | `POST /api/bot/clients` — nuevo endpoint 2026-04-22. Crea cliente con `source=whatsapp` + primera mascota |
+| Tool `obtenerServicios` | ✅ | `GET /api/bot/services` |
+| Tool `verificarDisponibilidad` | ✅ | `GET /api/bot/availability` — reemplaza `check_availability` |
+| Tool `reservarTurno` | ✅ | `POST /api/bot/appointments` — reemplaza `book_appointment` |
+| Tool `cancelarTurno` | 🔲 | No implementado todavía |
+| Guard para contactos no vinculados | 🔲 | MVP actual crea cliente de una si el usuario da datos. No hay guard para "no encontramos tu ficha" |
+| CRM: recordatorios por WhatsApp | 🔲 | No empezado — sigue siendo email-only vía Resend |
+| Web widget: sin tools | ✅ | Sigue siendo FAQ-only |
 
-**Keywords L4 (español argentino):** convulsión, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción, emergencia, urgente, se está muriendo.
+---
+
+#### Fase D — Urgency triage (L1–L4) — 🟡 L4 fast-path shipeado
+
+| Entregable | Estado | Notas |
+|---|---|---|
+| L4 keyword fast-path | ✅ | 15 keywords hardcoded en `src/lib/whatsapp/agent.ts` (`L4_KEYWORDS`). Corre **antes** del AI. Mirror en `src/lib/prompts/whatsapp-system.ts`. |
+| L1–L3 clasificación por AI | 🔲 | No implementado. El AI no asigna urgency_level; solo L4 vía keyword bump directo a 4. |
+| Urgency solo sube, nunca baja automáticamente | ✅ | `escalateConversation()` solo hace update a `status=escalated, urgency_level=4`. No hay downgrade automático. |
+| L4 → info de emergencia + stop | 🟡 | Responde con `L4_RESPONSE` ("Llamá ahora mismo al …"). Pero el bot NO deja de responder en mensajes subsiguientes — la conversación queda `escalated` pero el webhook sigue procesando. A revisar. |
+| Escalation records | 🔲 | No hay tabla `bot_escalations`. El status `escalated` en `bot_conversations` es el único rastro. |
+| CRM: cola de escalaciones en `/dashboard/bot` | 🔲 | No empezado |
+
+**Keywords L4 actuales (15):** convulsión/convulsion, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción/obstruccion, emergencia, urgente, se está muriendo / se esta muriendo, ahogando, sin pulso.
+
+**Pendiente de merge (dictadas por Paula 2026-04-22):** respira mal, respira agitado, mucosas azules, no puede hacer pis, no puede hacer caca, trauma, hemorragia activa, gato obstruido. Ver [[wiki/gaps/l4-keyword-expansion-pending]] en el vault.
 
 ---
 

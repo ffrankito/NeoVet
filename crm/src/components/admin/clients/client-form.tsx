@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { createClient, updateClient } from "@/app/dashboard/clients/actions";
 import type { Client } from "@/db/schema";
 
-type FieldErrors = { name?: string; phone?: string; email?: string };
+type FieldErrors = { name?: string; phone?: string; email?: string; dni?: string; address?: string };
 type ActionResult =
   | { errors: FieldErrors }
   | { error: string }
@@ -89,6 +89,35 @@ export function ClientForm({ client }: ClientFormProps) {
         />
         {errors.email && (
           <p className="text-sm text-destructive mt-1">{errors.email}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="dni">DNI</Label>
+        <Input
+          id="dni"
+          name="dni"
+          inputMode="numeric"
+          defaultValue={client?.dni ?? ""}
+          placeholder="12345678"
+          aria-invalid={!!errors.dni}
+        />
+        {errors.dni && (
+          <p className="text-sm text-destructive mt-1">{errors.dni}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="address">Dirección</Label>
+        <Input
+          id="address"
+          name="address"
+          defaultValue={client?.address ?? ""}
+          placeholder="Morrow 4064, Rosario"
+          aria-invalid={!!errors.address}
+        />
+        {errors.address && (
+          <p className="text-sm text-destructive mt-1">{errors.address}</p>
         )}
       </div>
 

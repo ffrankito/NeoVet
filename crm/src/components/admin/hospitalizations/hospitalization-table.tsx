@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -55,12 +56,28 @@ export function HospitalizationTable({
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("status") ?? "all"
   );
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") ?? "");
 
-  function applyFilter(value: string) {
+  function buildParams(overrides: { status?: string; q?: string | null }) {
+    const params = new URLSearchParams();
+    const effectiveStatus = overrides.status ?? statusFilter;
+    if (effectiveStatus && effectiveStatus !== "all") params.set("status", effectiveStatus);
+    const effectiveQ = overrides.q === null ? "" : (overrides.q ?? searchTerm.trim());
+    if (effectiveQ) params.set("q", effectiveQ);
+    return params;
+  }
+
+  function applyStatusFilter(value: string) {
     setStatusFilter(value);
     startTransition(() => {
-      const params = new URLSearchParams();
-      if (value && value !== "all") params.set("status", value);
+      const params = buildParams({ status: value });
+      router.push(`/dashboard/hospitalizations?${params.toString()}`);
+    });
+  }
+
+  function applySearch() {
+    startTransition(() => {
+      const params = buildParams({ q: searchTerm.trim() });
       router.push(`/dashboard/hospitalizations?${params.toString()}`);
     });
   }
@@ -77,8 +94,22 @@ export function HospitalizationTable({
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Buscar</label>
+          <Input
+            type="search"
+            placeholder="Mascota, dueño, DNI, teléfono, dirección"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") applySearch();
+            }}
+            className="w-60"
+          />
+        </div>
+
+        <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Estado</label>
-          <Select value={statusFilter} onValueChange={(v) => v && applyFilter(v)}>
+          <Select value={statusFilter} onValueChange={(v) => v && applyStatusFilter(v)}>
           <SelectTrigger className="w-44">
            <SelectValue />
           </SelectTrigger>
@@ -89,6 +120,10 @@ export function HospitalizationTable({
           </SelectContent>
           </Select>
           </div>
+
+        <Button variant="outline" onClick={applySearch} disabled={isPending}>
+          Buscar
+        </Button>
 
         <span className="ml-auto text-sm text-muted-foreground">
           {total} internación{total !== 1 ? "es" : ""}

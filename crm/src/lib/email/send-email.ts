@@ -1,7 +1,8 @@
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import { emailLogs } from "@/db/schema";
 import { emailLogId } from "@/lib/ids";
-import { getResend, EMAIL_FROM } from "./resend";
+import { getResend, getEmailFrom } from "./resend";
 import { and, eq } from "drizzle-orm";
 
 interface SendEmailOptions {
@@ -37,7 +38,7 @@ export async function sendAndLogEmail({
   if (existing) return false;
 
   try {
-    await getResend().emails.send({ from: EMAIL_FROM, to, subject, html });
+    await getResend().emails.send({ from: getEmailFrom(), to, subject, html });
     await db.insert(emailLogs).values({
       id: emailLogId(),
       type: logType,
@@ -45,7 +46,8 @@ export async function sendAndLogEmail({
       sentTo: to,
     });
     return true;
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return false;
   }
 }

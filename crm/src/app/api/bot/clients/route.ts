@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { clients, patients } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { verifyBotApiKey } from "@/lib/bot-auth";
+import { revalidateBotMutation } from "@/lib/bot-revalidate";
 import { z } from "zod";
 import { clientId as genClientId, patientId as genPatientId } from "@/lib/ids";
 
@@ -87,16 +88,36 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Crear cliente
+  // Crear cliente. Race: a concurrent POST for the same phone may pass the
+  // SELECT check above and then lose to us (or vice versa) at INSERT — the
+  // new clients_phone_unique_idx (migration 0035) makes that DB-level. If we
+  // lose, re-query and return the winning client's id with 409.
   const newClientId = genClientId();
-  await db.insert(clients).values({
-    id: newClientId,
-    name,
-    phone: normalizedPhone,
-    dni: dni ?? null,
-    source,
-    importedFromGvet: false,
-  });
+  try {
+    await db.insert(clients).values({
+      id: newClientId,
+      name,
+      phone: normalizedPhone,
+      dni: dni ?? null,
+      source,
+      importedFromGvet: false,
+    });
+  } catch (err) {
+    if (err && typeof err === "object" && "code" in err && err.code === "23505") {
+      const [winner] = await db
+        .select()
+        .from(clients)
+        .where(eq(clients.phone, normalizedPhone))
+        .limit(1);
+      if (winner) {
+        return NextResponse.json(
+          { error: "Ya existe un cliente con ese teléfono", clientId: winner.id },
+          { status: 409 }
+        );
+      }
+    }
+    throw err;
+  }
 
   // Crear paciente
   const newPatientId = genPatientId();
@@ -109,6 +130,8 @@ export async function POST(req: NextRequest) {
     sex: patient.sex,
     dateOfBirth: patient.dateOfBirth ?? null,
   });
+
+  revalidateBotMutation();
 
   return NextResponse.json(
     { clientId: newClientId, patientId: newPatientId, ok: true },

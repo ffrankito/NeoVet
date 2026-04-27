@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { appointments, patients, clients, consultations, staff, services, vaccinations } from "@/db/schema";
@@ -9,6 +10,7 @@ import { eq, desc, and, gte, lte, sql, asc } from "drizzle-orm";
 import { z } from "zod";
 import { parseDateTimeAsART, dateToStartART, dateToEndART } from "@/lib/timezone";
 import { hasRole, getSessionStaffId } from "@/lib/auth";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 import { sendAndLogEmail } from "@/lib/email/send-email";
 import { BookingConfirmationEmail } from "@/lib/email/templates/booking-confirmation";
 import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
@@ -50,6 +52,7 @@ export async function getAppointments(opts?: {
   appointmentType?: "veterinary" | "grooming";
   from?: string;
   to?: string;
+  search?: string;
   page?: number;
   limit?: number;
 }) {
@@ -79,6 +82,9 @@ export async function getAppointments(opts?: {
   if (opts?.to) {
     conditions.push(lte(appointments.scheduledAt, dateToEndART(opts.to)));
   }
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  if (searchClause) conditions.push(searchClause);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -119,6 +125,8 @@ export async function getAppointments(opts?: {
     db
       .select({ count: sql<number>`count(*)` })
       .from(appointments)
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .innerJoin(clients, eq(patients.clientId, clients.id))
       .where(whereClause),
   ]);
 
@@ -237,7 +245,8 @@ export async function createAppointment(formData: FormData) {
       serviceId: parsed.data.serviceId ?? null,
       sendReminders: parsed.data.sendReminders,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -279,8 +288,9 @@ export async function createAppointment(formData: FormData) {
           referenceId: createdId,
         });
       }
-    } catch {
+    } catch (err) {
       // Email failure should not block appointment creation
+      Sentry.captureException(err);
     }
   }
 
@@ -348,7 +358,8 @@ export async function updateAppointment(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(appointments.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -431,8 +442,9 @@ export async function updateAppointmentStatus(
           referenceId: id,
         });
       }
-    } catch {
+    } catch (err) {
       // Email failure should not block status update
+      Sentry.captureException(err);
     }
   }
 
@@ -476,6 +488,8 @@ const inlineClientSchema = z.object({
   clientName: z.string().min(1, "El nombre del cliente es obligatorio."),
   clientPhone: z.string().min(1, "El teléfono es obligatorio."),
   clientEmail: z.string().email("El email no es válido.").optional().or(z.literal("")),
+  clientDni: z.string().optional().or(z.literal("")),
+  clientAddress: z.string().optional().or(z.literal("")),
   patientName: z.string().min(1, "El nombre de la mascota es obligatorio."),
   patientSpecies: z.string().min(1, "La especie es obligatoria."),
   patientBreed: z.string().optional().or(z.literal("")),
@@ -507,6 +521,8 @@ export async function createClientAndPatient(data: InlineClientData) {
       name: parsed.data.clientName,
       phone: parsed.data.clientPhone,
       email: parsed.data.clientEmail || null,
+      dni: parsed.data.clientDni || null,
+      address: parsed.data.clientAddress || null,
     });
 
     await db.insert(patients).values({
@@ -517,7 +533,8 @@ export async function createClientAndPatient(data: InlineClientData) {
       breed: parsed.data.patientBreed || null,
       sex: parsed.data.patientSex,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Error al crear el cliente y paciente." };
   }
 
@@ -558,7 +575,8 @@ export async function createPatientInline(data: InlinePatientData) {
       breed: parsed.data.patientBreed || null,
       sex: parsed.data.patientSex,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Error al crear el paciente." };
   }
 
@@ -657,7 +675,8 @@ export async function createWalkIn(formData: FormData) {
       isUrgent,
       sendReminders: false,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

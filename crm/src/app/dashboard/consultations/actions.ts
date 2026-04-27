@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { consultations, patients, appointments, services } from "@/db/schema";
@@ -8,7 +9,7 @@ import { consultationId } from "@/lib/ids";
 import { eq, desc } from "drizzle-orm";
 import { z } from "zod";
 import { saveTreatmentItems } from "./treatment-actions";
-import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { createChargeForSource } from "@/lib/charges/create";
 import { getSessionStaffId } from "@/lib/auth";
 
 const consultationSchema = z.object({
@@ -119,7 +120,8 @@ export async function createConsultation(formData: FormData) {
       respiratoryRate: d.respiratoryRate || null,
     });
     await saveTreatmentItems(id, itemsRaw.filter((i) => i.description?.trim()));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -161,8 +163,9 @@ export async function createConsultation(formData: FormData) {
         }
       }
     }
-  } catch {
+  } catch (err) {
     // Charge creation failure should not block the consultation save
+    Sentry.captureException(err);
   }
 
   revalidatePath(`/dashboard/patients/${d.patientId}`);
@@ -222,7 +225,8 @@ export async function updateConsultation(id: string, formData: FormData) {
       })
       .where(eq(consultations.id, id));
     await saveTreatmentItems(id, itemsRaw.filter((i) => i.description?.trim()));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

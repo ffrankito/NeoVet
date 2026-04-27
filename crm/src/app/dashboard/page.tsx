@@ -1,15 +1,24 @@
 import Link from "next/link";
 import { db } from "@/db";
-import { clients, patients, appointments, staff, services } from "@/db/schema";
-import { eq, sql, asc, and, gte, lt, ne, type SQL } from "drizzle-orm";
+import { clients, patients, appointments, staff, services, charges, products } from "@/db/schema";
+import { eq, asc, and, gte, lt, inArray, sql, type SQL } from "drizzle-orm";
 import { getRole, getSessionStaffId } from "@/lib/auth";
 import { todayStartART, todayEndART, formatDateART, formatTimeART } from "@/lib/timezone";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { DashboardActions } from "@/components/admin/dashboard-actions";
 import { CardSkeleton } from "@/components/admin/skeletons";
 import { AppointmentActions } from "@/components/admin/appointments/appointment-actions";
 import { getOpenSession } from "@/app/dashboard/cash/actions";
-import { getAllClientsForSelect, getAllPatientsForSelect, getServicesForWalkIn } from "@/app/dashboard/appointments/actions";
+import { getAllPatientsForSelect, getServicesForWalkIn, getPatientMiniSummary } from "@/app/dashboard/appointments/actions";
+import {
+  getOverdueFollowUpCount,
+  getFollowUps,
+  markFollowUpDone,
+  markFollowUpDismissed,
+  reopenFollowUp,
+  type FollowUpRow,
+} from "@/app/dashboard/follow-ups-actions";
 import { WalkInForm } from "@/components/admin/appointments/walk-in-form";
 import { Suspense } from "react";
 import { getServiceColors } from "@/lib/calendar-utils";
@@ -53,13 +62,15 @@ function AppointmentRow({
   dimmed?: boolean;
 }) {
   const colors = getServiceColors(apt.serviceCategory);
+  const isUrgentActive = apt.isUrgent && apt.status === "confirmed";
 
   return (
     <div
       className={cn(
-        "flex items-center gap-4 px-4 py-3",
+        "flex items-center gap-3 px-3 py-2.5 transition-colors duration-150",
+        !dimmed && "hover:bg-muted/40",
         dimmed && "opacity-50",
-        apt.isUrgent && apt.status === "confirmed" && "bg-red-50 border-l-4 border-l-red-500"
+        isUrgentActive && "bg-red-50 border-l-4 border-l-red-500 hover:bg-red-100/60"
       )}
     >
       {/* Service category dot */}
@@ -130,7 +141,41 @@ function AppointmentRow({
   );
 }
 
-async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatientId?: string }) {
+async function getAdminAlerts() {
+  const [unpaidResult, lowStockResult, overdueFollowUps] = await Promise.all([
+    db
+      .select({ count: sql<number>`count(distinct ${charges.clientId})` })
+      .from(charges)
+      .where(inArray(charges.status, ["pending", "partial"])),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(
+        and(
+          eq(products.isActive, true),
+          sql`${products.minStock}::numeric > 0`,
+          sql`${products.currentStock}::numeric <= ${products.minStock}::numeric`
+        )
+      ),
+    getOverdueFollowUpCount(),
+  ]);
+
+  return {
+    unpaidClients: Number(unpaidResult[0].count),
+    lowStock: Number(lowStockResult[0].count),
+    overdueFollowUps,
+  };
+}
+
+type FollowUpsTab = "pending" | "done" | "dismissed";
+
+async function DashboardContent({
+  defaultWalkInPatientId,
+  followUpsTab,
+}: {
+  defaultWalkInPatientId?: string;
+  followUpsTab: FollowUpsTab;
+}) {
   const [role, sessionStaffId] = await Promise.all([getRole(), getSessionStaffId()]);
   const isAdmin = role === "admin" || role === "owner";
 
@@ -153,61 +198,57 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
     roleFilters.push(eq(appointments.appointmentType, "grooming"));
   }
 
-  const [clientCountResult, patientCountResult, todayCountResult, todayAppointments] =
-    await Promise.all([
-      db.select({ count: sql<number>`count(*)` }).from(clients),
-      db.select({ count: sql<number>`count(*)` }).from(patients),
-      db
-        .select({ count: sql<number>`count(*)` })
-        .from(appointments)
-        .where(
-          and(
-            gte(appointments.scheduledAt, todayStart),
-            lt(appointments.scheduledAt, todayEnd),
-            ne(appointments.status, "cancelled"),
-            ...roleFilters
-          )
-        ),
-      db
-        .select({
-          id: appointments.id,
-          scheduledAt: appointments.scheduledAt,
-          status: appointments.status,
-          reason: appointments.reason,
-          patientId: appointments.patientId,
-          patientName: patients.name,
-          clientName: clients.name,
-          clientId: clients.id,
-          assignedStaffName: staff.name,
-          appointmentType: appointments.appointmentType,
-          serviceCategory: services.category,
-          isWalkIn: appointments.isWalkIn,
-          isUrgent: appointments.isUrgent,
-        })
-        .from(appointments)
-        .innerJoin(patients, eq(appointments.patientId, patients.id))
-        .innerJoin(clients, eq(patients.clientId, clients.id))
-        .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
-        .leftJoin(services, eq(appointments.serviceId, services.id))
-        .where(
-          and(
-            gte(appointments.scheduledAt, todayStart),
-            lt(appointments.scheduledAt, todayEnd),
-            ...roleFilters
-          )
-        )
-        .orderBy(asc(appointments.scheduledAt)),
-    ]);
+  const todayAppointments = await db
+    .select({
+      id: appointments.id,
+      scheduledAt: appointments.scheduledAt,
+      status: appointments.status,
+      reason: appointments.reason,
+      patientId: appointments.patientId,
+      patientName: patients.name,
+      patientSpecies: patients.species,
+      patientBreed: patients.breed,
+      patientSex: patients.sex,
+      groomingCoatType: patients.groomingCoatType,
+      groomingBehaviorScore: patients.groomingBehaviorScore,
+      groomingEstimatedMinutes: patients.groomingEstimatedMinutes,
+      clientName: clients.name,
+      clientId: clients.id,
+      assignedStaffName: staff.name,
+      appointmentType: appointments.appointmentType,
+      serviceCategory: services.category,
+      serviceName: services.name,
+      isWalkIn: appointments.isWalkIn,
+      isUrgent: appointments.isUrgent,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .innerJoin(clients, eq(patients.clientId, clients.id))
+    .leftJoin(staff, eq(appointments.assignedStaffId, staff.id))
+    .leftJoin(services, eq(appointments.serviceId, services.id))
+    .where(
+      and(
+        gte(appointments.scheduledAt, todayStart),
+        lt(appointments.scheduledAt, todayEnd),
+        ...roleFilters
+      )
+    )
+    .orderBy(asc(appointments.scheduledAt));
 
-  const clientCount = Number(clientCountResult[0].count);
-  const patientCount = Number(patientCountResult[0].count);
-  const todayCount = Number(todayCountResult[0].count);
-  const openCashSession = isAdmin ? await getOpenSession() : null;
+  const showFollowUps = role !== "groomer";
 
-  const [walkInClients, walkInPatients, walkInServices] = await Promise.all([
-    getAllClientsForSelect(),
-    getAllPatientsForSelect(),
-    getServicesForWalkIn(),
+  const [
+    openCashSession,
+    adminAlerts,
+    [walkInPatients, walkInServices],
+    followUpRows,
+  ] = await Promise.all([
+    isAdmin ? getOpenSession() : Promise.resolve(null),
+    isAdmin
+      ? getAdminAlerts()
+      : Promise.resolve({ unpaidClients: 0, lowStock: 0, overdueFollowUps: 0 }),
+    Promise.all([getAllPatientsForSelect(), getServicesForWalkIn()]),
+    showFollowUps ? getFollowUps(followUpsTab) : Promise.resolve([] as FollowUpRow[]),
   ]);
 
   // Split into 3 sections
@@ -225,6 +266,32 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
   const finished = todayAppointments
     .filter((apt) => apt.status === "completed" || apt.status === "no_show" || apt.status === "cancelled");
 
+  const todayCount = todayAppointments.filter((a) => a.status !== "cancelled").length;
+  const completedCount = finished.filter((a) => a.status === "completed").length;
+  const pendingCount = scheduled.length;
+  const urgentCount = todayAppointments.filter(
+    (a) => a.isUrgent && a.status !== "cancelled"
+  ).length;
+  const nextAppointment = waitingRoom[0];
+
+  // Vet-specific: next confirmed/pending appointment (urgent first, then by time)
+  const nextForVet =
+    role === "vet"
+      ? [...todayAppointments]
+          .filter((a) => a.status === "confirmed" || a.status === "pending")
+          .sort((a, b) => {
+            if (a.isUrgent && !b.isUrgent) return -1;
+            if (!a.isUrgent && b.isUrgent) return 1;
+            return (
+              new Date(a.scheduledAt).getTime() -
+              new Date(b.scheduledAt).getTime()
+            );
+          })[0] ?? null
+      : null;
+  const vetPatientSummary = nextForVet
+    ? await getPatientMiniSummary(nextForVet.patientId)
+    : null;
+
   return (
     <div className="space-y-8">
       {/* Page title */}
@@ -233,103 +300,581 @@ async function DashboardContent({ defaultWalkInPatientId }: { defaultWalkInPatie
         <p className="text-muted-foreground capitalize">{todayLabel}</p>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Clientes" count={clientCount} href="/dashboard/clients" />
-        <SummaryCard label="Pacientes" count={patientCount} href="/dashboard/patients" />
-        <SummaryCard label="Turnos hoy" count={todayCount} href="/dashboard/appointments" />
-      </div>
-
-      {/* Quick actions */}
-      <DashboardActions />
-
-      {/* Cash register status — admin only */}
-      {isAdmin && (
-        <Link
-          href="/dashboard/cash"
-          className="group flex items-center gap-3 rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
-        >
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground">Caja</p>
-            {openCashSession ? (
-              <p className="text-sm font-semibold text-green-700">Abierta</p>
-            ) : (
-              <p className="text-sm font-semibold text-red-600">Cerrada</p>
-            )}
-          </div>
-          <span className="text-xs text-muted-foreground group-hover:text-foreground">Ver →</span>
-        </Link>
+      {/* Vet hero card — only for vet role */}
+      {role === "vet" && (
+        <VetHeroCard next={nextForVet} summary={vetPatientSummary} />
       )}
 
-      {/* Walk-in form */}
-      <WalkInForm
-        clients={walkInClients}
-        patients={walkInPatients}
-        services={walkInServices}
-        defaultPatientId={defaultWalkInPatientId}
-      />
-
-      {/* Sala de espera */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold">
-          Sala de espera
-          {waitingRoom.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({waitingRoom.length})
-            </span>
-          )}
-        </h2>
-        {waitingRoom.length === 0 ? (
-          <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground">
-            No hay pacientes en espera.
-          </div>
-        ) : (
-          <div className="rounded-lg border divide-y">
-            {waitingRoom.map((apt) => (
-              <AppointmentRow key={apt.id} apt={apt} />
-            ))}
-          </div>
+      {/* KPI row — today-scoped, role-aware */}
+      <div className={cn(
+        "grid gap-4 sm:grid-cols-2",
+        isAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"
+      )}>
+        <KpiCard
+          label="Turnos hoy"
+          value={todayCount}
+          sub={`${completedCount} completados · ${pendingCount} pendientes`}
+          href="/dashboard/appointments"
+        />
+        <KpiCard
+          label="En espera"
+          value={waitingRoom.length}
+          sub={
+            nextAppointment
+              ? `Próximo: ${formatTimeART(nextAppointment.scheduledAt, {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                })} · ${nextAppointment.patientName}`
+              : "Sin pacientes"
+          }
+          href="/dashboard/sala-de-espera"
+        />
+        <KpiCard
+          label="Urgentes"
+          value={urgentCount}
+          sub={urgentCount > 0 ? "Atender primero" : "Sin urgencias"}
+          tone={urgentCount > 0 ? "danger" : "default"}
+          href="/dashboard/appointments"
+        />
+        {isAdmin && (
+          <KpiCard
+            label="Caja"
+            value={openCashSession ? "Abierta" : "Cerrada"}
+            sub={
+              openCashSession
+                ? `Desde ${formatTimeART(openCashSession.openedAt, {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}`
+                : "Tocá para abrir"
+            }
+            tone={openCashSession ? "success" : "warning"}
+            href="/dashboard/cash"
+            isText
+          />
         )}
       </div>
 
-      {/* Turnos programados */}
-      {scheduled.length > 0 && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">
-            Turnos programados
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({scheduled.length})
-            </span>
-          </h2>
-          <div className="rounded-lg border divide-y">
-            {scheduled.map((apt) => (
-              <AppointmentRow key={apt.id} apt={apt} />
-            ))}
-          </div>
+      {/* Alert strip — admin/owner only */}
+      {isAdmin && (
+        <div className="flex flex-wrap gap-2">
+          <AlertChip
+            label="Deudores"
+            count={adminAlerts.unpaidClients}
+            href="/dashboard/deudores"
+          />
+          <AlertChip
+            label="Stock bajo"
+            count={adminAlerts.lowStock}
+            href="/dashboard/petshop/products"
+          />
+          <AlertChip
+            label="Seguimientos vencidos"
+            count={adminAlerts.overdueFollowUps}
+            href="#follow-ups"
+          />
         </div>
       )}
 
-      {/* Completados */}
-      {finished.length > 0 && (
+      {/* Quick actions */}
+      <div className="flex flex-wrap items-center gap-3">
+        <DashboardActions />
+        <WalkInForm
+          patients={walkInPatients}
+          services={walkInServices}
+          defaultPatientId={defaultWalkInPatientId}
+        />
+      </div>
+
+      {/* Groomer view: card grid of today's grooming appointments */}
+      {role === "groomer" && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            Completados
-            <span className="ml-2 text-sm font-normal">
-              ({finished.length})
-            </span>
+          <h2 className="text-lg font-semibold">
+            Mi día
+            {todayAppointments.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-muted-foreground">
+                ({todayAppointments.length})
+              </span>
+            )}
           </h2>
-          <div className="rounded-lg border divide-y">
-            {finished.map((apt) => (
-              <AppointmentRow key={apt.id} apt={apt} dimmed />
-            ))}
+          {todayAppointments.length === 0 ? (
+            <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
+              No tenés sesiones de estética hoy.
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {todayAppointments.map((apt) => (
+                <GroomingCard key={apt.id} apt={apt} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Non-groomer view: existing row-based sections */}
+      {role !== "groomer" && (
+        <>
+          {/* Sala de espera */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold">
+              Sala de espera
+              {waitingRoom.length > 0 && (
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({waitingRoom.length})
+                </span>
+              )}
+            </h2>
+            {waitingRoom.length === 0 ? (
+              <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground">
+                No hay pacientes en espera.
+              </div>
+            ) : (
+              <div className="rounded-lg border divide-y">
+                {waitingRoom.map((apt) => (
+                  <AppointmentRow key={apt.id} apt={apt} />
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Seguimientos */}
+          <FollowUpsSection rows={followUpRows} tab={followUpsTab} />
+
+          {/* Turnos programados */}
+          {scheduled.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold">
+                Turnos programados
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({scheduled.length})
+                </span>
+              </h2>
+              <div className="rounded-lg border divide-y">
+                {scheduled.map((apt) => (
+                  <AppointmentRow key={apt.id} apt={apt} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Completados */}
+          {finished.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-muted-foreground">
+                Completados
+                <span className="ml-2 text-sm font-normal">
+                  ({finished.length})
+                </span>
+              </h2>
+              <div className="rounded-lg border divide-y">
+                {finished.map((apt) => (
+                  <AppointmentRow key={apt.id} apt={apt} dimmed />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function VetHeroCard({
+  next,
+  summary,
+}: {
+  next: {
+    id: string;
+    scheduledAt: Date;
+    reason: string | null;
+    patientId: string;
+    patientName: string;
+    patientSpecies: string;
+    patientBreed: string | null;
+    patientSex: string | null;
+    clientName: string;
+    clientId: string;
+    isUrgent: boolean;
+    isWalkIn: boolean;
+  } | null;
+  summary: Awaited<ReturnType<typeof getPatientMiniSummary>> | null;
+}) {
+  if (!next || !summary) {
+    return (
+      <div className="rounded-xl border border-dashed bg-card p-8 text-center">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Próximo paciente
+        </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          No tenés próximo turno hoy.
+        </p>
+      </div>
+    );
+  }
+
+  const timeLabel = next.isWalkIn
+    ? "S/T"
+    : formatTimeART(next.scheduledAt, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+  const descriptors = [
+    next.patientSpecies,
+    next.patientBreed,
+    next.patientSex,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const lastDate = summary.lastConsultation
+    ? new Date(summary.lastConsultation.createdAt).toLocaleDateString("es-AR")
+    : null;
+
+  return (
+    <div className="rounded-xl border bg-card p-6 shadow-sm">
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Próximo paciente
+        </p>
+        <p className="font-mono text-lg font-semibold tabular-nums">
+          {timeLabel}
+        </p>
+      </div>
+
+      <h2 className="mt-3 text-3xl font-bold tracking-tight">
+        {next.patientName}
+      </h2>
+      {descriptors && (
+        <p className="mt-1 text-sm text-muted-foreground">{descriptors}</p>
+      )}
+
+      {(summary.isBrachycephalic || summary.isDeceased || next.isUrgent) && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {next.isUrgent && (
+            <Badge variant="destructive" className="text-xs">
+              Urgente
+            </Badge>
+          )}
+          {summary.isBrachycephalic && (
+            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
+              Braquicéfalo
+            </span>
+          )}
+          {summary.isDeceased && (
+            <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+              Fallecido
+            </span>
+          )}
+        </div>
+      )}
+
+      {next.reason && (
+        <p className="mt-4 text-base">{next.reason}</p>
+      )}
+
+      <p className="mt-2 text-sm text-muted-foreground">
+        Dueño:{" "}
+        <Link
+          href={`/dashboard/clients/${next.clientId}`}
+          className="text-foreground hover:underline"
+        >
+          {next.clientName}
+        </Link>
+      </p>
+
+      {(lastDate || summary.overdueVaccines.length > 0) && (
+        <div className="mt-4 space-y-1 border-t pt-3 text-sm">
+          {lastDate && (
+            <p className="text-muted-foreground">
+              Última consulta: <span className="text-foreground">{lastDate}</span>
+            </p>
+          )}
+          {summary.overdueVaccines.length > 0 && (
+            <p className="text-red-600">
+              Vacunas vencidas:{" "}
+              {summary.overdueVaccines.map((v) => v.name).join(", ")}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="mt-5 flex justify-end">
+        <Link
+          href={`/dashboard/patients/${next.patientId}`}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          Ver ficha del paciente →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function GroomingCard({
+  apt,
+}: {
+  apt: {
+    id: string;
+    scheduledAt: Date;
+    status: string;
+    reason: string | null;
+    patientId: string;
+    patientName: string;
+    patientSpecies: string;
+    patientBreed: string | null;
+    clientName: string;
+    clientId: string;
+    serviceName: string | null;
+    groomingCoatType: string | null;
+    groomingBehaviorScore: number | null;
+    groomingEstimatedMinutes: number | null;
+    isWalkIn: boolean;
+  };
+}) {
+  const dimmed =
+    apt.status === "completed" ||
+    apt.status === "cancelled" ||
+    apt.status === "no_show";
+
+  const timeLabel = apt.isWalkIn
+    ? "S/T"
+    : formatTimeART(apt.scheduledAt, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+
+  const descriptors = [apt.patientSpecies, apt.patientBreed]
+    .filter(Boolean)
+    .join(" · ");
+
+  const profileChips: { label: string }[] = [];
+  if (apt.groomingCoatType) profileChips.push({ label: apt.groomingCoatType });
+  if (apt.groomingBehaviorScore !== null)
+    profileChips.push({ label: `Manejo ${apt.groomingBehaviorScore}/10` });
+  if (apt.groomingEstimatedMinutes !== null)
+    profileChips.push({ label: `~${apt.groomingEstimatedMinutes} min` });
+
+  return (
+    <Link
+      href={`/dashboard/appointments/${apt.id}`}
+      className={cn(
+        "group flex flex-col rounded-xl border bg-card p-4 transition-all hover:border-foreground/20 hover:shadow-sm",
+        dimmed && "opacity-60 hover:opacity-80"
+      )}
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="font-mono text-sm font-semibold tabular-nums text-muted-foreground">
+          {timeLabel}
+        </span>
+        <Badge variant={statusVariants[apt.status] ?? "secondary"} className="text-xs">
+          {statusLabels[apt.status] ?? apt.status}
+        </Badge>
+      </div>
+
+      <h3 className="mt-2 text-xl font-bold tracking-tight">
+        {apt.patientName}
+      </h3>
+      {descriptors && (
+        <p className="text-xs text-muted-foreground">{descriptors}</p>
+      )}
+
+      {apt.serviceName && (
+        <p className="mt-3 text-sm font-medium">{apt.serviceName}</p>
+      )}
+
+      <p className="mt-1 text-xs text-muted-foreground truncate">
+        {apt.clientName}
+      </p>
+
+      {profileChips.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {profileChips.map((chip) => (
+            <span
+              key={chip.label}
+              className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+            >
+              {chip.label}
+            </span>
+          ))}
+        </div>
+      )}
+    </Link>
+  );
+}
+
+const FOLLOW_UP_TABS: { key: FollowUpsTab; label: string }[] = [
+  { key: "pending", label: "Pendientes" },
+  { key: "done", label: "Atendidos" },
+  { key: "dismissed", label: "Descartados" },
+];
+
+function FollowUpsSection({
+  rows,
+  tab,
+}: {
+  rows: FollowUpRow[];
+  tab: FollowUpsTab;
+}) {
+  return (
+    <div id="follow-ups" className="space-y-4 scroll-mt-20">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-lg font-semibold">
+          Seguimientos
+          {rows.length > 0 && (
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              ({rows.length})
+            </span>
+          )}
+        </h2>
+      </div>
+
+      {/* Tabs (URL-driven via ?followUpsTab=...) */}
+      <div className="flex gap-1 border-b">
+        {FOLLOW_UP_TABS.map(({ key, label }) => (
+          <Link
+            key={key}
+            href={`/dashboard?followUpsTab=${key}#follow-ups`}
+            scroll={false}
+            className={cn(
+              "px-3 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
+              tab === key
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      {/* List */}
+      {rows.length === 0 ? (
+        <div className="rounded-lg border border-dashed py-6 text-center text-muted-foreground text-sm">
+          {tab === "pending"
+            ? "No hay seguimientos pendientes."
+            : tab === "done"
+            ? "Todavía no marcaste ningún seguimiento como atendido."
+            : "No descartaste ningún seguimiento."}
+        </div>
+      ) : (
+        <div className="rounded-lg border divide-y">
+          {rows.map((row) => (
+            <FollowUpRowView key={row.id} row={row} tab={tab} />
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function SummaryCard({
+function FollowUpRowView({
+  row,
+  tab,
+}: {
+  row: FollowUpRow;
+  tab: FollowUpsTab;
+}) {
+  const scheduledLabel = new Date(row.scheduledDate).toLocaleDateString(
+    "es-AR",
+    { day: "2-digit", month: "short", year: "numeric" }
+  );
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-start gap-3 px-3 py-2.5 transition-colors hover:bg-muted/40",
+        row.isOverdue && "bg-amber-50/60"
+      )}
+    >
+      <div className="w-24 shrink-0">
+        <p className="font-mono text-sm font-medium">{scheduledLabel}</p>
+        {row.isOverdue && (
+          <Badge
+            variant="outline"
+            className="mt-1 text-[10px] border-amber-300 bg-amber-100 text-amber-800"
+          >
+            Vencido
+          </Badge>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-[200px]">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <Link
+            href={`/dashboard/patients/${row.patientId}`}
+            className="font-medium hover:underline truncate"
+          >
+            {row.patientName}
+          </Link>
+          <span className="text-xs text-muted-foreground">
+            ·{" "}
+            <Link
+              href={`/dashboard/clients/${row.clientId}`}
+              className="hover:underline"
+            >
+              {row.clientName}
+            </Link>
+          </span>
+        </div>
+        <p className="text-sm text-muted-foreground mt-0.5">{row.reason}</p>
+        {(row.consultationId || row.procedureId) && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Origen:{" "}
+            {row.consultationId && (
+              <Link
+                href={`/dashboard/consultations/${row.consultationId}`}
+                className="hover:underline"
+              >
+                consulta
+              </Link>
+            )}
+            {row.procedureId && (
+              <Link
+                href={`/dashboard/procedures/${row.procedureId}`}
+                className="hover:underline"
+              >
+                procedimiento
+              </Link>
+            )}
+          </p>
+        )}
+      </div>
+
+      <div className="flex gap-2 shrink-0">
+        {tab === "pending" ? (
+          <>
+            <form action={markFollowUpDone}>
+              <input type="hidden" name="id" value={row.id} />
+              <Button type="submit" size="sm" variant="outline">
+                Marcar atendido
+              </Button>
+            </form>
+            <form action={markFollowUpDismissed}>
+              <input type="hidden" name="id" value={row.id} />
+              <Button type="submit" size="sm" variant="ghost">
+                Descartar
+              </Button>
+            </form>
+          </>
+        ) : (
+          <form action={reopenFollowUp}>
+            <input type="hidden" name="id" value={row.id} />
+            <Button type="submit" size="sm" variant="ghost">
+              Reabrir
+            </Button>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AlertChip({
   label,
   count,
   href,
@@ -338,23 +883,86 @@ function SummaryCard({
   count: number;
   href: string;
 }) {
+  const hasAlert = count > 0;
   return (
     <Link
       href={href}
-      className="group rounded-xl border bg-card p-6 transition-colors hover:bg-accent"
+      className={cn(
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-all hover:shadow-sm",
+        hasAlert
+          ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+          : "border-border bg-background text-muted-foreground hover:bg-muted"
+      )}
     >
-      <p className="text-3xl font-bold tracking-tight">{count}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+      <span
+        className={cn(
+          "h-2 w-2 rounded-full",
+          hasAlert ? "bg-amber-500" : "bg-muted-foreground/30"
+        )}
+      />
+      <span className="font-medium">{label}</span>
+      <span className="tabular-nums text-xs">· {count}</span>
     </Link>
   );
+}
+
+function KpiCard({
+  label,
+  value,
+  sub,
+  href,
+  tone = "default",
+  isText = false,
+}: {
+  label: string;
+  value: number | string;
+  sub?: string;
+  href: string;
+  tone?: "default" | "danger" | "success" | "warning";
+  isText?: boolean;
+}) {
+  const toneClass = {
+    default: "text-foreground",
+    danger: "text-red-600",
+    success: "text-green-700",
+    warning: "text-amber-700",
+  }[tone];
+
+  return (
+    <Link
+      href={href}
+      className="group rounded-xl border bg-card p-5 transition-all hover:border-foreground/20 hover:shadow-sm"
+    >
+      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p
+        className={cn(
+          "mt-2 font-bold tracking-tight tabular-nums",
+          isText ? "text-2xl" : "text-3xl",
+          toneClass
+        )}
+      >
+        {value}
+      </p>
+      {sub && (
+        <p className="mt-1 truncate text-xs text-muted-foreground">{sub}</p>
+      )}
+    </Link>
+  );
+}
+
+function parseFollowUpsTab(value: string | undefined): FollowUpsTab {
+  return value === "done" || value === "dismissed" ? value : "pending";
 }
 
 export default async function DashboardHome({
   searchParams,
 }: {
-  searchParams: Promise<{ walkInPatientId?: string }>;
+  searchParams: Promise<{ walkInPatientId?: string; followUpsTab?: string }>;
 }) {
   const params = await searchParams;
+  const followUpsTab = parseFollowUpsTab(params.followUpsTab);
   return (
     <Suspense
       fallback={
@@ -363,7 +971,8 @@ export default async function DashboardHome({
             <div className="h-8 w-48 bg-muted rounded animate-pulse" />
             <div className="h-4 w-64 bg-muted rounded animate-pulse mt-2" />
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
@@ -371,7 +980,10 @@ export default async function DashboardHome({
         </div>
       }
     >
-      <DashboardContent defaultWalkInPatientId={params.walkInPatientId} />
+      <DashboardContent
+        defaultWalkInPatientId={params.walkInPatientId}
+        followUpsTab={followUpsTab}
+      />
     </Suspense>
   );
 }

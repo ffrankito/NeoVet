@@ -1,13 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { patients, clients, appointments } from "@/db/schema";
+import {
+  patients,
+  clients,
+  appointments,
+  consultations,
+  hospitalizations,
+  procedures,
+  vaccinations,
+  groomingSessions,
+} from "@/db/schema";
 import { patientId } from "@/lib/ids";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { isAdminLevel } from "@/lib/auth";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024;
@@ -126,6 +137,7 @@ export async function createPatient(formData: FormData) {
       neutered: formData.get("neutered") === "true",
     });
   } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -184,6 +196,7 @@ export async function updatePatient(
       })
       .where(eq(patients.id, id));
   } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -201,7 +214,61 @@ export async function deletePatientAvatar(patientId: string) {
   revalidatePath(`/dashboard/patients/${patientId}`);
 }
 
+export type PatientDeletePreview = {
+  consultations: number;
+  appointments: number;
+  hospitalizations: number;
+  procedures: number;
+  vaccinations: number;
+  groomingSessions: number;
+};
+
+/**
+ * Counts the records that will be permanently destroyed by deletePatient(id).
+ * Used to populate the confirmation dialog so admins see what they're about
+ * to wipe before confirming. Admin / owner only.
+ */
+export async function getPatientDeletePreview(
+  id: string,
+): Promise<PatientDeletePreview> {
+  if (!(await isAdminLevel())) {
+    throw new Error("No autorizado");
+  }
+
+  const [
+    [{ n: consultationsCount } = { n: 0 }],
+    [{ n: appointmentsCount } = { n: 0 }],
+    [{ n: hospitalizationsCount } = { n: 0 }],
+    [{ n: proceduresCount } = { n: 0 }],
+    [{ n: vaccinationsCount } = { n: 0 }],
+    [{ n: groomingCount } = { n: 0 }],
+  ] = await Promise.all([
+    db.select({ n: count() }).from(consultations).where(eq(consultations.patientId, id)),
+    db.select({ n: count() }).from(appointments).where(eq(appointments.patientId, id)),
+    db.select({ n: count() }).from(hospitalizations).where(eq(hospitalizations.patientId, id)),
+    db.select({ n: count() }).from(procedures).where(eq(procedures.patientId, id)),
+    db.select({ n: count() }).from(vaccinations).where(eq(vaccinations.patientId, id)),
+    db.select({ n: count() }).from(groomingSessions).where(eq(groomingSessions.patientId, id)),
+  ]);
+
+  return {
+    consultations: Number(consultationsCount),
+    appointments: Number(appointmentsCount),
+    hospitalizations: Number(hospitalizationsCount),
+    procedures: Number(proceduresCount),
+    vaccinations: Number(vaccinationsCount),
+    groomingSessions: Number(groomingCount),
+  };
+}
+
 export async function deletePatient(id: string) {
+  // Hard delete cascades to consultations, appointments, hospitalizations,
+  // procedures, vaccinations, deworming records, consent documents,
+  // grooming sessions, follow-ups, retorno queue. Admin / owner only.
+  if (!(await isAdminLevel())) {
+    throw new Error("No autorizado");
+  }
+
   const [patient] = await db
     .select({ clientId: patients.clientId })
     .from(patients)

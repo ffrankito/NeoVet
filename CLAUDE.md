@@ -1,4 +1,8 @@
-# NeoVet — Project Instructions for Claude
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## NeoVet — Project Instructions for Claude
 
 ## Business Context
 
@@ -83,7 +87,7 @@ Every feature must pass 3 questions before entering v1 scope:
 3. **Is it validated?** Do we *know* users need it, or are we assuming? If assuming → defer.
 
 **Version targets:**
-- **v1** — Works standalone, no cross-app integrations. CRM includes email reminders; chatbot is a standalone web widget. **STATUS (2026-04-20, end of day): En fase de desarrollo. UAT postpuesto. Tras entrevistas post-demo con Paula, Valdemar, Fernanda, Rocío y Gabriela, el alcance se re-escopó el 2026-04-19: ARCA (Fase D) pasa a v2; se agregaron 9 features Paula-facing + 1 workpackage de observabilidad. Status de los 10 items: 5 shippados (agenda compartida Paula-Fernanda, sedación consent, endocrinología, búsqueda por nombre de mascota, acceso read-only a precios para vets); 2 parciales (fluidoterapia + timeline, auto-charge desde tratamientos); 1 spec-drafted bloqueado en Paula (retorno del consultorio — 3 preguntas abiertas P1-P3); 1 bloqueado en reunión con Paula (stopgap WhatsApp); 1 observability multi-fase en curso (T1a CRM completo y verificado; T1b chatbot + T1c landing con código merged, verificación runtime pendiente de env vars en Vercel).**
+- **v1** — Works standalone, no cross-app integrations in the web widget (the v2 WhatsApp bot is the narrow exception — see Architecture note). CRM includes email reminders. **STATUS (2026-04-23): En fase de desarrollo. UAT postpuesto. v1 stopgap WhatsApp auto-reply cancelado — Paula ya tiene uno configurado en WhatsApp Business (revelado en la reunión del 2026-04-22). Ese hallazgo liberó capacidad de v1 y Franco aceleró la v2 del chatbot: el 2026-04-22 shipeó el MVP de WhatsApp-Kapso (agente, sesión, 5 tools, webhook, L4 fast-path) + endpoint nuevo `/api/bot/clients` en el CRM + columna `source` en clients (migración 0033). Status actual de los 10 items: 6 shippados (A2, A3, A4, A5, A6, A8 — A6 cerrado 2026-04-23 con `buildPatientAwareSearchClause` + UI de búsqueda en 5 listas: turnos, internaciones, procedimientos, consentimientos, estética), 2 parciales (A1 fluidoterapia, A7 auto-charge per-item), 1 cancelado (#9 stopgap), 1 observability multi-fase (T1a CRM verificado; T1b chatbot + T1c landing merged, runtime pendiente de env vars en Vercel). Agregado 2026-04-23: A11 campos DNI + dirección en el form de cliente (surfaced durante smoke test de A6). Pendiente de Tomás: lista ampliada de keywords L4 dictada por Paula en la reunión (respira mal/agitado, mucosas azules, no puede hacer pis/caca, trauma, hemorragia activa) que hay que reconciliar con las 15 actuales en `chatbot/src/lib/whatsapp/agent.ts`.**
 - **v2** — Cross-app integrations (chatbot ↔ CRM API). WhatsApp channel live. Automated reminders via WhatsApp.
 - **v3** — AI, reporting, advanced automation.
 
@@ -95,9 +99,9 @@ When suggesting features or scope, always flag which version they belong to. Nev
 
 These are **hard prohibitions** for current work. Do not implement, wire up, or scaffold unless a version target is explicitly upgraded:
 
-- **No chatbot ↔ CRM integration in v1.** The chatbot and CRM are independent in v1. No API calls between them.
-- **No WhatsApp in v1.** The chatbot delivers via web widget only. WhatsApp (Kapso) is v2. CRM reminders use email (Resend) in v1 — WhatsApp reminders are v2.
-- **No AI image analysis in v1.** Image triage (L3) is deferred. Do not implement `analyze-image` tool or L3 logic.
+- **The v1 web widget must stay independent from the CRM.** No API calls from [chatbot/src/app/api/chat/route.ts](chatbot/src/app/api/chat/route.ts) or [chatbot/src/app/page.tsx](chatbot/src/app/page.tsx) to the CRM. The v2 WhatsApp bot is the only channel allowed to cross that line (via `BOT_API_KEY`-guarded `/api/bot/*`).
+- **No WhatsApp reminders from the CRM yet.** CRM still emails via Resend in v1. Outbound WhatsApp (appointment/vaccine/follow-up reminders) is future v2 work — the v2 chatbot currently only handles *inbound* WhatsApp.
+- **No AI image analysis.** Image triage (L3) is deferred. Do not implement `analyze-image` tool or L3 logic.
 - **No Geovet integration, ever.** No sync, no scraping, no API calls to Geovet. Data migration is Excel/HTML-only, one-time.
 - **No automated urgency downgrade.** Urgency level can only go up automatically. Only a human staff member can downgrade it via the dashboard.
 
@@ -119,7 +123,7 @@ The chatbot uses a four-level urgency system. **This is a patient safety feature
 1. **Urgency only goes up.** `conversation.urgencyLevel` is only ever set to a higher level. It is never auto-decremented by the bot, a timer, inactivity, or any automated process.
 2. **Only humans downgrade.** A staff member must explicitly downgrade urgency via the admin dashboard.
 3. **L4 bypasses AI.** L4 detection runs on a hardcoded keyword list *before* the AI agent is called. This guarantees sub-millisecond escalation regardless of AI latency or availability.
-4. **L4 keywords are in Argentine Spanish:** convulsión, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción, emergencia, urgente, se está muriendo.
+4. **L4 keywords are in Argentine Spanish.** Canonical list lives in [chatbot/src/lib/whatsapp/agent.ts](chatbot/src/lib/whatsapp/agent.ts) (`L4_KEYWORDS` array) and is **mirrored** in [chatbot/src/lib/prompts/whatsapp-system.ts](chatbot/src/lib/prompts/whatsapp-system.ts) and [chatbot/src/lib/prompts/system.ts](chatbot/src/lib/prompts/system.ts). All three must stay in sync by hand. Current seed list: *convulsión, no respira, atropellado, envenenado, sangrado, no reacciona, desmayado, golpe fuerte, obstrucción, emergencia, urgente, se está muriendo, ahogando, sin pulso* (plus accentless variants). **Expansion pending from 2026-04-22 Paula meeting:** *respira mal, respira agitado, mucosas azules, no puede hacer pis, no puede hacer caca, trauma, hemorragia activa, gato obstruido*. When updating the list, update all three files in the same commit.
 
 The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threatening failure. The conservative design (one-directional, keyword fast-path) is intentional.
 
@@ -127,10 +131,21 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 
 ## Data Migration Notes
 
-- Data is imported from Geovet via manual CSV exports and HTML scraping (Geovet has no API).
+- Data will eventually be imported from Geovet via manual CSV exports and HTML scraping (Geovet has no API).
 - Import scripts live in `crm/scripts/`: `import-gvet.ts`, `import-visitas.ts`, `import-products.ts`, `import-turnos-futuros.ts`, `dedupe-patients.ts`, `backfill-appointments-from-consultations.ts`, `cleanup-imported-visits.ts`, `seed-user.ts`, `import-gvet-scraped.ts`, `parse-gvet-html.ts`, `import-estetica.ts`.
 - HTML scraping workflow: save GVet pages as `.htm` files → run `parse-gvet-html.ts` → run `import-gvet-scraped.ts`.
 - The `clients` table includes an `importedFromGvet` boolean flag and `gvetId` for traceability.
+
+### Smoke-test seed data
+
+For UI / dashboard development against an empty DB:
+
+```bash
+cd crm && npx tsx scripts/seed-dashboard-smoke.ts   # seed (idempotent)
+cd crm && npx tsx scripts/inspect-db.ts             # snapshot current counts
+```
+
+The seed is tagged — all rows are identifiable via `clients.phone LIKE 'SMOKE-%'`, `products.name LIKE '[SMOKE]%'`, and `cashSessions.name LIKE '[SMOKE]%'`. Re-running the seed cleans prior smoke data first, then re-inserts. Creates: 10 clients, 13 patients, 13 today-dated appointments (mix of statuses, 2 urgent, 2 walk-ins), 5 unpaid charges (3 distinct clients), 4 low-stock products + 1 healthy control, 1 open cash session. Must be deleted before real data goes in — no automatic cleanup.
 
 ---
 
@@ -192,17 +207,69 @@ The clinic treats brachycephalic breeds. A missed L4 escalation is a life-threat
 
 ---
 
-## Git & Database Branching Strategy
+## Commands
 
-| Branch | Supabase DB | Purpose |
-|--------|-------------|---------| 
-| `main` | Production DB | Stable, production-ready code. |
-| `dev` | Preview DB (Supabase Branch) | Active development and testing. |
+All commands run from inside the app directory (`crm/`, `chatbot/`, `landing/`). There is no root-level package.json.
+
+### crm/
+- `npm run dev` — Next.js dev server
+- `npm run build` / `npm start` — production build / serve
+- `npm run lint` — ESLint
+- `npm test` — Vitest (watch) · `npm run test:run` — single run
+- Run a single test file: `npx vitest run path/to/file.test.ts` · single test name: `npx vitest run -t "test name"`
+- `npm run db:generate` — generate Drizzle migration from schema changes
+- `npm run db:migrate` — apply pending migrations (uses `DATABASE_URL` from `.env.local`)
+- `npm run db:studio` — open Drizzle Studio
+- `npm run db:seed:services` — seed clinical services catalog
+- Data import scripts: `npx tsx scripts/<script>.ts` (see Data Migration Notes)
+
+### chatbot/
+- `npm run dev` / `npm run build` / `npm start` / `npm run lint` — standard Next.js
+- No test suite yet.
+
+### landing/
+- `npm run dev` / `npm run build` / `npm run preview` — Astro
+- No lint or test scripts.
+
+---
+
+## Code Architecture
+
+### crm/ (Next.js App Router)
+- `src/app/dashboard/*` — staff-facing UI, organized by domain (clients, patients, appointments, hospitalizations, procedures, estetica, petshop, caja, debtors, settings). Each route is a server component by default; mutations go through Server Actions colocated under `actions.ts`.
+- `src/app/api/bot/*` — integration surface for the v2 WhatsApp bot, guarded by `BOT_API_KEY` header. 6 routes: `availability`, `appointments`, `clients`, `context`, `services`. The `clients` route gained a `POST` handler on 2026-04-22 so the WhatsApp bot can register new clients + first pets. `clients.source` column (values: `whatsapp | web | manual`, default `manual`) tracks acquisition channel — added in migration `0033`. `src/app/api/cron/*` — Vercel Cron jobs (email reminders). Middleware in `src/middleware.ts` enforces Supabase auth but excludes `/api/cron`, `/api/bot`, `/api/admin`.
+- `src/db/schema/*` — Drizzle schema (one file per aggregate). `src/db/index.ts` exports the `db` client. `src/db/seed/` and `src/db/seeds/` hold seeders. Generated migrations live in `crm/drizzle/migrations/`.
+- `src/lib/` — cross-cutting helpers. Key files: `timezone.ts` (ART helpers — always use these, never `new Date()` for day boundaries), `feriados.ts` (ArgentinaDatos holiday API), `supabase/` (server + admin clients), `auth.ts` + `role.ts` (role gating), `bot-auth.ts` (`BOT_API_KEY` guard for `/api/bot/*`).
+- `src/components/ui/` — shadcn primitives. Domain components live next to their routes.
+- `scripts/` — one-shot data import scripts from Geovet (see Data Migration Notes).
+
+### chatbot/ (Next.js App Router + AI SDK)
+Two active channels share this app:
+- **Web widget (v1, shipped):** [src/app/page.tsx](chatbot/src/app/page.tsx) — UI that `landing/` embeds as iframe. [src/app/api/chat/route.ts](chatbot/src/app/api/chat/route.ts) — streaming endpoint (`streamText`). L4 keyword fast-path runs **before** the model is called. Feriados injected at request time. System prompt: [src/lib/prompts/system.ts](chatbot/src/lib/prompts/system.ts). Rate limit: [src/lib/rate-limit.ts](chatbot/src/lib/rate-limit.ts).
+- **WhatsApp bot (v2, MVP shipped 2026-04-22, in active development):** [src/app/api/whatsapp/webhook/route.ts](chatbot/src/app/api/whatsapp/webhook/route.ts) — Kapso webhook (GET health / POST inbound). Agent: [src/lib/whatsapp/agent.ts](chatbot/src/lib/whatsapp/agent.ts) (uses `generateText` with 5 tools). Session persistence against CRM's Supabase via service-role client: [src/lib/whatsapp/session.ts](chatbot/src/lib/whatsapp/session.ts). Tools in [src/lib/whatsapp/tools/](chatbot/src/lib/whatsapp/tools/) all call the CRM's bot API.
+
+L4 keyword lists live in two files (agent.ts + whatsapp-system.ts) and must be kept in sync by hand. End-to-end verification against Paula's production number is still pending — Franco is prototyping on his own cell.
+
+### landing/ (Astro)
+- `src/pages/index.astro` — single-page site with anchor nav. Chatbot mounted as floating iframe pointing to the chatbot app.
+- Static output only — no SSR, no API routes.
+
+### Cross-cutting
+- Three apps, three Vercel projects, three deployments. They do not share code or types — any "shared type" is duplicated intentionally (e.g., the `clients.source` enum lives in the CRM Drizzle schema and is re-declared in the chatbot's Zod validator).
+- **v1 independence rule is narrowed, not dropped.** The v1 web widget is still isolated from the CRM. The v2 WhatsApp bot *does* call the CRM (via `/api/bot/*` with `BOT_API_KEY`), which is the only cross-app dependency. Both apps still have independent Supabase access — the chatbot's session layer writes to `bot_*` tables directly via service-role, while clinical data (appointments, patients) flows through the CRM API.
+- Sentry is wired per-app with its own DSN.
+
+---
+
+## Git & Database Strategy
+
+**Currently single-environment:** `main` branch, one Supabase project (`ajpzsmcqlbbuzimjjwyi`). All local work and deployments run against the same DB. The DB is essentially empty of real clinic data — Paula is not live yet.
+
+**Planned (before Paula goes live):** create a Supabase preview branch for dev/testing so migrations and seed scripts don't touch production data. Until then, be deliberate about destructive operations.
 
 **Local env setup:**
 ```bash
-cp crm/.env.prod crm/.env.local    # → point to production DB
-cp crm/.env.dev crm/.env.local     # → point to dev DB
+cp crm/.env.prod crm/.env.local    # canonical env values for local dev
 ```
 
 Database URL format for migrations (session mode, port 5432):

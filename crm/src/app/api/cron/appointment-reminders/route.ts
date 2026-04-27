@@ -5,6 +5,8 @@ import { and, eq, gte, lte } from "drizzle-orm";
 import { AppointmentReminderEmail } from "@/lib/email/templates/appointment-reminder";
 import { render } from "@react-email/render";
 import { sendAndLogEmail } from "@/lib/email/send-email";
+import { assertCronSecret } from "@/lib/cron-secret";
+import * as Sentry from "@sentry/nextjs";
 
 const CLINIC_ADDRESS = process.env.CLINIC_ADDRESS ?? "Morrow 4064, Rosario";
 
@@ -21,10 +23,8 @@ function getWindowEnd(hoursFromNow: number): Date {
 }
 
 export async function GET(req: NextRequest) {
-  const secret = req.headers.get("authorization")?.replace("Bearer ", "");
-  if (secret !== process.env.CRON_SECRET) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  const guard = assertCronSecret(req);
+  if (guard) return guard;
 
   const results = { sent48h: 0, sent24h: 0, skipped: 0, errors: 0 };
 
@@ -83,7 +83,8 @@ export async function GET(req: NextRequest) {
         } else {
           results.skipped++;
         }
-      } catch {
+      } catch (err) {
+        Sentry.captureException(err);
         results.errors++;
       }
     }

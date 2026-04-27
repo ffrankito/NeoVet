@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import {
   groomingSessions,
@@ -14,11 +15,12 @@ import {
   cashMovements,
 } from "@/db/schema";
 import { groomingSessionId, cashMovementId } from "@/lib/ids";
-import { eq, desc, isNull } from "drizzle-orm";
+import { eq, desc, isNull, and } from "drizzle-orm";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { createChargeForSource } from "@/app/dashboard/deudores/actions";
+import { createChargeForSource } from "@/lib/charges/create";
 import { randomUUID } from "crypto";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 
 // ── Grooming Profile ─────────────────────────────────────────────────────────
 
@@ -95,7 +97,8 @@ export async function upsertGroomingProfile(patientId: string, formData: FormDat
     }
 
     await db.update(patients).set(updates).where(eq(patients.id, patientId));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error al guardar el perfil de estética." };
   }
 
@@ -104,6 +107,39 @@ export async function upsertGroomingProfile(patientId: string, formData: FormDat
 }
 
 // ── Grooming Sessions ─────────────────────────────────────────────────────────
+
+export async function getRecentGroomingSessions(opts?: { search?: string; limit?: number }) {
+  const limit = opts?.limit ?? 50;
+
+  const groomedBy = db.$with("groomed_by").as(
+    db.select({ id: staff.id, name: staff.name }).from(staff)
+  );
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  const whereClause = searchClause ? and(searchClause) : undefined;
+
+  return db
+    .with(groomedBy)
+    .select({
+      id: groomingSessions.id,
+      patientId: groomingSessions.patientId,
+      patientName: patients.name,
+      clientName: clients.name,
+      clientId: clients.id,
+      serviceName: services.name,
+      finalPrice: groomingSessions.finalPrice,
+      createdAt: groomingSessions.createdAt,
+      groomedByName: groomedBy.name,
+    })
+    .from(groomingSessions)
+    .innerJoin(patients, eq(groomingSessions.patientId, patients.id))
+    .innerJoin(clients, eq(patients.clientId, clients.id))
+    .leftJoin(groomedBy, eq(groomingSessions.groomedById, groomedBy.id))
+    .leftJoin(services, eq(groomingSessions.serviceId, services.id))
+    .where(whereClause)
+    .orderBy(desc(groomingSessions.createdAt))
+    .limit(limit);
+}
 
 export async function getGroomingSessions(patientId: string) {
   const groomedBy = db.$with("groomed_by").as(
@@ -273,8 +309,9 @@ export async function createGroomingSession(
           staffRow?.id ?? parsed.data.groomedById
         );
       }
-    } catch {
+    } catch (err) {
       // Charge creation failure should not block the session save
+      Sentry.captureException(err);
     }
   }
 

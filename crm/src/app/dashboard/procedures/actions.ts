@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -22,6 +23,7 @@ import { eq, desc, and, or, sql, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, hasRole } from "@/lib/auth";
 import { parseDateTimeAsART } from "@/lib/timezone";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -54,6 +56,7 @@ export async function getProcedures(opts?: {
   page?: number;
   limit?: number;
   patientId?: string;
+  search?: string;
 }) {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 20;
@@ -63,6 +66,9 @@ export async function getProcedures(opts?: {
   if (opts?.patientId) {
     conditions.push(eq(procedures.patientId, opts.patientId));
   }
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  if (searchClause) conditions.push(searchClause);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -86,6 +92,8 @@ export async function getProcedures(opts?: {
     db
       .select({ count: sql<number>`count(*)` })
       .from(procedures)
+      .innerJoin(patients, eq(procedures.patientId, patients.id))
+      .innerJoin(clients, eq(patients.clientId, clients.id))
       .where(whereClause),
   ]);
 
@@ -367,7 +375,8 @@ export async function createProcedure(formData: FormData) {
         role: "assistant",
       });
     }
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -476,7 +485,8 @@ export async function updateProcedure(id: string, formData: FormData) {
     if (existing.patientId !== d.patientId) {
       revalidatePath(`/dashboard/patients/${existing.patientId}`);
     }
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -534,7 +544,8 @@ export async function addProcedureSupply(
         updatedAt: new Date(),
       })
       .where(eq(products.id, d.productId));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error inesperado. Intenta de nuevo." };
   }
 
@@ -579,7 +590,8 @@ export async function deleteProcedureSupply(id: string) {
 
     revalidatePath(`/dashboard/procedures/${supply.procedureId}`);
     revalidatePath("/dashboard/petshop/products");
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error inesperado. Intenta de nuevo." };
   }
 

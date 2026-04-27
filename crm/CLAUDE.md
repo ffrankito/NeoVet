@@ -33,7 +33,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ### What's built
 
-- **Clients & patients** — full CRUD, avatar upload, deceased flag, GVet import flag. 1,771 clients + 1,380 patients imported.
+- **Clients & patients** — full CRUD, avatar upload, deceased flag, GVet import flag. DB is currently populated with smoke-test data only (12 clients / 15 patients / 22 appointments as of 2026-04-24) — Paula is not yet live on the new system. Historical GVet imports (1,771 clients / 1,380 patients) were exploratory and have been cleared.
 - **Clinical history** — SOAP consultations with vitals, treatment items (medication/dose/frequency/duration), vaccinations, deworming records, documents (5 categories + Supabase Storage), complementary methods (study reports + photos).
 - **Appointments** — create/confirm/complete/cancel/no-show. 5 statuses: `pending`, `confirmed`, `completed`, `cancelled`, `no_show`. Cancellation captures optional reason. Types: `veterinary` / `grooming`. Consultation types: `clinica` / `virtual` / `domicilio`.
 - **Calendar** — weekly view (desktop) / daily (mobile), color-coded services, surgery blocks, free-slot visualization, staff filter, schedule suspension with auto-cancel.
@@ -53,8 +53,10 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Procedures** — surgical/medical procedures with multiple surgeons + anesthesiologists (join table `procedure_staff`). Supply consumption from products (decrements stock). Follow-up reminders via `follow_ups` table (added `procedureId` FK). Linked optionally to hospitalization.
 - **Consent documents** — template-based PDF generation via `@react-pdf/renderer`. 3 templates: surgery authorization, euthanasia consent, reproductive agreement (GenetiCan 1). Auto-fills patient/client data. Stored in Supabase Storage (`consent-documents` bucket). Signed URL downloads (60s expiry).
 - **Charges & deudores** — every billable event creates a charge. Auto-charge hooks on: consultations (service basePrice), grooming sessions (finalPrice), pet shop sales (item totals). Partial payments supported. "Deudores" page shows clients with unpaid balances, category breakdown (consulta/peluquería/procedimiento/venta/internación/otro), inline payment recording. Admin/owner only.
+- **Seguimientos management** — rendered inline on `/dashboard` (below Sala de espera, hidden for groomer) with 3 tabs (Pendientes / Atendidos / Descartados, URL-driven via `?followUpsTab=`) and per-row actions: *Marcar atendido* / *Descartar* / *Reabrir*. Status is a new enum (`pending | done | dismissed`, migration `0034`) that the reminder cron respects — dismissed follow-ups stop auto-mailing. Admin dashboard alert chip (`Seguimientos vencidos`) anchor-scrolls to the section; count = `scheduledDate ≤ today AND status = 'pending'`. Server actions live at `src/app/dashboard/follow-ups-actions.ts` (no separate route).
 - **Precios (vet read-only)** — `/dashboard/precios` — two-table read-only reference of service basePrices and product sellPrices for admin / owner / vet (not groomer). Single text-search across both. Costs (`costPrice`) deliberately hidden. Built so vets can answer "¿esto cuánto sale?" mid-consult without interrupting reception.
-- **Bot API endpoints** — `/api/bot/*` (6 routes, API key auth) ready for v2 chatbot integration.
+- **Bot API endpoints** — `/api/bot/*` (6 routes, `BOT_API_KEY` auth) consumed by the v2 WhatsApp bot that Franco shipped 2026-04-22. Routes: `availability`, `appointments`, `clients` (GET by phone + POST to register new client+first pet from WhatsApp), `context`, `services`. See `chatbot/src/lib/whatsapp/tools/` for the live consumers.
+- **`clients.source`** — new column added 2026-04-22 (migration `0033_add_source_to_clients`). Enum values: `whatsapp | web | manual`, default `manual`. Set to `whatsapp` by the bot's `POST /api/bot/clients` path when it registers a new client from a WhatsApp conversation. Existing rows default to `manual`; GVet-imported rows also `manual` (not backfilled to `gvet` — if that distinction matters later, the `importedFromGvet` boolean still tracks it).
 
 ### What's NOT built (v1 remaining)
 
@@ -62,8 +64,8 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 
 ### Hard boundaries for v1
 
-- No public API beyond bot endpoints — CRM and chatbot are independent in v1
-- No WhatsApp notifications — email only; WhatsApp reminders are v2
+- No public API beyond `BOT_API_KEY`-guarded `/api/bot/*` endpoints. Those endpoints are now consumed in production by the v2 WhatsApp bot (see `chatbot/` app) — scope is still narrow and auth-gated, but the "chatbot and CRM are independent" framing no longer applies to the WhatsApp channel.
+- No outbound WhatsApp from the CRM — email only (Resend). WhatsApp reminders remain v2.
 - No reporting or analytics
 - No audit log — `createdBy` + `updatedAt` provide partial traceability
 - No prescription printout — treatment plans viewable in-app but not exportable
@@ -77,8 +79,9 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - Key schemas: `appointments.ts`, `consultations.ts`, `staff.ts`, `cash_sessions.ts`, `grooming_sessions.ts`, `email_logs.ts`, `hospitalizations.ts`, `hospitalization_observations.ts`, `procedures.ts`, `procedure_supplies.ts`, `consent_templates.ts`, `consent_documents.ts`, `charges.ts`, `retorno_queue.ts`
 
 ### Auth
-- `src/lib/supabase/middleware.ts` — auth middleware, reads role from JWT `app_metadata`, sets `x-user-role` header
-- `src/lib/auth.ts` — `getRole()`, `hasRole()`, `isAdminLevel()`, `getSessionStaffId()`
+- `src/lib/supabase/middleware.ts` — auth middleware, reads role from JWT `app_metadata`, sets `x-user-role` header on the response (used **only** by `src/proxy.ts` for navigation gating, in the same call frame).
+- `src/lib/auth.ts` — `getRole()`, `hasRole()`, `isAdminLevel()`, `getSessionStaffId()`. `getRole()` re-verifies the JWT via `supabase.auth.getUser()` and reads `app_metadata.role` directly — it does **not** trust the `x-user-role` request header (which is forgeable). It also returns null for users with `app_metadata.disabled === true` or with a role that isn't a known `StaffRole`. Server actions and server components must call `hasRole(...)` for every privileged action — middleware-level URL gating is navigation-only and does not protect Server Action RPC endpoints.
+- `src/lib/charges/create.ts` — internal `createChargeForSource(...)` helper used by consultations/grooming/sales completions. Lives outside any `"use server"` file so it cannot be invoked as an RPC; callers are responsible for upstream authorization.
 
 ### Email
 - `src/lib/email/resend.ts` — Resend client via `getResend()` lazy getter (constructed on first call; throws if `RESEND_API_KEY` is absent). Never import a pre-built `resend` singleton — always call `getResend()` at the send site.
@@ -96,6 +99,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 ### Utilities
 - `src/lib/ids.ts` — prefixed ID generators (`apt_`, `cli_`, `pat_`, `con_`, `gss_`, `csh_`, `cmv_`, `log_`, `hos_`, `hob_`, `prc_`, `psu_`, `ctm_`, `cdc_`, `chg_`, etc.)
 - `src/lib/timezone.ts` — Argentina timezone helpers (`todayStartART`, `todayEndART`, `formatART`, `parseDateTimeAsART`, etc.)
+- `src/lib/search/patient-aware-search.ts` — reusable Drizzle predicate for list-page search. `buildPatientAwareSearchClause(term)` returns an `ilike(... or ...)` across `patients.name`, `clients.name`, `clients.dni`, `clients.phone`, `clients.address`. Returns `undefined` for empty/whitespace terms (no filter). Unit-tested against compiled SQL via `PgDialect.sqlToQuery` in `src/lib/search/patient-aware-search.test.ts`.
 
 ### PDF Generation
 - `src/lib/pdf/render-consent.ts` — entry point: `renderConsentPdf(templateType, data)` → Buffer
@@ -104,7 +108,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - `src/lib/pdf/templates/` — 3 templates: `surgery-consent.tsx`, `euthanasia-consent.tsx`, `reproductive-agreement.tsx`
 
 ### Dashboard modules
-- `src/app/dashboard/` — 15 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, precios, procedures, sala-de-espera, settings
+- `src/app/dashboard/` — 15 modules: appointments, calendar, cash, clients, consent-documents, consultations, deudores, grooming, hospitalizations, patients, petshop, precios, procedures, sala-de-espera, settings (follow-ups is rendered inline on the dashboard, no separate route)
 
 ### API routes
 - `src/app/api/cron/` — 3 cron jobs (appointment-reminders, follow-ups, vaccine-reminders)
@@ -124,25 +128,25 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 - **Timezone**: always use helpers from `src/lib/timezone.ts` for Argentina time — never use raw `new Date()` for display
 - **Email sending**: use `sendAndLogEmail()` from `src/lib/email/send-email.ts` — it handles Resend + dedup via `email_logs`
 - **External SDK clients**: lazy-init any SDK that validates credentials in its constructor (Resend, Stripe, etc.) behind a `getXxx()` getter. Never export a pre-built singleton at module load — a missing env var will crash any route that transitively imports the module, even routes that never use the SDK. See `src/lib/email/resend.ts` for the pattern.
+- **Patient-aware list search**: when adding text search to any list-page action whose entity has a `patients` + `clients` relationship (appointments, hospitalizations, procedures, consent documents, grooming), use `buildPatientAwareSearchClause(term)` from `src/lib/search/patient-aware-search.ts` rather than rolling a new `ilike` chain. **Important:** the count query in the same action must also `innerJoin(patients).innerJoin(clients)`, otherwise the search predicate references out-of-scope columns and the count breaks.
 
 ---
 
 ## Database & Migrations
 
-This app uses **Supabase branching** — see root `CLAUDE.md` for the full strategy.
+This app currently runs against a single Supabase project (no preview branch yet — see root `CLAUDE.md`). A dev branch is planned before Paula goes live.
 
-**Current state:** 30 migrations (latest: `0031_last_veda` — endocrinología service category), 35 tables.
+**Current state:** 35 migrations (latest: `0034_parallel_terror` — `follow_up_status` enum + `follow_ups.status` column with default `pending`), 35 tables.
 
 **Migration workflow:**
 - Write schema changes in `src/db/schema/`
 - Run `npm run db:generate` to generate the SQL migration file in `drizzle/migrations/`
-- Commit the migration file and push — Supabase branching applies it to the appropriate DB
+- Commit the migration file and push — Supabase applies it on deploy.
 - **Important:** If Drizzle generates CREATE TABLE statements for tables that already exist in the DB (happened with bot tables in migration 0019), manually strip them from the SQL file before committing.
 
-**Switching environments locally** — `.env.local` is the active env, swap it by copying:
+**Local env setup** — `.env.local` is the active env. Copy canonical values from `.env.prod`:
 ```bash
-cp .env.dev .env.local           # → preview DB (dev branch)
-cp .env.production  .env.local   # → production DB (careful)
+cp .env.prod .env.local
 ```
 
 **Supabase CLI** is configured in `supabase/` and linked to project ref `ajpzsmcqlbbuzimjjwyi`.

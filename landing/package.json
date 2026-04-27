@@ -14,7 +14,7 @@
   "dependencies": {
     "@sentry/astro": "^10.49.0",
     "@tailwindcss/vite": "^4.2.2",
-    "astro": "^6.0.8",
+    "astro": "^6.1.8",
     "tailwindcss": "^4.2.2"
   }
 }

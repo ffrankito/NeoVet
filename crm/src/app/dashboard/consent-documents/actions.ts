@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -15,6 +16,7 @@ import { consentDocumentId as genConsentDocumentId } from "@/lib/ids";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { z } from "zod";
 import { getSessionStaffId, hasRole, isAdminLevel } from "@/lib/auth";
+import { buildPatientAwareSearchClause } from "@/lib/search/patient-aware-search";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   renderConsentPdf,
@@ -40,6 +42,7 @@ export async function getConsentDocuments(opts?: {
   page?: number;
   limit?: number;
   patientId?: string;
+  search?: string;
 }) {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 20;
@@ -49,6 +52,9 @@ export async function getConsentDocuments(opts?: {
   if (opts?.patientId) {
     conditions.push(eq(consentDocuments.patientId, opts.patientId));
   }
+
+  const searchClause = buildPatientAwareSearchClause(opts?.search);
+  if (searchClause) conditions.push(searchClause);
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
@@ -76,6 +82,8 @@ export async function getConsentDocuments(opts?: {
     db
       .select({ count: sql<number>`count(*)` })
       .from(consentDocuments)
+      .innerJoin(patients, eq(consentDocuments.patientId, patients.id))
+      .leftJoin(clients, eq(consentDocuments.clientId, clients.id))
       .where(whereClause),
   ]);
 
@@ -144,7 +152,8 @@ export async function generateConsentDocument(formData: FormData) {
   if (d.customFields) {
     try {
       customFields = JSON.parse(d.customFields);
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       return { error: "Campos personalizados con formato inválido." };
     }
   }
@@ -351,7 +360,7 @@ export async function generateConsentDocument(formData: FormData) {
       createdById: staffMemberId,
     });
   } catch (err) {
-    console.error("Generate consent document error:", err);
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -419,7 +428,8 @@ export async function deleteConsentDocument(id: string) {
     await db
       .delete(consentDocuments)
       .where(eq(consentDocuments.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

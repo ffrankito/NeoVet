@@ -1,11 +1,11 @@
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
 import { WHATSAPP_SYSTEM_PROMPT } from "@/lib/prompts/whatsapp-system";
-import { buscarCliente } from "./tools/buscarCliente";
-import { crearClienteYPaciente } from "./tools/crearClienteYPaciente";
+import { createBuscarCliente } from "./tools/buscarCliente";
+import { createCrearClienteYPaciente } from "./tools/crearClienteYPaciente";
 import { obtenerServicios } from "./tools/obtenerServicios";
 import { verificarDisponibilidad } from "./tools/verificarDisponibilidad";
-import { reservarTurno } from "./tools/reservarTurno";
+import { createReservarTurno } from "./tools/reservarTurno";
 
 const anthropic = createAnthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -69,16 +69,19 @@ export async function runWhatsappAgent(
     return m;
   });
 
+  // Phone-bound tools are instantiated per-conversation so `senderPhone` is
+  // closed over by the runtime — the model cannot specify a different phone,
+  // even via prompt injection. The CRM also re-verifies ownership server-side.
   const result = await generateText({
     model: anthropic("claude-sonnet-4-6"),
     system,
     messages: enrichedMessages,
     tools: {
-      buscarCliente,
-      crearClienteYPaciente,
+      buscarCliente: createBuscarCliente(senderPhone),
+      crearClienteYPaciente: createCrearClienteYPaciente(senderPhone),
       obtenerServicios,
       verificarDisponibilidad,
-      reservarTurno,
+      reservarTurno: createReservarTurno(senderPhone),
     },
     maxSteps: 10,
     maxTokens: 4096,

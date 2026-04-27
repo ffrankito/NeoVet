@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 export type Feriado = {
   fecha: string; // YYYY-MM-DD
   tipo: string;
@@ -12,7 +14,8 @@ export async function getFeriados(year: number): Promise<Feriado[]> {
     );
     if (!res.ok) return [];
     return res.json();
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return [];
   }
 }

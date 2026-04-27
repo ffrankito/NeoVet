@@ -1,37 +1,16 @@
-import { db } from "@/db";
-import { groomingSessions, patients, clients, staff, services } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
+import { getRecentGroomingSessions } from "./actions";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-async function getRecentGroomingSessions() {
-  const groomedBy = db.$with("groomed_by").as(
-    db.select({ id: staff.id, name: staff.name }).from(staff)
-  );
-
-  return db
-    .with(groomedBy)
-    .select({
-      id: groomingSessions.id,
-      patientId: groomingSessions.patientId,
-      patientName: patients.name,
-      clientName: clients.name,
-      clientId: clients.id,
-      serviceName: services.name,
-      finalPrice: groomingSessions.finalPrice,
-      createdAt: groomingSessions.createdAt,
-      groomedByName: groomedBy.name,
-    })
-    .from(groomingSessions)
-    .innerJoin(patients, eq(groomingSessions.patientId, patients.id))
-    .innerJoin(clients, eq(patients.clientId, clients.id))
-    .leftJoin(groomedBy, eq(groomingSessions.groomedById, groomedBy.id))
-    .leftJoin(services, eq(groomingSessions.serviceId, services.id))
-    .orderBy(desc(groomingSessions.createdAt))
-    .limit(50);
+interface Props {
+  searchParams: Promise<{ q?: string }>;
 }
 
-export default async function GroomingPage() {
-  const sessions = await getRecentGroomingSessions();
+export default async function GroomingPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const q = params.q ?? "";
+  const sessions = await getRecentGroomingSessions({ search: q });
 
   return (
     <div className="space-y-6">
@@ -40,9 +19,34 @@ export default async function GroomingPage() {
         <p className="text-muted-foreground">Historial de sesiones de peluquería</p>
       </div>
 
+      <form action="/dashboard/grooming" method="GET" className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground" htmlFor="grooming-search">
+            Buscar
+          </label>
+          <Input
+            id="grooming-search"
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="Mascota, dueño, DNI, teléfono, dirección"
+            className="w-60"
+          />
+        </div>
+        <Button type="submit" variant="outline">
+          Buscar
+        </Button>
+        <span className="ml-auto text-sm text-muted-foreground">
+          {sessions.length} {sessions.length === 1 ? "sesión" : "sesiones"}
+          {q ? ` para "${q}"` : ""}
+        </span>
+      </form>
+
       {sessions.length === 0 ? (
         <div className="rounded-lg border border-dashed py-10 text-center text-muted-foreground">
-          No hay sesiones de estética registradas.
+          {q
+            ? `No se encontraron sesiones que coincidan con "${q}".`
+            : "No hay sesiones de estética registradas."}
         </div>
       ) : (
         <div className="rounded-lg border divide-y">

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { providers } from "@/db/schema";
@@ -106,7 +107,8 @@ export async function createProvider(formData: FormData) {
       cuit: parsed.data.cuit || null,
       notes: parsed.data.notes || null,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -150,7 +152,8 @@ export async function updateProvider(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(providers.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

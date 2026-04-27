@@ -84,14 +84,6 @@ export function AppSidebar({ user, role }: { user: User; role: StaffRole | null 
         <nav className="flex-1 space-y-1 px-2 py-4">
           <NavLinks />
         </nav>
-        <div className="border-t border-sidebar-border p-4">
-          <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-          <form action={logout}>
-            <Button type="submit" variant="ghost" size="sm" className="mt-2 w-full justify-start">
-              Cerrar sesión
-            </Button>
-          </form>
-        </div>
       </aside>
 
       {/* Mobile header */}

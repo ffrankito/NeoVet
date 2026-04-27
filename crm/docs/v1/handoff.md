@@ -46,7 +46,10 @@
 - [ ] Email de cancelación probado al cancelar turno
 - [ ] No-show: marcar turno como "no se presentó"
 - [ ] Ficha del cliente muestra próximos turnos inline
-- [x] Dashboard admin muestra widget de caja abierta/cerrada
+- [x] Dashboard admin muestra fila de KPIs del día (Turnos hoy, En espera, Urgentes, Caja) + tira de alertas (Deudores, Stock bajo) — rework 2026-04-24
+- [x] Dashboard veterinario muestra tarjeta "Próximo paciente" (rol=vet) — shipped 2026-04-24
+- [x] Dashboard peluquero muestra grilla "Mi día" en cards (rol=groomer) — shipped 2026-04-24
+- [x] Walk-in se abre en panel lateral (Sheet) sin desplazar la sala de espera
 - [ ] Pet shop: crear producto → stock → venta → stock baja
 - [ ] Caja: abrir → movimientos → cerrar
 - [ ] Documentos de consentimiento: generar PDF → descargar
