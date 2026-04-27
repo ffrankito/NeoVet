@@ -14,7 +14,7 @@ export const obtenerServicios = tool({
     const res = await fetch(`${CRM_URL}/api/bot/services`, {
       headers: { "authorization": `Bearer ${BOT_API_KEY}` },
     });
-    if (!res.ok) throw new Error(`Error obteniendo servicios: ${res.status}`);
+    if (!res.ok) return [{ ok: false, error: `Error obteniendo servicios: ${res.status}` }];
     const services = await res.json();
     return services.map((s: {
       id: string;

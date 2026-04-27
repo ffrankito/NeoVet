@@ -94,7 +94,9 @@ export async function POST(req: NextRequest) {
       { role: "user" as const, content: userMessage },
     ];
 
-    const reply = await runWhatsappAgent(messages, phone);
+    const rawReply = await runWhatsappAgent(messages, phone);
+    const reply = rawReply?.trim() ||
+      "Disculpá, no pude procesar tu consulta. Escribinos al *+54 9 341 310-1194* y te atendemos.";
     await saveMessage(session.conversationId, "assistant", reply);
 
     const kapsoResult = await sendWhatsappReply(body.message.from, reply, phoneNumberId);

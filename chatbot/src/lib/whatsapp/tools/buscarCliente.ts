@@ -16,7 +16,7 @@ export const buscarCliente = tool({
       `${CRM_URL}/api/bot/clients?phone=${encodeURIComponent(phone)}`,
       { headers: { "authorization": `Bearer ${BOT_API_KEY}` } }
     );
-    if (!res.ok) throw new Error(`Error buscando cliente: ${res.status}`);
+    if (!res.ok) return { ok: false, error: `Error buscando cliente: ${res.status}` };
     return await res.json();
   },
 });

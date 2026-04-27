@@ -45,7 +45,7 @@ export const crearClienteYPaciente = tool({
     });
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
-      throw new Error(`Error creando cliente: ${res.status} — ${JSON.stringify(error)}`);
+      return { ok: false, error: `Error creando cliente: ${res.status} — ${JSON.stringify(error)}` };
     }
     return await res.json();
   },

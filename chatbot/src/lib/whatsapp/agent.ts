@@ -81,7 +81,7 @@ export async function runWhatsappAgent(
       reservarTurno,
     },
     maxSteps: 10,
-    maxTokens: 1024,
+    maxTokens: 4096,
   });
 
   return result.text;

@@ -30,7 +30,7 @@ export const reservarTurno = tool({
     });
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
-      throw new Error(`Error creando turno: ${res.status} — ${JSON.stringify(error)}`);
+      return { ok: false, error: `Error creando turno: ${res.status} — ${JSON.stringify(error)}` };
     }
     return await res.json();
   },

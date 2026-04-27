@@ -20,7 +20,7 @@ export const verificarDisponibilidad = tool({
       `${CRM_URL}/api/bot/availability?${params.toString()}`,
       { headers: { "authorization": `Bearer ${BOT_API_KEY}` } }
     );
-    if (!res.ok) throw new Error(`Error verificando disponibilidad: ${res.status}`);
+    if (!res.ok) return { disponible: false, error: `Error verificando disponibilidad: ${res.status}`, slots: {} };
     const availability: Record<string, string[]> = await res.json();
     if (Object.keys(availability).length === 0) {
       return { disponible: false, mensaje: "No hay turnos disponibles.", slots: {} };
