@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -374,7 +375,8 @@ export async function createProcedure(formData: FormData) {
         role: "assistant",
       });
     }
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -483,7 +485,8 @@ export async function updateProcedure(id: string, formData: FormData) {
     if (existing.patientId !== d.patientId) {
       revalidatePath(`/dashboard/patients/${existing.patientId}`);
     }
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -541,7 +544,8 @@ export async function addProcedureSupply(
         updatedAt: new Date(),
       })
       .where(eq(products.id, d.productId));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error inesperado. Intenta de nuevo." };
   }
 
@@ -586,7 +590,8 @@ export async function deleteProcedureSupply(id: string) {
 
     revalidatePath(`/dashboard/procedures/${supply.procedureId}`);
     revalidatePath("/dashboard/petshop/products");
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error inesperado. Intenta de nuevo." };
   }
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import { documents } from "@/db/schema";
 import { documentId } from "@/lib/ids";
@@ -55,7 +56,8 @@ export async function uploadDocument(patientId: string, formData: FormData) {
       sizeBytes:   file.size,
       category,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     // If DB insert fails, clean up the uploaded file
     await supabase.storage.from(BUCKET).remove([storagePath]);
     return { error: "No se pudo guardar el documento. Intenta de nuevo." };

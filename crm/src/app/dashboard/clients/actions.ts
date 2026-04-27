@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { clients } from "@/db/schema";
@@ -131,6 +132,7 @@ export async function createClient(formData: FormData) {
       address: parsed.data.address || null,
     });
   } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -174,6 +176,7 @@ export async function updateClient(id: string, formData: FormData) {
       })
       .where(eq(clients.id, id));
   } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

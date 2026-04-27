@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import {
   groomingSessions,
@@ -96,7 +97,8 @@ export async function upsertGroomingProfile(patientId: string, formData: FormDat
     }
 
     await db.update(patients).set(updates).where(eq(patients.id, patientId));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error al guardar el perfil de estética." };
   }
 
@@ -307,8 +309,9 @@ export async function createGroomingSession(
           staffRow?.id ?? parsed.data.groomedById
         );
       }
-    } catch {
+    } catch (err) {
       // Charge creation failure should not block the session save
+      Sentry.captureException(err);
     }
   }
 

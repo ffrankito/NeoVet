@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -136,6 +137,7 @@ export async function createPatient(formData: FormData) {
       neutered: formData.get("neutered") === "true",
     });
   } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -194,6 +196,7 @@ export async function updatePatient(
       })
       .where(eq(patients.id, id));
   } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

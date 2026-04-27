@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import { charges, clients } from "@/db/schema";
 import { chargeId as genChargeId } from "@/lib/ids";
@@ -277,7 +278,8 @@ export async function createCharge(formData: FormData) {
       status: "pending",
       createdById: staffId,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error al crear el cargo." };
   }
 
@@ -342,7 +344,8 @@ export async function recordPayment(chargeId: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(charges.id, chargeId));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error al registrar el pago." };
   }
 
@@ -378,7 +381,8 @@ export async function deleteCharge(id: string) {
 
   try {
     await db.delete(charges).where(eq(charges.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurri\u00f3 un error al eliminar el cargo." };
   }
 

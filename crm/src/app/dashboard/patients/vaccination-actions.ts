@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { vaccinations } from "@/db/schema";
@@ -50,7 +51,8 @@ export async function createVaccination(patientId: string, formData: FormData) {
       batchNumber: d.batchNumber || null,
       notes:       d.notes || null,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -86,7 +88,8 @@ export async function updateVaccination(id: string, patientId: string, formData:
         updatedAt:   new Date(),
       })
       .where(eq(vaccinations.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { createFollowUp, deleteFollowUp } from "@/app/dashboard/consultations/follow-up-actions";
 import type { FollowUp } from "@/db/schema";
 import { Trash2 } from "lucide-react";
+import { todayARTAsDateString } from "@/lib/timezone";
 
 type Props = {
   consultationId: string;
@@ -77,7 +78,7 @@ export function FollowUpSection({ consultationId, patientId, followUps }: Props)
               id="scheduledDate"
               name="scheduledDate"
               type="date"
-              min={new Date().toISOString().split("T")[0]}
+              min={todayARTAsDateString()}
             />
           </div>
           <div className="space-y-1">

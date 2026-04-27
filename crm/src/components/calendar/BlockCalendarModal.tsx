@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { todayARTAsDateString } from "@/lib/timezone";
 
 type Props = {
   open: boolean;
@@ -16,7 +17,7 @@ type Props = {
 };
 
 export function BlockCalendarModal({ open, defaultDate, onClose, onCreated }: Props) {
-  const today = defaultDate ?? new Date().toISOString().split("T")[0];
+  const today = defaultDate ?? todayARTAsDateString();
 
   const [startDate, setStartDate] = useState(today);
   const [endDate, setEndDate] = useState(today);

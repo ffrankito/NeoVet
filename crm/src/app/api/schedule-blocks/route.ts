@@ -9,6 +9,7 @@ import { dateToStartART, dateToEndART } from "@/lib/timezone";
 import { sendAndLogEmail } from "@/lib/email/send-email";
 import { render } from "@react-email/render";
 import { CancellationNotificationEmail } from "@/lib/email/templates/cancellation-notification";
+import * as Sentry from "@sentry/nextjs";
 
 // YYYY-MM-DD
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -179,8 +180,9 @@ export async function POST(req: NextRequest) {
             logType: "cancellation",
             referenceId: apt.id,
           });
-        } catch {
+        } catch (err) {
           // Email failure should not block the schedule block creation
+          Sentry.captureException(err);
         }
       }
     }

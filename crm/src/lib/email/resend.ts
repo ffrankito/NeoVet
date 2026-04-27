@@ -14,5 +14,12 @@ export function getResend(): Resend {
   return client;
 }
 
-export const EMAIL_FROM = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
-// En producción reemplazar por: "turnos@neovet.com.ar" o el dominio verificado
+export function getEmailFrom(): string {
+  const from = process.env.EMAIL_FROM;
+  if (!from) {
+    throw new Error(
+      "EMAIL_FROM is not set. Configure it in Vercel (production) or .env.local (dev). Use the verified Resend domain (e.g. \"NeoVet <turnos@neovet.com.ar>\").",
+    );
+  }
+  return from;
+}

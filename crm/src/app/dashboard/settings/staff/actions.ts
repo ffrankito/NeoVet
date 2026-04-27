@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import { staff } from "@/db/schema";
 import { staffId as generateStaffId } from "@/lib/ids";
@@ -63,7 +64,8 @@ export async function createStaffMember(formData: FormData) {
       role: parsed.data.role,
       isActive: true,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
     return { error: "Error al guardar el miembro del equipo." };
   }
@@ -165,7 +167,8 @@ export async function createExternalSpecialist(formData: FormData) {
       isActive: true,
       isExternal: true,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Error al guardar el especialista externo." };
   }
 

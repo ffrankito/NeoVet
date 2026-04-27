@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { z } from "zod";
@@ -177,7 +178,8 @@ export async function createRetorno(
       notes: parsed.data.notes,
       createdByStaffId: staffMemberId,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -220,7 +222,8 @@ export async function startRetorno(id: string) {
         updatedAt: new Date(),
       })
       .where(eq(retornoQueue.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -247,7 +250,8 @@ export async function completeRetorno(id: string) {
         updatedAt: new Date(),
       })
       .where(eq(retornoQueue.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -267,7 +271,8 @@ export async function assignRetorno(id: string, staffId: string | null) {
         updatedAt: new Date(),
       })
       .where(eq(retornoQueue.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

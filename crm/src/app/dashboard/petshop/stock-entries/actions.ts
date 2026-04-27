@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { stockEntries, products, providers } from "@/db/schema";
@@ -134,7 +135,8 @@ export async function createStockEntry(formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(products.id, parsed.data.productId));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

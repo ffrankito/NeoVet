@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { appointments, patients, clients, consultations, staff, services, vaccinations } from "@/db/schema";
@@ -244,7 +245,8 @@ export async function createAppointment(formData: FormData) {
       serviceId: parsed.data.serviceId ?? null,
       sendReminders: parsed.data.sendReminders,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -286,8 +288,9 @@ export async function createAppointment(formData: FormData) {
           referenceId: createdId,
         });
       }
-    } catch {
+    } catch (err) {
       // Email failure should not block appointment creation
+      Sentry.captureException(err);
     }
   }
 
@@ -355,7 +358,8 @@ export async function updateAppointment(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(appointments.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -438,8 +442,9 @@ export async function updateAppointmentStatus(
           referenceId: id,
         });
       }
-    } catch {
+    } catch (err) {
       // Email failure should not block status update
+      Sentry.captureException(err);
     }
   }
 
@@ -528,7 +533,8 @@ export async function createClientAndPatient(data: InlineClientData) {
       breed: parsed.data.patientBreed || null,
       sex: parsed.data.patientSex,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Error al crear el cliente y paciente." };
   }
 
@@ -569,7 +575,8 @@ export async function createPatientInline(data: InlinePatientData) {
       breed: parsed.data.patientBreed || null,
       sex: parsed.data.patientSex,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Error al crear el paciente." };
   }
 
@@ -668,7 +675,8 @@ export async function createWalkIn(formData: FormData) {
       isUrgent,
       sendReminders: false,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

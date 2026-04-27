@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { cashSessions, cashMovements, sales, saleItems, staff } from "@/db/schema";
@@ -139,7 +140,8 @@ export async function openCashSession(formData: FormData) {
       openedById: staffId,
       initialAmount: String(parsed.data.initialAmount),
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado." };
   }
 
@@ -175,7 +177,8 @@ export async function closeCashSession(id: string, formData: FormData) {
         notes: parsed.data.notes || null,
       })
       .where(eq(cashSessions.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado." };
   }
 
@@ -225,7 +228,8 @@ export async function addCashMovement(sessionId: string, formData: FormData) {
       description: parsed.data.description,
       createdById: staffId,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado." };
   }
 

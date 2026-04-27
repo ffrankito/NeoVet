@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { sales, saleItems, products } from "@/db/schema";
@@ -157,7 +158,8 @@ export async function createSale(data: {
         })
         .where(eq(products.id, item.productId));
     }
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -186,8 +188,9 @@ export async function createSale(data: {
         );
       }
     }
-  } catch {
+  } catch (err) {
     // Charge creation failure should not block the sale
+    Sentry.captureException(err);
   }
 
   revalidatePath("/dashboard/petshop/sales");

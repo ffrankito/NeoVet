@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -293,7 +294,8 @@ export async function createHospitalization(formData: FormData) {
       reason: d.reason || null,
       notes: d.notes || null,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -346,7 +348,8 @@ export async function dischargeHospitalization(
     revalidatePath("/dashboard/hospitalizations");
     revalidatePath(`/dashboard/hospitalizations/${id}`);
     revalidatePath(`/dashboard/patients/${existing.patientId}`);
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -437,7 +440,8 @@ export async function addObservation(
       fecesOutput: d.fecesOutput || null,
       notes: d.notes || null,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -469,7 +473,8 @@ export async function deleteObservation(id: string) {
     revalidatePath(
       `/dashboard/hospitalizations/${existing.hospitalizationId}`
     );
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

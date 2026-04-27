@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { products, stockEntries } from "@/db/schema";
@@ -128,7 +129,8 @@ export async function createProduct(formData: FormData) {
       taxRate: parsed.data.taxRate,
       minStock: String(parsed.data.minStock),
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -173,7 +175,8 @@ export async function updateProduct(id: string, formData: FormData) {
         updatedAt: new Date(),
       })
       .where(eq(products.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

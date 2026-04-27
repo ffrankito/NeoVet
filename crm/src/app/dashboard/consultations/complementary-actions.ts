@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { db } from "@/db";
 import { complementaryMethods, consultations } from "@/db/schema";
 import { complementaryMethodId } from "@/lib/ids";
@@ -44,7 +45,8 @@ export async function createComplementaryMethod(consultationId: string, formData
       studyType: parsed.data.studyType,
       content: parsed.data.content,
     });
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 

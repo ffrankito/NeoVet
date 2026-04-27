@@ -91,6 +91,28 @@ export function formatTimeART(
 }
 
 /**
+ * Returns today's calendar date in Argentina as "YYYY-MM-DD".
+ *
+ * Use this whenever a query compares a `text` date column. Never use
+ * `new Date().toISOString().split("T")[0]` — that returns UTC, which silently
+ * rolls over to tomorrow between 21:00 and 23:59 ART.
+ */
+export function todayARTAsDateString(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: ART_TIMEZONE });
+}
+
+/**
+ * Returns `dateStr` shifted by `days` (positive or negative) in ART, as
+ * "YYYY-MM-DD". Argentina has no DST, so simple UTC-day arithmetic anchored
+ * at ART midnight is safe.
+ */
+export function addDaysToARTDateString(dateStr: string, days: number): string {
+  const anchor = new Date(`${dateStr}T00:00:00${ART_OFFSET}`);
+  anchor.setUTCDate(anchor.getUTCDate() + days);
+  return anchor.toLocaleDateString("en-CA", { timeZone: ART_TIMEZONE });
+}
+
+/**
  * Returns the number of minutes since ART midnight for a given Date.
  *
  * Use this when comparing a stored UTC Date against ART-local slot strings

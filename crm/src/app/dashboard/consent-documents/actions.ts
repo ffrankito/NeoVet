@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import * as Sentry from "@sentry/nextjs";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import {
@@ -151,7 +152,8 @@ export async function generateConsentDocument(formData: FormData) {
   if (d.customFields) {
     try {
       customFields = JSON.parse(d.customFields);
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       return { error: "Campos personalizados con formato inválido." };
     }
   }
@@ -358,7 +360,7 @@ export async function generateConsentDocument(formData: FormData) {
       createdById: staffMemberId,
     });
   } catch (err) {
-    console.error("Generate consent document error:", err);
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
@@ -426,7 +428,8 @@ export async function deleteConsentDocument(id: string) {
     await db
       .delete(consentDocuments)
       .where(eq(consentDocuments.id, id));
-  } catch {
+  } catch (err) {
+    Sentry.captureException(err);
     return { error: "Ocurrió un error inesperado. Intenta de nuevo." };
   }
 
