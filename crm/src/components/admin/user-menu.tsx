@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggleMenuItem } from "@/components/admin/theme-toggle-menu-item";
 import type { StaffRole } from "@/db/schema";
 
 const ROLE_LABELS: Record<StaffRole, string> = {
@@ -53,6 +54,8 @@ export function UserMenu({
             )}
           </DropdownMenuLabel>
         </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <ThemeToggleMenuItem />
         <DropdownMenuSeparator />
         <form action={logout}>
           <button

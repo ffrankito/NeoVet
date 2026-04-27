@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { logout } from "@/app/login/actions";
 import { Button } from "@/components/ui/button";
+import { ThemeToggleButton } from "@/components/admin/theme-toggle-button";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
 import type { StaffRole } from "@/db/schema";
@@ -132,6 +133,9 @@ export function AppSidebar({ user, role }: { user: User; role: StaffRole | null 
         </nav>
         <div className="border-t border-sidebar-border p-4">
           <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+          <div className="mt-2">
+            <ThemeToggleButton />
+          </div>
           <form action={logout}>
             <Button type="submit" variant="ghost" size="sm" className="mt-2 w-full justify-start">
               Cerrar sesión

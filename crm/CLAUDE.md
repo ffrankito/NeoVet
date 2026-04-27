@@ -120,6 +120,7 @@ Internal staff tool for the NeoVet clinic. CRUD for clients (pet owners), patien
 ## Patterns to Follow
 
 - Use **shadcn/ui** primitives for all UI — do not install other component libraries
+- **shadcn registry uses `@base-ui/react`, not Radix UI.** Base UI is the successor library from the same team with a redesigned API. Key differences when porting Radix patterns: `Menu.Item` uses `onClick` (not `onSelect`); to keep a menu open after click, pass `closeOnClick={false}` (not `e.preventDefault()`). Check the type at `node_modules/@base-ui/react/esm/<component>/<name>/<Name>.d.ts` before assuming Radix prop names work.
 - Use **Drizzle ORM** for all DB operations — no raw SQL unless Drizzle cannot express it
 - **Server components by default** — use client components only when interactivity requires it
 - Protect all routes via Supabase SSR middleware
