@@ -65,7 +65,7 @@ Shipped MVP on 2026-04-22 across 11 commits (`bd12b70` … `f2ddbe3`). Webhook i
   - Uses AI SDK `generateText` (not `streamText` — WhatsApp isn't streaming)
   - `maxSteps: 10`, `maxTokens: 1024`
   - Injects the sender phone into the first user message so tools can auth against it
-  - L4 keyword list hardcoded here — **15 keywords** (expanded from the 12 documented in the root CLAUDE.md: added `ahogando`, `sin pulso`, plus accentless variants `convulsion`, `obstruccion`, `se esta muriendo`). See the L4-keyword-expansion task — Paula dictated more symptom patterns at the 2026-04-22 meeting that still need to be merged in.
+  - L4 keyword list hardcoded here — **~145 entries across 12 categories** (respiratorio, cianosis, hemorragia, obstrucción urinaria, trauma, intoxicación, neurológico, obstétricas, golpe de calor, vómito/diarrea graves, dolor severo, señales generales). Paula-confirmed via WhatsApp 2026-04-27. The categorized prose mirror lives in `src/lib/prompts/whatsapp-system.ts` ("Urgencias" section) — both must stay in sync by hand. The web widget (`src/lib/prompts/system.ts`) does NOT carry the list; the widget has no L4 fast-path and just routes emergencies to WhatsApp.
 - **Session layer:** [src/lib/whatsapp/session.ts](src/lib/whatsapp/session.ts)
   - `getOrCreateSession(phone)` — finds or creates a `bot_contact`, then finds an active conversation newer than 60 min or creates one, then loads message history
   - `saveMessage(conversationId, role, content)` — persists each turn
