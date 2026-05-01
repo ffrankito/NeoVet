@@ -279,6 +279,17 @@ postgresql://postgres.PROJECT_ID:PASSWORD@aws-X-us-east-1.pooler.supabase.com:54
 
 Note: Local networks may not support IPv6 (Supabase default). Use Session pooler (port 5432) for local dev if Transaction pooler (port 6543) times out.
 
+### Pre-commit hook (optional, local-only)
+
+A native git hook lives at `.git-hooks/pre-commit`. When `crm/src/db/schema/` files are staged, it runs `npm run db:erd:check` to verify the auto-generated ERD in your Obsidian vault is in sync with the schema.
+
+Install once per clone:
+```bash
+git config core.hooksPath .git-hooks
+```
+
+The hook silently skips on machines without the Obsidian vault (Franco's clone, CI, Vercel) — `db:erd:check` itself early-exits when `OBSIDIAN_VAULT_PATH` (or `~/ObsidianVaults/neovet`) is missing. Bypass for a single commit with `git commit --no-verify`.
+
 ---
 
 ## Documentation
@@ -294,3 +305,20 @@ Note: Local networks may not support IPv6 (Supabase default). Use Session pooler
 | `docs/Guia_Peluquero.md` | Groomer user guide |
 | `docs/Guia_Testeo_UAT.md` | UAT test scenarios |
 | `docs/Entrevista_Paula_V1_Demo.md` | Demo script for Paula meeting |
+
+### Architecture diagrams (Obsidian vault)
+
+System-level architecture documentation lives in the vault, **not** in the repo. The vault is the authoritative source for the C4 diagrams, the auto-generated ERD, and the cross-app sequence flows. Tomás owns the vault; Franco can read by cloning it.
+
+| Vault path | Contents |
+|---|---|
+| `wiki/architecture/overview.md` | C4 Context (L1) + Container (L2) — system shape, actors, external systems, container boundaries |
+| `wiki/architecture/erd.md` | Auto-generated ERD partitioned by domain (people / clinical / retail / bot). Regenerated via `cd crm && npm run db:erd`; drift-checked via `npm run db:erd:check` |
+| `wiki/architecture/components/crm.md` | C4 Component (L3) for the CRM internals |
+| `wiki/architecture/components/chatbot.md` | C4 Component (L3) for both chatbot channels |
+| `wiki/architecture/flows/l4-escalation.md` | Sequence diagrams: WhatsApp keyword fast-path vs web widget AI-driven path |
+| `wiki/architecture/flows/whatsapp-inbound.md` | Sequence diagram: full Kapso → webhook → agent → tools → CRM trace |
+
+Default vault location: `~/ObsidianVaults/neovet/`. Override with `OBSIDIAN_VAULT_PATH` env var.
+
+When you change something architectural (new external dependency, new API boundary, new top-level container), update the relevant vault file in the **same change** as the code. If you change the schema, the pre-commit hook will remind you to regenerate the ERD.

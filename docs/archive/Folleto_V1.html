@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVet — Versión 1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #1a1a2e;
+            background-color: #ffffff;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a2e;
+            padding: 3.5rem 2rem;
+            text-align: center;
+        }
+
+        .header-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-label {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #7c8aaa;
+            margin-bottom: 1.2rem;
+        }
+
+        .header h1 {
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.8rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #9ca3bf;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Section titles */
+        .section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #7c8aaa;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Before / After */
+        .comparison {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+
+        .column {
+            border-radius: 8px;
+            padding: 2.5rem;
+        }
+
+        .column-before {
+            background: #f7f7f9;
+            border: 1px solid #e8e8ee;
+        }
+
+        .column-after {
+            background: #1a1a2e;
+            color: #ffffff;
+        }
+
+        .column h2 {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .column-before h2 {
+            color: #999;
+        }
+
+        .column-after h2 {
+            color: #7c8aaa;
+        }
+
+        .comparison-item {
+            display: flex;
+            gap: 0.9rem;
+            margin-bottom: 1.3rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            align-items: flex-start;
+        }
+
+        .column-before .comparison-item {
+            color: #555;
+        }
+
+        .column-after .comparison-item {
+            color: #d0d5e3;
+        }
+
+        .icon-before {
+            color: #c4c4c4;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+
+        .icon-after {
+            color: #4ade80;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        /* Divider */
+        .divider {
+            max-width: 1100px;
+            margin: 0 auto;
+            height: 1px;
+            background: #e8e8ee;
+        }
+
+        /* Features section */
+        .features {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2rem;
+            border: 1px solid #e8e8ee;
+            border-radius: 8px;
+            background: #ffffff;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .feature-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 0.6rem;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .feature-tag {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.6rem;
+            border-radius: 3px;
+            margin-bottom: 0.8rem;
+        }
+
+        .tag-crm {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .tag-chatbot {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .tag-landing {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        /* Numbers section */
+        .numbers {
+            background: #f7f7f9;
+            padding: 3.5rem 2rem;
+            border-top: 1px solid #e8e8ee;
+            border-bottom: 1px solid #e8e8ee;
+        }
+
+        .numbers-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .number-item .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1.2;
+        }
+
+        .number-item .label {
+            font-size: 0.8rem;
+            color: #7c8aaa;
+            margin-top: 0.3rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1a1a2e;
+            color: #9ca3bf;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer p {
+            font-size: 0.85rem;
+            color: #7c8aaa;
+        }
+
+        .footer-date {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #2a2a40;
+            font-size: 0.75rem;
+            color: #555;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .numbers-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+
+            .header {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .column {
+                padding: 2rem;
+            }
+        }
+
+        @media print {
+            .header { padding: 2rem; }
+            .comparison { padding: 2rem; }
+            .features { padding: 2rem; }
+            body { font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <span class="header-label">NeoVet &mdash; Versi&oacute;n 1</span>
+            <h1>Tu cl&iacute;nica, sin GVet.<br>Desde el primer d&iacute;a.</h1>
+            <p>Un sistema propio para gestionar clientes, pacientes, turnos, historia cl&iacute;nica, internaciones, procedimientos, consentimientos, peluquer&iacute;a, pet shop, caja y deudores &mdash; con chatbot y p&aacute;gina web incluidos.</p>
+        </div>
+    </header>
+
+    <!-- Before / After -->
+    <section class="comparison">
+        <p class="section-title">Antes y despu&eacute;s</p>
+        <div class="comparison-grid">
+
+            <div class="column column-before">
+                <h2>Con GVet</h2>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Turnos duplicados entre GVet y una agenda externa</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Historia cl&iacute;nica dif&iacute;cil de buscar o incompleta</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Peluquer&iacute;a sin registro &mdash; precio estimado a ojo, hallazgos no documentados</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Pet shop y caja gestionados por separado</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Recordatorios manuales &mdash; depende de que alguien se acuerde</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Internaciones y procedimientos sin seguimiento digital &mdash; todo en papel o en la memoria</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Consentimientos escritos a mano &mdash; lento, propenso a errores, sin copia autom&aacute;tica</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Sin control de deudas &mdash; no sab&eacute;s qui&eacute;n debe cu&aacute;nto ni desde cu&aacute;ndo</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Sin presencia web profesional ni atenci&oacute;n autom&aacute;tica</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-before">&times;</span>
+                    <span>Sin roles &mdash; todos acceden a todo o no acceden a nada</span>
+                </div>
+            </div>
+
+            <div class="column column-after">
+                <h2>Con NeoVet v1</h2>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Calendario &uacute;nico con turnos, bloqueos de cirug&iacute;a y suspensi&oacute;n de agenda</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Historia cl&iacute;nica SOAP completa: signos vitales, tratamientos, vacunas, documentos</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>M&oacute;dulo de peluquer&iacute;a con fotos, hallazgos cl&iacute;nicos y niveles de dificultad</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Pet shop con control de stock y caja integrada con desglose por m&eacute;todo de pago</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Recordatorios autom&aacute;ticos por email: turnos (48h/24h), vacunas (7 d&iacute;as), seguimientos</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Internaciones con observaciones diarias (signos vitales + cl&iacute;nicas) y procedimientos con consumo de insumos</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Consentimientos en PDF generados en un clic &mdash; cirug&iacute;a, eutanasia, reproducci&oacute;n &mdash; con datos auto-llenados</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Panel de deudores con cargos autom&aacute;ticos por consulta, peluquer&iacute;a, venta y procedimiento</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>Landing page profesional + chatbot web que responde 24/7</span>
+                </div>
+                <div class="comparison-item">
+                    <span class="icon-after">&#10003;</span>
+                    <span>3 roles diferenciados: admin, veterinario, peluquero &mdash; cada uno ve lo suyo</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- Features -->
+    <section class="features">
+        <p class="section-title">Qu&eacute; incluye la versi&oacute;n 1</p>
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Clientes y pacientes</h3>
+                <p>Fichas completas con datos de contacto, mascotas asociadas, historial de turnos. 2.097 clientes y 2.291 pacientes migrados desde GVet.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Historia cl&iacute;nica</h3>
+                <p>Consultas SOAP con signos vitales, plan de tratamiento (medicamento, dosis, frecuencia), m&eacute;todos complementarios, vacunas, desparasitaciones y documentos adjuntos.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Turnos y calendario</h3>
+                <p>Vista semanal con colores por servicio. Bloqueos de cirug&iacute;a, suspensi&oacute;n de agenda, asignaci&oacute;n por profesional. Confirmaci&oacute;n, cancelaci&oacute;n con motivo, no-show.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Peluquer&iacute;a</h3>
+                <p>Perfil de grooming por paciente. Sesiones con fotos antes/despu&eacute;s, hallazgos cl&iacute;nicos, niveles de dificultad. Ingreso autom&aacute;tico en caja.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Pet shop y caja</h3>
+                <p>Cat&aacute;logo de productos con 9 categor&iacute;as, proveedores, entradas de stock, ventas con carrito. Caja diaria con apertura, cierre y desglose por m&eacute;todo de pago.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Recordatorios por email</h3>
+                <p>Autom&aacute;ticos: confirmaci&oacute;n al crear turno, 48h y 24h antes, vacunas 7 d&iacute;as antes, seguimiento post-consulta. Cancelaci&oacute;n notificada al cliente.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Internaciones y procedimientos</h3>
+                <p>Admisi&oacute;n con motivo y notas, observaciones diarias (peso, temperatura, FC, FR, alimentaci&oacute;n, medicaci&oacute;n). Procedimientos con cirujano, anestesi&oacute;logo y consumo de insumos del inventario.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Consentimientos en PDF</h3>
+                <p>Autorizaci&oacute;n de cirug&iacute;a, acta de eutanasia y acuerdo reproductivo. Datos del paciente, cliente y veterinario se llenan autom&aacute;ticamente. Un clic, un PDF listo para firmar.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Cargos y deudores</h3>
+                <p>Cargos autom&aacute;ticos por consulta, peluquer&iacute;a, venta y procedimiento. Pagos parciales y totales. Panel de deudores con saldo por cliente, ordenado por monto pendiente.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-chatbot">Chatbot</span>
+                <h3>Asistente web 24/7</h3>
+                <p>Responde preguntas frecuentes sin intervenci&oacute;n humana: horarios, servicios, ubicaci&oacute;n, precios. Activo las 24 horas, los 7 d&iacute;as.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-landing">Landing</span>
+                <h3>P&aacute;gina web profesional</h3>
+                <p>Servicios, equipo, ubicaci&oacute;n, horarios, rese&ntilde;as de Google en vivo, formulario de contacto. Responsive y optimizada para b&uacute;squedas.</p>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-tag tag-crm">CRM</span>
+                <h3>Roles y accesos</h3>
+                <p>Admin (acceso total), veterinario (cl&iacute;nica y pacientes), peluquero (grooming). Cada persona ve exactamente lo que necesita para trabajar.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Numbers -->
+    <section class="numbers">
+        <div class="numbers-container">
+            <div class="numbers-grid">
+                <div class="number-item">
+                    <div class="value">2.097</div>
+                    <div class="label">clientes migrados</div>
+                </div>
+                <div class="number-item">
+                    <div class="value">2.291</div>
+                    <div class="label">pacientes migrados</div>
+                </div>
+                <div class="number-item">
+                    <div class="value">~2.500</div>
+                    <div class="label">consultas importadas</div>
+                </div>
+                <div class="number-item">
+                    <div class="value">413</div>
+                    <div class="label">productos del pet shop</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-brand">NeoVet</p>
+            <p>Construido a medida para NeoVet Centro Veterinario.</p>
+            <p class="footer-date">Versi&oacute;n 1 &mdash; Abril 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+# Pre-commit hook for the NeoVet monorepo.
+#
+# What it does
+# ------------
+# When files in crm/src/db/schema/ are staged, runs `npm run db:erd:check`
+# to ensure the auto-generated ERD (in the Obsidian vault) was regenerated
+# alongside the schema change.
+#
+# Install (one-time, per clone):
+#   git config core.hooksPath .git-hooks
+#
+# Bypass for a single commit:
+#   git commit --no-verify
+#
+# Uninstall:
+#   git config --unset core.hooksPath
+#
+# Safe across machines
+# --------------------
+# `db:erd:check` itself silently skips when the Obsidian vault path doesn't
+# exist (e.g. on Franco's clone, on CI, on Vercel). So this hook only fires
+# meaningfully on machines that have the vault — i.e. yours.
+
+set -e
+
+schema_changes=$(git diff --cached --name-only | grep '^crm/src/db/schema/' || true)
+if [ -z "$schema_changes" ]; then
+  exit 0
+fi
+
+echo "[pre-commit] crm/src/db/schema/ changed — running ERD drift check…"
+if ! (cd crm && npm run db:erd:check); then
+  echo ""
+  echo "❌ Schema changed but the ERD in your Obsidian vault is stale."
+  echo "   Fix:    cd crm && npm run db:erd"
+  echo "   Then:   commit the regenerated vault file in the vault repo."
+  echo ""
+  echo "   To bypass this hook just for this commit:  git commit --no-verify"
+  echo ""
+  exit 1
+fi

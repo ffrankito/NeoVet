@@ -89,15 +89,12 @@ Defined in `src/styles/global.css` using Tailwind 4 `@theme`:
 
 **Redesign v2 complete (2026-04-04).** BakerStreet-inspired hero, USP cards, contact form, scroll animations, mobile-optimized layouts. Deployed to production.
 
-**Phase 4 (content swap) is BLOCKED** on the Paula interview. See `docs/paula-interview-checklist.md` for all gaps.
+**Open work is tracked in the lint, not here.** See `wiki/lint/2026-04-21-landing-audit.md` in the project Obsidian vault (vault location documented in the root `CLAUDE.md`). Re-verified 2026-04-30 — most code-side fixes shipped in the 2026-04-21 session. What remains:
 
-When Phase 4 starts:
-1. Drop assets in `src/assets/` (see `src/assets/README.md`)
-2. Replace placeholder text in components (search for `<!-- PLACEHOLDER:`)
-3. Regenerate favicons/OG images with real logo via web-asset-generator
-4. Replace Google Reviews placeholder URL in `Reviews.astro`
-5. Wire contact form to a backend (Formspree, Resend, or WhatsApp deep link)
-6. Validate and deploy
+- **9 Paula-gated items** — real Google Reviews URL, Facebook URL confirmation, hours sign-off, real logo SVG (+ favicons regen), contact-form backend choice, WhatsApp QR, domain, photo/video gallery assets.
+- **4 code-side items** (unblocked) — ServiceCard gradient still hardcoded hex, Navbar mobile shows 0 nav links, missing *análisis de sangre* service entry, Hero `alt=""`.
+
+Don't duplicate the open-items list here when working on it — update the lint file directly so there's one source of truth.
 
 ---
 

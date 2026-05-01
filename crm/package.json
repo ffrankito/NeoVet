@@ -12,7 +12,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed:services": "npx tsx src/db/seed/services.ts"
+    "db:seed:services": "npx tsx src/db/seed/services.ts",
+    "db:erd": "npx tsx scripts/generate-erd.ts",
+    "db:erd:check": "npx tsx scripts/generate-erd.ts --check"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
